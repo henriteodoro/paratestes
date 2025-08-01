@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAC 77 - Organizador de Lista</title>
+  <style>
+    body {
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    .container {
+      display: flex;
+      gap: 40px;
+    }
+    table {
+      border-collapse: collapse;
+    }
+    td, th {
+      border: 1px solid #ccc;
+      padding: 5px 10px;
+    }
+    textarea {
+      width: 300px;
+      height: 400px;
+      font-family: monospace;
+      padding: 10px;
+    }
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #contador {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Organizador MAC 77</h1>
+  <div class="container">
+    <div>
+      <h3>Entrada (Código, Produto)</h3>
+      <textarea id="input" placeholder="33918, PÃO DE QUEIJO..."></textarea>
+    </div>
+    <div>
+      <h3>Saída Ordenada</h3>
+      <textarea id="output" readonly></textarea>
+      <div id="contador">Total de linhas: 0</div>
+    </div>
+  </div>
+  <div>
+    <button onclick="organizar()">Organizar</button>
+    <button onclick="limparVazios()">Remover Linhas em Branco</button>
+    <button onclick="limparTudo()">Limpar Tudo</button>
+  </div>
+
+  <script>
+    function organizar() {
+      const input = document.getElementById("input").value;
+      const linhas = input.split("\n").filter(l => l.trim() !== "");
+
+      const dados = linhas.map(linha => {
+        const partes = linha.split(/,\s*/);
+        return {
+          codigo: partes[0] || "",
+          produto: partes.slice(1).join(", ") || ""
+        };
+      });
+
+      dados.sort((a, b) => a.produto.localeCompare(b.produto, 'pt', { sensitivity: 'base' }));
+
+      const saida = dados.map(d => `${d.codigo}, ${d.produto}`).join("\n");
+      document.getElementById("output").value = saida;
+      document.getElementById("contador").innerText = `Total de linhas: ${dados.length}`;
+    }
+
+    function limparVazios() {
+      const input = document.getElementById("input");
+      input.value = input.value.split("\n").filter(l => l.trim() !== "").join("\n");
+    }
+
+    function limparTudo() {
+      document.getElementById("input").value = "";
+      document.getElementById("output").value = "";
+      document.getElementById("contador").innerText = "Total de linhas: 0";
+    }
+  </script>
+</body>
+</html>

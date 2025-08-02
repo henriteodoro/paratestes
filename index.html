@@ -61,6 +61,7 @@
     <!-- Botões -->
     <div id="middle-controls">
       <button onclick="transferir()">→</button>
+      <button onclick="removerVazios()">Remover Linhas Vazias</button>
     </div>
 
     <!-- Coluna Direita -->
@@ -69,38 +70,38 @@
 
   <script>
     const frasesEsquerda = [
-      "PÃO DE QUEIJO RECHEADO FRANGO  PAC7KG", //1
-      "PÃO DE QUEIJO  7KG", //2
-      "PÃO FRANCÊS 6HRS PAC 7KG", //3
-      "PÃO DE 4 HRS  7KG", //4
-      "BAGUETE 6  HRS  7KG", //5
-      "BISCOITO DOCE FRITO MP 1 KG", //6
-      "BISCOITO DE QUEIJO MP 7 KG", //7
-      "BISCOITO SEQUILHO MP MANGA", //8
-      "BISCOITO TRÊS QUEIJOS MP 7 KG", //9
-      "BOLO FUBA CREMOSO MP 1 UNIDADE", //10
-      "BOLO MILHO MP 1 UNIDADE", //11
-      "BROINHA DE FUBA DOCE MP 7 KG", //12
-      "BROINHA BACON TEMPERADA MP 7 KG", //13
-      "CROISSANT DE FRANGO MP 7 KG", //14
-      "CROISSANT DE PRESUNTO MP 7KG", //15
-      "PÃO DE QUEIJO MEIA LUA MP PAC COM 10 UNI", //16
-      "PÃO DOCE C/CREME MP 7KG", //17
-      "PÃO DOCE MP 7KG", //18
-      "PÃO PANHOCA MP 7KG", //19
-      "ROSCOVADO MP UNIDADE", //20
-      "ROSCA CREME E COCO MP PAC COM 5 UNI", //21
-      "ROSCA TRANCA MP PAC COM 10 UNID", //22
-      "ROSCA TRANCINHA MP PAC 3KG", //23
-      "ROSCA TRANCA REDONDA MP", //24
-      "ROSQUINHA CANUDINHO DE QUEIJO MP PAC COM 7KG", //25
-      "SALGADO COXINHA DE FRANGO MP 1 KG", //26
-      "SALGADOS BOLINHA DE CARNE MP 1KG", //27
-      "SALGADOS EMPADA DE FRANGO MP 1 KG", //28
-      "SALGADOS ENROLADINHO PRESUNTO MP 1 KG", //29
-      "SALGADOS PASTEL CATUPIRY MP 1 KG", //30
-      "SALGADOS KIBE CATUPIRY MP 1 KG", //31
-      "SONHO MP PAC 3 KG" //32
+      "PÃO DE QUEIJO RECHEADO FRANGO  PAC7KG",
+      "PÃO DE QUEIJO  7KG",
+      "PÃO FRANCÊS 6HRS PAC 7KG",
+      "PÃO DE 4 HRS  7KG",
+      "BAGUETE 6  HRS  7KG",
+      "BISCOITO DOCE FRITO MP 1 KG",
+      "BISCOITO DE QUEIJO MP 7 KG",
+      "BISCOITO SEQUILHO MP MANGA",
+      "BISCOITO TRÊS QUEIJOS MP 7 KG",
+      "BOLO FUBA CREMOSO MP 1 UNIDADE",
+      "BOLO MILHO MP 1 UNIDADE",
+      "BROINHA DE FUBA DOCE MP 7 KG",
+      "BROINHA BACON TEMPERADA MP 7 KG",
+      "CROISSANT DE FRANGO MP 7 KG",
+      "CROISSANT DE PRESUNTO MP 7KG",
+      "PÃO DE QUEIJO MEIA LUA MP PAC COM 10 UNI",
+      "PÃO DOCE C/CREME MP 7KG",
+      "PÃO DOCE MP 7KG",
+      "PÃO PANHOCA MP 7KG",
+      "ROSCOVADO MP UNIDADE",
+      "ROSCA CREME E COCO MP PAC COM 5 UNI",
+      "ROSCA TRANCA MP PAC COM 10 UNID",
+      "ROSCA TRANCINHA MP PAC 3KG",
+      "ROSCA TRANCA REDONDA MP",
+      "ROSQUINHA CANUDINHO DE QUEIJO MP PAC COM 7KG",
+      "SALGADO COXINHA DE FRANGO MP 1 KG",
+      "SALGADOS BOLINHA DE CARNE MP 1KG",
+      "SALGADOS EMPADA DE FRANGO MP 1 KG",
+      "SALGADOS ENROLADINHO PRESUNTO MP 1 KG",
+      "SALGADOS PASTEL CATUPIRY MP 1 KG",
+      "SALGADOS KIBE CATUPIRY MP 1 KG",
+      "SONHO MP PAC 3 KG"
     ];
 
     const frasesDireita = [
@@ -187,6 +188,18 @@
       mapaConexao.forEach((origem, destino) => {
         const valor = inputs[origem - 1].value.trim();
         outputs[destino].value = valor;
+      });
+    }
+
+    function removerVazios() {
+      const colDir = document.getElementById("coluna-direita");
+      const items = colDir.querySelectorAll(".item");
+
+      items.forEach(item => {
+        const input = item.querySelector("input[type='text']");
+        if (input && input.value.trim() === "") {
+          item.style.display = "none";
+        }
       });
     }
 

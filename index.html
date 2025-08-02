@@ -19,16 +19,9 @@
       display: flex;
       gap: 40px;
     }
-    table {
-      border-collapse: collapse;
-    }
-    td, th {
-      border: 1px solid #ccc;
-      padding: 5px 10px;
-    }
     textarea {
-      width: 300px;
-      height: 400px;
+      width: 350px;
+      height: 500px;
       font-family: monospace;
       padding: 10px;
     }
@@ -48,8 +41,39 @@
   <h1>Organizador MAC 77</h1>
   <div class="container">
     <div>
-      <h3>Entrada (Código, Produto)</h3>
-      <textarea id="input" placeholder="33918, PÃO DE QUEIJO..."></textarea>
+      <h3>Entrada (Produtos)</h3>
+      <textarea id="input">PÃO DE QUEIJO RECHEADO FRANGO  PAC7KG
+PÃO DE QUEIJO  7KG
+PÃO FRANCÊS 6HRS PAC 7KG
+PÃO DE 4 HRS  7KG
+BAGUETE 6  HRS  7KG
+BISCOITO DOCE FRITO MP 1 KG
+BISCOITO DE QUEIJO MP 7 KG
+BISCOITO SEQUILHO MP MANGA
+BISCOITO TRÊS QUEIJOS MP 7 KG
+BOLO FUBA CREMOSO MP 1 UNIDADE
+BOLO MILHO MP 1 UNIDADE
+BROINHA DE FUBA DOCE MP 7 KG
+BROINHA BACON TEMPERADA MP 7 KG
+CROISSANT DE FRANGO MP 7 KG
+CROISSANT DE PRESUNTO MP 7KG
+PÃO DE QUEIJO MEIA LUA MP PAC COM 10 UNI
+PÃO DOCE C/CREME MP 7KG
+PÃO DOCE MP 7KG
+PÃO PANHOCA MP 7KG
+ROSCOVADO MP UNIDADE
+ROSCA CREME E COCO MP PAC COM 5 UNI
+ROSCA TRANCA MP PAC COM 10 UNID
+ROSCA TRANCINHA MP PAC 3KG
+ROSCA TRANCA REDONDA MP
+ROSQUINHA CANUDINHO DE QUEIJO MP PAC COM 7KG
+SALGADO COXINHA DE FRANGO MP 1 KG
+SALGADOS BOLINHA DE CARNE MP 1KG
+SALGADOS EMPADA DE FRANGO MP 1 KG
+SALGADOS ENROLADINHO PRESUNTO MP 1 KG
+SALGADOS PASTEL CATUPIRY MP 1 KG
+SALGADOS KIBE CATUPIRY MP 1 KG
+SONHO MP PAC 3 KG</textarea>
     </div>
     <div>
       <h3>Saída Ordenada</h3>
@@ -59,33 +83,28 @@
   </div>
   <div>
     <button onclick="organizar()">Organizar</button>
-    <button onclick="limparVazios()">Remover Linhas em Branco</button>
     <button onclick="limparTudo()">Limpar Tudo</button>
   </div>
 
   <script>
+    const ordemDireita = [
+      5, 6, 7, 9, 27, 10, 11, 12, 13, 25, 17, 18, 26, 14, 15, 28, 29, 16, 8, 19,
+      1, 2, 4, 3, 30, 31, 21, 20, 32, 22, 23, 24
+    ];
+
     function organizar() {
-      const input = document.getElementById("input").value;
-      const linhas = input.split("\n").filter(l => l.trim() !== "");
+      const inputLinhas = document.getElementById("input").value
+        .split("\n")
+        .map(l => l.trim())
+        .filter(l => l !== "");
 
-      const dados = linhas.map(linha => {
-        const partes = linha.split(/,\s*/);
-        return {
-          codigo: partes[0] || "",
-          produto: partes.slice(1).join(", ") || ""
-        };
-      });
+      const resultado = ordemDireita.map(index => {
+        const item = inputLinhas[index - 1];
+        return item ? `${item} (${index})` : "";
+      }).filter(l => l);
 
-      dados.sort((a, b) => a.produto.localeCompare(b.produto, 'pt', { sensitivity: 'base' }));
-
-      const saida = dados.map(d => `${d.codigo}, ${d.produto}`).join("\n");
-      document.getElementById("output").value = saida;
-      document.getElementById("contador").innerText = `Total de linhas: ${dados.length}`;
-    }
-
-    function limparVazios() {
-      const input = document.getElementById("input");
-      input.value = input.value.split("\n").filter(l => l.trim() !== "").join("\n");
+      document.getElementById("output").value = resultado.join("\n");
+      document.getElementById("contador").innerText = `Total de linhas: ${resultado.length}`;
     }
 
     function limparTudo() {

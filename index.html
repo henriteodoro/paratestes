@@ -103,40 +103,14 @@
       "SONHO MP PAC 3 KG"
     ];
 
-    const frasesDireita = [
-      "Baguete 06hrs 7kg",
-      "Biscoitinho doce frito 1kg",
-      "Biscoito de queijo 7kg",
-      "Biscoito três queijos 7kg",
-      "Bolinha de carne pequena 1kg",
-      "Bolo cremoso de fubá 1 unidade",
-      "Bolo cremoso de milho 1 unidade",
-      "Broinha de fubá doce 7kg",
-      "Broinha temperada com bacon 7kg",
-      "Canudinho de queijo 7kg",
-      "Caracol 7kg",
-      "Carioca 7kg",
-      "Coxinha de frango pequena 1kg",
-      "Croissant de frango 7kg",
-      "Croissant de presunto 7kg",
-      "Empadinha de frango pequena 1kg",
-      "Enroladinho de presunto pequeno 1kg",
-      "Meia lua 1kg com 10 unidades",
-      "Mistura biscoito sequilho 4kg",
-      "Panhoca 7kg",
-      "Pão de queijo recheado frango 7kg",
-      "Pão de queijo tradicional 7kg",
-      "Pão francês 04hrs 7kg",
-      "Pão francês 06hrs 7kg",
-      "Pastelzinho catupiry pequeno 1kg",
-      "Quibe com catupiry pequeno 1kg",
-      "Rosca creme e coco PCT 5 unidades",
-      "Roscovado 1 unidade",
-      "Sonho PCT 3kg",
-      "Trança PCT 10 unidades",
-      "Trancinha PCT 3kg",
-      "Trancinha redonda"
+    const frasesDireita = Array(32).fill("");
+    const mapaConexao = [
+      21, 22, 24, 23, 1, 2, 3, 19, 4, 6, 7, 8, 9, 14, 15, 18, 11, 12, 20, 28, 27, 30, 31, 32, 10, 13, 5, 16, 17, 25, 26, 29
     ];
+
+    mapaConexao.forEach((idxEsquerda, i) => {
+      frasesDireita[i] = frasesEsquerda[idxEsquerda - 1];
+    });
 
     function montarInterface() {
       const colEsq = document.getElementById("coluna-esquerda");
@@ -182,16 +156,9 @@
       const inputs = document.querySelectorAll("#coluna-esquerda input");
       const outputs = document.querySelectorAll("#coluna-direita input");
 
-      inputs.forEach((input, i) => {
-        const valor = input.value.trim();
-        if (valor) {
-          const index = frasesDireita.findIndex((_, j) => j === i);
-          if (index !== -1) {
-            outputs[index].value = valor;
-          }
-        } else {
-          outputs[i].value = "";
-        }
+      mapaConexao.forEach((origem, destino) => {
+        const valor = inputs[origem - 1].value.trim();
+        outputs[destino].value = valor;
       });
     }
 

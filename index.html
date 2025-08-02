@@ -17,101 +17,185 @@
     }
     .container {
       display: flex;
-      gap: 40px;
+      gap: 60px;
+      align-items: flex-start;
     }
-    textarea {
-      width: 350px;
-      height: 500px;
+    .column {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .item input[type="text"] {
+      width: 40px;
+      padding: 4px;
       font-family: monospace;
-      padding: 10px;
+      text-align: center;
+    }
+    .item span {
+      flex: 1;
+    }
+    #middle-controls {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10px;
     }
     button {
-      margin: 10px;
       padding: 10px 20px;
-      font-size: 16px;
+      font-size: 14px;
       cursor: pointer;
-    }
-    #contador {
-      margin-top: 10px;
-      font-weight: bold;
     }
   </style>
 </head>
 <body>
   <h1>Organizador MAC 77</h1>
   <div class="container">
-    <div>
-      <h3>Entrada (Produtos)</h3>
-      <textarea id="input">PÃO DE QUEIJO RECHEADO FRANGO  PAC7KG
-PÃO DE QUEIJO  7KG
-PÃO FRANCÊS 6HRS PAC 7KG
-PÃO DE 4 HRS  7KG
-BAGUETE 6  HRS  7KG
-BISCOITO DOCE FRITO MP 1 KG
-BISCOITO DE QUEIJO MP 7 KG
-BISCOITO SEQUILHO MP MANGA
-BISCOITO TRÊS QUEIJOS MP 7 KG
-BOLO FUBA CREMOSO MP 1 UNIDADE
-BOLO MILHO MP 1 UNIDADE
-BROINHA DE FUBA DOCE MP 7 KG
-BROINHA BACON TEMPERADA MP 7 KG
-CROISSANT DE FRANGO MP 7 KG
-CROISSANT DE PRESUNTO MP 7KG
-PÃO DE QUEIJO MEIA LUA MP PAC COM 10 UNI
-PÃO DOCE C/CREME MP 7KG
-PÃO DOCE MP 7KG
-PÃO PANHOCA MP 7KG
-ROSCOVADO MP UNIDADE
-ROSCA CREME E COCO MP PAC COM 5 UNI
-ROSCA TRANCA MP PAC COM 10 UNID
-ROSCA TRANCINHA MP PAC 3KG
-ROSCA TRANCA REDONDA MP
-ROSQUINHA CANUDINHO DE QUEIJO MP PAC COM 7KG
-SALGADO COXINHA DE FRANGO MP 1 KG
-SALGADOS BOLINHA DE CARNE MP 1KG
-SALGADOS EMPADA DE FRANGO MP 1 KG
-SALGADOS ENROLADINHO PRESUNTO MP 1 KG
-SALGADOS PASTEL CATUPIRY MP 1 KG
-SALGADOS KIBE CATUPIRY MP 1 KG
-SONHO MP PAC 3 KG</textarea>
+    <!-- Coluna Esquerda -->
+    <div class="column" id="coluna-esquerda"></div>
+
+    <!-- Botões -->
+    <div id="middle-controls">
+      <button onclick="transferir()">→</button>
     </div>
-    <div>
-      <h3>Saída Ordenada</h3>
-      <textarea id="output" readonly></textarea>
-      <div id="contador">Total de linhas: 0</div>
-    </div>
-  </div>
-  <div>
-    <button onclick="organizar()">Organizar</button>
-    <button onclick="limparTudo()">Limpar Tudo</button>
+
+    <!-- Coluna Direita -->
+    <div class="column" id="coluna-direita"></div>
   </div>
 
   <script>
-    const ordemDireita = [
-      5, 6, 7, 9, 27, 10, 11, 12, 13, 25, 17, 18, 26, 14, 15, 28, 29, 16, 8, 19,
-      1, 2, 4, 3, 30, 31, 21, 20, 32, 22, 23, 24
+    const frasesEsquerda = [
+      "PÃO DE QUEIJO RECHEADO FRANGO  PAC7KG",
+      "PÃO DE QUEIJO  7KG",
+      "PÃO FRANCÊS 6HRS PAC 7KG",
+      "PÃO DE 4 HRS  7KG",
+      "BAGUETE 6  HRS  7KG",
+      "BISCOITO DOCE FRITO MP 1 KG",
+      "BISCOITO DE QUEIJO MP 7 KG",
+      "BISCOITO SEQUILHO MP MANGA",
+      "BISCOITO TRÊS QUEIJOS MP 7 KG",
+      "BOLO FUBA CREMOSO MP 1 UNIDADE",
+      "BOLO MILHO MP 1 UNIDADE",
+      "BROINHA DE FUBA DOCE MP 7 KG",
+      "BROINHA BACON TEMPERADA MP 7 KG",
+      "CROISSANT DE FRANGO MP 7 KG",
+      "CROISSANT DE PRESUNTO MP 7KG",
+      "PÃO DE QUEIJO MEIA LUA MP PAC COM 10 UNI",
+      "PÃO DOCE C/CREME MP 7KG",
+      "PÃO DOCE MP 7KG",
+      "PÃO PANHOCA MP 7KG",
+      "ROSCOVADO MP UNIDADE",
+      "ROSCA CREME E COCO MP PAC COM 5 UNI",
+      "ROSCA TRANCA MP PAC COM 10 UNID",
+      "ROSCA TRANCINHA MP PAC 3KG",
+      "ROSCA TRANCA REDONDA MP",
+      "ROSQUINHA CANUDINHO DE QUEIJO MP PAC COM 7KG",
+      "SALGADO COXINHA DE FRANGO MP 1 KG",
+      "SALGADOS BOLINHA DE CARNE MP 1KG",
+      "SALGADOS EMPADA DE FRANGO MP 1 KG",
+      "SALGADOS ENROLADINHO PRESUNTO MP 1 KG",
+      "SALGADOS PASTEL CATUPIRY MP 1 KG",
+      "SALGADOS KIBE CATUPIRY MP 1 KG",
+      "SONHO MP PAC 3 KG"
     ];
 
-    function organizar() {
-      const inputLinhas = document.getElementById("input").value
-        .split("\n")
-        .map(l => l.trim())
-        .filter(l => l !== "");
+    const frasesDireita = [
+      "Baguete 06hrs 7kg",
+      "Biscoitinho doce frito 1kg",
+      "Biscoito de queijo 7kg",
+      "Biscoito três queijos 7kg",
+      "Bolinha de carne pequena 1kg",
+      "Bolo cremoso de fubá 1 unidade",
+      "Bolo cremoso de milho 1 unidade",
+      "Broinha de fubá doce 7kg",
+      "Broinha temperada com bacon 7kg",
+      "Canudinho de queijo 7kg",
+      "Caracol 7kg",
+      "Carioca 7kg",
+      "Coxinha de frango pequena 1kg",
+      "Croissant de frango 7kg",
+      "Croissant de presunto 7kg",
+      "Empadinha de frango pequena 1kg",
+      "Enroladinho de presunto pequeno 1kg",
+      "Meia lua 1kg com 10 unidades",
+      "Mistura biscoito sequilho 4kg",
+      "Panhoca 7kg",
+      "Pão de queijo recheado frango 7kg",
+      "Pão de queijo tradicional 7kg",
+      "Pão francês 04hrs 7kg",
+      "Pão francês 06hrs 7kg",
+      "Pastelzinho catupiry pequeno 1kg",
+      "Quibe com catupiry pequeno 1kg",
+      "Rosca creme e coco PCT 5 unidades",
+      "Roscovado 1 unidade",
+      "Sonho PCT 3kg",
+      "Trança PCT 10 unidades",
+      "Trancinha PCT 3kg",
+      "Trancinha redonda"
+    ];
 
-      const resultado = ordemDireita.map(index => {
-        const item = inputLinhas[index - 1];
-        return item ? `${item} (${index})` : "";
-      }).filter(l => l);
+    function montarInterface() {
+      const colEsq = document.getElementById("coluna-esquerda");
+      const colDir = document.getElementById("coluna-direita");
+      colEsq.innerHTML = "";
+      colDir.innerHTML = "";
 
-      document.getElementById("output").value = resultado.join("\n");
-      document.getElementById("contador").innerText = `Total de linhas: ${resultado.length}`;
+      frasesEsquerda.forEach((frase, i) => {
+        const item = document.createElement("div");
+        item.className = "item";
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.dataset.index = i;
+
+        const label = document.createElement("span");
+        label.textContent = frase;
+
+        item.appendChild(label);
+        item.appendChild(input);
+        colEsq.appendChild(item);
+      });
+
+      frasesDireita.forEach((frase, i) => {
+        const item = document.createElement("div");
+        item.className = "item";
+
+        const label = document.createElement("span");
+        label.textContent = frase;
+
+        const output = document.createElement("input");
+        output.type = "text";
+        output.readOnly = true;
+        output.dataset.index = i;
+
+        item.appendChild(label);
+        item.appendChild(output);
+        colDir.appendChild(item);
+      });
     }
 
-    function limparTudo() {
-      document.getElementById("input").value = "";
-      document.getElementById("output").value = "";
-      document.getElementById("contador").innerText = "Total de linhas: 0";
+    function transferir() {
+      const inputs = document.querySelectorAll("#coluna-esquerda input");
+      const outputs = document.querySelectorAll("#coluna-direita input");
+
+      inputs.forEach((input, i) => {
+        const valor = input.value.trim();
+        if (valor) {
+          const index = frasesDireita.findIndex((_, j) => j === i);
+          if (index !== -1) {
+            outputs[index].value = valor;
+          }
+        } else {
+          outputs[i].value = "";
+        }
+      });
     }
+
+    montarInterface();
   </script>
 </body>
 </html>

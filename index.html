@@ -79,18 +79,16 @@
       <button onclick="alert('Menu inicial')">🏠</button>
     </div>
     <div class="menu-right">
-      <button onclick="alert('Salvar (em breve)')">💾</button>
-      <button onclick="alert('Imprimir (em breve)')">🖨️</button>
+      <button onclick="salvarComoPDF()">💾</button>
+      <button onclick="window.print()">🖨️</button>
     </div>
   </header>
 
   <h1>Organizador MAC 77</h1>
 
   <div class="container">
-    <!-- Coluna Esquerda -->
     <div class="column" id="coluna-esquerda"></div>
 
-    <!-- Botões -->
     <div id="middle-controls">
       <button onclick="transferir()">→</button>
       <button onclick="removerVazios()">Remover Linhas Vazias</button>
@@ -98,10 +96,10 @@
       <button onclick="copiarDireita()">Copiar Linhas da Direita</button>
     </div>
 
-    <!-- Coluna Direita -->
     <div class="column" id="coluna-direita"></div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
     const frasesEsquerda = [
       "PÃO DE QUEIJO RECHEADO FRANGO  PAC7KG",
@@ -173,7 +171,9 @@
       "Trancinha redonda"
     ];
 
-    const mapaConexao = [5, 6, 7, 9, 27, 10, 11, 12, 13, 25, 17, 18, 26, 14, 15, 28, 29, 16, 8, 19, 1, 2, 4, 3, 30, 31, 21, 20, 32, 22, 23, 24];
+    const mapaConexao = [5,6,7,9,27,10,11,12,13,25,17,18,26,14,15,28,29,16,8,19,1,2,4,3,30,31,21,20,32,22,23,24];
+
+    let backups = [];
 
     function montarInterface() {
       const colEsq = document.getElementById("coluna-esquerda");
@@ -228,22 +228,20 @@
     function removerVazios() {
       const colDir = document.getElementById("coluna-direita");
       const items = colDir.querySelectorAll(".item");
+      backups = [];
 
       items.forEach(item => {
         const input = item.querySelector("input[type='text']");
         if (input && input.value.trim() === "") {
+          backups.push(item);
           item.style.display = "none";
         }
       });
     }
 
     function restaurarLinhas() {
-      const colDir = document.getElementById("coluna-direita");
-      const items = colDir.querySelectorAll(".item");
-
-      items.forEach(item => {
-        item.style.display = "flex";
-      });
+      backups.forEach(item => item.style.display = "flex");
+      backups = [];
     }
 
     function copiarDireita() {
@@ -261,6 +259,25 @@
       navigator.clipboard.writeText(textoFinal)
         .then(() => alert("Linhas copiadas para a área de transferência!"))
         .catch(err => alert("Erro ao copiar: " + err));
+    }
+
+    async function salvarComoPDF() {
+      const {{ jsPDF }} = window.jspdf;
+      const doc = new jsPDF();
+      const outputs = document.querySelectorAll("#coluna-direita input");
+      let y = 10;
+
+      doc.setFont("courier");
+
+      outputs.forEach((output, i) => {
+        if (output.value.trim() !== "") {
+          const label = output.parentElement.querySelector("span").textContent;
+          doc.text(`${label}: ${output.value}`, 10, y);
+          y += 8;
+        }
+      });
+
+      doc.save("organizador_mac77.pdf");
     }
 
     montarInterface();

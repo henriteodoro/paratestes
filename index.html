@@ -7,18 +7,32 @@
   <style>
     body {
       font-family: monospace;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       margin: 20px;
     }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .top-left, .top-right {
+      display: flex;
+      gap: 10px;
+    }
+    .top-left button, .top-right button {
+      font-size: 18px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
     h1 {
+      text-align: center;
       margin-bottom: 10px;
     }
     .container {
       display: flex;
       gap: 60px;
       align-items: flex-start;
+      justify-content: center;
     }
     .column {
       display: flex;
@@ -50,96 +64,73 @@
       font-size: 14px;
       cursor: pointer;
     }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printable {
+        visibility: visible;
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Organizador MAC 77</h1>
+  <header>
+    <div class="top-left">
+      <button onclick="alert('Ir para menu (futuro)')">☰ Menu</button>
+      <button onclick="alert('Fechar (futuro)')">✕</button>
+    </div>
+    <h1>Organizador MAC 77</h1>
+    <div class="top-right">
+      <button onclick="salvarPDF()">💾</button>
+      <button onclick="window.print()">🖨️</button>
+    </div>
+  </header>
+
   <div class="container">
-    <!-- Coluna Esquerda -->
     <div class="column" id="coluna-esquerda"></div>
 
-    <!-- Botões -->
     <div id="middle-controls">
       <button onclick="transferir()">→</button>
-      <button onclick="removerVazios()">Remover Linhas Vazias</button>
+      <button onclick="limparBrancos()">Limpar em branco</button>
+      <button onclick="copiarDireita()">Copiar direita</button>
     </div>
 
-    <!-- Coluna Direita -->
     <div class="column" id="coluna-direita"></div>
   </div>
 
+  <div id="printable" style="display:none;"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
     const frasesEsquerda = [
-      "PÃO DE QUEIJO RECHEADO FRANGO  PAC7KG",
-      "PÃO DE QUEIJO  7KG",
-      "PÃO FRANCÊS 6HRS PAC 7KG",
-      "PÃO DE 4 HRS  7KG",
-      "BAGUETE 6  HRS  7KG",
-      "BISCOITO DOCE FRITO MP 1 KG",
-      "BISCOITO DE QUEIJO MP 7 KG",
-      "BISCOITO SEQUILHO MP MANGA",
-      "BISCOITO TRÊS QUEIJOS MP 7 KG",
-      "BOLO FUBA CREMOSO MP 1 UNIDADE",
-      "BOLO MILHO MP 1 UNIDADE",
-      "BROINHA DE FUBA DOCE MP 7 KG",
-      "BROINHA BACON TEMPERADA MP 7 KG",
-      "CROISSANT DE FRANGO MP 7 KG",
-      "CROISSANT DE PRESUNTO MP 7KG",
-      "PÃO DE QUEIJO MEIA LUA MP PAC COM 10 UNI",
-      "PÃO DOCE C/CREME MP 7KG",
-      "PÃO DOCE MP 7KG",
-      "PÃO PANHOCA MP 7KG",
-      "ROSCOVADO MP UNIDADE",
-      "ROSCA CREME E COCO MP PAC COM 5 UNI",
-      "ROSCA TRANCA MP PAC COM 10 UNID",
-      "ROSCA TRANCINHA MP PAC 3KG",
-      "ROSCA TRANCA REDONDA MP",
-      "ROSQUINHA CANUDINHO DE QUEIJO MP PAC COM 7KG",
-      "SALGADO COXINHA DE FRANGO MP 1 KG",
-      "SALGADOS BOLINHA DE CARNE MP 1KG",
-      "SALGADOS EMPADA DE FRANGO MP 1 KG",
-      "SALGADOS ENROLADINHO PRESUNTO MP 1 KG",
-      "SALGADOS PASTEL CATUPIRY MP 1 KG",
-      "SALGADOS KIBE CATUPIRY MP 1 KG",
-      "SONHO MP PAC 3 KG"
+      "PÃO DE QUEIJO RECHEADO FRANGO  PAC7KG", "PÃO DE QUEIJO  7KG", "PÃO FRANCÊS 6HRS PAC 7KG", "PÃO DE 4 HRS  7KG",
+      "BAGUETE 6  HRS  7KG", "BISCOITO DOCE FRITO MP 1 KG", "BISCOITO DE QUEIJO MP 7 KG", "BISCOITO SEQUILHO MP MANGA",
+      "BISCOITO TRÊS QUEIJOS MP 7 KG", "BOLO FUBA CREMOSO MP 1 UNIDADE", "BOLO MILHO MP 1 UNIDADE", "BROINHA DE FUBA DOCE MP 7 KG",
+      "BROINHA BACON TEMPERADA MP 7 KG", "CROISSANT DE FRANGO MP 7 KG", "CROISSANT DE PRESUNTO MP 7KG", "PÃO DE QUEIJO MEIA LUA MP PAC COM 10 UNI",
+      "PÃO DOCE C/CREME MP 7KG", "PÃO DOCE MP 7KG", "PÃO PANHOCA MP 7KG", "ROSCOVADO MP UNIDADE",
+      "ROSCA CREME E COCO MP PAC COM 5 UNI", "ROSCA TRANCA MP PAC COM 10 UNID", "ROSCA TRANCINHA MP PAC 3KG",
+      "ROSCA TRANCA REDONDA MP", "ROSQUINHA CANUDINHO DE QUEIJO MP PAC COM 7KG", "SALGADO COXINHA DE FRANGO MP 1 KG",
+      "SALGADOS BOLINHA DE CARNE MP 1KG", "SALGADOS EMPADA DE FRANGO MP 1 KG", "SALGADOS ENROLADINHO PRESUNTO MP 1 KG",
+      "SALGADOS PASTEL CATUPIRY MP 1 KG", "SALGADOS KIBE CATUPIRY MP 1 KG", "SONHO MP PAC 3 KG"
     ];
 
     const frasesDireita = [
-      "Baguete 06hrs 7kg",
-      "Biscoitinho doce frito 1kg",
-      "Biscoito de queijo 7kg",
-      "Biscoito três queijos 7kg",
-      "Bolinha de carne pequena 1kg",
-      "Bolo cremoso de fubá 1 unidade",
-      "Bolo cremoso de milho 1 unidade",
-      "Broinha de fubá doce 7kg",
-      "Broinha temperada com bacon 7kg",
-      "Canudinho de queijo 7kg",
-      "Caracol 7kg",
-      "Carioca 7kg",
-      "Coxinha de frango pequena 1kg",
-      "Croissant de frango 7kg",
-      "Croissant de presunto 7kg",
-      "Empadinha de frango pequena 1kg",
-      "Enroladinho de presunto pequeno 1kg",
-      "Meia lua 1kg com 10 unidades",
-      "Mistura biscoito sequilho 4kg",
-      "Panhoca 7kg",
-      "Pão de queijo recheado frango 7kg",
-      "Pão de queijo tradicional 7kg",
-      "Pão francês 04hrs 7kg",
-      "Pão francês 06hrs 7kg",
-      "Pastelzinho catupiry pequeno 1kg",
-      "Quibe com catupiry pequeno 1kg",
-      "Rosca creme e coco PCT 5 unidades",
-      "Roscovado 1 unidade",
-      "Sonho PCT 3kg",
-      "Trança PCT 10 unidades",
-      "Trancinha PCT 3kg",
-      "Trancinha redonda"
+      "Baguete 06hrs 7kg", "Biscoitinho doce frito 1kg", "Biscoito de queijo 7kg", "Biscoito três queijos 7kg",
+      "Bolinha de carne pequena 1kg", "Bolo cremoso de fubá 1 unidade", "Bolo cremoso de milho 1 unidade",
+      "Broinha de fubá doce 7kg", "Broinha temperada com bacon 7kg", "Canudinho de queijo 7kg", "Caracol 7kg", "Carioca 7kg",
+      "Coxinha de frango pequena 1kg", "Croissant de frango 7kg", "Croissant de presunto 7kg",
+      "Empadinha de frango pequena 1kg", "Enroladinho de presunto pequeno 1kg", "Meia lua 1kg com 10 unidades",
+      "Mistura biscoito sequilho 4kg", "Panhoca 7kg", "Pão de queijo recheado frango 7kg", "Pão de queijo tradicional 7kg",
+      "Pão francês 04hrs 7kg", "Pão francês 06hrs 7kg", "Pastelzinho catupiry pequeno 1kg", "Quibe com catupiry pequeno 1kg",
+      "Rosca creme e coco PCT 5 unidades", "Roscovado 1 unidade", "Sonho PCT 3kg", "Trança PCT 10 unidades",
+      "Trancinha PCT 3kg", "Trancinha redonda"
     ];
 
-    const mapaConexao = [5, 6, 7, 9, 27, 10, 11, 12, 13, 25, 17, 18, 26, 14, 15, 28, 29, 16, 8, 19, 1, 2, 4, 3, 30, 31, 21, 20, 32, 22, 23, 24];
+    const mapaConexao = [5,6,7,9,27,10,11,12,13,25,17,18,26,14,15,28,29,16,8,19,1,2,4,3,30,31,21,20,32,22,23,24];
 
     function montarInterface() {
       const colEsq = document.getElementById("coluna-esquerda");
@@ -191,16 +182,43 @@
       });
     }
 
-    function removerVazios() {
-      const colDir = document.getElementById("coluna-direita");
-      const items = colDir.querySelectorAll(".item");
-
-      items.forEach(item => {
-        const input = item.querySelector("input[type='text']");
-        if (input && input.value.trim() === "") {
-          item.style.display = "none";
+    function limparBrancos() {
+      const outputs = document.querySelectorAll("#coluna-direita input");
+      outputs.forEach(output => {
+        if (!output.value.trim()) {
+          output.parentElement.style.display = "none";
         }
       });
+    }
+
+    function copiarDireita() {
+      const outputs = document.querySelectorAll("#coluna-direita .item");
+      const texto = Array.from(outputs)
+        .map(item => {
+          const span = item.querySelector("span").textContent;
+          const valor = item.querySelector("input").value;
+          return valor ? `${span}: ${valor}` : null;
+        })
+        .filter(Boolean)
+        .join("\n");
+      navigator.clipboard.writeText(texto);
+      alert("Copiado para a área de transferência");
+    }
+
+    async function salvarPDF() {
+      const outputs = document.querySelectorAll("#coluna-direita .item");
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      let y = 10;
+      outputs.forEach(item => {
+        const span = item.querySelector("span").textContent;
+        const valor = item.querySelector("input").value;
+        if (valor) {
+          doc.text(`${span}: ${valor}`, 10, y);
+          y += 8;
+        }
+      });
+      doc.save("lista_MAC77.pdf");
     }
 
     montarInterface();

@@ -404,6 +404,15 @@
     atualizarContagemDireita(); // Atualiza a contagem
   }
 
+    function atualizarContagemDireita() {
+      const outputs = document.querySelectorAll("#coluna-direita input");
+      let preenchidos = 0;
+      outputs.forEach(output => {
+        if (output.style.display !== "none" && output.value.trim() !== "") preenchidos++;
+      });
+      document.getElementById("contador-linhas").innerText = `Linhas preenchidas: ${preenchidos}`;
+    }
+
   function toggleMenu() {
     const dropdown = document.getElementById('dropdown');
     if (dropdown.style.display === 'block') {

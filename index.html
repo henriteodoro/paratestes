@@ -21,6 +21,7 @@
     .menu-left, .menu-right {
       display: flex;
       gap: 15px;
+      align-items: center;
     }
     .menu-left button, .menu-right button {
       font-size: 16px;
@@ -28,6 +29,34 @@
       cursor: pointer;
       background: none;
       border: none;
+    }
+    .menu-dropdown {
+      position: relative;
+    }
+    .menu-dropdown-content {
+      display: none;
+      position: absolute;
+      top: 30px;
+      left: 0;
+      background-color: white;
+      border: 1px solid #ccc;
+      box-shadow: 0px 2px 6px rgba(0,0,0,0.2);
+      z-index: 1;
+      min-width: 120px;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    .menu-dropdown-content a {
+      padding: 10px;
+      display: block;
+      text-decoration: none;
+      color: black;
+    }
+    .menu-dropdown-content a:hover {
+      background-color: #eee;
+    }
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(-5px);}
+      to {opacity: 1; transform: translateY(0);}
     }
     h1 {
       text-align: center;
@@ -88,11 +117,38 @@
       border: none;
       border-radius: 4px;
     }
+    .mac-links {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 14px;
+    }
+    .mac-links a {
+      display: block;
+      margin: 4px;
+      color: #007BFF;
+      text-decoration: none;
+    }
+    .mac-links a:hover {
+      text-decoration: underline;
+    }
+    #contador-linhas {
+      text-align: center;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
   <header>
     <div class="menu-left">
+      <div class="menu-dropdown">
+        <button onclick="toggleMenu()">📂 Menu</button>
+        <div class="menu-dropdown-content" id="dropdown">
+          <a href="#">Página 1 (em breve)</a>
+          <a href="#">Página 2 (em breve)</a>
+          <a href="#">Página 3 (em breve)</a>
+        </div>
+      </div>
       <button onclick="alert('Voltar ao menu')">❌</button>
       <button onclick="alert('Menu inicial')">🏠</button>
     </div>
@@ -112,12 +168,24 @@
     <!-- Botões -->
     <div id="middle-controls">
       <button onclick="transferir()">→</button>
-      <button onclick="removerVazios()" class="btn-amarelo">Remover Linhas Vazias</button>
-      <button onclick="restaurarLinhas()" class="btn-amarelo">Restaurar Linhas Ocultas</button>
+      <button onclick="alternarLinhas()" id="btn-linhas" class="btn-amarelo">Remover Linhas Vazias</button>
+      <button onclick="resetarTudo()" class="btn-amarelo">Resetar Tudo</button>
     </div>
 
     <!-- Coluna Direita -->
     <div class="column" id="coluna-direita"></div>
+  </div>
+
+  <div id="contador-linhas"></div>
+
+  <div class="mac-links">
+    <a href="#">MAC 78 - Bairro Planalto (em breve)</a>
+    <a href="#">MAC 79 - Romeu Duarte (em breve)</a>
+    <a href="#">MAC 80 - Rua São Geraldo / Centro 2 (em breve)</a>
+    <a href="#">MAC 277 - Matriz (em breve)</a>
+    <a href="#">MAC 853 - Concesso (em breve)</a>
+    <a href="#">MAC 1249 - Jardim do Lago (em breve)</a>
+    <a href="#">MAC Araújos (em breve)</a>
   </div>
 
   <script>
@@ -295,7 +363,63 @@
       a.click();
     }
 
-    montarInterface();
-  </script>
+    let linhasOcultas = false;
+    let elementosOcultos = [];
+
+  function alternarLinhas() {
+    if (!linhasOcultas) {
+      removerVazios();
+      document.getElementById('btn-linhas').innerText = "Restaurar Linhas Vazias";
+    } else {
+      restaurarLinhas();
+      document.getElementById('btn-linhas').innerText = "Remover Linhas Vazias";
+    }
+    linhasOcultas = !linhasOcultas;
+  }
+
+  function removerVazios() {
+    const inputs = document.querySelectorAll("#coluna-direita .item input");
+    elementosOcultos = [];
+    inputs.forEach((input) => {
+      if (input.value.trim() === "") {
+        input.parentElement.style.display = "none";
+        elementosOcultos.push(input.parentElement);
+      }
+    });
+  }
+
+  function restaurarLinhas() {
+    elementosOcultos.forEach((elemento) => {
+      elemento.style.display = "";
+    });
+    elementosOcultos = [];
+  }
+
+  function resetarTudo() {
+    const inputs = document.querySelectorAll("input[type='text']");
+    inputs.forEach((input) => {
+      input.value = "";
+    });
+    restaurarLinhas(); // Caso alguma linha tenha sido escondida
+    atualizarContagemDireita(); // Atualiza a contagem
+  }
+
+  function toggleMenu() {
+    const dropdown = document.getElementById('dropdown');
+    if (dropdown.style.display === 'block') {
+      dropdown.style.opacity = 0;
+      setTimeout(() => {
+        dropdown.style.display = 'none';
+      }, 200);
+    } else {
+      dropdown.style.display = 'block';
+      setTimeout(() => {
+        dropdown.style.opacity = 1;
+      }, 0);
+    }
+  }
+
+  montarInterface();
+</script>
 </body>
 </html>

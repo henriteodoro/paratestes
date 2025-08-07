@@ -267,18 +267,32 @@
     function copiarDireita() {
       const outputs = document.querySelectorAll("#coluna-direita input");
       const textos = [];
-
       outputs.forEach((output, i) => {
         if (output.value.trim() !== "") {
           const label = output.parentElement.querySelector("span").textContent;
           textos.push(`${label}: ${output.value}`);
         }
       });
-
       const textoFinal = textos.join("\n");
       navigator.clipboard.writeText(textoFinal)
         .then(() => alert("Linhas copiadas para a área de transferência!"))
         .catch(err => alert("Erro ao copiar: " + err));
+    }
+
+    function salvarComoTexto() {
+      const outputs = document.querySelectorAll("#coluna-direita input");
+      const textos = [];
+      outputs.forEach((output, i) => {
+        if (output.value.trim() !== "") {
+          const label = output.parentElement.querySelector("span").textContent;
+          textos.push(`${label}: ${output.value}`);
+        }
+      });
+      const blob = new Blob([textos.join("\n")], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'lista_mac_77.txt';
+      a.click();
     }
 
     montarInterface();

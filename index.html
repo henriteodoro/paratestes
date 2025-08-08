@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Lista MAC Bairro São Geraldo - Cód. 77</title>
 
-  <!-- libs -->
+  <!-- bibliotecas para salvar em PDF / Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
@@ -13,75 +13,231 @@
     :root{
       --azul:#007BFF;
       --amarelo:#FFD700;
+      --vermelho:#d9534f;
       --bg:#f5f7fb;
       --mono: monospace;
     }
-    body{ font-family: Arial, sans-serif; margin:0; background:var(--bg); color:#111; }
-    header{
-      display:flex; justify-content:space-between; align-items:center;
-      background:var(--azul); color:#fff; padding:10px 16px; position:relative;
+
+    body{
+      font-family: Arial, sans-serif;
+      margin:0;
+      background:var(--bg);
+      color:#111;
     }
-    .left-controls, .right-controls{ display:flex; gap:8px; align-items:center; }
-    .icon-btn{
-      background:none; border:none; color:#fff; cursor:pointer; font-size:18px; padding:6px;
+
+    /* HEADER */
+    header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background:var(--azul);
+      color:#fff;
+      padding:12px 18px;
       position:relative;
     }
-    /* tooltip */
+    header h1{
+      margin:0;
+      font-size:18px;
+      text-align:center;
+      width:100%;
+    }
+    .left-controls, .right-controls{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      z-index:3;
+    }
+    .icon-btn{
+      background:none;
+      border:none;
+      color:#fff;
+      cursor:pointer;
+      font-size:18px;
+      padding:6px 8px;
+      position:relative;
+    }
+    /* tooltip simples (texto sobre o ícone) */
     .icon-btn[data-tooltip]:hover::after{
       content: attr(data-tooltip);
-      position:absolute; bottom:-30px; left:50%; transform:translateX(-50%);
-      background:rgba(0,0,0,0.75); color:#fff; padding:4px 8px; border-radius:4px; font-size:12px; white-space:nowrap;
+      position:absolute;
+      bottom:-28px;
+      left:50%;
+      transform:translateX(-50%);
+      background: rgba(0,0,0,0.75);
+      color:#fff;
+      padding:4px 8px;
+      border-radius:4px;
+      font-size:12px;
+      white-space:nowrap;
     }
 
-    /* dropdowns */
-    .menu-popup, .save-popup{
-      position:absolute; top:44px; left:0; background:#fff; color:#111; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.12);
-      display:none; min-width:160px; overflow:hidden; z-index:50;
-      animation:fadeIn .22s ease;
+    /* dropdown menu (esquerda) */
+    .menu-dropdown{
+      position:relative;
     }
-    .save-popup{ right:10px; left:auto; }
-    .menu-popup a, .save-popup div{ display:block; padding:8px 10px; text-decoration:none; color:#111; cursor:pointer; border-bottom:1px solid #eee; }
-    .menu-popup a:last-child, .save-popup div:last-child { border-bottom: none; }
-    .menu-popup a:hover, .save-popup div:hover { background:#f2f6ff; }
+    .menu-popup{
+      position:absolute;
+      top:44px;
+      left:0;
+      min-width:160px;
+      background:#fff;
+      color:#111;
+      border-radius:8px;
+      box-shadow:0 6px 18px rgba(0,0,0,0.15);
+      display:none;
+      overflow:hidden;
+      animation:fadeIn .25s ease;
+      font-size:14px;
+    }
+    .menu-popup a{
+      display:block;
+      padding:8px 10px;
+      text-decoration:none;
+      color:#111;
+      border-bottom:1px solid #eee;
+    }
+    .menu-popup a:last-child{ border-bottom:none; }
+    .menu-popup a:hover{ background:#f2f6ff; }
 
-    @keyframes fadeIn{ from{opacity:0; transform:translateY(-6px)} to{opacity:1; transform:none} }
+    /* save options dropdown (direita) */
+    .save-popup{
+      position:absolute;
+      top:44px;
+      right:10px;
+      min-width:160px;
+      background:#fff;
+      color:#111;
+      border-radius:8px;
+      box-shadow:0 6px 18px rgba(0,0,0,0.15);
+      display:none;
+      overflow:hidden;
+      animation:fadeIn .25s ease;
+      font-size:14px;
+    }
+    .save-popup div{ padding:8px 10px; cursor:pointer; border-bottom:1px solid #eee; }
+    .save-popup div:hover{ background:#f2f6ff; }
+    .save-popup div:last-child{ border-bottom:none; }
 
-    h1{ text-align:center; margin:14px 0; font-size:18px; color:#222; }
+    @keyframes fadeIn{
+      from{ opacity:0; transform:translateY(-6px) }
+      to{ opacity:1; transform:none }
+    }
 
-    .wrapper{ max-width:1100px; margin:16px auto; padding:0 12px 40px; }
+    /* layout principal */
+    .wrapper{
+      max-width:1100px;
+      margin:18px auto;
+      padding:0 12px 40px;
+    }
+    .container{
+      display:flex;
+      gap:40px;
+      justify-content:center;
+      align-items:flex-start;
+    }
+    .column{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-width:320px;
+      width:380px;
+      background:#fff;
+      padding:12px;
+      border-radius:8px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.06);
+    }
 
-    .container{ display:flex; gap:36px; justify-content:center; align-items:flex-start; flex-wrap:wrap; }
+    .col-title{
+      font-weight:bold;
+      text-align:center;
+      margin-bottom:6px;
+    }
 
-    .column{ display:flex; flex-direction:column; gap:8px; min-width:340px; width:380px; background:#fff; padding:12px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
-    .col-title{ font-weight:bold; text-align:center; margin-bottom:6px; }
-    .item{ display:flex; align-items:center; gap:8px; padding:6px 4px; }
-    .item span{ flex:1; font-family:var(--mono); font-size:13px; color:#222; }
-    .item input[type="text"]{ width:80px; padding:6px 8px; font-family:var(--mono); font-size:13px; border:1px solid #ddd; border-radius:4px; text-align:center; }
-    .item input[readonly]{ background:#fafafa; color:#222; }
+    .item{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 4px;
+    }
+    .item span{
+      flex:1;
+      font-family:var(--mono);
+      font-size:13px;
+    }
+    .item input[type="text"]{
+      width:70px;
+      padding:6px 8px;
+      font-family:var(--mono);
+      font-size:13px;
+      border:1px solid #ddd;
+      border-radius:4px;
+    }
+    .item input[readonly]{
+      background:#fafafa;
+      color:#222;
+    }
 
     /* middle controls */
-    #middle-controls{ display:flex; flex-direction:column; gap:10px; align-items:center; margin-top:40px; }
-    .btn-arrow{ background:var(--azul); color:#fff; border:none; padding:10px 14px; font-size:18px; border-radius:6px; cursor:pointer; }
+    #middle-controls{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+      margin-top:40px;
+    }
+    .btn-arrow{
+      background:var(--azul);
+      color:#fff;
+      border:none;
+      padding:10px 14px;
+      font-size:18px;
+      border-radius:6px;
+      cursor:pointer;
+    }
     .btn-yellow{ background:var(--amarelo); color:#000; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
-    .btn-reset{ background:#d9534f; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
+    .btn-reset{ background:var(--vermelho); color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
 
-    #contador-linhas{ text-align:center; font-weight:bold; margin-bottom:6px; }
+    /* contador */
+    #contador-linhas{ text-align:center; font-weight:bold; margin-bottom:8px; }
 
-    /* mac-links in one line and left */
-    .mac-links{ display:flex; gap:12px; align-items:center; justify-content:flex-start; margin-top:20px; font-family:var(--mono); padding-left:8px; overflow-x:auto; white-space:nowrap; }
-    .mac-links a{ display:inline-block; margin-right:12px; color:var(--azul); text-decoration:none; }
-    .mac-links a:hover{ text-decoration:underline; }
+    /* mensagem discreta copiar */
+    #copy-msg{
+      position:absolute;
+      right:10px;
+      top:44px;
+      color: #dff0d8;
+      background: rgba(0,0,0,0.0);
+      font-size:13px;
+      pointer-events:none;
+    }
 
-    /* print rules - hide header and footer when printing */
+    /* footer MACs - grid */
+    footer.mac-grid{
+      max-width:1100px;
+      margin:20px auto;
+      padding:18px;
+    }
+    .mac-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+      font-family:var(--mono);
+    }
+    .mac-grid div{
+      background:#fff;padding:10px;border-radius:6px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    /* print rules: show only list direita */
     @media print{
-      header, .mac-links { display:none !important; }
-      body{ background:#fff; }
+      body *{ visibility:hidden }
+      #print-area, #print-area *{ visibility:visible }
+      #print-area{ position: absolute; left:0; top:0; width:100%; padding:20px; }
     }
 
     /* small screens */
-    @media (max-width:980px){
-      .container{ flex-direction:column; align-items:center; }
-      .column{ width:100%; max-width:720px; }
+    @media(max-width:980px){
+      .container{ flex-direction:column; align-items:center }
+      .mac-grid{ grid-template-columns:repeat(2,1fr) }
     }
   </style>
 </head>
@@ -89,9 +245,9 @@
 
   <header>
     <div class="left-controls">
-      <div style="position:relative;">
-        <button class="icon-btn" data-tooltip="Menu" onclick="toggleMenu()">📂</button>
-        <div id="menuPopup" class="menu-popup" style="left:0;">
+      <div class="menu-dropdown">
+        <button class="icon-btn" data-tooltip="Menu" onclick="toggleMenu()">☰</button>
+        <div class="menu-popup" id="menuPopup">
           <a href="#" onclick="alert('Em breve')">Página 1 (em breve)</a>
           <a href="#" onclick="alert('Em breve')">Página 2 (em breve)</a>
           <a href="#" onclick="alert('Em breve')">Página 3 (em breve)</a>
@@ -106,14 +262,16 @@
 
     <div class="right-controls" style="position:relative;">
       <button class="icon-btn" data-tooltip="Salvar" onclick="toggleSave()">💾</button>
+      <button class="icon-btn" data-tooltip="Imprimir" onclick="printOnlyRight()">🖨️</button>
+      <button class="icon-btn" data-tooltip="Copiar" onclick="copyRight()" id="copyBtn">📋</button>
+
       <div id="savePopup" class="save-popup">
         <div onclick="saveAs('txt')">Salvar como TXT</div>
         <div onclick="saveAs('pdf')">Salvar como PDF</div>
         <div onclick="saveAs('excel')">Salvar como Excel</div>
       </div>
 
-      <button class="icon-btn" data-tooltip="Imprimir" onclick="window.print()">🖨️</button>
-      <button class="icon-btn" data-tooltip="Copiar" onclick="copyRight()">📋</button>
+      <div id="copy-msg" aria-live="polite"></div>
     </div>
   </header>
 
@@ -121,7 +279,7 @@
     <div class="container">
       <!-- coluna esquerda -->
       <div class="column" id="coluna-esquerda">
-        <div class="col-title">Coluna Esquerda (entrada)</div>
+        <div class="col-title">Coluna Esquerda (digite números)</div>
         <!-- itens gerados via JS -->
       </div>
 
@@ -141,24 +299,28 @@
         </div>
       </div>
     </div>
-
-    <!-- print area hidden normally (not necessary but kept) -->
-    <div id="print-area" style="display:none;"></div>
   </div>
 
-  <!-- footer macs one line more to left -->
-  <div class="mac-links" aria-hidden="false">
-    <a href="#" onclick="alert('Em breve')">MAC 78 - Bairro Planalto</a>
-    <a href="#" onclick="alert('Em breve')">MAC 79 - Romeu Duarte</a>
-    <a href="#" onclick="alert('Em breve')">MAC 80 - Rua São Geraldo / Centro 2</a>
-    <a href="#" onclick="alert('Em breve')">MAC 277 - Matriz</a>
-    <a href="#" onclick="alert('Em breve')">MAC 853 - Concesso</a>
-    <a href="#" onclick="alert('Em breve')">MAC 1249 - Jardim do Lago</a>
-    <a href="#" onclick="alert('Em breve')">MAC Araújos</a>
-  </div>
+  <!-- elementos para impressão -->
+  <div id="print-area" style="display:none"></div>
+
+  <!-- footer com outros macs -->
+  <footer class="mac-grid">
+    <div class="mac-grid">
+      <div>MAC 78 - Bairro Planalto<br><small style="color:#999">(em breve)</small></div>
+      <div>MAC 79 - Romeu Duarte<br><small style="color:#999">(em breve)</small></div>
+      <div>MAC 80 - Rua São Geraldo / Centro 2<br><small style="color:#999">(em breve)</small></div>
+      <div>MAC 277 - Matriz<br><small style="color:#999">(em breve)</small></div>
+      <div>MAC 853 - Concesso<br><small style="color:#999">(em breve)</small></div>
+      <div>MAC 1249 - Jardim do Lago<br><small style="color:#999">(em breve)</small></div>
+      <div>MAC Araújos<br><small style="color:#999">(em breve)</small></div>
+    </div>
+  </footer>
 
 <script>
-/* ===== dados ===== */
+/* ---------------------------
+   Dados (preenchidos com suas frases)
+   --------------------------- */
 const frasesEsquerda = [
   "PÃO DE QUEIJO RECHEADO FRANGO  PAC7KG",
   "PÃO DE QUEIJO  7KG",
@@ -229,196 +391,275 @@ const frasesDireita = [
   "Trancinha redonda"
 ];
 
+// mapa: para cada índice i (0..31) da esquerda, destino é mapaConexao[i] - 1
 const mapaConexao = [5,6,7,9,27,10,11,12,13,25,17,18,26,14,15,28,29,16,8,19,1,2,4,3,30,31,21,20,32,22,23,24];
 
-/* ===== estado ===== */
-let hiddenIndices = [];
-let removedToggle = false;
+/* ---------------------------
+   Estado e helpers
+   --------------------------- */
+let hiddenIndices = []; // índices na direita que estão ocultos
+let removedToggle = false; // estado do botão único
+const colEsqEl = document.getElementById('coluna-esquerda');
+const colDirEl = document.getElementById('coluna-direita');
 
-/* monta interface */
+/* monta interface: cria os itens nas colunas */
 function montarInterface(){
-  const colEsq = document.getElementById('coluna-esquerda');
-  const colDir = document.getElementById('coluna-direita');
-  colEsq.innerHTML = '<div style="font-size:12px;color:#666;text-align:center;margin-bottom:6px;">Coluna Esquerda (preencha)</div>';
-  colDir.innerHTML = '';
+  colEsqEl.innerHTML = '<div style="font-size:12px;color:#666;text-align:center;margin-bottom:6px;">Coluna Esquerda (preencha)</div>';
+  colDirEl.innerHTML = ''; // titulo já acima
+
   for(let i=0;i<frasesEsquerda.length;i++){
-    // esquerda
-    const divL = document.createElement('div'); divL.className='item';
-    const spanL = document.createElement('span'); spanL.textContent = frasesEsquerda[i];
-    const inputL = document.createElement('input'); inputL.type='text'; inputL.dataset.index=i;
-    divL.appendChild(spanL); divL.appendChild(inputL); colEsq.appendChild(divL);
-
-    // direita
-    const divR = document.createElement('div'); divR.className='item';
-    const spanR = document.createElement('span'); spanR.textContent = frasesDireita[i];
-    const out = document.createElement('input'); out.type='text'; out.readOnly=true; out.dataset.index=i;
-    divR.appendChild(spanR); divR.appendChild(out); colDir.appendChild(divR);
-  }
-  atualizarContador();
-}
-
-/* atualizar contador de preenchidos na direita */
-function atualizarContador(){
-  const outs = document.querySelectorAll('#coluna-direita input[type="text"]');
-  const count = Array.from(outs).filter(o => o.value && o.value.trim() !== '').length;
-  document.getElementById('contador-linhas').innerText = `Linhas Preenchidas: ${count}`;
-}
-
-/* transferir usando mapaConexao */
-function transferir(){
-  const ins = document.querySelectorAll('#coluna-esquerda input[type="text"]');
-  const outs = document.querySelectorAll('#coluna-direita input[type="text"]');
-  for(let i=0;i<mapaConexao.length && i<ins.length;i++){
-    const origem = i;
-    const destino = mapaConexao[i] - 1;
-    const val = ins[origem].value.trim();
-    if(outs[destino]) outs[destino].value = val;
-  }
-  atualizarContador();
-}
-
-/* toggle remover/restaurar */
-function toggleRemoveEmpty(){
-  const outsItems = document.querySelectorAll('#coluna-direita .item');
-  const btn = document.getElementById('btn-toggle');
-  if(!removedToggle){
-    hiddenIndices = [];
-    outsItems.forEach((it, idx)=>{
-      const input = it.querySelector('input');
-      if(!input.value || input.value.trim() === ''){
-        hiddenIndices.push(idx);
-        it.style.display = 'none';
+    // esquerda: label + input (onde voce escreve número ou qtde)
+    const divL = document.createElement('div');
+    divL.className = 'item';
+    const spanL = document.createElement('span');
+    spanL.textContent = frasesEsquerda[i];
+    const inputL = document.createElement('input');
+    inputL.type = 'text';
+    inputL.dataset.index = i;
+    inputL.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){ // ao pressionar Enter, chamar transferir para praticidade
+        transferir();
       }
     });
-    btn.innerText = 'Restaurar Linhas Vazias';
+    divL.appendChild(spanL);
+    divL.appendChild(inputL);
+    colEsqEl.appendChild(divL);
+
+    // direita: label + output (readOnly)
+    const divR = document.createElement('div');
+    divR.className = 'item';
+    const spanR = document.createElement('span');
+    spanR.textContent = frasesDireita[i];
+    const outputR = document.createElement('input');
+    outputR.type = 'text';
+    outputR.readOnly = true;
+    outputR.dataset.index = i;
+    divR.appendChild(spanR);
+    divR.appendChild(outputR);
+    colDirEl.appendChild(divR);
+  }
+
+  atualizarContador();
+}
+
+/* atualiza contador de linhas preenchidas na direita */
+function atualizarContador(){
+  const outputs = colDirEl.querySelectorAll('input[type="text"]');
+  const count = Array.from(outputs).filter(o => o.value && o.value.trim() !== '').length;
+  document.getElementById('contador-linhas').textContent = `Linhas Preenchidas: ${count}`;
+}
+
+/* Transferir valores: percorre left inputs e coloca nos outputs de acordo com mapaConexao */
+function transferir(){
+  const inputs = colEsqEl.querySelectorAll('input[type="text"]');
+  const outputs = colDirEl.querySelectorAll('input[type="text"]');
+
+  for(let i=0;i<mapaConexao.length && i<inputs.length;i++){
+    const origemIndex = i;
+    const destinoIndex = mapaConexao[i] - 1; // mapaConexao contém números 1..32
+    const valor = inputs[origemIndex].value.trim();
+    if(outputs[destinoIndex]){
+      outputs[destinoIndex].value = valor;
+    }
+  }
+  atualizarContador();
+}
+
+/* Toggle remover/restaurar linhas vazias (um botão só) */
+function toggleRemoveEmpty(){
+  const outputs = colDirEl.querySelectorAll('.item');
+  const btn = document.getElementById('btn-toggle');
+
+  if(!removedToggle){
+    hiddenIndices = [];
+    outputs.forEach((item, idx)=>{
+      const input = item.querySelector('input');
+      if(!input.value || input.value.trim() === ''){
+        hiddenIndices.push(idx);
+        item.style.display = 'none';
+      }
+    });
+    btn.textContent = 'Restaurar Linhas Vazias';
     removedToggle = true;
   } else {
-    hiddenIndices.forEach(idx => { if(outsItems[idx]) outsItems[idx].style.display = 'flex'; });
+    hiddenIndices.forEach(idx=>{
+      if(outputs[idx]) outputs[idx].style.display = 'flex';
+    });
     hiddenIndices = [];
-    btn.innerText = 'Remover Linhas Vazias';
+    btn.textContent = 'Remover Linhas Vazias';
     removedToggle = false;
   }
   atualizarContador();
 }
 
-/* resetar tudo */
-function resetAll(){
-  const all = document.querySelectorAll('#coluna-esquerda input, #coluna-direita input');
-  all.forEach(i => i.value = '');
-  // restaurar visibilidade
-  document.querySelectorAll('#coluna-direita .item').forEach(it => it.style.display = 'flex');
+/* Restaurar todas (caso precise separadamente) */
+function restaurarLinhas(){
+  const outputs = colDirEl.querySelectorAll('.item');
+  outputs.forEach(it => it.style.display = 'flex');
   hiddenIndices = [];
+  document.getElementById('btn-toggle').textContent = 'Remover Linhas Vazias';
   removedToggle = false;
-  document.getElementById('btn-toggle').innerText = 'Remover Linhas Vazias';
   atualizarContador();
 }
 
-/* copiar (sem aviso) */
-function copyRight(){
-  const outs = document.querySelectorAll('#coluna-direita .item');
-  const lines = [];
-  outs.forEach(it => {
-    const value = it.querySelector('input').value || '';
-    if(value.trim() !== ''){
-      const label = it.querySelector('span').textContent;
-      lines.push(`${label}: ${value}`);
-    }
-  });
-  const txt = lines.join('\n');
-  if(txt.trim() === '') return; // nada a copiar
-  navigator.clipboard.writeText(txt).catch(()=>{/* silêncio em caso de erro */});
+/* Resetar todos os campos (esquerda e direita) */
+function resetAll(){
+  const allInputs = document.querySelectorAll('#coluna-esquerda input, #coluna-direita input');
+  allInputs.forEach(i => i.value = '');
+  // também restaurar visibilidade
+  restaurarLinhas();
+  atualizarContador();
 }
 
-/* salvar: txt/pdf/excel */
-async function saveAs(type){
-  const outs = document.querySelectorAll('#coluna-direita .item');
-  const rows = [];
-  outs.forEach(it=>{
+/* Copiar linhas preenchidas da direita - mostra mensagem discreta embaixo do ícone */
+function copyRight(){
+  const outputs = colDirEl.querySelectorAll('input[type="text"]');
+  const lines = [];
+  outputs.forEach((o, idx)=>{
+    if(o.value && o.value.trim() !== ''){
+      const label = o.parentElement.querySelector('span').textContent;
+      lines.push(`${label}: ${o.value}`);
+    }
+  });
+  const text = lines.join('\n');
+  if(text.trim() === ''){
+    showCopyMsg('Nada para copiar');
+    return;
+  }
+  navigator.clipboard.writeText(text).then(()=>{
+    showCopyMsg('Copiado');
+  }).catch(()=>{
+    showCopyMsg('Erro ao copiar');
+  });
+}
+
+/* mensagem discreta abaixo do ícone */
+function showCopyMsg(txt){
+  const el = document.getElementById('copy-msg');
+  el.textContent = txt;
+  el.style.color = '#e6ffed';
+  setTimeout(()=> el.textContent = '', 1800);
+}
+
+/* Toggle menu (esquerdo) */
+function toggleMenu(){
+  const pop = document.getElementById('menuPopup');
+  pop.style.display = (pop.style.display === 'block') ? 'none' : 'block';
+  // animação de "pulso" no botão já feita via CSS animation on popup
+}
+
+/* Toggle save popup (direita) */
+function toggleSave(){
+  const sp = document.getElementById('savePopup');
+  sp.style.display = (sp.style.display === 'block') ? 'none' : 'block';
+}
+
+/* Imprimir SOMENTE a lista da direita (formatada) */
+function printOnlyRight(){
+  // pega os labels+valores preenchidos (ou todos?) — você pediu "apareça as listas inteiras numa pagina so, e so a lista mesmo"
+  const outputs = colDirEl.querySelectorAll('.item');
+  const lines = [];
+  outputs.forEach(it=>{
     const label = it.querySelector('span').textContent;
-    const value = it.querySelector('input').value || '';
-    if(value.trim() !== '') rows.push({label, value});
+    const val = it.querySelector('input').value || '';
+    lines.push(`${label} — ${val}`);
   });
 
+  const win = window.open('','_blank','width=800,height=800');
+  const html = `
+    <html><head><title>Impressão - Lista MAC 77</title>
+    <style>body{font-family:monospace;padding:20px} pre{white-space:pre-wrap;}</style>
+    </head><body><pre>${lines.join('\n')}</pre></body></html>`;
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  win.print();
+  // win.close(); // opcional
+}
+
+/* Salvar: txt / pdf / excel */
+async function saveAs(type){
+  // coleta apenas linhas preenchidas (label: valor)
+  const outputs = colDirEl.querySelectorAll('.item');
+  const rows = [];
+  outputs.forEach(it=>{
+    const label = it.querySelector('span').textContent;
+    const value = it.querySelector('input').value || '';
+    rows.push({label, value});
+  });
+
+  // TXT
   if(type === 'txt'){
     const lines = rows.map(r => `${r.label}: ${r.value}`);
     const blob = new Blob([lines.join('\n')], {type:'text/plain;charset=utf-8'});
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = 'lista_mac_77.txt'; a.click();
-    toggleSave(false);
+    a.href = URL.createObjectURL(blob);
+    a.download = 'lista_mac_77.txt';
+    a.click();
+    toggleSave();
     return;
   }
 
+  // PDF (jsPDF)
   if(type === 'pdf'){
     try{
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({unit:'pt', format:'a4'});
+      let y = 40;
       doc.setFont('Courier');
       doc.setFontSize(11);
-      let y = 40;
       rows.forEach(r=>{
         doc.text(`${r.label}: ${r.value}`, 40, y);
         y += 14;
-        if(y > 760){ doc.addPage(); y = 40; }
+        if(y > 800){ doc.addPage(); y = 40; }
       });
       doc.save('lista_mac_77.pdf');
-    }catch(e){
-      alert('Erro ao gerar PDF: ' + e);
+    }catch(err){
+      alert('Erro gerando PDF: ' + err);
     }
-    toggleSave(false);
+    toggleSave();
     return;
   }
 
+  // Excel (SheetJS)
   if(type === 'excel'){
     try{
-      const aoa = [['Frase','Valor']];
-      rows.forEach(r => aoa.push([r.label, r.value]));
+      const ws_data = [['Produto','Quantidade/Valor']];
+      rows.forEach(r => ws_data.push([r.label, r.value]));
       const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.aoa_to_sheet(aoa);
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
       XLSX.utils.book_append_sheet(wb, ws, 'MAC77');
       const wbout = XLSX.write(wb, {bookType:'xlsx', type:'array'});
       const blob = new Blob([wbout], {type:'application/octet-stream'});
       const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob); a.download = 'lista_mac_77.xlsx'; a.click();
-    }catch(e){
-      alert('Erro ao gerar Excel: ' + e);
+      a.href = URL.createObjectURL(blob);
+      a.download = 'lista_mac_77.xlsx';
+      a.click();
+    }catch(err){
+      alert('Erro gerando Excel: ' + err);
     }
-    toggleSave(false);
+    toggleSave();
     return;
   }
 }
 
-/* salvar menu toggle */
-function toggleSave(force){
-  const el = document.getElementById('savePopup');
-  if(typeof force === 'boolean'){
-    el.style.display = force ? 'block' : 'none'; return;
-  }
-  el.style.display = (el.style.display === 'block') ? 'none' : 'block';
-}
-
-/* menu toggle */
-function toggleMenu(){
-  const el = document.getElementById('menuPopup');
-  el.style.display = (el.style.display === 'block') ? 'none' : 'block';
-}
-
-/* função imprimir: usa CSS @media print para esconder header/footer */
-function imprimir(){
-  window.print();
-}
-
-/* monta UI inicial */
+/* iniciar */
 montarInterface();
 
-/* esconde popups ao clicar fora */
+/* segurança: fecha popups ao clicar fora */
 document.addEventListener('click', (e)=>{
-  if(!e.target.closest('.left-controls') && !e.target.closest('#menuPopup')) document.getElementById('menuPopup').style.display = 'none';
-  if(!e.target.closest('.right-controls') && !e.target.closest('#savePopup')) document.getElementById('savePopup').style.display = 'none';
+  const menu = document.getElementById('menuPopup');
+  const save = document.getElementById('savePopup');
+  if(!e.target.closest('.menu-dropdown')) menu.style.display = 'none';
+  if(!e.target.closest('.right-controls')) save.style.display = 'none';
 });
 
-/* atualiza contador quando trocar valores manualmente */
+/* atualiza contador sempre que transferir ou modificar manualmente (se quiser permitir edição direta dos outputs futuramente) */
 document.addEventListener('input', (e)=>{
-  if(e.target.closest('#coluna-direita') || e.target.closest('#coluna-esquerda')) atualizarContador();
+  // atualiza contador quando inputs da direita mudarem (elas são readOnly por padrão)
+  if(e.target.closest('#coluna-direita') || e.target.closest('#coluna-esquerda')){
+    atualizarContador();
+  }
 });
 </script>
 

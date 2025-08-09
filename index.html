@@ -1,594 +1,597 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MAC 77 - Organizador de Lista</title>
-  <style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MAC 77 - Organizador de Lista</title>
+
+<style>
+  /* Reset e base */
+  body {
+    font-family: monospace;
+    margin: 0; padding: 0;
+  }
+  header {
+    background-color: #007BFF;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+  }
+  .menu-left, .menu-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  .menu-left button, .menu-right button {
+    font-size: 16px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 6px 10px;
+  }
+  /* Dropdown geral */
+  .menu-dropdown {
+    position: relative;
+  }
+  .menu-dropdown-content {
+    display: none;
+    position: absolute;
+    top: 35px;
+    left: 0;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    min-width: 140px;
+    z-index: 1000;
+  }
+  .menu-dropdown-content a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: black;
+    white-space: nowrap;
+  }
+  .menu-dropdown-content a:hover {
+    background: #eee;
+  }
+  /* Botões centralizados */
+  #middle-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+  }
+  #middle-controls button {
+    width: 160px;
+    font-size: 14px;
+    padding: 10px 20px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+  }
+  #middle-controls button:first-child {
+    background-color: #007BFF;
+    color: white;
+  }
+  .btn-amarelo {
+    background-color: #FFD700;
+    color: black;
+  }
+  .btn-amarelo:hover {
+    background-color: #e6c200;
+  }
+  .btn-vermelho {
+    background-color: #b22222; /* vermelho escuro vivo */
+    color: white;
+  }
+  .btn-vermelho:hover {
+    background-color: #8b1a1a;
+  }
+  /* Container colunas */
+  .container {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    align-items: flex-start;
+    padding-bottom: 20px;
+  }
+  .column {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 300px;
+  }
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .item input[type="text"] {
+    width: 40px;
+    padding: 4px;
+    font-family: monospace;
+    text-align: center;
+  }
+  .item span {
+    flex: 1;
+  }
+  /* Título e setas */
+  .titulo-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0 10px;
+  }
+  .titulo-nav a {
+    font-size: 24px;
+    color: #007BFF;
+    text-decoration: none;
+    user-select: none;
+  }
+  .titulo-nav a:hover {
+    text-decoration: underline;
+  }
+  /* Rodapé MACs */
+  .mac-links {
+    padding: 10px 20px;
+    font-size: 14px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    white-space: nowrap;
+    justify-content: flex-start;
+  }
+  .mac-links a {
+    color: #007BFF;
+    text-decoration: none;
+  }
+  .mac-links a:hover {
+    text-decoration: underline;
+  }
+  /* Contador linhas */
+  #contador-linhas {
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  /* Aviso de cópia */
+  #copy-notice {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    display: none;
+    z-index: 9999;
+  }
+  /* Impressão */
+  @media print {
+    header, .mac-links, #middle-controls, #copy-notice {
+      display: none !important;
+    }
     body {
-      font-family: monospace;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 20px;
-      background-color: #007BFF;
-      border-bottom: 1px solid #ccc;
-    }
-    .menu-left, .menu-right {
-      display: flex;
-      gap: 15px;
-      align-items: center;
-    }
-    .menu-left button, .menu-right button {
-      font-size: 16px;
-      padding: 6px 10px;
-      cursor: pointer;
-      background: none;
-      border: none;
-      color: white;
-    }
-    .menu-dropdown {
-      position: relative;
-    }
-    .menu-dropdown-content {
-      display: none;
-      position: absolute;
-      top: 30px;
-      right: 0;
-      background-color: white;
-      border: 1px solid #ccc;
-      box-shadow: 0px 2px 6px rgba(0,0,0,0.2);
-      z-index: 1;
-      min-width: 120px;
-      animation: fadeIn 0.3s ease-in-out;
-    }
-    .menu-dropdown-content a {
-      padding: 10px;
-      display: block;
-      text-decoration: none;
-      color: black;
-    }
-    .menu-dropdown-content a:hover {
-      background-color: #eee;
-    }
-    @keyframes fadeIn {
-      from {opacity: 0; transform: translateY(-5px);}
-      to {opacity: 1; transform: translateY(0);}
-    }
-    h1 {
-      text-align: center;
-      margin: 20px 0 10px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
+      margin: 1cm;
     }
     .container {
-      display: flex;
-      justify-content: center;
-      gap: 60px;
-      align-items: flex-start;
-      padding-bottom: 20px;
+      justify-content: space-between;
+      gap: 20px;
     }
     .column {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .item input[type="text"] {
-      width: 40px;
-      padding: 4px;
-      font-family: monospace;
-      text-align: center;
-    }
-    .item span {
-      flex: 1;
-    }
-    #middle-controls {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 10px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    .btn-amarelo {
-      background-color: #FFD700;
-      color: black;
-      border: none;
-      padding: 10px 20px;
-      font-size: 14px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .btn-amarelo:hover {
-      background-color: #e6c200;
-    }
-    .btn-vermelho {
-      background-color: #dc3545;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      font-size: 14px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .btn-vermelho:hover {
-      background-color: #c82333;
-    }
-    #middle-controls button:first-child {
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 4px;
-    }
-    .mac-links {
-      text-align: left;
-      margin: 20px auto;
-      font-size: 14px;
-      max-width: 800px;
-      padding: 0 20px;
-    }
-    .mac-links-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: flex-start;
-    }
-    .mac-links a {
-      color: #007BFF;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-    .mac-links a:hover {
-      text-decoration: underline;
+      min-width: 40%;
     }
     #contador-linhas {
-      text-align: center;
-      margin: 10px 0;
-      font-weight: bold;
+      margin-top: 20px;
+      font-size: 16px;
     }
-    .notification {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 10px 20px;
-      border-radius: 4px;
-      z-index: 1000;
-      display: none;
-    }
-    .nav-arrow {
-      cursor: pointer;
-      font-size: 24px;
-    }
-    .nav-arrow.disabled {
-      opacity: 0.3;
-      cursor: default;
-    }
-    @media print {
-      header, .mac-links, #middle-controls button:not(:first-child) {
-        display: none;
-      }
-      .container {
-        flex-direction: row;
-        gap: 40px;
-      }
-      .column {
-        flex: 1;
-      }
-      #middle-controls {
-        display: none;
-      }
-      h1 {
-        margin-top: 0;
-      }
-    }
-  </style>
+  }
+</style>
+
+<!-- Bibliotecas externas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 </head>
 <body>
-  <header>
-    <div class="menu-left">
-      <button onclick="alert('Voltar ao menu')">❌</button>
-      <button onclick="alert('Menu inicial')">🏠</button>
-    </div>
-    <div class="menu-right">
-      <div class="menu-dropdown">
-        <button onclick="toggleSaveMenu()">💾</button>
-        <div class="menu-dropdown-content" id="save-dropdown">
-          <a href="#" onclick="salvarComoTexto()">Salvar como TXT</a>
-          <a href="#" onclick="salvarComoPDF()">Salvar como PDF</a>
-          <a href="#" onclick="salvarComoExcel()">Salvar como Excel</a>
-        </div>
+
+<header>
+  <!-- Menu esquerdo -->
+  <div class="menu-left">
+    <div class="menu-dropdown">
+      <button onclick="toggleMenu('dropdown-menu')">📂 Menu</button>
+      <div class="menu-dropdown-content" id="dropdown-menu">
+        <a href="#">Página 1 (em breve)</a>
+        <a href="#">Página 2 (em breve)</a>
+        <a href="#">Página 3 (em breve)</a>
       </div>
-      <button onclick="window.print()">🖨️</button>
-      <button onclick="copiarDireita()">📋</button>
-      <div class="menu-dropdown">
-        <button onclick="toggleMenu()">☰</button>
-        <div class="menu-dropdown-content" id="dropdown">
-          <a href="#">Página 1 (em breve)</a>
-          <a href="#">Página 2 (em breve)</a>
-          <a href="#">Página 3 (em breve)</a>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <div class="notification" id="notification">Copiado para a área de transferência!</div>
-
-  <h1>
-    <span class="nav-arrow disabled">←</span>
-    Lista MAC Bairro São Geraldo - Cód. 77
-    <span class="nav-arrow" onclick="proximoMAC()">→</span>
-  </h1>
-
-  <div class="container">
-    <!-- Coluna Esquerda -->
-    <div class="column" id="coluna-esquerda"></div>
-
-    <!-- Botões -->
-    <div id="middle-controls">
-      <button onclick="transferir()">→</button>
-      <button onclick="alternarLinhas()" id="btn-linhas" class="btn-amarelo">Remover Linhas Vazias</button>
-      <button onclick="resetarTudo()" class="btn-vermelho">Resetar Tudo</button>
-    </div>
-
-    <!-- Coluna Direita -->
-    <div class="column" id="coluna-direita"></div>
-  </div>
-
-  <div id="contador-linhas"></div>
-
-  <div class="mac-links">
-    <h3>Outros MACs:</h3>
-    <div class="mac-links-container">
-      <a href="#">MAC 78 - Bairro Planalto (em breve)</a> •
-      <a href="#">MAC 79 - Romeu Duarte (em breve)</a> •
-      <a href="#">MAC 80 - Rua São Geraldo / Centro 2 (em breve)</a> •
-      <a href="#">MAC 277 - Matriz (em breve)</a> •
-      <a href="#">MAC 853 - Concesso (em breve)</a> •
-      <a href="#">MAC 1249 - Jardim do Lago (em breve)</a> •
-      <a href="#">MAC Araújos (em breve)</a>
     </div>
   </div>
 
-  <script>
-    const frasesEsquerda = [
-      "PÃO DE QUEIJO RECHEADO FRANGO  PAC7KG",
-      "PÃO DE QUEIJO  7KG",
-      "PÃO FRANCÊS 6HRS PAC 7KG",
-      "PÃO DE 4 HRS  7KG",
-      "BAGUETE 6  HRS  7KG",
-      "BISCOITO DOCE FRITO MP 1 KG",
-      "BISCOITO DE QUEIJO MP 7 KG",
-      "BISCOITO SEQUILHO MP MANGA",
-      "BISCOITO TRÊS QUEIJOS MP 7 KG",
-      "BOLO FUBA CREMOSO MP 1 UNIDADE",
-      "BOLO MILHO MP 1 UNIDADE",
-      "BROINHA DE FUBA DOCE MP 7 KG",
-      "BROINHA BACON TEMPERADA MP 7 KG",
-      "CROISSANT DE FRANGO MP 7 KG",
-      "CROISSANT DE PRESUNTO MP 7KG",
-      "PÃO DE QUEIJO MEIA LUA MP PAC COM 10 UNI",
-      "PÃO DOCE C/CREME MP 7KG",
-      "PÃO DOCE MP 7KG",
-      "PÃO PANHOCA MP 7KG",
-      "ROSCOVADO MP UNIDADE",
-      "ROSCA CREME E COCO MP PAC COM 5 UNI",
-      "ROSCA TRANCA MP PAC COM 10 UNID",
-      "ROSCA TRANCINHA MP PAC 3KG",
-      "ROSCA TRANCA REDONDA MP",
-      "ROSQUINHA CANUDINHO DE QUEIJO MP PAC COM 7KG",
-      "SALGADO COXINHA DE FRANGO MP 1 KG",
-      "SALGADOS BOLINHA DE CARNE MP 1KG",
-      "SALGADOS EMPADA DE FRANGO MP 1 KG",
-      "SALGADOS ENROLADINHO PRESUNTO MP 1 KG",
-      "SALGADOS PASTEL CATUPIRY MP 1 KG",
-      "SALGADOS KIBE CATUPIRY MP 1 KG",
-      "SONHO MP PAC 3 KG"
-    ];
+  <!-- Menu direito -->
+  <div class="menu-right">
+    <div class="menu-dropdown">
+      <button onclick="toggleMenu('dropdown-save')">💾</button>
+      <div class="menu-dropdown-content" id="dropdown-save">
+        <a href="#" onclick="salvarComoTXT(event)">Salvar como TXT</a>
+        <a href="#" onclick="salvarComoPDF(event)">Salvar como PDF</a>
+        <a href="#" onclick="salvarComoExcel(event)">Salvar como Excel</a>
+      </div>
+    </div>
+    <div class="menu-dropdown">
+      <button onclick="toggleMenu('dropdown-hamburger')">☰</button>
+      <div class="menu-dropdown-content" id="dropdown-hamburger">
+        <a href="#">Opção 1</a>
+        <a href="#">Opção 2</a>
+      </div>
+    </div>
+  </div>
+</header>
 
-    const frasesDireita = [
-      "Baguete 06hrs 7kg",
-      "Biscoitinho doce frito 1kg",
-      "Biscoito de queijo 7kg",
-      "Biscoito três queijos 7kg",
-      "Bolinha de carne pequena 1kg",
-      "Bolo cremoso de fubá 1 unidade",
-      "Bolo cremoso de milho 1 unidade",
-      "Broinha de fubá doce 7kg",
-      "Broinha temperada com bacon 7kg",
-      "Canudinho de queijo 7kg",
-      "Caracol 7kg",
-      "Carioca 7kg",
-      "Coxinha de frango pequena 1kg",
-      "Croissant de frango 7kg",
-      "Croissant de presunto 7kg",
-      "Empadinha de frango pequena 1kg",
-      "Enroladinho de presunto pequeno 1kg",
-      "Meia lua 1kg com 10 unidades",
-      "Mistura biscoito sequilho 4kg",
-      "Panhoca 7kg",
-      "Pão de queijo recheado frango 7kg",
-      "Pão de queijo tradicional 7kg",
-      "Pão francês 04hrs 7kg",
-      "Pão francês 06hrs 7kg",
-      "Pastelzinho catupiry pequeno 1kg",
-      "Quibe com catupiry pequeno 1kg",
-      "Rosca creme e coco PCT 5 unidades",
-      "Roscovado 1 unidade",
-      "Sonho PCT 3kg",
-      "Trança PCT 10 unidades",
-      "Trancinha PCT 3kg",
-      "Trancinha redonda"
-    ];
+<!-- Título com setas -->
+<div class="titulo-nav">
+  <!-- Nenhuma seta esquerda pois é o primeiro -->
+  <span style="width:30px;"></span>
+  <h1>Lista MAC Bairro São Geraldo - Cód. 77</h1>
+  <a href="#" title="Próximo MAC">→</a>
+</div>
 
-    const mapaConexao = [21, 22, 24, 23, 1, 2, 3, 19, 4, 5, 12, 13, 6, 14, 15, 7, 16, 17, 8, 20, 9, 10, 11, 25, 26, 27, 28, 29, 30, 31, 32, 18];
+<!-- Container das colunas e controles -->
+<div class="container">
+  <!-- Coluna esquerda -->
+  <div class="column" id="coluna-esquerda"></div>
 
-    function montarInterface() {
-      const colEsq = document.getElementById("coluna-esquerda");
-      const colDir = document.getElementById("coluna-direita");
-      colEsq.innerHTML = "";
-      colDir.innerHTML = "";
+  <!-- Botões do meio -->
+  <div id="middle-controls">
+    <button onclick="transferir()">→</button>
+    <button onclick="alternarLinhas()" id="btn-linhas" class="btn-amarelo">Remover Linhas Vazias</button>
+    <button onclick="resetarTudo()" class="btn-vermelho">Resetar Tudo</button>
+  </div>
 
-      frasesEsquerda.forEach((frase, i) => {
-        const item = document.createElement("div");
-        item.className = "item";
+  <!-- Coluna direita -->
+  <div class="column" id="coluna-direita"></div>
+</div>
 
-        const input = document.createElement("input");
-        input.type = "text";
-        input.dataset.index = i;
-        input.addEventListener("keydown", function(e) {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            const nextInput = document.querySelector(`#coluna-esquerda input[data-index="${i+1}"]`);
-            if (nextInput) nextInput.focus();
-          }
-          
-          // Permitir apenas números, backspace e delete
-          if (!/[0-9]/.test(e.key) {
-            if (!["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"].includes(e.key)) {
-              e.preventDefault();
-            }
-          }
-        });
+<!-- Contador linhas -->
+<div id="contador-linhas">Linhas preenchidas: 0</div>
 
-        const label = document.createElement("span");
-        label.textContent = frase;
+<!-- Links próximos MACs -->
+<div class="mac-links">
+  <a href="#">MAC 78 - Bairro Planalto (em breve)</a>
+  <a href="#">MAC 79 - Romeu Duarte (em breve)</a>
+  <a href="#">MAC 80 - Rua São Geraldo / Centro 2 (em breve)</a>
+  <a href="#">MAC 277 - Matriz (em breve)</a>
+  <a href="#">MAC 853 - Concesso (em breve)</a>
+  <a href="#">MAC 1249 - Jardim do Lago (em breve)</a>
+  <a href="#">MAC Araújos (em breve)</a>
+</div>
 
-        item.appendChild(label);
-        item.appendChild(input);
-        colEsq.appendChild(item);
+<!-- Aviso cópia -->
+<div id="copy-notice">Copiado!</div>
+
+<script>
+  // Dados originais da sua lista
+  const frasesEsquerda = [
+    "PÃO DE QUEIJO RECHEADO FRANGO  PAC7KG",
+    "PÃO DE QUEIJO  7KG",
+    "PÃO FRANCÊS 6HRS PAC 7KG",
+    "PÃO DE 4 HRS  7KG",
+    "BAGUETE 6  HRS  7KG",
+    "BISCOITO DOCE FRITO MP 1 KG",
+    "BISCOITO DE QUEIJO MP 7 KG",
+    "BISCOITO SEQUILHO MP MANGA",
+    "BISCOITO TRÊS QUEIJOS MP 7 KG",
+    "BOLO FUBA CREMOSO MP 1 UNIDADE",
+    "BOLO MILHO MP 1 UNIDADE",
+    "BROINHA DE FUBA DOCE MP 7 KG",
+    "BROINHA BACON TEMPERADA MP 7 KG",
+    "CROISSANT DE FRANGO MP 7 KG",
+    "CROISSANT DE PRESUNTO MP 7KG",
+    "PÃO DE QUEIJO MEIA LUA MP PAC COM 10 UNI",
+    "PÃO DOCE C/CREME MP 7KG",
+    "PÃO DOCE MP 7KG",
+    "PÃO PANHOCA MP 7KG",
+    "ROSCOVADO MP UNIDADE",
+    "ROSCA CREME E COCO MP PAC COM 5 UNI",
+    "ROSCA TRANCA MP PAC COM 10 UNID",
+    "ROSCA TRANCINHA MP PAC 3KG",
+    "ROSCA TRANCA REDONDA MP",
+    "ROSQUINHA CANUDINHO DE QUEIJO MP PAC COM 7KG",
+    "SALGADO COXINHA DE FRANGO MP 1 KG",
+    "SALGADOS BOLINHA DE CARNE MP 1KG",
+    "SALGADOS EMPADA DE FRANGO MP 1 KG",
+    "SALGADOS ENROLADINHO PRESUNTO MP 1 KG",
+    "SALGADOS PASTEL CATUPIRY MP 1 KG",
+    "SALGADOS KIBE CATUPIRY MP 1 KG",
+    "SONHO MP PAC 3 KG"
+  ];
+
+  const frasesDireita = [
+    "Baguete 06hrs 7kg",
+    "Biscoitinho doce frito 1kg",
+    "Biscoito de queijo 7kg",
+    "Biscoito três queijos 7kg",
+    "Bolinha de carne pequena 1kg",
+    "Bolo cremoso de fubá 1 unidade",
+    "Bolo cremoso de milho 1 unidade",
+    "Broinha de fubá doce 7kg",
+    "Broinha temperada com bacon 7kg",
+    "Canudinho de queijo 7kg",
+    "Caracol 7kg",
+    "Carioca 7kg",
+    "Coxinha de frango pequena 1kg",
+    "Croissant de frango 7kg",
+    "Croissant de presunto 7kg",
+    "Empadinha de frango pequena 1kg",
+    "Enroladinho de presunto pequeno 1kg",
+    "Meia lua 1kg com 10 unidades",
+    "Mistura biscoito sequilho 4kg",
+    "Panhoca 7kg",
+    "Pão de queijo recheado frango 7kg",
+    "Pão de queijo tradicional 7kg",
+    "Pão francês 04hrs 7kg",
+    "Pão francês 06hrs 7kg",
+    "Pastelzinho catupiry pequeno 1kg",
+    "Quibe com catupiry pequeno 1kg",
+    "Rosca creme e coco PCT 5 unidades",
+    "Roscovado 1 unidade",
+    "Sonho PCT 3kg",
+    "Trança PCT 10 unidades",
+    "Trancinha PCT 3kg",
+    "Trancinha redonda"
+  ];
+
+  // Índices de conexão (origem -> destino)
+  const mapaConexao = [5, 6, 7, 9, 27, 10, 11, 12, 13, 25, 17, 18, 26, 14, 15, 28, 29, 16, 8, 19, 1, 2, 4, 3, 30, 31, 21, 20, 32, 22, 23, 24];
+
+  // Monta a interface: colunas esquerda e direita
+  function montarInterface() {
+    const colEsq = document.getElementById("coluna-esquerda");
+    const colDir = document.getElementById("coluna-direita");
+    colEsq.innerHTML = "";
+    colDir.innerHTML = "";
+
+    frasesEsquerda.forEach((frase, i) => {
+      const item = document.createElement("div");
+      item.className = "item";
+
+      const label = document.createElement("span");
+      label.textContent = frase;
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.dataset.index = i;
+
+      // Bloquear entrada que não seja número
+      input.addEventListener("input", () => {
+        input.value = input.value.replace(/[^0-9]/g, '');
       });
-
-      frasesDireita.forEach((frase, i) => {
-        const item = document.createElement("div");
-        item.className = "item";
-
-        const label = document.createElement("span");
-        label.textContent = frase;
-
-        const output = document.createElement("input");
-        output.type = "text";
-        output.readOnly = true;
-        output.dataset.index = i;
-
-        item.appendChild(label);
-        item.appendChild(output);
-        colDir.appendChild(item);
-      });
-    }
-
-    function transferir() {
-      const inputs = document.querySelectorAll("#coluna-esquerda input");
-      const outputs = document.querySelectorAll("#coluna-direita input");
-
-      // Limpar todos os outputs primeiro
-      outputs.forEach(output => {
-        output.value = "";
-      });
-
-      // Preencher de acordo com o mapeamento
-      mapaConexao.forEach((origem, destino) => {
-        const valor = inputs[origem - 1].value.trim();
-        if (valor) {
-          outputs[destino].value = valor;
+      // Enter pula para o próximo input na esquerda
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          const nextInput = colEsq.querySelector(`input[data-index="${i + 1}"]`);
+          if (nextInput) nextInput.focus();
         }
       });
 
-      atualizarContagemDireita();
-    }
+      item.appendChild(label);
+      item.appendChild(input);
+      colEsq.appendChild(item);
+    });
 
-    function removerVazios() {
-      const colDir = document.getElementById("coluna-direita");
-      const items = colDir.querySelectorAll(".item");
+    frasesDireita.forEach((frase, i) => {
+      const item = document.createElement("div");
+      item.className = "item";
 
-      items.forEach(item => {
-        const input = item.querySelector("input[type='text']");
-        if (input && input.value.trim() === "") {
-          item.style.display = "none";
-        }
-      });
-    }
+      const label = document.createElement("span");
+      label.textContent = frase;
 
-    function restaurarLinhas() {
-      const colDir = document.getElementById("coluna-direita");
-      const items = colDir.querySelectorAll(".item");
+      const output = document.createElement("input");
+      output.type = "text";
+      output.readOnly = true;
+      output.dataset.index = i;
 
-      items.forEach(item => {
-        item.style.display = "flex";
-      });
-    }
+      item.appendChild(label);
+      item.appendChild(output);
+      colDir.appendChild(item);
+    });
+  }
 
-    function copiarDireita() {
-      const outputs = document.querySelectorAll("#coluna-direita input");
-      const textos = [];
-      outputs.forEach((output, i) => {
-        if (output.value.trim() !== "" && output.parentElement.style.display !== "none") {
-          const label = output.parentElement.querySelector("span").textContent;
-          textos.push(`${label}: ${output.value}`);
-        }
-      });
-      const textoFinal = textos.join("\n");
-      navigator.clipboard.writeText(textoFinal)
-        .then(() => {
-          const notification = document.getElementById("notification");
-          notification.style.display = "block";
-          setTimeout(() => {
-            notification.style.display = "none";
-          }, 2000);
-        })
-        .catch(err => console.error("Erro ao copiar: ", err));
-    }
+  // Transfere valores da esquerda para a direita via mapaConexao
+  function transferir() {
+    const inputs = document.querySelectorAll("#coluna-esquerda input");
+    const outputs = document.querySelectorAll("#coluna-direita input");
+    mapaConexao.forEach((origem, destino) => {
+      outputs[destino].value = inputs[origem - 1].value.trim();
+    });
+    atualizarContagemDireita();
+  }
 
-    function salvarComoTexto() {
-      const outputs = document.querySelectorAll("#coluna-direita input");
-      const textos = [];
-      outputs.forEach((output, i) => {
-        if (output.value.trim() !== "" && output.parentElement.style.display !== "none") {
-          const label = output.parentElement.querySelector("span").textContent;
-          textos.push(`${label}: ${output.value}`);
-        }
-      });
-      const blob = new Blob([textos.join("\n")], { type: 'text/plain' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'lista_mac_77.txt';
-      a.click();
-    }
+  // Controle para esconder/mostrar linhas vazias da direita
+  let linhasOcultas = false;
+  let elementosOcultos = [];
 
-    function salvarComoPDF() {
-      window.print();
-    }
-
-    function salvarComoExcel() {
-      const outputs = document.querySelectorAll("#coluna-direita input");
-      let csvContent = "Produto,Quantidade\n";
-      
-      outputs.forEach((output, i) => {
-        if (output.value.trim() !== "" && output.parentElement.style.display !== "none") {
-          const label = output.parentElement.querySelector("span").textContent;
-          csvContent += `"${label}","${output.value}"\n`;
-        }
-      });
-      
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement("a");
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", "lista_mac_77.csv");
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    let linhasOcultas = false;
-    let elementosOcultos = [];
-
-    function alternarLinhas() {
-      if (!linhasOcultas) {
-        removerVazios();
-        document.getElementById('btn-linhas').innerText = "Restaurar Linhas Vazias";
-      } else {
-        restaurarLinhas();
-        document.getElementById('btn-linhas').innerText = "Remover Linhas Vazias";
-      }
-      linhasOcultas = !linhasOcultas;
-      atualizarContagemDireita();
-    }
-
-    function resetarTudo() {
-      const inputs = document.querySelectorAll("#coluna-esquerda input[type='text']");
-      inputs.forEach((input) => {
-        input.value = "";
-      });
-      
-      const outputs = document.querySelectorAll("#coluna-direita input[type='text']");
-      outputs.forEach((output) => {
-        output.value = "";
-      });
-      
+  function alternarLinhas() {
+    if (!linhasOcultas) {
+      removerVazios();
+      document.getElementById('btn-linhas').innerText = "Restaurar Linhas Vazias";
+    } else {
       restaurarLinhas();
-      linhasOcultas = false;
       document.getElementById('btn-linhas').innerText = "Remover Linhas Vazias";
-      atualizarContagemDireita();
     }
+    linhasOcultas = !linhasOcultas;
+  }
 
-    function atualizarContagemDireita() {
-      const outputs = document.querySelectorAll("#coluna-direita input");
-      let preenchidos = 0;
-      outputs.forEach(output => {
-        if (output.parentElement.style.display !== "none" && output.value.trim() !== "") preenchidos++;
-      });
-      document.getElementById("contador-linhas").innerText = `Linhas preenchidas: ${preenchidos}`;
-    }
-
-    function toggleMenu() {
-      const dropdown = document.getElementById('dropdown');
-      if (dropdown.style.display === 'block') {
-        dropdown.style.opacity = 0;
-        setTimeout(() => {
-          dropdown.style.display = 'none';
-        }, 200);
-      } else {
-        dropdown.style.display = 'block';
-        setTimeout(() => {
-          dropdown.style.opacity = 1;
-        }, 0);
+  function removerVazios() {
+    const inputs = document.querySelectorAll("#coluna-direita .item input");
+    elementosOcultos = [];
+    inputs.forEach(input => {
+      if (input.value.trim() === "") {
+        input.parentElement.style.display = "none";
+        elementosOcultos.push(input.parentElement);
       }
-    }
+    });
+  }
 
-    function toggleSaveMenu() {
-      const dropdown = document.getElementById('save-dropdown');
-      if (dropdown.style.display === 'block') {
-        dropdown.style.opacity = 0;
-        setTimeout(() => {
-          dropdown.style.display = 'none';
-        }, 200);
-      } else {
-        dropdown.style.display = 'block';
-        setTimeout(() => {
-          dropdown.style.opacity = 1;
-        }, 0);
+  function restaurarLinhas() {
+    elementosOcultos.forEach(el => el.style.display = "flex");
+    elementosOcultos = [];
+  }
+
+  // Reseta todos os inputs e restaura linhas
+  function resetarTudo() {
+    const inputs = document.querySelectorAll("input[type='text']");
+    inputs.forEach(input => input.value = "");
+    restaurarLinhas();
+    atualizarContagemDireita();
+  }
+
+  // Atualiza contador de linhas preenchidas na direita
+  function atualizarContagemDireita() {
+    const outputs = document.querySelectorAll("#coluna-direita input");
+    let preenchidos = 0;
+    outputs.forEach(output => {
+      if (output.style.display !== "none" && output.value.trim() !== "") preenchidos++;
+    });
+    document.getElementById("contador-linhas").innerText = `Linhas preenchidas: ${preenchidos}`;
+  }
+
+  // Copiar conteúdo da coluna direita para área de transferência sem alert
+  function copiarDireita() {
+    const outputs = document.querySelectorAll("#coluna-direita input");
+    const textos = [];
+    outputs.forEach(output => {
+      if (output.value.trim() !== "") {
+        const label = output.parentElement.querySelector("span").textContent;
+        textos.push(`${label}: ${output.value}`);
       }
-    }
+    });
+    const textoFinal = textos.join("\n");
+    navigator.clipboard.writeText(textoFinal).then(() => {
+      mostrarAvisoCopia();
+    }).catch(() => {
+      // falha silenciosa
+    });
+  }
 
-    function proximoMAC() {
-      // Aqui você pode adicionar a lógica para ir para o próximo MAC
-      alert("Próximo MAC (em breve)");
-    }
+  // Mostra mensagem de cópia por 2 segundos
+  function mostrarAvisoCopia() {
+    const aviso = document.getElementById("copy-notice");
+    aviso.style.display = "block";
+    setTimeout(() => { aviso.style.display = "none"; }, 2000);
+  }
 
-    // Fechar menus ao clicar fora
-    document.addEventListener('click', function(event) {
-      if (!event.target.matches('.menu-dropdown button')) {
-        const dropdowns = document.querySelectorAll('.menu-dropdown-content');
-        dropdowns.forEach(dropdown => {
-          if (dropdown.style.display === 'block') {
-            dropdown.style.opacity = 0;
-            setTimeout(() => {
-              dropdown.style.display = 'none';
-            }, 200);
-          }
-        });
+  // Salvar como TXT - pega tudo da coluna direita, label + valor
+  function salvarComoTXT(e) {
+    e.preventDefault();
+    const outputs = document.querySelectorAll("#coluna-direita input");
+    const textos = [];
+    outputs.forEach(output => {
+      if (output.value.trim() !== "") {
+        const label = output.parentElement.querySelector("span").textContent;
+        textos.push(`${label}: ${output.value}`);
+      }
+    });
+    baixarArquivo(textos.join("\n"), "lista_mac_77.txt", "text/plain");
+  }
+
+  // Salvar como PDF - usa jsPDF, imprime as duas colunas e a contagem, texto simples
+  function salvarComoPDF(e) {
+    e.preventDefault();
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Pega os textos da esquerda e valores da direita via mapaConexao
+    const linhas = [];
+    mapaConexao.forEach((origem, destino) => {
+      const texto = frasesEsquerda[origem-1];
+      const valor = document.querySelectorAll("#coluna-direita input")[destino].value.trim();
+      if(valor !== "") linhas.push({texto, valor});
+    });
+
+    doc.setFont("monospace");
+    doc.setFontSize(12);
+
+    let y = 10;
+    linhas.forEach(({texto, valor}) => {
+      doc.text(texto, 10, y);
+      doc.text(valor, 120, y);
+      y += 8;
+    });
+    doc.text(`Linhas preenchidas: ${linhas.length}`, 10, y + 10);
+
+    doc.save("lista_mac_77.pdf");
+  }
+
+  // Salvar como Excel - usa SheetJS, só coluna direita, frases + valores preenchidos
+  function salvarComoExcel(e) {
+    e.preventDefault();
+
+    const wb = XLSX.utils.book_new();
+
+    const data = [];
+    const outputs = document.querySelectorAll("#coluna-direita input");
+    outputs.forEach((output, i) => {
+      if(output.value.trim() !== "") {
+        data.push([frasesDireita[i], output.value]);
       }
     });
 
-    montarInterface();
-  </script>
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    XLSX.utils.book_append_sheet(wb, ws, "MAC 77");
+
+    XLSX.writeFile(wb, "lista_mac_77.xlsx");
+  }
+
+  // Toggle menu dropdowns, fecha qualquer outro aberto
+  function toggleMenu(id) {
+    const allDropdowns = document.querySelectorAll(".menu-dropdown-content");
+    allDropdowns.forEach(menu => {
+      if(menu.id !== id) {
+        menu.style.display = "none";
+        menu.style.opacity = 0;
+      }
+    });
+    const dropdown = document.getElementById(id);
+    if(dropdown.style.display === "block") {
+      dropdown.style.opacity = 0;
+      setTimeout(() => { dropdown.style.display = "none"; }, 200);
+    } else {
+      dropdown.style.display = "block";
+      setTimeout(() => { dropdown.style.opacity = 1; }, 10);
+    }
+  }
+
+  // Fecha menus se clicar fora
+  document.addEventListener("click", (e) => {
+    if(!e.target.closest(".menu-dropdown")) {
+      document.querySelectorAll(".menu-dropdown-content").forEach(menu => {
+        menu.style.display = "none";
+        menu.style.opacity = 0;
+      });
+    }
+  });
+
+  // Função auxiliar para baixar arquivos
+  function baixarArquivo(conteudo, nomeArquivo, tipo) {
+    const blob = new Blob([conteudo], {type: tipo});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = nomeArquivo;
+    a.click();
+  }
+
+  // Inicializa tudo ao carregar
+  montarInterface();
+
+</script>
+
 </body>
 </html>

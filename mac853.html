@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MAC 853 - Organizador de Lista</title>
+
+<!-- jsPDF + SheetJS via CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+  /* ===== base / tipografia ===== */
+  :root {
+    --azul: #007BFF;
+    --azul-escuro: #0056b3;
+    --amarelo: #FFD700;
+    --vermelho: #b22222;
+  }
+  html,body { height:100%; }
+  body {
+    font-family: monospace;
+    margin: 0;
+    padding: 0;
+    color: #111;
+    background: #fff;
+  }
+
+  /* ===== header ===== */
+  header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background: var(--azul);
+    color: white;
+    padding: 10px 14px;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+  }
+  .menu-left, .menu-right {
+    display:flex;
+    gap: 8px;
+    align-items:center;
+  }
+  .icon-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 6px;
+  }
+  .icon-btn:hover { background: rgba(255,255,255,0.08); }
+
+  /* dropdowns */
+  .menu-dropdown { position: relative; }
+  .menu-dropdown-content {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    background: white;
+    color: #111;
+    border-radius: 6px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    min-width: 220px;
+    max-width: calc(100vw - 40px);
+    overflow: auto;
+    z-index: 1200;
+    padding: 6px 0;
+    white-space: normal;
+  }
+  .menu-right .menu-dropdown-content { right: 0; left: auto; }
+
+  .menu-dropdown-content a {
+    display:block;
+    padding: 8px 12px;
+    color: #111;
+    text-decoration: none;
+    font-family: monospace;
+  }
+  .menu-dropdown-content a:hover { background: #f2f2f2; }
+
+  .dropdown-section { border-top: 1px solid #f0f0f0; padding-top: 6px; margin-top: 6px; }
+  .section-header {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-weight:700;
+  }
+  .section-header small { font-weight:400; color:#666; }
+  .submenu { display:none; padding-left: 6px; padding-bottom:6px; }
+  .submenu a { padding-left: 18px; font-weight:500; }
+
+  /* ===== título com setas ===== */
+  .titulo-nav {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap: 16px;
+    margin: 14px 10px 8px;
+  }
+  .titulo-nav h1 {
+    margin:0;
+    font-size:18px;
+    color:#111;
+  }
+  .titulo-nav a {
+    color: var(--azul);
+    text-decoration:none;
+    font-size:22px;
+    user-select:none;
+  }
+  .titulo-nav .arrow {
+    width:28px;
+    height:28px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:6px;
+    cursor:pointer;
+    color:var(--azul-escuro);
+    text-decoration:none;
+  }
+  .titulo-nav .arrow:hover { background:#f0f8ff; }
+
+  /* ===== container duas colunas ===== */
+  .container {
+    display:flex;
+    justify-content:center;
+    gap: 48px;
+    align-items:flex-start;
+    padding: 10px 14px 24px;
+    flex-wrap:wrap;
+  }
+  .column {
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    min-width: 300px;
+    max-width: 420px;
+    width: 100%;
+  }
+
+  .item {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:6px 8px;
+    border-radius:6px;
+  }
+  .item span { flex:1; color:#111; }
+  .item input[type="text"] {
+    width: 60px;
+    padding:6px 6px;
+    font-family: monospace;
+    text-align:center;
+    border:1px solid #ddd;
+    border-radius:4px;
+    background: white;
+    transition: box-shadow .12s, border-color .12s;
+  }
+  .item input[readonly] { background: #fafafa; }
+
+  .item input:focus {
+    outline: none;
+    border-color: var(--azul-escuro);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.12);
+  }
+
+  /* ===== middle controls ===== */
+  #middle-controls {
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    align-items:center;
+    justify-content:center;
+    min-width:170px;
+  }
+  #middle-controls button {
+    width:170px;
+    padding:10px 12px;
+    font-size:14px;
+    border-radius:6px;
+    border:none;
+    cursor:pointer;
+  }
+  #middle-controls button:first-child { background:var(--azul); color:white; }
+  .btn-amarelo { background: var(--amarelo); color:black; }
+  .btn-amarelo:hover { background:#e6c200; }
+  .btn-vermelho { background: var(--vermelho); color:white; }
+  .btn-vermelho:hover { background:#8b1a1a; }
+
+  /* ===== contador ===== */
+  #contador-linhas { text-align:center; margin: 12px 0 24px; font-weight:700; }
+
+  /* ===== mac-links (rodapé) estilo em grid 4x) ===== */
+  .mac-links {
+    margin: 0 14px 30px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    align-items:stretch;
+  }
+  .mac-links a {
+    display:block;
+    padding:8px 10px;
+    background: #f7fbff;
+    border:1px solid #e6f0ff;
+    color: var(--azul);
+    text-decoration:none;
+    border-radius:6px;
+    text-align:center;
+    font-family: monospace;
+  }
+  .mac-links a:hover { background:#eef6ff; }
+
+  @media (max-width:900px) {
+    .container { gap: 20px; padding:10px; }
+    .mac-links { grid-template-columns: repeat(2, 1fr); }
+    #middle-controls { order: 2; }
+  }
+  @media (max-width:520px) {
+    .container { flex-direction:column; align-items:center; }
+    .column { max-width: 100%; min-width: auto; width: 100%; }
+    .mac-links { grid-template-columns: repeat(1, 1fr); }
+    #middle-controls { flex-direction:row; gap: 8px; }
+    #middle-controls button { width: 120px; }
+  }
+
+  /* aviso / toast discreto (reaproveitamos #copy-notice) */
+  #copy-notice {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    background: rgba(0,0,0,0.78);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: none;
+    z-index: 2000;
+    font-family: monospace;
+    font-size: 13px;
+  }
+
+  @media print {
+    header, .menu-dropdown-content, #middle-controls, .mac-links, #copy-notice { display: none !important; }
+    body, html { font-family: monospace; }
+    .container { gap: 0; padding: 0; }
+    .column { box-shadow: none; border: none; }
+    .column { min-width: 40%; }
+  }
+</style>
+</head>
+<body>
+
+<div id="nav-placeholder"></div> 
+
+<header>
+  <div class="menu-left">
+    <div class="menu-dropdown">
+      <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')">☰</button>
+
+      <div class="menu-dropdown-content" id="dropdown-menu" role="menu" aria-hidden="true">
+        <div class="dropdown-section">
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)">
+            <span>MACS</span>
+            <small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="#" data-mac="77" onclick="abrirMac(event, 'MAC Bairro São Geraldo - Cód. 77')">MAC Bairro São Geraldo - Cód. 77</a>
+            <a href="#" data-mac="78" onclick="abrirMac(event, 'MAC Bairro Planalto - Cód. 78')">MAC Bairro Planalto - Cód. 78</a>
+            <a href="#" data-mac="79" onclick="abrirMac(event, 'MAC Romeu Duarte - Cód. 79')">MAC Romeu Duarte - Cód. 79</a>
+            <a href="#" data-mac="80" onclick="abrirMac(event, 'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC Rua São Geraldo / Centro 2 - Cód. 80</a>
+            <a href="#" data-mac="277" onclick="abrirMac(event, 'MAC Matriz - Cód. 277')">MAC Matriz - Cód. 277</a>
+            <a href="#" data-mac="853" onclick="abrirMac(event, 'MAC Concesso - Cód. 853')">MAC Concesso - Cód. 853</a>
+            <a href="#" data-mac="1249" onclick="abrirMac(event, 'MAC Jardim do Lago - Cód. 1249')">MAC Jardim do Lago - Cód. 1249</a>
+            <a href="#" data-mac="989" onclick="abrirMac(event, 'MAC Araújos - Cód. 989')">MAC Araújos - Cód. 989</a>
+          </div>
+        </div>
+
+        <div class="dropdown-section">
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)">
+            <span>São José</span>
+            <small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="#" onclick="abrirLocal(event, 'São José')">São José</a>
+            <a href="#" onclick="abrirLocal(event, 'Pão Total')">Pão Total</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- X (fechar) — sem confirm -->
+    <button class="icon-btn" id="btn-close" title="Fechar" onclick="fecharPagina()">❌</button>
+
+    <!-- Home — placeholder sem alert (vai receber redirecionamento depois) -->
+    <button class="icon-btn" id="btn-home" title="Menu inicial" onclick="voltarMenu()">🏠</button>
+  </div>
+
+  <div class="menu-right">
+    <div class="menu-dropdown">
+      <button class="icon-btn" id="btn-salvar" title="Salvar" onclick="toggleMenu('dropdown-save')">💾</button>
+      <div class="menu-dropdown-content" id="dropdown-save" aria-labelledby="btn-salvar">
+        <a href="#" onclick="salvarComoTXT(event)" title="Salvar como TXT">Salvar como TXT</a>
+        <a href="#" onclick="salvarComoPDF(event)" title="Salvar como PDF">Salvar como PDF</a>
+        <a href="#" onclick="salvarComoExcel(event)" title="Salvar como Excel">Salvar como Excel</a>
+      </div>
+    </div>
+
+    <!-- botão imprimir: listener adicionado via JS mais abaixo -->
+    <button class="icon-btn" id="btn-print" title="Imprimir">
+      🖨️
+    </button>
+
+    <button class="icon-btn" id="btn-copy" title="Copiar" onclick="copiarDireita()">
+      📋
+    </button>
+  </div>
+</header>
+
+<div class="titulo-nav" role="navigation" aria-label="Navegação MAC">
+  <a href="#" class="arrow" id="arrow-left" title="Anterior" onclick="navegarAnterior()">←</a>
+  <h1 id="titulo-principal">Lista MAC Concesso - Cód. 853</h1>
+  <a href="#" class="arrow" id="arrow-right" title="Próximo MAC" onclick="navegarProximo()">→</a>
+</div>
+
+<div class="container">
+  <div class="column" id="coluna-esquerda"></div>
+
+  <div id="middle-controls" aria-hidden="false">
+    <button id="btn-transfer" onclick="transferir()">→</button>
+    <button onclick="alternarLinhas()" id="btn-linhas" class="btn-amarelo">Remover Linhas Vazias</button>
+    <button onclick="resetarTudo()" class="btn-vermelho">Resetar Tudo</button>
+  </div>
+
+  <div class="column" id="coluna-direita"></div>
+</div>
+
+<div id="contador-linhas">Linhas preenchidas: 0</div>
+
+<div class="mac-links" role="navigation" aria-label="Outros MACs">
+  <a href="#" onclick="abrirMac(event,'MAC Bairro São Geraldo - Cód. 77')">MAC 77 - Bairro São Geraldo</a>
+  <a href="#" onclick="abrirMac(event,'MAC Bairro Planalto - Cód. 78')">MAC 78 - Bairro Planalto</a>
+  <a href="#" onclick="abrirMac(event,'MAC Roumeu Duarte - Cód. 79')">MAC 79 - Romeu Duarte</a>
+  <a href="#" onclick="abrirMac(event,'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC 80 - Rua São Geraldo / Centro 2</a>
+  <a href="#" onclick="abrirMac(event,'MAC Matriz - Cód. 277')">MAC 277 - Matriz</a>
+  <a href="#" onclick="abrirMac(event,'MAC Jardim do Lago - Cód. 1249')">MAC 1249 - Jardim do Lago</a>
+  <a href="#" onclick="abrirMac(event,'MAC Araújos - Cód. 989')">MAC 989 - Araújos</a>
+</div>
+
+<!-- aviso discreto (reaproveitado para toasts) -->
+<div id="copy-notice">Copiado!</div>
+
+<script src="nav.js"></script>
+
+<script>
+/* ============================
+   Dados
+   ============================ */
+const frasesEsquerda = [
+  "PAO DE QUEIJO RECHEADO FRANGO  PAC 7 KG",
+  "PAO DE QUEIJO TRADICIONAL PACT 7 KG",
+  "PAO FRANCES 6HRS PAC 7 KG",
+  "PAO FRANCES 4HRS PAC 7 KG",
+  "PAO FRANCES 12HRS PAC 7 KG",
+  "BAGUETE 6 HRS 7 KG",
+  "BAGUETE 12 HRS 7 KG",
+  "BISCOITO DOCE FRITO MP 1 KG",
+  "BISCOITO DE QUEIJO MP 7 KG",
+  "BISCOITO SEQUILHO MP MANGA",
+  "BISCOITO TRES QUEIJOS MP 7 KG",
+  "BOLO FUBA CREMOSO MP 1 UNIDADE",
+  "BOLO MILHO MP 1 UNIDADE",
+  "BROINHA DE FUBA DOCE MP 7 KG",
+  "BROINHA BACON TEMPERADA MP 7 KG",
+  "CROISSANT DE FRANGO MP 7 KG",
+  "CROISSANT DE PRESUNTO MP 7 KG",
+  "PÃO DE BATATA MP 7 KG",
+  "PAO DE QUEIJO MEIA LUA PAC COM 10 UNI",
+  "PAO DOCE C/CREME MP 7 KG CARACOL",
+  "PÃO DOCE MP 7 KG",
+  "PÃO DOCE MINI MP 7 KG",
+  "PÃO MILHO MP 7 KG",
+  "PAO PANHOCA MP 7KG 6H",
+  "PAO PANHOCA MP 7KG 12H",
+  "ROSCOVADO MP UNIDADE",
+  "ROSCA FRUTAS CRISTALIZADAS",
+  "ROSCA CREME E COCO REDONDA",
+  "ROSCA CREME E COCO MP PAC COM 5 UNI",
+  "ROSCA TRANCA MP PAC COM 10 UNI",
+  "ROSCA TRANCINHA MP PAC 3KG",
+  "ROSCA TRANCA REDONDA MP",
+  "ROSQUINHA DE QUEIJO MP PAC COM 7KG",
+  "SALGADO COXINHA DE FRANGO MP 1 KG",
+  "SALGADOS BOLINHA DE CARNE MP 1 KG",
+  "SALGADOS EMPADA DE FRANGO MP 1 KG",
+  "SALGADOS ENROLADINHO PRESUNTO MP 1 KG",
+  "SALGADOS PASTEL CATUPIRY MP 1 KG",
+  "SALGADOS KIBE CATUPIRY MP 1 KG"
+];
+
+const frasesDireita = [
+  "Baguete 06hrs 7kg",
+  "Baguete 12hrs 7kg",
+  "Biscoitinho doce frito 1kg",
+  "Biscoito de queijo 7kg",
+  "Biscoito três queijos 7kg",
+  "Bolinha de carne pequena 1kg",
+  "Bolo cremoso de fubá 1 unidade",
+  "Bolo cremoso de milho 1 unidade",
+  "Broinha de fubá doce 7kg",
+  "Broinha temperada com bacon 7kg",
+  "Canudinho de queijo 7kg",
+  "Caracol 7kg",
+  "Carioca 7kg",
+  "Coxinha de frango pequena 1kg",
+  "Croissant de frango 7kg",
+  "Croissant de presunto 7kg",
+  "Empadinha de frango pequena 1kg",
+  "Enroladinho de presunto pequeno 1kg",
+  "Meia lua 1kg com 10 unidades",
+  "Mini carioca 7kg",
+  "Mistura biscoito sequilho 4kg",
+  "Panhoca 06hrs 7kg",
+  "Panhoca 12hrs 7kg",
+  "Pão de batata 7kg",
+  "Pão de milho 7kg",
+  "Pão de queijo recheado frango pequeno 7kg",
+  "Pão de queijo tradicional pequeno 7kg",
+  "Pão francês 04hrs 7kg",
+  "Pão francês 06hrs 7kg",
+  "Pão francês 12hrs 7kg",
+  "Pastelzinho catupiry pequeno 1kg",
+  "Quibe com catupiry pequeno 1kg",
+  "Rosca creme e coco PCT 5 unidades",
+  "Rosca creme e coco redonda PCT 5 unidades",
+  "Rosca frutas cristalizadas PCT 5 unidades",
+  "Roscovado 1 unidade",
+  "Trança PCT 10 unidades",
+  "Trancinha PCT 3kg",
+  "Trancinha redonda"
+];
+
+const mapaConexao = [6,7,8,9,11,35,12,13,14,15,33,20,21,34,16,17,36,37,19,22,10,24,25,18,23,1,2,4,3,5,38,39,29,28,27,26,30,31,32]
+
+/* ============================
+   Utilitários
+   ============================ */
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/* ============================
+   Toast / aviso inferior direito
+   ============================ */
+function showBottomNotice(message = 'Copiado!', duration = 2000) {
+  const el = document.getElementById('copy-notice');
+  if (!el) return;
+  // se já estiver visível, cancela o timeout anterior
+  if (el._hideTimeout) {
+    clearTimeout(el._hideTimeout);
+    el._hideTimeout = null;
+  }
+  el.textContent = message;
+  el.style.display = 'block';
+  el._hideTimeout = setTimeout(() => {
+    el.style.display = 'none';
+    el._hideTimeout = null;
+  }, duration);
+}
+
+// compat shim para chamadas antigas
+function mostrarAvisoCopia() {
+  showBottomNotice('Copiado!', 2000);
+}
+
+/* ============================
+   Construção da interface
+   ============================ */
+function montarInterface() {
+  const colEsq = document.getElementById("coluna-esquerda");
+  const colDir = document.getElementById("coluna-direita");
+  colEsq.innerHTML = "";
+  colDir.innerHTML = "";
+
+  frasesEsquerda.forEach((frase, i) => {
+    const item = document.createElement("div");
+    item.className = "item";
+
+    const label = document.createElement("span");
+    label.textContent = frase;
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.dataset.index = i;
+    input.setAttribute('inputmode','numeric');
+    input.setAttribute('aria-label', `Quantidade ${frase}`);
+
+    input.addEventListener("input", () => {
+      const cur = input.value;
+      const filtered = cur.replace(/[^0-9]/g, '');
+      if (cur !== filtered) input.value = filtered;
+    });
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const next = colEsq.querySelector(`input[data-index="${i+1}"]`);
+        if (next) next.focus();
+      }
+    });
+
+    item.appendChild(label);
+    item.appendChild(input);
+    colEsq.appendChild(item);
+  });
+
+  frasesDireita.forEach((frase, i) => {
+    const item = document.createElement("div");
+    item.className = "item";
+
+    const label = document.createElement("span");
+    label.textContent = frase;
+
+    const output = document.createElement("input");
+    output.type = "text";
+    output.readOnly = true;
+    output.dataset.index = i;
+    output.setAttribute('aria-label', `Resultado ${frase}`);
+
+    item.appendChild(label);
+    item.appendChild(output);
+    colDir.appendChild(item);
+  });
+
+  atualizarContagemDireita();
+}
+
+/* ============================
+   Funções principais
+   ============================ */
+function transferir() {
+  const inputs = Array.from(document.querySelectorAll("#coluna-esquerda input"));
+  const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
+  mapaConexao.forEach((origemOneBased, idxDestino) => {
+    const origemIndex = origemOneBased - 1;
+    const valor = inputs[origemIndex] ? inputs[origemIndex].value.trim() : "";
+    if (outputs[idxDestino]) outputs[idxDestino].value = valor;
+  });
+  atualizarContagemDireita();
+}
+
+let linhasOcultas = false;
+let elementosOcultos = [];
+
+function alternarLinhas() {
+  if (!linhasOcultas) {
+    removerVazios();
+    document.getElementById('btn-linhas').innerText = "Restaurar Linhas Vazias";
+  } else {
+    restaurarLinhas();
+    document.getElementById('btn-linhas').innerText = "Remover Linhas Vazias";
+  }
+  linhasOcultas = !linhasOcultas;
+}
+function removerVazios() {
+  const items = document.querySelectorAll("#coluna-direita .item");
+  elementosOcultos = [];
+  items.forEach(it => {
+    const input = it.querySelector("input[type='text']");
+    if (input && input.value.trim() === "") {
+      it.style.display = "none";
+      elementosOcultos.push(it);
+    }
+  });
+}
+function restaurarLinhas() {
+  elementosOcultos.forEach(el => el.style.display = "flex");
+  elementosOcultos = [];
+}
+
+function resetarTudo() {
+  const inputs = document.querySelectorAll("input[type='text']");
+  inputs.forEach(i => i.value = "");
+  restaurarLinhas();
+  atualizarContagemDireita();
+}
+
+function atualizarContagemDireita() {
+  const outputs = document.querySelectorAll("#coluna-direita input");
+  let preenchidos = 0;
+  outputs.forEach(out => {
+    if (out.parentElement.style.display !== "none" && out.value.trim() !== "") preenchidos++;
+  });
+  document.getElementById("contador-linhas").innerText = `Linhas preenchidas: ${preenchidos}`;
+}
+
+/* ============================
+   Copiar / aviso discreto
+   ============================ */
+function copiarDireita() {
+  const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
+  const textos = [];
+  outputs.forEach(output => {
+    if (output.value.trim() !== "") {
+      const label = output.parentElement.querySelector("span").textContent;
+      textos.push(`${label}: ${output.value}`);
+    }
+  });
+  const textoFinal = textos.join("\n");
+  if (!textoFinal) {
+    showBottomNotice('Nada para copiar', 2000);
+    return;
+  }
+  // tenta clipboard API
+  navigator.clipboard.writeText(textoFinal).then(() => {
+    showBottomNotice('Copiado!', 2000);
+  }).catch(() => {
+    // fallback execCommand
+    const ta = document.createElement('textarea');
+    ta.value = textoFinal;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      showBottomNotice('Copiado!', 2000);
+    } catch (e) {
+      showBottomNotice('Falha ao copiar', 2000);
+    }
+    ta.remove();
+  });
+}
+
+/* ============================
+   Salvar TXT / PDF / Excel
+   ============================ */
+function salvarComoTXT(e) {
+  if (e) e.preventDefault();
+  const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
+  const linhas = [];
+  outputs.forEach((output) => {
+    if (output.value.trim() !== "") {
+      const label = output.parentElement.querySelector("span").textContent;
+      linhas.push(`${label}: ${output.value}`);
+    }
+  });
+  if (linhas.length === 0) {
+    showBottomNotice('Nenhum item preenchido para salvar', 2000);
+    return;
+  }
+  baixarArquivo(linhas.join("\n"), "lista_mac_853.txt", "text/plain");
+  showBottomNotice('Arquivo TXT salvo', 2000);
+}
+
+function salvarComoPDF(e) {
+  if (e) e.preventDefault();
+  const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
+  const linhas = [];
+  mapaConexao.forEach((origemOneBased, idxDestino) => {
+    const texto = frasesEsquerda[origemOneBased - 1] || "";
+    const valor = outputs[idxDestino] ? outputs[idxDestino].value.trim() : "";
+    if (valor !== "") linhas.push({texto, valor});
+  });
+
+  if (linhas.length === 0) { showBottomNotice('Nenhum item preenchido para salvar em PDF', 2000); return; }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  doc.setFont("courier", "normal");
+  doc.setFontSize(11);
+
+  const marginLeft = 40;
+  const maxWidth = doc.internal.pageSize.getWidth() - marginLeft*2;
+  let y = 40;
+  doc.text("Lista MAC Concesso - Cód. 853", marginLeft, y);
+  y += 18;
+
+  linhas.forEach(({texto, valor}) => {
+    doc.text(texto, marginLeft, y, { maxWidth });
+    doc.text(String(valor), marginLeft + 360, y);
+    y += 14;
+    if (y > doc.internal.pageSize.getHeight() - 60) {
+      doc.addPage();
+      doc.setFontSize(11);
+      doc.setFont("courier", "normal");
+      y = 40;
+    }
+  });
+
+  y += 8;
+  doc.text(`Linhas preenchidas: ${linhas.length}`, marginLeft, y);
+
+  doc.save("lista_mac_853.pdf");
+  showBottomNotice('PDF salvo', 2000);
+}
+
+function salvarComoExcel(e) {
+  if (e) e.preventDefault();
+  const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
+  const data = [];
+  data.push(["Produto", "Quantidade"]);
+  outputs.forEach((output) => {
+    if (output.value.trim() !== "") {
+      const produto = output.parentElement.querySelector("span").textContent;
+      const qtd = output.value.trim();
+      data.push([produto, qtd]);
+    }
+  });
+  if (data.length === 1) { showBottomNotice('Nenhum item preenchido para exportar Excel', 2000); return; }
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  XLSX.utils.book_append_sheet(wb, ws, "MAC 853");
+  XLSX.writeFile(wb, "lista_mac_853.xlsx");
+  showBottomNotice('Excel salvo', 2000);
+}
+
+/* ============================
+   Imprimir -> gerar PDF e abrir em nova aba (corrigido para 1 aba)
+   ============================ */
+function imprimirDireto() {
+  const printBtn = document.getElementById('btn-print');
+  // desabilita botão para prevenir clicks repetidos
+  if (printBtn) printBtn.disabled = true;
+
+  // monta as mesmas linhas que salvarComoPDF usa (mantendo ordem do mapaConexao)
+  const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
+  const linhas = [];
+  mapaConexao.forEach((origemOneBased, idxDestino) => {
+    const texto = frasesEsquerda[origemOneBased - 1] || "";
+    const valor = outputs[idxDestino] ? outputs[idxDestino].value.trim() : "";
+    if (valor !== "") linhas.push({texto, valor});
+  });
+
+  if (linhas.length === 0) {
+    showBottomNotice('Nenhum item preenchido para imprimir', 2000);
+    if (printBtn) printBtn.disabled = false;
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  doc.setFont("courier", "normal");
+  doc.setFontSize(11);
+
+  const marginLeft = 40;
+  const maxWidth = doc.internal.pageSize.getWidth() - marginLeft*2;
+  let y = 40;
+  doc.text("Lista MAC Concesso - Cód. 853", marginLeft, y);
+  y += 18;
+
+  linhas.forEach(({texto, valor}) => {
+    doc.text(texto, marginLeft, y, { maxWidth });
+    doc.text(String(valor), marginLeft + 360, y);
+    y += 14;
+    if (y > doc.internal.pageSize.getHeight() - 60) {
+      doc.addPage();
+      doc.setFontSize(11);
+      doc.setFont("courier", "normal");
+      y = 40;
+    }
+  });
+
+  y += 8;
+  doc.text(`Linhas preenchidas: ${linhas.length}`, marginLeft, y);
+
+  try {
+    // 1) abre uma nova aba em branco durante o clique (síncrono) - isso evita popup blocker em muitos casos
+    const newWin = window.open('', '_blank');
+
+    // 2) se a aba foi bloqueada (null) -> fallback para download direto
+    if (!newWin) {
+      // fallback: salva o arquivo para o usuário (download)
+      doc.save("lista_mac_853.pdf");
+      showBottomNotice('PDF baixado', 2000);
+      if (printBtn) printBtn.disabled = false;
+      return;
+    }
+
+    // 3) gera o blob (síncrono) e cria URL
+    const pdfBlob = doc.output('blob');
+    const url = URL.createObjectURL(pdfBlob);
+
+    // 4) redireciona a aba recém-aberta para o blob URL (um único open)
+    try {
+      newWin.location.href = url;
+    } catch (e) {
+      // se não for possível setar location (por alguma razão), escrevemos um embed simples
+      try {
+        newWin.document.open();
+        newWin.document.write(`
+          <!doctype html>
+          <html>
+            <head><title>PDF - MAC 853</title></head>
+            <body style="margin:0">
+              <embed src="${url}" type="application/pdf" width="100%" height="100%"/>
+            </body>
+          </html>
+        `);
+        newWin.document.close();
+      } catch (err2) {
+        // último recurso: faz download
+        doc.save("lista_mac_853.pdf");
+        showBottomNotice('PDF baixado', 2000);
+        try { newWin.close(); } catch(e){}
+      }
+    }
+
+    // 5) revoga a URL depois (garantir limpeza)
+    setTimeout(() => { try { URL.revokeObjectURL(url); } catch(e) {} }, 60000);
+  } catch (err) {
+    // erro inesperado — mostrar mensagem rápida
+    showBottomNotice('Erro ao gerar PDF', 3000);
+    console.error(err);
+  } finally {
+    if (printBtn) printBtn.disabled = false;
+  }
+}
+
+/* ============================
+   util: baixar arquivo
+   ============================ */
+function baixarArquivo(conteudo, nomeArquivo, tipo) {
+  const blob = new Blob([conteudo], { type: tipo });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = nomeArquivo;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+/* ============================
+   dropdown / menus / seções
+   ============================ */
+function toggleMenu(id) {
+  document.querySelectorAll('.menu-dropdown-content').forEach(el => {
+    if (el.id !== id) { el.style.display = 'none'; el.style.opacity = 0; el.setAttribute('aria-hidden','true'); }
+  });
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (el.style.display === 'block') {
+    el.style.opacity = 0;
+    setTimeout(() => { el.style.display = 'none'; el.setAttribute('aria-hidden','true'); }, 180);
+  } else {
+    el.style.display = 'block';
+    el.style.opacity = 0;
+    el.setAttribute('aria-hidden','false');
+    setTimeout(() => el.style.opacity = 1, 10);
+  }
+}
+
+function toggleSubmenu(headerEl) {
+  const submenu = headerEl.nextElementSibling;
+  if (!submenu) return;
+  const chev = headerEl.querySelector('.chev');
+  if (submenu.style.display === 'block') {
+    submenu.style.display = 'none';
+    if (chev) chev.textContent = '▸';
+  } else {
+    submenu.style.display = 'block';
+    if (chev) chev.textContent = '▾';
+  }
+}
+
+document.addEventListener('click', (ev) => {
+  if (!ev.target.closest('.menu-dropdown')) {
+    document.querySelectorAll('.menu-dropdown-content').forEach(el => {
+      el.style.display = 'none';
+      el.style.opacity = 0;
+      el.setAttribute('aria-hidden','true');
+    });
+  }
+});
+
+/* ============================
+   Placeholders / ações dos ícones esquerdo
+   (REMOVIDOS alert/confirm para você adicionar nav/redirecionamento depois)
+   ============================ */
+function fecharPagina() {
+  // sem confirmação, apenas tenta fechar (você adicionará redirecionamento futuro)
+  try { window.close(); } catch(e) { /* silently ignore */ }
+}
+function voltarMenu() {
+  // placeholder vazio (substitua por window.location = '...'; quando quiser)
+  // console.info('voltarMenu() chamado — substitua por redirecionamento quando for preciso.');
+}
+function navegarAnterior() {
+  // placeholder vazio — implemente navegação se quiser
+  // console.info('navegarAnterior() chamado — implemente comportamento aqui.');
+}
+function navegarProximo() {
+  // placeholder vazio — implemente navegação se quiser
+  // console.info('navegarProximo() chamado — implemente comportamento aqui.');
+}
+function abrirMac(e, nome) {
+  if (e) e.preventDefault();
+  document.getElementById('titulo-principal').textContent = nome;
+  toggleMenu('dropdown-menu');
+}
+function abrirLocal(e, nome) {
+  if (e) e.preventDefault();
+  // placeholder vazio — substitua por comportamento real futuramente
+  // console.info('abrirLocal:', nome);
+  toggleMenu('dropdown-menu');
+}
+
+/* ============================
+   Inicialização
+   ============================ */
+montarInterface();
+
+// reforça atualização da contagem depois do clique no botão transferir
+const transferBtn = document.querySelector('#middle-controls #btn-transfer');
+if (transferBtn) transferBtn.addEventListener('click', () => {
+  setTimeout(() => atualizarContagemDireita(), 80);
+});
+
+// ADICIONA o listener do botão imprimir (sem onclick inline) — evita duplicação
+const printBtn = document.getElementById('btn-print');
+if (printBtn) {
+  // remove qualquer onclick inline residual (precaução)
+  try { printBtn.onclick = null; } catch(e){}
+  printBtn.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    // proteção contra double click rápido
+    if (printBtn.disabled) return;
+    imprimirDireto();
+  });
+}
+</script>
+</body>
+</html>

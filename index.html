@@ -2,749 +2,442 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MAC 77 - Organizador de Lista</title>
-
-<!-- jsPDF + SheetJS via CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Menu Inicial — MACs & Guias</title>
 <style>
-  /* ===== base / tipografia ===== */
-  :root {
+  /* ========= Base visual ========= */
+  :root{
     --azul:#007BFF;
-    --amarelo:#FFD700;
-    --vermelho:#b22222; /* vermelho escuro vivo */
+    --fundo:#fbfcfe;
+    --card:#ffffff;
+    --muted:#6b7280;
+    --accent:#0b5ed7;
   }
-  html,body {
-    height:100%;
-  }
-  body {
-    font-family: monospace; /* manter monospace como você pediu */
-    margin: 0;
-    padding: 0;
+  html,body { height:100%; margin:0; }
+  body{
+    font-family: monospace;
+    background: linear-gradient(180deg,#f7fbff 0%, #ffffff 100%);
+    color:#111;
     -webkit-font-smoothing:antialiased;
-    color: #111;
+    padding:18px;
   }
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+  }
+  h1 { margin:0 0 12px 0; font-size:20px; color:var(--accent); }
+  p.lead { margin:4px 0 18px 0; color:var(--muted); font-size:13px; }
 
-  /* ===== header ===== */
-  header {
+  /* ========= Top cards (PDFs) ========= */
+  .top-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+    gap:12px;
+    margin-bottom:18px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid #e6eefc;
+    padding:12px;
+    border-radius:8px;
+    box-shadow: 0 4px 12px rgba(11,78,167,0.04);
+  }
+  .card a{ text-decoration:none; color:var(--azul); font-weight:600; display:block; }
+  .card small { color:var(--muted); display:block; margin-top:8px; font-size:12px; }
+
+  /* ========= Menu list (colapsáveis) ========= */
+  .menu-list { margin: 6px 0 18px 0; display:block; }
+  .section {
+    margin-bottom:8px;
+  }
+  .section-head {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    cursor:pointer;
+    padding:10px;
+    border-radius:8px;
+    background: #fff;
+    border:1px solid #e9f2ff;
+  }
+  .section-head:hover { background: #fbfdff; }
+  .section-title {
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .section-title .badge {
+    background:var(--azul);
+    color:white;
+    padding:4px 8px;
+    border-radius:6px;
+    font-size:12px;
+  }
+  .section-title h3 { margin:0; font-size:14px; color:#0b4fa0; }
+  .chev {
+    transition: transform .18s ease;
+    font-size:16px;
+    color:var(--muted);
+  }
+  .chev.open { transform:rotate(90deg); color: var(--azul); }
+
+  .section-body {
+    max-height:0;
+    overflow:hidden;
+    transition: max-height .26s ease, padding .18s ease;
+    padding:0 10px;
+  }
+  .section-body.open {
+    padding:10px;
+  }
+  .list {
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:block;
+    gap:6px;
+  }
+  .list a {
     display:flex;
     justify-content:space-between;
-    align-items:center;
-    background: var(--azul);
-    color: white;
-    padding: 10px 14px;
-    gap: 12px;
-    position: sticky;
-    top: 0;
-    z-index: 999;
-  }
-  .menu-left, .menu-right {
-    display:flex;
-    gap: 8px;
-    align-items:center;
-  }
-  .icon-btn {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 18px;
-    cursor: pointer;
-    padding: 6px 8px;
-    border-radius: 6px;
-  }
-  .icon-btn:hover { background: rgba(255,255,255,0.08); }
-
-  /* dropdowns */
-  .menu-dropdown { position: relative; }
-  .menu-dropdown-content {
-    display: none;
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
-    background: white;
-    color: #111;
-    border-radius: 6px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-    min-width: 170px;
-    max-width: calc(100vw - 40px);
-    overflow: auto;
-    z-index: 1200;
-    padding: 6px 0;
-    white-space: normal;
-  }
-  /* right-side dropdowns align to right */
-  .menu-right .menu-dropdown-content { right: 0; left: auto; }
-
-  .menu-dropdown-content a {
-    display:block;
-    padding: 8px 12px;
-    color: #111;
-    text-decoration: none;
-    font-family: monospace;
-  }
-  .menu-dropdown-content a:hover { background: #f2f2f2; }
-
-  /* ===== título com setas ===== */
-  .titulo-nav {
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap: 16px;
-    margin: 14px 10px 8px;
-  }
-  .titulo-nav h1 {
-    margin:0;
-    font-size:18px;
-    color:#111;
-  }
-  .titulo-nav a {
-    color: var(--azul);
     text-decoration:none;
-    font-size:22px;
-    user-select:none;
-  }
-
-  /* ===== container duas colunas ===== */
-  .container {
-    display:flex;
-    justify-content:center;
-    gap: 48px;
-    align-items:flex-start;
-    padding: 10px 14px 24px;
-    flex-wrap:wrap;
-  }
-  .column {
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-    min-width: 300px;
-    max-width: 420px;
-    width: 100%;
-  }
-
-  .item {
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:6px 8px;
+    padding:8px;
     border-radius:6px;
+    color:#0b3b6b;
+    border:1px solid transparent;
+    margin-bottom:6px;
   }
-  .item span { flex:1; }
-  .item input[type="text"] {
-    width: 60px;
-    padding:6px 6px;
-    font-family: monospace;
-    text-align:center;
-    border:1px solid #ddd;
-    border-radius:4px;
-    background: white;
-  }
-  .item input[readonly] {
-    background: #fafafa;
+  .list a:hover { background:#f3f8ff; border-color:#e3f0ff; }
+  .list .muted { color:var(--muted); font-size:12px; }
+
+  /* ========= Sub-grid for guiass/somar etc (indented) ======== */
+  .sublist { padding-left:6px; border-left:2px dashed #eef6ff; margin-top:6px; }
+
+  /* ========= Em breve pill ======== */
+  .soon {
+    font-size:12px;
+    color: #9aa0a6;
+    font-style: italic;
   }
 
-  /* ===== middle controls ===== */
-  #middle-controls {
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-    align-items:center;
-    justify-content:center;
-    min-width:170px;
-  }
-  #middle-controls button {
-    width:170px;
-    padding:10px 12px;
-    font-size:14px;
-    border-radius:6px;
-    border:none;
-    cursor:pointer;
-  }
-  #middle-controls button:first-child { background:var(--azul); color:white; }
-  .btn-amarelo { background: var(--amarelo); color:black; }
-  .btn-amarelo:hover { background:#e6c200; }
-  .btn-vermelho { background: var(--vermelho); color:white; }
-  .btn-vermelho:hover { background:#8b1a1a; }
+  /* ========= Footer/legend etc ======== */
+  .meta { font-size:13px; color:var(--muted); margin-top:10px; }
 
-  /* ===== contador ===== */
-  #contador-linhas { text-align:center; margin: 12px 0 24px; font-weight:700; }
+  /* keyboard focus */
+  .section-head:focus { outline: 3px solid rgba(0,123,255,0.12); }
 
-  /* ===== mac-links (rodapé) estilo em grid 4x) ===== */
-  .mac-links {
-    margin: 0 14px 30px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 4 colunas */
-    gap: 10px;
-    align-items:stretch;
+  /* Responsivo */
+  @media (max-width:640px) {
+    body { padding:14px; }
+    .top-grid { grid-template-columns:1fr; }
   }
-  .mac-links a {
-    display:block;
-    padding:8px 10px;
-    background: #f7fbff;
-    border:1px solid #e6f0ff;
-    color: var(--azul);
-    text-decoration:none;
-    border-radius:6px;
-    text-align:center;
-    font-family: monospace;
-  }
-  .mac-links a:hover { background:#eef6ff; }
-
-  /* responsivo: menos colunas em telas pequenas */
-  @media (max-width:900px) {
-    .container { gap: 20px; padding:10px; }
-    .mac-links { grid-template-columns: repeat(2, 1fr); }
-    #middle-controls { order: 2; }
-  }
-  @media (max-width:520px) {
-    .container { flex-direction:column; align-items:center; }
-    .column { max-width: 100%; min-width: auto; width: 100%; }
-    .mac-links { grid-template-columns: repeat(1, 1fr); }
-    #middle-controls { flex-direction:row; gap: 8px; }
-    #middle-controls button { width: 120px; }
-  }
-
-  /* aviso cópia discreto */
-  #copy-notice {
-    position: fixed;
-    right: 18px;
-    bottom: 18px;
-    background: rgba(0,0,0,0.78);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    display: none;
-    z-index: 2000;
-    font-family: monospace;
-  }
-
-  /* impressão: escondemos header, botões extras e mac-links; forçamos monospace */
-  @media print {
-    header, .menu-dropdown-content, #middle-controls, .mac-links, #copy-notice { display: none !important; }
-    body, html { font-family: monospace; }
-    .container { gap: 0; padding: 0; }
-    .column { box-shadow: none; border: none; }
-    .column { min-width: 40%; }
-  }
-
 </style>
 </head>
 <body>
+  <div id="nav-placeholder"></div>
 
-<header>
-  <!-- ESQUERDA: hamburguer (menu), X (fechar), Home (menu inicial) -->
-  <div class="menu-left">
-    <div class="menu-dropdown">
-      <button class="icon-btn" id="btn-hamburger" title="Menu (☰)" onclick="toggleMenu('dropdown-menu')">☰</button>
-      <div class="menu-dropdown-content" id="dropdown-menu">
-        <a href="#">Página 1 (em breve)</a>
-        <a href="#">Página 2 (em breve)</a>
-        <a href="#">Página 3 (em breve)</a>
+  <div class="wrap" role="main">
+    <h1>Menu Inicial</h1>
+    <p class="lead">Acesse MACs, Guias e Tabelas de Preço — clique para expandir / abrir. (pode editar links depois)</p>
+
+    <!-- ======= PDFs (coloque os links nos href ou data-href) ======= -->
+    <div class="top-grid" aria-label="Tabelas e Catálogo">
+      <div class="card">
+        <a href="#" data-href="#" target="_blank" id="link-tabela-geral">Tabela de Preços Geral</a>
+        <small>Clique para abrir a tabela geral (PDF). Substitua o <code>href</code> pelo link do seu PDF.</small>
+      </div>
+
+      <div class="card">
+        <a href="#" data-href="#" target="_blank" id="link-tabela-empresa">Tabela de Preços Empresa</a>
+        <small>Tabela por empresa (em outra aba).</small>
+      </div>
+
+      <div class="card">
+        <a href="#" data-href="#" target="_blank" id="link-catalogo">Catálogo</a>
+        <small>Catálogo de produtos (PDF).</small>
       </div>
     </div>
 
-    <button class="icon-btn" id="btn-close" title="Fechar (❌)" onclick="fecharPagina()">❌</button>
-    <button class="icon-btn" id="btn-home" title="Menu inicial (🏠)" onclick="voltarMenu()">🏠</button>
+    <!-- ======= Menu com seções colapsáveis ======= -->
+    <nav class="menu-list" aria-label="Menu principal">
+
+      <!-- MACS -->
+      <section class="section" id="sec-macs">
+        <div tabindex="0" class="section-head" role="button" aria-expanded="false" data-target="body-macs">
+          <div class="section-title">
+            <span class="badge">MACS</span>
+            <h3>Lista de MACs</h3>
+          </div>
+          <div class="chev" aria-hidden="true">▶</div>
+        </div>
+
+        <div id="body-macs" class="section-body" aria-hidden="true">
+          <ul class="list">
+            <li><a href="#" data-target-page="#" class="mac-link">MAC Bairro São Geraldo - Cód. 77</a></li>
+            <li><a href="#" data-target-page="#" class="mac-link">MAC Bairro Planalto - Cód. 78</a></li>
+            <li><a href="#" data-target-page="#" class="mac-link">MAC Romeu Duarte - Cód. 79</a></li>
+            <li><a href="#" data-target-page="#" class="mac-link">MAC Rua São Geraldo / Centro 2 - Cód. 80</a></li>
+            <li><a href="#" data-target-page="#" class="mac-link">MAC Matriz - Cód. 277</a></li>
+            <li><a href="#" data-target-page="#" class="mac-link">MAC Concesso - Cód. 853</a></li>
+            <li><a href="#" data-target-page="#" class="mac-link">MAC Jardim do Lago - Cód. 1249</a></li>
+            <li><a href="#" data-target-page="#" class="mac-link">MAC Araújos - Cód. 989</a></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- São José -->
+      <section class="section" id="sec-saojose">
+        <div tabindex="0" class="section-head" role="button" aria-expanded="false" data-target="body-saojose">
+          <div class="section-title">
+            <span class="badge">São José</span>
+            <h3>São José</h3>
+          </div>
+          <div class="chev" aria-hidden="true">▶</div>
+        </div>
+
+        <div id="body-saojose" class="section-body" aria-hidden="true">
+          <ul class="list">
+            <li><a href="#" class="plain-link">São José</a></li>
+            <li><a href="#" class="plain-link">Pão Total</a></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Guias -->
+      <section class="section" id="sec-guias">
+        <div tabindex="0" class="section-head" role="button" aria-expanded="false" data-target="body-guias">
+          <div class="section-title">
+            <span class="badge">Guias</span>
+            <h3>Guias</h3>
+          </div>
+          <div class="chev" aria-hidden="true">▶</div>
+        </div>
+
+        <div id="body-guias" class="section-body" aria-hidden="true">
+          <!-- Sub-item: Macs -->
+          <div class="card" style="margin-bottom:8px;">
+            <div tabindex="0" class="section-head sub-head" role="button" aria-expanded="false" data-target="body-guias-macs">
+              <div class="section-title"><strong>Macs</strong></div>
+              <div class="chev" aria-hidden="true">▶</div>
+            </div>
+            <div id="body-guias-macs" class="section-body sublist" aria-hidden="true">
+              <ul class="list">
+                <li><a href="#" class="mac-link">MAC 77 - Bairro São Geraldo</a></li>
+                <li><a href="#" class="mac-link">MAC 78 - Bairro Planalto</a></li>
+                <li><a href="#" class="mac-link">MAC 79 - Romeu Duarte</a></li>
+                <li><a href="#" class="mac-link">MAC 80 - Rua São Geraldo / Centro 2</a></li>
+                <li><a href="#" class="mac-link">MAC 277 - Matriz</a></li>
+                <li><a href="#" class="mac-link">MAC 853 - Concesso</a></li>
+                <li><a href="#" class="mac-link">MAC 1249 - Jardim do Lago</a></li>
+                <li><a href="#" class="mac-link">MAC 989 - Araújos</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Sub-item: Fidelis -->
+          <div class="card" style="margin-bottom:8px;">
+            <div tabindex="0" class="section-head sub-head" role="button" aria-expanded="false" data-target="body-guias-fidelis">
+              <div class="section-title"><strong>Fidelis</strong></div>
+              <div class="chev" aria-hidden="true">▶</div>
+            </div>
+            <div id="body-guias-fidelis" class="section-body sublist" aria-hidden="true">
+              <div class="soon">Em breve</div>
+            </div>
+          </div>
+
+          <!-- Sub-item: Somar -->
+          <div class="card" style="margin-bottom:8px;">
+            <div tabindex="0" class="section-head sub-head" role="button" aria-expanded="false" data-target="body-guias-somar">
+              <div class="section-title"><strong>Somar</strong></div>
+              <div class="chev" aria-hidden="true">▶</div>
+            </div>
+            <div id="body-guias-somar" class="section-body sublist" aria-hidden="true">
+              <ul class="list">
+                <li>Comércio de Alimentos Teixeira Rabelo Carmo do Cajuru - Cód. 796</li>
+                <li>Somar Rua Joaquim Nabuco Bairro Porto Velho - Cód. 782</li>
+                <li>Kit do Adriano - Cód. 793</li>
+                <li>Kit 2 Irmãos - Cód. 794</li>
+                <li>Somar Rua Bom Sucesso Bairro Nações - Cód. 795</li>
+                <li>Somar Av. Espírito Santo Bairro Sidil - Cód. 797</li>
+                <li>Somar Perdigão - Cód. 1260</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Sub-item: Ester Amaral -->
+          <div class="card" style="margin-bottom:8px;">
+            <div tabindex="0" class="section-head sub-head" role="button" aria-expanded="false" data-target="body-guias-ester">
+              <div class="section-title"><strong>Ester Amaral</strong></div>
+              <div class="chev" aria-hidden="true">▶</div>
+            </div>
+            <div id="body-guias-ester" class="section-body sublist" aria-hidden="true">
+              <ul class="list">
+                <li>rua rio de janeiro cod 854</li>
+                <li>rua bahia cod 33</li>
+                <li>torre gourmet quinta cod 1102</li>
+                <li>rua itumiritinga bom pastor - cod 296</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- lista de média por pacote (em breve) -->
+      <section class="section" id="sec-media">
+        <div tabindex="0" class="section-head" role="button" aria-expanded="false" data-target="body-media">
+          <div class="section-title">
+            <span class="badge">Média</span>
+            <h3>Lista de média de produto por pacote</h3>
+          </div>
+          <div class="chev" aria-hidden="true">▶</div>
+        </div>
+        <div id="body-media" class="section-body" aria-hidden="true">
+          <div class="soon">Em breve</div>
+        </div>
+      </section>
+
+      <!-- relatório produção (em breve) -->
+      <section class="section" id="sec-relatorio">
+        <div tabindex="0" class="section-head" role="button" aria-expanded="false" data-target="body-relatorio">
+          <div class="section-title">
+            <span class="badge">Relatório</span>
+            <h3>Relatório Produção</h3>
+          </div>
+          <div class="chev" aria-hidden="true">▶</div>
+        </div>
+        <div id="body-relatorio" class="section-body" aria-hidden="true">
+          <div class="soon">Em breve</div>
+        </div>
+      </section>
+
+    </nav>
+
+    <div class="meta">Dica: clique no título ou na seta para abrir as opções. Substitua <code>#</code> pelos links dos PDFs quando estiver pronto.</div>
   </div>
-
-  <!-- DIREITA: salvar (dropdown), impressora, copiar -->
-  <div class="menu-right">
-    <div class="menu-dropdown">
-      <button class="icon-btn" id="btn-salvar" title="Salvar (💾)" onclick="toggleMenu('dropdown-save')">💾</button>
-      <div class="menu-dropdown-content" id="dropdown-save" aria-labelledby="btn-salvar">
-        <a href="#" onclick="salvarComoTXT(event)" title="Salvar como TXT">Salvar como TXT</a>
-        <a href="#" onclick="salvarComoPDF(event)" title="Salvar como PDF">Salvar como PDF</a>
-        <a href="#" onclick="salvarComoExcel(event)" title="Salvar como Excel">Salvar como Excel</a>
-      </div>
-    </div>
-
-    <button class="icon-btn" id="btn-print" title="Imprimir (🖨️)" onclick="imprimirDireto()">
-      🖨️
-    </button>
-
-    <button class="icon-btn" id="btn-copy" title="Copiar (📋)" onclick="copiarDireita()">
-      📋
-    </button>
-  </div>
-</header>
-
-<!-- título com setas (seta esquerda omitida pois é o primeiro) -->
-<div class="titulo-nav">
-  <span style="width:28px;display:inline-block"></span>
-  <h1>Lista MAC Bairro São Geraldo - Cód. 77</h1>
-  <a href="#" title="Próximo MAC">→</a>
-</div>
-
-<!-- colunas e controles -->
-<div class="container">
-  <!-- COLUNA ESQUERDA -->
-  <div class="column" id="coluna-esquerda"></div>
-
-  <!-- CONTROLES DO MEIO -->
-  <div id="middle-controls" aria-hidden="false">
-    <button onclick="transferir()">→</button>
-    <button onclick="alternarLinhas()" id="btn-linhas" class="btn-amarelo">Remover Linhas Vazias</button>
-    <button onclick="resetarTudo()" class="btn-vermelho">Resetar Tudo</button>
-  </div>
-
-  <!-- COLUNA DIREITA -->
-  <div class="column" id="coluna-direita"></div>
-</div>
-
-<!-- contador centralizado em baixo -->
-<div id="contador-linhas">Linhas preenchidas: 0</div>
-
-<!-- MACs em rodapé (grid com 4 colunas) -->
-<div class="mac-links" role="navigation" aria-label="Outros MACs">
-  <a href="#">MAC 78 - Bairro Planalto (em breve)</a>
-  <a href="#">MAC 79 - Romeu Duarte (em breve)</a>
-  <a href="#">MAC 80 - Rua São Geraldo / Centro 2 (em breve)</a>
-  <a href="#">MAC 277 - Matriz (em breve)</a>
-  <a href="#">MAC 853 - Concesso (em breve)</a>
-  <a href="#">MAC 1249 - Jardim do Lago (em breve)</a>
-  <a href="#">MAC Araújos (em breve)</a>
-</div>
-
-<!-- aviso discreto de cópia -->
-<div id="copy-notice">Copiado!</div>
 
 <script>
-/* ============================
-   Dados (idênticos aos seus)
-   ============================ */
-const frasesEsquerda = [
-  "PÃO DE QUEIJO RECHEADO FRANGO  PAC7KG",
-  "PÃO DE QUEIJO  7KG",
-  "PÃO FRANCÊS 6HRS PAC 7KG",
-  "PÃO DE 4 HRS  7KG",
-  "BAGUETE 6  HRS  7KG",
-  "BISCOITO DOCE FRITO MP 1 KG",
-  "BISCOITO DE QUEIJO MP 7 KG",
-  "BISCOITO SEQUILHO MP MANGA",
-  "BISCOITO TRÊS QUEIJOS MP 7 KG",
-  "BOLO FUBA CREMOSO MP 1 UNIDADE",
-  "BOLO MILHO MP 1 UNIDADE",
-  "BROINHA DE FUBA DOCE MP 7 KG",
-  "BROINHA BACON TEMPERADA MP 7 KG",
-  "CROISSANT DE FRANGO MP 7 KG",
-  "CROISSANT DE PRESUNTO MP 7KG",
-  "PÃO DE QUEIJO MEIA LUA MP PAC COM 10 UNI",
-  "PÃO DOCE C/CREME MP 7KG",
-  "PÃO DOCE MP 7KG",
-  "PÃO PANHOCA MP 7KG",
-  "ROSCOVADO MP UNIDADE",
-  "ROSCA CREME E COCO MP PAC COM 5 UNI",
-  "ROSCA TRANCA MP PAC COM 10 UNID",
-  "ROSCA TRANCINHA MP PAC 3KG",
-  "ROSCA TRANCA REDONDA MP",
-  "ROSQUINHA CANUDINHO DE QUEIJO MP PAC COM 7KG",
-  "SALGADO COXINHA DE FRANGO MP 1 KG",
-  "SALGADOS BOLINHA DE CARNE MP 1KG",
-  "SALGADOS EMPADA DE FRANGO MP 1 KG",
-  "SALGADOS ENROLADINHO PRESUNTO MP 1 KG",
-  "SALGADOS PASTEL CATUPIRY MP 1 KG",
-  "SALGADOS KIBE CATUPIRY MP 1 KG",
-  "SONHO MP PAC 3 KG"
-];
+/* ====== Código JS para toggles e comportamento ====== */
 
-const frasesDireita = [
-  "Baguete 06hrs 7kg",
-  "Biscoitinho doce frito 1kg",
-  "Biscoito de queijo 7kg",
-  "Biscoito três queijos 7kg",
-  "Bolinha de carne pequena 1kg",
-  "Bolo cremoso de fubá 1 unidade",
-  "Bolo cremoso de milho 1 unidade",
-  "Broinha de fubá doce 7kg",
-  "Broinha temperada com bacon 7kg",
-  "Canudinho de queijo 7kg",
-  "Caracol 7kg",
-  "Carioca 7kg",
-  "Coxinha de frango pequena 1kg",
-  "Croissant de frango 7kg",
-  "Croissant de presunto 7kg",
-  "Empadinha de frango pequena 1kg",
-  "Enroladinho de presunto pequeno 1kg",
-  "Meia lua 1kg com 10 unidades",
-  "Mistura biscoito sequilho 4kg",
-  "Panhoca 7kg",
-  "Pão de queijo recheado frango 7kg",
-  "Pão de queijo tradicional 7kg",
-  "Pão francês 04hrs 7kg",
-  "Pão francês 06hrs 7kg",
-  "Pastelzinho catupiry pequeno 1kg",
-  "Quibe com catupiry pequeno 1kg",
-  "Rosca creme e coco PCT 5 unidades",
-  "Roscovado 1 unidade",
-  "Sonho PCT 3kg",
-  "Trança PCT 10 unidades",
-  "Trancinha PCT 3kg",
-  "Trancinha redonda"
-];
+/**
+ * helper: toggle a seção (abre/fecha)
+ * headEl = .section-head element
+ * bodyEl = element with id specified in data-target
+ */
+function toggleSection(headEl){
+  const targetId = headEl.getAttribute('data-target') || headEl.dataset.target;
+  if(!targetId) return;
+  const body = document.getElementById(targetId);
+  if(!body) return;
+  const chev = headEl.querySelector('.chev') || headEl.querySelector('[aria-hidden="true"]');
+  const isOpen = body.classList.contains('open');
 
-// mapaConexao original (mantido idêntico)
-const mapaConexao = [5,6,7,9,27,10,11,12,13,25,17,18,26,14,15,28,29,16,8,19,1,2,4,3,30,31,21,20,32,22,23,24];
-
-/* ============================
-   Construção da interface
-   ============================ */
-function montarInterface() {
-  const colEsq = document.getElementById("coluna-esquerda");
-  const colDir = document.getElementById("coluna-direita");
-  colEsq.innerHTML = "";
-  colDir.innerHTML = "";
-
-  // Coluna esquerda (labels + inputs)
-  frasesEsquerda.forEach((frase, i) => {
-    const item = document.createElement("div");
-    item.className = "item";
-
-    const label = document.createElement("span");
-    label.textContent = frase;
-
-    const input = document.createElement("input");
-    input.type = "text";
-    input.dataset.index = i;
-
-    // Permitir apenas números (remove tudo que não for dígito)
-    input.addEventListener("input", () => {
-      const cur = input.value;
-      const filtered = cur.replace(/[^0-9]/g, '');
-      if (cur !== filtered) input.value = filtered;
-    });
-
-    // Enter move foco para próximo input da esquerda
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        const next = colEsq.querySelector(`input[data-index="${i+1}"]`);
-        if (next) next.focus();
-      }
-    });
-
-    item.appendChild(label);
-    item.appendChild(input);
-    colEsq.appendChild(item);
-  });
-
-  // Coluna direita (labels + outputs readonly)
-  frasesDireita.forEach((frase, i) => {
-    const item = document.createElement("div");
-    item.className = "item";
-
-    const label = document.createElement("span");
-    label.textContent = frase;
-
-    const output = document.createElement("input");
-    output.type = "text";
-    output.readOnly = true;
-    output.dataset.index = i;
-
-    item.appendChild(label);
-    item.appendChild(output);
-    colDir.appendChild(item);
-  });
-
-  atualizarContagemDireita();
-}
-
-/* ============================
-   Funções principais
-   ============================ */
-
-// Transfere valores da esquerda para a direita via mapaConexao (mesma lógica do original)
-function transferir() {
-  const inputs = document.querySelectorAll("#coluna-esquerda input");
-  const outputs = document.querySelectorAll("#coluna-direita input");
-  mapaConexao.forEach((origem, destino) => {
-    // origem é 1-based no mapa original
-    const valor = inputs[origem - 1] ? inputs[origem - 1].value.trim() : "";
-    if (outputs[destino]) outputs[destino].value = valor;
-  });
-  atualizarContagemDireita();
-}
-
-// esconder/mostrar vazios
-let linhasOcultas = false;
-let elementosOcultos = [];
-
-function alternarLinhas() {
-  if (!linhasOcultas) {
-    removerVazios();
-    document.getElementById('btn-linhas').innerText = "Restaurar Linhas Vazias";
+  if(isOpen){
+    body.style.maxHeight = null;
+    body.classList.remove('open');
+    headEl.setAttribute('aria-expanded','false');
+    body.setAttribute('aria-hidden','true');
+    if(chev) chev.classList.remove('open');
   } else {
-    restaurarLinhas();
-    document.getElementById('btn-linhas').innerText = "Remover Linhas Vazias";
+    // abrir: set maxHeight para animação (scrollHeight)
+    body.classList.add('open');
+    body.style.maxHeight = body.scrollHeight + 24 + "px"; // thêm padding
+    headEl.setAttribute('aria-expanded','true');
+    body.setAttribute('aria-hidden','false');
+    if(chev) chev.classList.add('open');
   }
-  linhasOcultas = !linhasOcultas;
 }
-function removerVazios() {
-  const items = document.querySelectorAll("#coluna-direita .item");
-  elementosOcultos = [];
-  items.forEach(it => {
-    const input = it.querySelector("input[type='text']");
-    if (input && input.value.trim() === "") {
-      it.style.display = "none";
-      elementosOcultos.push(it);
+
+// delegação: adiciona listeners a todos os .section-head no menu
+document.querySelectorAll('.section-head').forEach(head=>{
+  // extra: pega target a partir do atributo data-target no head
+  // (algumas heads internas usam data-target já no elemento)
+  head.addEventListener('click', (e)=>{
+    toggleSection(head);
+  });
+  // teclado: Enter / Space para ativar
+  head.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      toggleSection(head);
+    } else if(e.key === 'ArrowRight'){
+      // abrir
+      const targetId = head.dataset.target;
+      const body = document.getElementById(targetId);
+      if(body && !body.classList.contains('open')) toggleSection(head);
+    } else if(e.key === 'ArrowLeft'){
+      // fechar
+      const targetId = head.dataset.target;
+      const body = document.getElementById(targetId);
+      if(body && body.classList.contains('open')) toggleSection(head);
     }
   });
-}
-function restaurarLinhas() {
-  elementosOcultos.forEach(el => el.style.display = "flex");
-  elementosOcultos = [];
-}
+});
 
-// reset geral
-function resetarTudo() {
-  const inputs = document.querySelectorAll("input[type='text']");
-  inputs.forEach(i => i.value = "");
-  restaurarLinhas();
-  atualizarContagemDireita();
-}
-
-// atualiza contador de linhas preenchidas (direita)
-function atualizarContagemDireita() {
-  const outputs = document.querySelectorAll("#coluna-direita input");
-  let preenchidos = 0;
-  outputs.forEach(out => {
-    if (out.style.display !== "none" && out.value.trim() !== "") preenchidos++;
+// Close all open sections when clicking outside menu-list (optional)
+document.addEventListener('click', (ev)=>{
+  const menu = document.querySelector('.menu-list');
+  if(!menu) return;
+  if(menu.contains(ev.target)) return;
+  // fecha apenas as seções de nível 1 (não fecha sub-sections)
+  document.querySelectorAll('#body-macs.open,#body-saojose.open,#body-guias.open,#body-media.open,#body-relatorio.open').forEach(b=>{
+    const head = document.querySelector(`[data-target="${b.id}"]`);
+    if(head) toggleSection(head);
   });
-  document.getElementById("contador-linhas").innerText = `Linhas preenchidas: ${preenchidos}`;
-}
+});
 
-/* ============================
-   Copiar / aviso discreto
-   ============================ */
-function copiarDireita() {
-  const outputs = document.querySelectorAll("#coluna-direita input");
-  const textos = [];
-  outputs.forEach(output => {
-    if (output.value.trim() !== "") {
-      const label = output.parentElement.querySelector("span").textContent;
-      textos.push(`${label}: ${output.value}`);
-    }
-  });
-  const textoFinal = textos.join("\n");
-  navigator.clipboard.writeText(textoFinal).then(() => {
-    mostrarAvisoCopia();
-  }).catch(() => {
-    // silencioso se não for possível
-  });
-}
-function mostrarAvisoCopia() {
-  const el = document.getElementById("copy-notice");
-  el.style.display = "block";
-  setTimeout(() => { el.style.display = "none"; }, 2000);
-}
-
-/* ============================
-   Salvar TXT / PDF / Excel
-   ============================ */
-
-function salvarComoTXT(e) {
-  if (e) e.preventDefault();
-  const outputs = document.querySelectorAll("#coluna-direita input");
-  const linhas = [];
-  outputs.forEach((output, i) => {
-    if (output.value.trim() !== "") {
-      const label = output.parentElement.querySelector("span").textContent;
-      linhas.push(`${label}: ${output.value}`);
-    }
-  });
-  baixarArquivo(linhas.join("\n"), "lista_mac_77.txt", "text/plain");
-}
-
-function salvarComoPDF(e) {
-  if (e) e.preventDefault();
-  // monta linhas (usando mapaConexao para pegar as frases da esquerda ligadas)
-  const linhas = [];
-  mapaConexao.forEach((origem, destino) => {
-    const texto = frasesEsquerda[origem - 1] || "";
-    const valor = document.querySelectorAll("#coluna-direita input")[destino] ? document.querySelectorAll("#coluna-direita input")[destino].value.trim() : "";
-    if (valor !== "") linhas.push({texto, valor});
-  });
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-  doc.setFont("courier", "normal"); // monospace
-  doc.setFontSize(11);
-
-  const marginLeft = 40;
-  const maxWidth = doc.internal.pageSize.getWidth() - marginLeft*2;
-  let y = 40;
-  doc.text("Lista MAC Bairro São Geraldo - Cód. 77", marginLeft, y);
-  y += 18;
-
-  linhas.forEach(({texto, valor}, idx) => {
-    // linha esquerda (produto) e valor alinhado depois
-    const leftText = texto;
-    const rightText = valor;
-    // escreve o produto (envolve quebra automática)
-    doc.text(leftText, marginLeft, y, { maxWidth });
-    // escreve o valor mais à direita na mesma linha (tentativa simples)
-    doc.text(String(rightText), marginLeft + 360, y); // 360 offset para coluna de quantidade
-    y += 14;
-    // adicionar nova página se necessário
-    if (y > doc.internal.pageSize.getHeight() - 60) {
-      doc.addPage();
-      doc.setFontSize(11);
-      doc.setFont("courier", "normal");
-      y = 40;
-    }
-  });
-
-  // contagem
-  y += 8;
-  doc.text(`Linhas preenchidas: ${linhas.length}`, marginLeft, y);
-
-  doc.save("lista_mac_77.pdf");
-}
-
-function salvarComoExcel(e) {
-  if (e) e.preventDefault();
-  const outputs = document.querySelectorAll("#coluna-direita input");
-  const data = [];
-  // Cabeçalho A1 / B1
-  data.push(["Produto", "Quantidade"]);
-  outputs.forEach((output, i) => {
-    if (output.value.trim() !== "") {
-      const produto = output.parentElement.querySelector("span").textContent;
-      const qtd = output.value.trim();
-      data.push([produto, qtd]);
-    }
-  });
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet(data);
-  XLSX.utils.book_append_sheet(wb, ws, "MAC 77");
-  XLSX.writeFile(wb, "lista_mac_77.xlsx");
-}
-
-/* ============================
-   Impressão (janela com monospace e só conteúdos da coluna direita)
-   ============================ */
-function imprimirDireto() {
-  // montar conteúdo com título, lista dos preenchidos (coluna direita) e contagem
-  const outputs = document.querySelectorAll("#coluna-direita input");
-  const linhas = [];
-  outputs.forEach((output) => {
-    if (output.value.trim() !== "") {
-      const label = output.parentElement.querySelector("span").textContent;
-      linhas.push({ label, value: output.value.trim() });
-    }
-  });
-
-  const html = `
-  <!doctype html>
-  <html>
-  <head>
-    <meta charset="utf-8"/>
-    <title>Impressão - MAC 77</title>
-    <style>
-      body { font-family: monospace; padding: 20px; color: #111; }
-      h1 { font-size: 16px; margin-bottom: 12px; }
-      ul { padding-left:0; list-style:none; font-size:12px; }
-      li { margin-bottom:6px; }
-      .count { margin-top:12px; font-weight:700; }
-    </style>
-  </head>
-  <body>
-    <h1>Lista MAC Bairro São Geraldo - Cód. 77</h1>
-    <ul>
-      ${linhas.map(l => `<li>${l.label}: ${l.value}</li>`).join('')}
-    </ul>
-    <div class="count">Linhas preenchidas: ${linhas.length}</div>
-  </body>
-  </html>
-  `;
-
-  const win = window.open('', '_blank', 'width=800,height=600,noopener');
-  if (!win) {
-    alert('Não foi possível abrir janela de impressão. Verifique bloqueadores de pop-up.');
+/* ======= Abrir PDFs (use data-href ou trocar href) ======= */
+// Example: you can set href directly (recommended) or leave '#' and set data-href attribute
+function openPdfLink(elem){
+  const href = elem.getAttribute('href');
+  const dataHref = elem.getAttribute('data-href');
+  const url = (href && href !== '#') ? href : (dataHref && dataHref !== '#') ? dataHref : null;
+  if(!url){
+    alert('Link do PDF ainda não configurado. Substitua o atributo href/data-href pelo URL do seu PDF.');
     return;
   }
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
-  // permite ao usuário ver antes de imprimir
-  win.focus();
-  // chama print() (usuário pode cancelar)
-  setTimeout(() => { win.print(); }, 400);
+  // abre em nova aba (conforme seu pedido)
+  window.open(url, '_blank');
 }
 
-/* ============================
-   util: baixar arquivo
-   ============================ */
-function baixarArquivo(conteudo, nomeArquivo, tipo) {
-  const blob = new Blob([conteudo], { type: tipo });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = nomeArquivo;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-}
-
-/* ============================
-   dropdown / menus (não ultrapassa a tela)
-   ============================ */
-function toggleMenu(id) {
-  // fecha outros menus
-  document.querySelectorAll('.menu-dropdown-content').forEach(el => {
-    if (el.id !== id) { el.style.display = 'none'; el.style.opacity = 0; }
-  });
+// attach handler to the PDF links cards
+['link-tabela-geral','link-tabela-empresa','link-catalogo'].forEach(id=>{
   const el = document.getElementById(id);
-  if (!el) return;
-  if (el.style.display === 'block') {
-    el.style.opacity = 0;
-    setTimeout(() => el.style.display = 'none', 180);
-  } else {
-    // abre e ajusta posicao se necessario (max-width já impede overflow)
-    el.style.display = 'block';
-    el.style.opacity = 0;
-    // deixa aparecer com transicao minima
-    setTimeout(() => el.style.opacity = 1, 10);
-  }
-}
-
-// fecha menus ao clicar fora
-document.addEventListener('click', (ev) => {
-  if (!ev.target.closest('.menu-dropdown')) {
-    document.querySelectorAll('.menu-dropdown-content').forEach(el => {
-      el.style.display = 'none';
-      el.style.opacity = 0;
-    });
-  }
+  if(!el) return;
+  el.addEventListener('click', (e)=>{
+    e.preventDefault();
+    openPdfLink(el);
+  });
 });
 
-/* ============================
-   Placeholders / ações dos ícones esquerdo
-   ============================ */
-function fecharPagina() {
-  // normalmente window.close() não fecha janelas não abertas por script
-  // deixamos como retorno ao menu ou apenas limpamos os campos (exemplo)
-  if (confirm('Fechar a página? (se estiver rodando via GitHub Pages, fechar pode não funcionar)')) {
-    try { window.close(); } catch(e) { /* ignore */ }
-  }
-}
-function voltarMenu() {
-  // comportamento original: alert ou redirecionamento; deixei como placeholder
-  // vc pode trocar por window.location = '...';
-  alert('Voltar ao menu inicial (substitua por redirecionamento se quiser).');
-}
+/* ======= Links MACs: aqui ficam navegáveis para o futuro ======= */
+document.querySelectorAll('.mac-link').forEach(a=>{
+  a.addEventListener('click', (e)=>{
+    e.preventDefault();
+    // por enquanto abre alert; substitua com window.location = 'URL' quando tiver
+    const txt = a.textContent.trim();
+    alert(`${txt}\n\n(Em breve: substitua por link real para abrir a página do MAC)`);
+  });
+});
 
-/* ============================
-   Inicialização
-   ============================ */
-montarInterface();
+/* ======= Links simples (São José etc) ======= */
+document.querySelectorAll('.plain-link').forEach(a=>{
+  a.addEventListener('click', (e)=>{
+    e.preventDefault();
+    alert('Página ainda não disponível (em breve).');
+  });
+});
 
-/* Observa: sempre atualizar contagem depois de transferir manualmente (se necessário) */
-const transferBtn = document.querySelector('#middle-controls button');
-if (transferBtn) transferBtn.addEventListener('click', () => {
-  // já a função transferir() atualiza a contagem, mas reforçamos
-  setTimeout(() => atualizarContagemDireita(), 80);
+/* ======= Inicial: fecha todos os bodies (garantia) ======= */
+document.addEventListener('DOMContentLoaded', ()=>{
+  // zera max-heights
+  document.querySelectorAll('.section-body').forEach(b=>{
+    b.style.maxHeight = null;
+  });
 });
 </script>
+
+<script src="nav.js"></script>
 </body>
 </html>

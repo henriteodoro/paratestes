@@ -272,14 +272,15 @@
             <small class="chev">▸</small>
           </div>
           <div class="submenu">
-            <a href="#" data-mac="77" onclick="abrirMac(event, 'MAC Bairro São Geraldo - Cód. 77')">MAC Bairro São Geraldo - Cód. 77</a>
-            <a href="#" data-mac="78" onclick="abrirMac(event, 'MAC Bairro Planalto - Cód. 78')">MAC Bairro Planalto - Cód. 78</a>
-            <a href="#" data-mac="79" onclick="abrirMac(event, 'MAC Romeu Duarte - Cód. 79')">MAC Romeu Duarte - Cód. 79</a>
-            <a href="#" data-mac="80" onclick="abrirMac(event, 'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC Rua São Geraldo / Centro 2 - Cód. 80</a>
-            <a href="#" data-mac="277" onclick="abrirMac(event, 'MAC Matriz - Cód. 277')">MAC Matriz - Cód. 277</a>
-            <a href="#" data-mac="853" onclick="abrirMac(event, 'MAC Concesso - Cód. 853')">MAC Concesso - Cód. 853</a>
-            <a href="#" data-mac="1249" onclick="abrirMac(event, 'MAC Jardim do Lago - Cód. 1249')">MAC Jardim do Lago - Cód. 1249</a>
-            <a href="#" data-mac="989" onclick="abrirMac(event, 'MAC Araújos - Cód. 989')">MAC Araújos - Cód. 989</a>
+            <!-- interliguei para os arquivos macXX.html -->
+            <a href="mac77.html">MAC Bairro São Geraldo - Cód. 77</a>
+            <a href="mac78.html">MAC Bairro Planalto - Cód. 78</a>
+            <a href="mac79.html">MAC Romeu Duarte - Cód. 79</a>
+            <a href="mac80.html">MAC Rua São Geraldo / Centro 2 - Cód. 80</a>
+            <a href="mac277.html">MAC Matriz - Cód. 277</a>
+            <a href="mac853.html">MAC Concesso - Cód. 853</a>
+            <a href="mac1249.html">MAC Jardim do Lago - Cód. 1249</a>
+            <a href="mac989.html">MAC Araújos - Cód. 989</a>
           </div>
         </div>
 
@@ -289,17 +290,17 @@
             <small class="chev">▸</small>
           </div>
           <div class="submenu">
-            <a href="#" onclick="abrirLocal(event, 'São José')">São José</a>
-            <a href="#" onclick="abrirLocal(event, 'Pão Total')">Pão Total</a>
+            <a href="#">São José</a>
+            <a href="#">Pão Total</a>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- X (fechar) — sem confirm -->
+    <!-- X (fechar) — agora redireciona ao index (sem confirmação) -->
     <button class="icon-btn" id="btn-close" title="Fechar" onclick="fecharPagina()">❌</button>
 
-    <!-- Home — placeholder sem alert (vai receber redirecionamento depois) -->
+    <!-- Home — redireciona ao index -->
     <button class="icon-btn" id="btn-home" title="Menu inicial" onclick="voltarMenu()">🏠</button>
   </div>
 
@@ -345,13 +346,14 @@
 <div id="contador-linhas">Linhas preenchidas: 0</div>
 
 <div class="mac-links" role="navigation" aria-label="Outros MACs">
-  <a href="#" onclick="abrirMac(event,'MAC Bairro Planalto - Cód. 78')">MAC 78 - Bairro Planalto</a>
-  <a href="#" onclick="abrirMac(event,'MAC Roumeu Duarte - Cód. 79')">MAC 79 - Romeu Duarte</a>
-  <a href="#" onclick="abrirMac(event,'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC 80 - Rua São Geraldo / Centro 2</a>
-  <a href="#" onclick="abrirMac(event,'MAC Matriz - Cód. 277')">MAC 277 - Matriz</a>
-  <a href="#" onclick="abrirMac(event,'MAC Concesso - Cód. 853')">MAC 853 - Concesso</a>
-  <a href="#" onclick="abrirMac(event,'MAC Jardim do Lago - Cód. 1249')">MAC 1249 - Jardim do Lago</a>
-  <a href="#" onclick="abrirMac(event,'MAC Araújos - Cód. 989')">MAC 989 - Araújos</a>
+  <!-- interliguei o rodapé para as páginas corretas -->
+  <a href="mac78.html">MAC 78 - Bairro Planalto</a>
+  <a href="mac79.html">MAC 79 - Romeu Duarte</a>
+  <a href="mac80.html">MAC 80 - Rua São Geraldo / Centro 2</a>
+  <a href="mac277.html">MAC 277 - Matriz</a>
+  <a href="mac853.html">MAC 853 - Concesso</a>
+  <a href="mac1249.html">MAC 1249 - Jardim do Lago</a>
+  <a href="mac989.html">MAC 989 - Araújos</a>
 </div>
 
 <!-- aviso discreto (reaproveitado para toasts) -->
@@ -464,7 +466,6 @@ function escapeHtml(s) {
 function showBottomNotice(message = 'Copiado!', duration = 2000) {
   const el = document.getElementById('copy-notice');
   if (!el) return;
-  // se já estiver visível, cancela o timeout anterior
   if (el._hideTimeout) {
     clearTimeout(el._hideTimeout);
     el._hideTimeout = null;
@@ -477,7 +478,6 @@ function showBottomNotice(message = 'Copiado!', duration = 2000) {
   }, duration);
 }
 
-// compat shim para chamadas antigas
 function mostrarAvisoCopia() {
   showBottomNotice('Copiado!', 2000);
 }
@@ -620,11 +620,9 @@ function copiarDireita() {
     showBottomNotice('Nada para copiar', 2000);
     return;
   }
-  // tenta clipboard API
   navigator.clipboard.writeText(textoFinal).then(() => {
     showBottomNotice('Copiado!', 2000);
   }).catch(() => {
-    // fallback execCommand
     const ta = document.createElement('textarea');
     ta.value = textoFinal;
     ta.style.position = 'fixed';
@@ -729,10 +727,8 @@ function salvarComoExcel(e) {
    ============================ */
 function imprimirDireto() {
   const printBtn = document.getElementById('btn-print');
-  // desabilita botão para prevenir clicks repetidos
   if (printBtn) printBtn.disabled = true;
 
-  // monta as mesmas linhas que salvarComoPDF usa (mantendo ordem do mapaConexao)
   const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
   const linhas = [];
   mapaConexao.forEach((origemOneBased, idxDestino) => {
@@ -774,27 +770,18 @@ function imprimirDireto() {
   doc.text(`Linhas preenchidas: ${linhas.length}`, marginLeft, y);
 
   try {
-    // 1) abre uma nova aba em branco durante o clique (síncrono) - isso evita popup blocker em muitos casos
     const newWin = window.open('', '_blank');
-
-    // 2) se a aba foi bloqueada (null) -> fallback para download direto
     if (!newWin) {
-      // fallback: salva o arquivo para o usuário (download)
       doc.save("lista_mac_77.pdf");
       showBottomNotice('PDF baixado', 2000);
       if (printBtn) printBtn.disabled = false;
       return;
     }
-
-    // 3) gera o blob (síncrono) e cria URL
     const pdfBlob = doc.output('blob');
     const url = URL.createObjectURL(pdfBlob);
-
-    // 4) redireciona a aba recém-aberta para o blob URL (um único open)
     try {
       newWin.location.href = url;
     } catch (e) {
-      // se não for possível setar location (por alguma razão), escrevemos um embed simples
       try {
         newWin.document.open();
         newWin.document.write(`
@@ -808,17 +795,13 @@ function imprimirDireto() {
         `);
         newWin.document.close();
       } catch (err2) {
-        // último recurso: faz download
         doc.save("lista_mac_77.pdf");
         showBottomNotice('PDF baixado', 2000);
         try { newWin.close(); } catch(e){}
       }
     }
-
-    // 5) revoga a URL depois (garantir limpeza)
     setTimeout(() => { try { URL.revokeObjectURL(url); } catch(e) {} }, 60000);
   } catch (err) {
-    // erro inesperado — mostrar mensagem rápida
     showBottomNotice('Erro ao gerar PDF', 3000);
     console.error(err);
   } finally {
@@ -884,34 +867,21 @@ document.addEventListener('click', (ev) => {
 
 /* ============================
    Placeholders / ações dos ícones esquerdo
-   (REMOVIDOS alert/confirm para você adicionar nav/redirecionamento depois)
+   (agora redirecionam para index.html)
    ============================ */
 function fecharPagina() {
-  // sem confirmação, apenas tenta fechar (você adicionará redirecionamento futuro)
-  try { window.close(); } catch(e) { /* silently ignore */ }
+  // redireciona para o menu (index.html)
+  window.location.href = 'index.html';
 }
 function voltarMenu() {
-  // placeholder vazio (substitua por window.location = '...'; quando quiser)
-  // console.info('voltarMenu() chamado — substitua por redirecionamento quando for preciso.');
+  // redireciona para o menu (index.html)
+  window.location.href = 'index.html';
 }
 function navegarAnterior() {
-  // placeholder vazio — implemente navegação se quiser
-  // console.info('navegarAnterior() chamado — implemente comportamento aqui.');
+  // deixei vazio — implemente se quiser navegar entre macs
 }
 function navegarProximo() {
-  // placeholder vazio — implemente navegação se quiser
-  // console.info('navegarProximo() chamado — implemente comportamento aqui.');
-}
-function abrirMac(e, nome) {
-  if (e) e.preventDefault();
-  document.getElementById('titulo-principal').textContent = nome;
-  toggleMenu('dropdown-menu');
-}
-function abrirLocal(e, nome) {
-  if (e) e.preventDefault();
-  // placeholder vazio — substitua por comportamento real futuramente
-  // console.info('abrirLocal:', nome);
-  toggleMenu('dropdown-menu');
+  // deixei vazio — implemente se quiser navegar entre macs
 }
 
 /* ============================
@@ -919,20 +889,16 @@ function abrirLocal(e, nome) {
    ============================ */
 montarInterface();
 
-// reforça atualização da contagem depois do clique no botão transferir
 const transferBtn = document.querySelector('#middle-controls #btn-transfer');
 if (transferBtn) transferBtn.addEventListener('click', () => {
   setTimeout(() => atualizarContagemDireita(), 80);
 });
 
-// ADICIONA o listener do botão imprimir (sem onclick inline) — evita duplicação
 const printBtn = document.getElementById('btn-print');
 if (printBtn) {
-  // remove qualquer onclick inline residual (precaução)
   try { printBtn.onclick = null; } catch(e){}
   printBtn.addEventListener('click', (ev) => {
     ev.preventDefault();
-    // proteção contra double click rápido
     if (printBtn.disabled) return;
     imprimirDireto();
   });

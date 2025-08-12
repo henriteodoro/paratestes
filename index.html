@@ -135,8 +135,6 @@
 </style>
 </head>
 <body>
-  <div id="nav-placeholder"></div>
-
   <div class="wrap" role="main">
     <h1>Menu Inicial</h1>
     <p class="lead">Acesse MACs, Guias e Tabelas de Preço — clique para expandir / abrir. (pode editar links depois)</p>
@@ -174,14 +172,14 @@
 
         <div id="body-macs" class="section-body" aria-hidden="true">
           <ul class="list">
-            <li><a href="#" data-target-page="#" class="mac-link">MAC Bairro São Geraldo - Cód. 77</a></li>
-            <li><a href="#" data-target-page="#" class="mac-link">MAC Bairro Planalto - Cód. 78</a></li>
-            <li><a href="#" data-target-page="#" class="mac-link">MAC Romeu Duarte - Cód. 79</a></li>
-            <li><a href="#" data-target-page="#" class="mac-link">MAC Rua São Geraldo / Centro 2 - Cód. 80</a></li>
-            <li><a href="#" data-target-page="#" class="mac-link">MAC Matriz - Cód. 277</a></li>
-            <li><a href="#" data-target-page="#" class="mac-link">MAC Concesso - Cód. 853</a></li>
-            <li><a href="#" data-target-page="#" class="mac-link">MAC Jardim do Lago - Cód. 1249</a></li>
-            <li><a href="#" data-target-page="#" class="mac-link">MAC Araújos - Cód. 989</a></li>
+            <li><a href="mac77.html" class="mac-link">MAC Bairro São Geraldo - Cód. 77</a></li>
+            <li><a href="mac78.html" class="mac-link">MAC Bairro Planalto - Cód. 78</a></li>
+            <li><a href="mac79.html" class="mac-link">MAC Romeu Duarte - Cód. 79</a></li>
+            <li><a href="mac80.html" class="mac-link">MAC Rua São Geraldo / Centro 2 - Cód. 80</a></li>
+            <li><a href="mac277.html" class="mac-link">MAC Matriz - Cód. 277</a></li>
+            <li><a href="mac853.html" class="mac-link">MAC Concesso - Cód. 853</a></li>
+            <li><a href="mac1249.html" class="mac-link">MAC Jardim do Lago - Cód. 1249</a></li>
+            <li><a href="mac989.html" class="mac-link">MAC Araújos - Cód. 989</a></li>
           </ul>
         </div>
       </section>
@@ -223,14 +221,14 @@
             </div>
             <div id="body-guias-macs" class="section-body sublist" aria-hidden="true">
               <ul class="list">
-                <li><a href="#" class="mac-link">MAC 77 - Bairro São Geraldo</a></li>
-                <li><a href="#" class="mac-link">MAC 78 - Bairro Planalto</a></li>
-                <li><a href="#" class="mac-link">MAC 79 - Romeu Duarte</a></li>
-                <li><a href="#" class="mac-link">MAC 80 - Rua São Geraldo / Centro 2</a></li>
-                <li><a href="#" class="mac-link">MAC 277 - Matriz</a></li>
-                <li><a href="#" class="mac-link">MAC 853 - Concesso</a></li>
-                <li><a href="#" class="mac-link">MAC 1249 - Jardim do Lago</a></li>
-                <li><a href="#" class="mac-link">MAC 989 - Araújos</a></li>
+                <li><a href="mac77.html" class="mac-link">MAC 77 - Bairro São Geraldo</a></li>
+                <li><a href="mac78.html" class="mac-link">MAC 78 - Bairro Planalto</a></li>
+                <li><a href="mac79.html" class="mac-link">MAC 79 - Romeu Duarte</a></li>
+                <li><a href="mac80.html" class="mac-link">MAC 80 - Rua São Geraldo / Centro 2</a></li>
+                <li><a href="mac277.html" class="mac-link">MAC 277 - Matriz</a></li>
+                <li><a href="mac853.html" class="mac-link">MAC 853 - Concesso</a></li>
+                <li><a href="mac1249.html" class="mac-link">MAC 1249 - Jardim do Lago</a></li>
+                <li><a href="mac989.html" class="mac-link">MAC 989 - Araújos</a></li>
               </ul>
             </div>
           </div>
@@ -320,11 +318,6 @@
 <script>
 /* ====== Código JS para toggles e comportamento ====== */
 
-/**
- * helper: toggle a seção (abre/fecha)
- * headEl = .section-head element
- * bodyEl = element with id specified in data-target
- */
 function toggleSection(headEl){
   const targetId = headEl.getAttribute('data-target') || headEl.dataset.target;
   if(!targetId) return;
@@ -340,9 +333,8 @@ function toggleSection(headEl){
     body.setAttribute('aria-hidden','true');
     if(chev) chev.classList.remove('open');
   } else {
-    // abrir: set maxHeight para animação (scrollHeight)
     body.classList.add('open');
-    body.style.maxHeight = body.scrollHeight + 24 + "px"; // thêm padding
+    body.style.maxHeight = body.scrollHeight + 24 + "px";
     headEl.setAttribute('aria-expanded','true');
     body.setAttribute('aria-hidden','false');
     if(chev) chev.classList.add('open');
@@ -351,23 +343,18 @@ function toggleSection(headEl){
 
 // delegação: adiciona listeners a todos os .section-head no menu
 document.querySelectorAll('.section-head').forEach(head=>{
-  // extra: pega target a partir do atributo data-target no head
-  // (algumas heads internas usam data-target já no elemento)
   head.addEventListener('click', (e)=>{
     toggleSection(head);
   });
-  // teclado: Enter / Space para ativar
   head.addEventListener('keydown', (e)=>{
     if(e.key === 'Enter' || e.key === ' '){
       e.preventDefault();
       toggleSection(head);
     } else if(e.key === 'ArrowRight'){
-      // abrir
       const targetId = head.dataset.target;
       const body = document.getElementById(targetId);
       if(body && !body.classList.contains('open')) toggleSection(head);
     } else if(e.key === 'ArrowLeft'){
-      // fechar
       const targetId = head.dataset.target;
       const body = document.getElementById(targetId);
       if(body && body.classList.contains('open')) toggleSection(head);
@@ -380,7 +367,6 @@ document.addEventListener('click', (ev)=>{
   const menu = document.querySelector('.menu-list');
   if(!menu) return;
   if(menu.contains(ev.target)) return;
-  // fecha apenas as seções de nível 1 (não fecha sub-sections)
   document.querySelectorAll('#body-macs.open,#body-saojose.open,#body-guias.open,#body-media.open,#body-relatorio.open').forEach(b=>{
     const head = document.querySelector(`[data-target="${b.id}"]`);
     if(head) toggleSection(head);
@@ -388,7 +374,6 @@ document.addEventListener('click', (ev)=>{
 });
 
 /* ======= Abrir PDFs (use data-href ou trocar href) ======= */
-// Example: you can set href directly (recommended) or leave '#' and set data-href attribute
 function openPdfLink(elem){
   const href = elem.getAttribute('href');
   const dataHref = elem.getAttribute('data-href');
@@ -397,11 +382,8 @@ function openPdfLink(elem){
     alert('Link do PDF ainda não configurado. Substitua o atributo href/data-href pelo URL do seu PDF.');
     return;
   }
-  // abre em nova aba (conforme seu pedido)
   window.open(url, '_blank');
 }
-
-// attach handler to the PDF links cards
 ['link-tabela-geral','link-tabela-empresa','link-catalogo'].forEach(id=>{
   const el = document.getElementById(id);
   if(!el) return;
@@ -411,11 +393,18 @@ function openPdfLink(elem){
   });
 });
 
-/* ======= Links MACs: aqui ficam navegáveis para o futuro ======= */
+/* ======= Links MACs: agora NAVEGAM para os arquivos macXX.html ======= */
 document.querySelectorAll('.mac-link').forEach(a=>{
   a.addEventListener('click', (e)=>{
+    const href = (a.getAttribute('href') || '').trim();
+    if (href && href !== '#') {
+      // temos um arquivo definido — navegar para ele (mesma aba)
+      e.preventDefault();
+      window.location.href = href;
+      return;
+    }
+    // sem href configurado -> aviso (mantive comportamento antigo)
     e.preventDefault();
-    // por enquanto abre alert; substitua com window.location = 'URL' quando tiver
     const txt = a.textContent.trim();
     alert(`${txt}\n\n(Em breve: substitua por link real para abrir a página do MAC)`);
   });
@@ -431,13 +420,10 @@ document.querySelectorAll('.plain-link').forEach(a=>{
 
 /* ======= Inicial: fecha todos os bodies (garantia) ======= */
 document.addEventListener('DOMContentLoaded', ()=>{
-  // zera max-heights
   document.querySelectorAll('.section-body').forEach(b=>{
     b.style.maxHeight = null;
   });
 });
 </script>
-
-<script src="nav.js"></script>
 </body>
 </html>

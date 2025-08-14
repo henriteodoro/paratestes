@@ -12,7 +12,6 @@
     --card:#ffffff;
     --muted:#6b7280;
     --accent:#0b5ed7;
-    --future:#0b74d1;
   }
   html,body { height:100%; margin:0; }
   body{
@@ -112,6 +111,24 @@
   .list a:hover { background:#f3f8ff; border-color:#e3f0ff; }
   .list .muted { color:var(--muted); font-size:12px; }
 
+  /* ========= Non-clickable text items (Guias) ======== */
+  .no-link {
+    display:flex;
+    justify-content:space-between;
+    padding:8px;
+    border-radius:6px;
+    color:#0b3b6b;
+    border:1px solid transparent;
+    margin-bottom:6px;
+    cursor:default;
+    background:transparent;
+  }
+  .no-link:hover { background:transparent; border-color:transparent; }
+
+  /* ========= Future links (placeholders) ======== */
+  .future-link { font-weight:600; }
+  .future-link .muted { margin-left:8px; font-weight:400; }
+
   /* ========= Sub-grid for guiass/somar etc (indented) ======== */
   .sublist { padding-left:6px; border-left:2px dashed #eef6ff; margin-top:6px; }
 
@@ -121,9 +138,6 @@
     color: #9aa0a6;
     font-style: italic;
   }
-
-  /* future badge */
-  .future-note { font-size:12px; color:var(--future); margin-left:8px; }
 
   /* ========= Footer/legend etc ======== */
   .meta { font-size:13px; color:var(--muted); margin-top:10px; }
@@ -217,23 +231,21 @@
         </div>
 
         <div id="body-guias" class="section-body" aria-hidden="true">
-          <!-- Sub-item: Macs -->
+          <!-- Sub-item: Macs (AGORA SOMENTE TEXTO, não clicável) -->
           <div class="card" style="margin-bottom:8px;">
-            <div tabindex="0" class="section-head sub-head" role="button" aria-expanded="false" data-target="body-guias-macs">
-              <div class="section-title"><strong>Macs</strong></div>
-              <div class="chev" aria-hidden="true">▶</div>
-            </div>
-            <div id="body-guias-macs" class="section-body sublist" aria-hidden="true">
+            <div class="section-title" style="padding:6px 0;"><strong>Macs (guia)</strong></div>
+            <div class="sublist" style="padding:6px;">
               <ul class="list">
-                <li><a href="mac77.html" class="mac-link">MAC 77 - Bairro São Geraldo</a></li>
-                <li><a href="mac78.html" class="mac-link">MAC 78 - Bairro Planalto</a></li>
-                <li><a href="mac79.html" class="mac-link">MAC 79 - Romeu Duarte</a></li>
-                <li><a href="mac80.html" class="mac-link">MAC 80 - Rua São Geraldo / Centro 2</a></li>
-                <li><a href="mac277.html" class="mac-link">MAC 277 - Matriz</a></li>
-                <li><a href="mac853.html" class="mac-link">MAC 853 - Concesso</a></li>
-                <li><a href="mac1249.html" class="mac-link">MAC 1249 - Jardim do Lago</a></li>
-                <li><a href="mac989.html" class="mac-link">MAC 989 - Araújos</a></li>
+                <li class="no-link">MAC 77 - Bairro São Geraldo</li>
+                <li class="no-link">MAC 78 - Bairro Planalto</li>
+                <li class="no-link">MAC 79 - Romeu Duarte</li>
+                <li class="no-link">MAC 80 - Rua São Geraldo / Centro 2</li>
+                <li class="no-link">MAC 277 - Matriz</li>
+                <li class="no-link">MAC 853 - Concesso</li>
+                <li class="no-link">MAC 1249 - Jardim do Lago</li>
+                <li class="no-link">MAC 989 - Araújos</li>
               </ul>
+              <div class="soon">Observação: nesta seção de Guias os nomes aparecem apenas como referência (não clicáveis).</div>
             </div>
           </div>
 
@@ -283,6 +295,41 @@
             </div>
           </div>
 
+          <!-- Sub-item: Josildo (novo pedido) -->
+          <div class="card" style="margin-bottom:8px;">
+            <div tabindex="0" class="section-head sub-head" role="button" aria-expanded="false" data-target="body-guias-josildo">
+              <div class="section-title"><strong>Josildo</strong></div>
+              <div class="chev" aria-hidden="true">▶</div>
+            </div>
+            <div id="body-guias-josildo" class="section-body sublist" aria-hidden="true">
+              <div class="soon">Em breve</div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Ferramentas planejadas (Lista Ordenada / Abrir .ODS) -->
+      <section class="section" id="sec-future">
+        <div tabindex="0" class="section-head" role="button" aria-expanded="false" data-target="body-future">
+          <div class="section-title">
+            <span class="badge">Futuro</span>
+            <h3>Ferramentas Planejadas</h3>
+          </div>
+          <div class="chev" aria-hidden="true">▶</div>
+        </div>
+
+        <div id="body-future" class="section-body" aria-hidden="true">
+          <ul class="list">
+            <!-- Esses links são PLACEHOLDERS: href="#" e data-href aponta para o arquivo que você poderá adicionar no futuro -->
+            <li>
+              <a href="#" class="future-link" data-href="lista-ordenada.html">Lista Ordenada <span class="muted">— Em breve</span></a>
+            </li>
+            <li>
+              <a href="#" class="future-link" data-href="abrir-ods.html">Abrir arquivo .ODS <span class="muted">— Em breve</span></a>
+            </li>
+          </ul>
+          <div class="soon">Observação: quando você colocar os arquivos (ex.: <code>lista-ordenada.html</code>) no repo, substitua o <code>href</code> ou troque o <code>data-href</code> para ativar a navegação.</div>
         </div>
       </section>
 
@@ -314,29 +361,6 @@
         </div>
       </section>
 
-      <!-- NOVA SEÇÃO: Ferramentas (links futuros) -->
-      <section class="section" id="sec-ferramentas">
-        <div tabindex="0" class="section-head" role="button" aria-expanded="false" data-target="body-ferramentas">
-          <div class="section-title">
-            <span class="badge">Ferramentas</span>
-            <h3>Ferramentas (opções futuras)</h3>
-          </div>
-          <div class="chev" aria-hidden="true">▶</div>
-        </div>
-
-        <div id="body-ferramentas" class="section-body" aria-hidden="true">
-          <ul class="list">
-            <li>
-              <a href="lista-ordenada.html" class="future-link">Lista Ordenada <span class="future-note">(página futura)</span></a>
-            </li>
-            <li>
-              <a href="abrir-ods.html" class="future-link">Abrir arquivo .ODS <span class="future-note">(página futura)</span></a>
-            </li>
-          </ul>
-          <small class="muted">Observação: os links acima apontam para arquivos locais "lista-ordenada.html" e "abrir-ods.html". Quando você adicionar esses arquivos ao seu repositório (ou ao GitHub Pages), os links abrirão normalmente. Enquanto não existir, o sistema avisará que a página ainda não foi criada.</small>
-        </div>
-      </section>
-
     </nav>
 
     <div class="meta">Dica: clique no título ou na seta para abrir as opções. Substitua <code>#</code> pelos links dos PDFs quando estiver pronto.</div>
@@ -361,6 +385,7 @@ function toggleSection(headEl){
     if(chev) chev.classList.remove('open');
   } else {
     body.classList.add('open');
+    // scrollHeight + pequena folga para padding
     body.style.maxHeight = body.scrollHeight + 24 + "px";
     headEl.setAttribute('aria-expanded','true');
     body.setAttribute('aria-hidden','false');
@@ -389,11 +414,12 @@ document.querySelectorAll('.section-head').forEach(head=>{
   });
 });
 
-// Close all open sections when clicking outside menu-list (generic)
+// Close all open sections when clicking outside menu-list (mais genérico)
 document.addEventListener('click', (ev)=>{
   const menu = document.querySelector('.menu-list');
   if(!menu) return;
   if(menu.contains(ev.target)) return;
+  // fecha todas as section-body abertas
   document.querySelectorAll('.section-body.open').forEach(b=>{
     const head = document.querySelector(`[data-target="${b.id}"]`);
     if(head) toggleSection(head);
@@ -420,7 +446,7 @@ function openPdfLink(elem){
   });
 });
 
-/* ======= Links MACs: agora NAVEGAM para os arquivos macXX.html ======= */
+/* ======= Links MACs: agora NAVEGAM para os arquivos macXX.html (mesmo comportamento antigo) ======= */
 document.querySelectorAll('.mac-link').forEach(a=>{
   a.addEventListener('click', (e)=>{
     const href = (a.getAttribute('href') || '').trim();
@@ -445,34 +471,12 @@ document.querySelectorAll('.plain-link').forEach(a=>{
   });
 });
 
-/* ======= Links futuros (Lista Ordenada / Abrir .ODS) ======= */
-function checkAndNavigate(url){
-  if(!url || url === '#'){
-    alert('Link ainda não configurado.');
-    return;
-  }
-  // tenta verificar com HEAD se a página existe; caso falhe (file:// ou CORS), faz fallback navegando
-  try{
-    fetch(url, { method: 'HEAD' }).then(res=>{
-      if(res && res.ok){
-        window.location.href = url;
-      } else {
-        alert(`A página "${url}" ainda não foi adicionada ao repositório. Em breve estará disponível.`);
-      }
-    }).catch(err=>{
-      // fallback: navega mesmo quando não é possível checar (útil para testes locais)
-      window.location.href = url;
-    });
-  } catch(e){
-    window.location.href = url;
-  }
-}
-
+/* ======= Future links (placeholders) ======= */
 document.querySelectorAll('.future-link').forEach(a=>{
   a.addEventListener('click', (e)=>{
     e.preventDefault();
-    const href = (a.getAttribute('href') || '').trim();
-    checkAndNavigate(href);
+    const future = a.getAttribute('data-href') || '(arquivo não especificado)';
+    alert(`Funcionalidade planejada: "${a.textContent.trim()}"\n\nQuando você colocar o arquivo "${future}" no repositório, substitua o atributo href/data-href para ativar a navegação.`);
   });
 });
 

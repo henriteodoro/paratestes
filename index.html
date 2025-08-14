@@ -4,6 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Menu Inicial — MACs & Guias</title>
+<!-- SheetJS (permite abrir .ods/.xlsx no navegador) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   /* ========= Base visual ========= */
   :root{
@@ -127,10 +129,28 @@
   /* keyboard focus */
   .section-head:focus { outline: 3px solid rgba(0,123,255,0.12); }
 
+  /* small UI elements (lista ordenada + ods) */
+  .inline-row{ display:flex; gap:8px; align-items:center; }
+  input[type="text"], input[type="file"]{ padding:8px; border-radius:6px; border:1px solid #e6eefc; font-family:inherit; }
+  button.btn{ padding:6px 10px; border-radius:6px; border:0; cursor:pointer; background:var(--azul); color:white; font-weight:600; }
+  button.btn.ghost{ background:transparent; color:var(--azul); border:1px solid #d8e9ff; }
+  .li-item{ display:flex; align-items:center; gap:8px; padding:8px; border-radius:6px; border:1px solid #f0f6ff; margin-bottom:6px; background:#fff; }
+  .li-item .num{ min-width:28px; font-weight:700; color:#0b3b6b; }
+  .li-item .text{ flex:1; }
+  .li-controls button{ margin-left:6px; padding:4px 8px; border-radius:6px; border:0; cursor:pointer; }
+  .li-controls button.small{ padding:4px 6px; font-size:12px; }
+  .small-muted{ font-size:12px; color:var(--muted); }
+
+  /* tabela preview ods */
+  .ods-preview{ overflow:auto; max-height:260px; border:1px solid #eef6ff; border-radius:6px; margin-top:8px; padding:6px; background:#fff; }
+  table.ods-table{ border-collapse:collapse; width:100%; font-size:13px; }
+  table.ods-table th, table.ods-table td{ border:1px solid #eef6ff; padding:6px; text-align:left; }
+
   /* Responsivo */
   @media (max-width:640px) {
     body { padding:14px; }
     .top-grid { grid-template-columns:1fr; }
+    .inline-row{ flex-direction:column; align-items:stretch; }
   }
 </style>
 </head>
@@ -282,6 +302,65 @@
         </div>
       </section>
 
+      <!-- NOVO: Lista Ordenada -->
+      <section class="section" id="sec-lista-ordenada">
+        <div tabindex="0" class="section-head" role="button" aria-expanded="false" data-target="body-lista-ordenada">
+          <div class="section-title">
+            <span class="badge">Listas</span>
+            <h3>Lista Ordenada</h3>
+          </div>
+          <div class="chev" aria-hidden="true">▶</div>
+        </div>
+
+        <div id="body-lista-ordenada" class="section-body" aria-hidden="true">
+          <div class="card">
+            <div class="inline-row" style="margin-bottom:8px;">
+              <input aria-label="Novo item" id="list-item-input" type="text" placeholder="Adicionar item...">
+              <button id="list-add-btn" class="btn">Adicionar</button>
+              <button id="list-clear-btn" class="btn ghost" title="Limpar lista">Limpar</button>
+            </div>
+
+            <div id="list-container" aria-live="polite">
+              <ol id="ordered-list" class="list" style="padding-left:8px;"></ol>
+            </div>
+
+            <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+              <button id="list-copy" class="btn ghost">Copiar</button>
+              <button id="list-download-txt" class="btn ghost">Baixar .txt</button>
+              <button id="list-download-csv" class="btn ghost">Baixar .csv</button>
+              <div class="small-muted" style="margin-left:auto; align-self:center;">Use as setas para reordenar.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- NOVO: Abrir arquivo .ODS -->
+      <section class="section" id="sec-abrir-ods">
+        <div tabindex="0" class="section-head" role="button" aria-expanded="false" data-target="body-abrir-ods">
+          <div class="section-title">
+            <span class="badge">Arquivo</span>
+            <h3>Abrir arquivo .ODS / .XLSX</h3>
+          </div>
+          <div class="chev" aria-hidden="true">▶</div>
+        </div>
+
+        <div id="body-abrir-ods" class="section-body" aria-hidden="true">
+          <div class="card">
+            <div class="inline-row" style="align-items:flex-start; gap:10px;">
+              <input id="ods-file-input" type="file" accept=".ods,.xlsx,.xls" aria-label="Selecionar arquivo ODS"> 
+              <div style="display:flex; gap:8px; flex-direction:column;">
+                <button id="ods-open-btn" class="btn">Abrir</button>
+                <button id="ods-export-csv" class="btn ghost">Exportar CSV</button>
+                <button id="ods-export-xlsx" class="btn ghost">Exportar XLSX</button>
+              </div>
+            </div>
+
+            <div id="ods-status" class="small-muted" style="margin-top:8px;">Nenhum arquivo carregado.</div>
+            <div id="ods-preview" class="ods-preview" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
       <!-- lista de média por pacote (em breve) -->
       <section class="section" id="sec-media">
         <div tabindex="0" class="section-head" role="button" aria-expanded="false" data-target="body-media">
@@ -367,7 +446,7 @@ document.addEventListener('click', (ev)=>{
   const menu = document.querySelector('.menu-list');
   if(!menu) return;
   if(menu.contains(ev.target)) return;
-  document.querySelectorAll('#body-macs.open,#body-saojose.open,#body-guias.open,#body-media.open,#body-relatorio.open').forEach(b=>{
+  document.querySelectorAll('#body-macs.open,#body-saojose.open,#body-guias.open,#body-media.open,#body-relatorio.open,#body-lista-ordenada.open,#body-abrir-ods.open').forEach(b=>{
     const head = document.querySelector(`[data-target="${b.id}"]`);
     if(head) toggleSection(head);
   });
@@ -424,6 +503,253 @@ document.addEventListener('DOMContentLoaded', ()=>{
     b.style.maxHeight = null;
   });
 });
+
+/* ===================== NOVAS FUNCIONALIDADES: LISTA ORDENADA ===================== */
+(function(){
+  const input = document.getElementById('list-item-input');
+  const addBtn = document.getElementById('list-add-btn');
+  const listEl = document.getElementById('ordered-list');
+  const clearBtn = document.getElementById('list-clear-btn');
+  const copyBtn = document.getElementById('list-copy');
+  const downloadTxt = document.getElementById('list-download-txt');
+  const downloadCsv = document.getElementById('list-download-csv');
+
+  function renderNumbering(){
+    Array.from(listEl.children).forEach((li,i)=>{
+      const num = li.querySelector('.num');
+      if(num) num.textContent = (i+1) + '.';
+    });
+  }
+
+  function createListItem(text){
+    const li = document.createElement('li');
+    li.className = 'li-item';
+
+    li.innerHTML = `
+      <div class="num">0.</div>
+      <div class="text">${escapeHtml(text)}</div>
+      <div class="li-controls" role="group" aria-label="Controles do item">
+        <button class="small" data-action="up" title="Mover para cima">▲</button>
+        <button class="small" data-action="down" title="Mover para baixo">▼</button>
+        <button class="small" data-action="edit" title="Editar">✎</button>
+        <button class="small" data-action="del" title="Remover">✖</button>
+      </div>
+    `;
+
+    // eventos delegados abaixo serão capturados
+    return li;
+  }
+
+  function escapeHtml(s){
+    return s.replace(/[&<>\"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c];
+    });
+  }
+
+  addBtn.addEventListener('click', ()=>{
+    const v = (input.value || '').trim();
+    if(!v) return input.focus();
+    const li = createListItem(v);
+    listEl.appendChild(li);
+    input.value = '';
+    renderNumbering();
+  });
+
+  input.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter') addBtn.click();
+  });
+
+  listEl.addEventListener('click', (e)=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    const action = btn.dataset.action;
+    const li = btn.closest('li');
+    if(!action || !li) return;
+
+    if(action === 'up'){
+      const prev = li.previousElementSibling;
+      if(prev) li.parentNode.insertBefore(li, prev);
+      renderNumbering();
+    } else if(action === 'down'){
+      const next = li.nextElementSibling;
+      if(next) li.parentNode.insertBefore(next, li);
+      renderNumbering();
+    } else if(action === 'del'){
+      li.remove();
+      renderNumbering();
+    } else if(action === 'edit'){
+      const txtEl = li.querySelector('.text');
+      const current = txtEl.textContent;
+      const newv = prompt('Editar item:', current);
+      if(newv !== null){
+        txtEl.textContent = newv;
+      }
+    }
+  });
+
+  clearBtn.addEventListener('click', ()=>{
+    if(!confirm('Limpar toda a lista?')) return;
+    listEl.innerHTML = '';
+  });
+
+  copyBtn.addEventListener('click', async ()=>{
+    const arr = Array.from(listEl.children).map(li=> li.querySelector('.text').textContent);
+    const txt = arr.join('\n');
+    try{
+      await navigator.clipboard.writeText(txt);
+      alert('Lista copiada para área de transferência.');
+    }catch(err){
+      // fallback
+      const ta = document.createElement('textarea');
+      ta.value = txt;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      alert('Lista copiada (fallback).');
+    }
+  });
+
+  function download(filename, content, mime='text/plain'){
+    const blob = new Blob([content], {type:mime});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  downloadTxt.addEventListener('click', ()=>{
+    const arr = Array.from(listEl.children).map(li=> li.querySelector('.text').textContent);
+    download('lista.txt', arr.join('\n'), 'text/plain');
+  });
+
+  downloadCsv.addEventListener('click', ()=>{
+    const arr = Array.from(listEl.children).map(li=> li.querySelector('.text').textContent);
+    const csv = arr.map(r=> `"${r.replace(/"/g,'""')}"`).join('\n');
+    download('lista.csv', csv, 'text/csv');
+  });
+
+})();
+
+/* ===================== NOVAS FUNCIONALIDADES: ABRIR .ODS ===================== */
+(function(){
+  const fileInput = document.getElementById('ods-file-input');
+  const openBtn = document.getElementById('ods-open-btn');
+  const status = document.getElementById('ods-status');
+  const preview = document.getElementById('ods-preview');
+  const exportCsvBtn = document.getElementById('ods-export-csv');
+  const exportXlsxBtn = document.getElementById('ods-export-xlsx');
+
+  let currentWorkbook = null;
+  let currentSheetName = null;
+
+  function setStatus(s){ status.textContent = s; }
+
+  function renderPreview(data){
+    // data is array of arrays
+    if(!Array.isArray(data) || data.length === 0){
+      preview.innerHTML = '<div class="small-muted">Planilha vazia.</div>';
+      return;
+    }
+    const maxRows = 50;
+    const rows = data.slice(0, maxRows);
+    const table = document.createElement('table');
+    table.className = 'ods-table';
+    const thead = document.createElement('thead');
+    const trh = document.createElement('tr');
+    const first = rows[0];
+    const colCount = Math.max(...rows.map(r=> r.length ));
+    for(let c=0;c<colCount;c++){
+      const th = document.createElement('th');
+      th.textContent = rows[0][c] !== undefined ? rows[0][c] : '';
+      trh.appendChild(th);
+    }
+    thead.appendChild(trh);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    for(let r=1;r<rows.length;r++){
+      const tr = document.createElement('tr');
+      for(let c=0;c<colCount;c++){
+        const td = document.createElement('td');
+        td.textContent = rows[r][c] !== undefined ? rows[r][c] : '';
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    preview.innerHTML = '';
+    preview.appendChild(table);
+    if(data.length > maxRows){
+      const more = document.createElement('div');
+      more.className = 'small-muted';
+      more.style.marginTop = '6px';
+      more.textContent = `Mostrando ${maxRows} primeiras linhas de ${data.length}.`;
+      preview.appendChild(more);
+    }
+  }
+
+  function handleFile(file){
+    if(!file) return;
+    setStatus('Carregando arquivo...');
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      try{
+        const data = ev.target.result;
+        const wb = XLSX.read(data, {type:'array'});
+        currentWorkbook = wb;
+        currentSheetName = wb.SheetNames[0];
+        const ws = wb.Sheets[currentSheetName];
+        const arr = XLSX.utils.sheet_to_json(ws, {header:1});
+        setStatus(`Arquivo: ${file.name} — planilha: ${currentSheetName} — ${arr.length} linhas`);
+        renderPreview(arr);
+      }catch(err){
+        console.error(err);
+        setStatus('Erro ao ler arquivo. Verifique se é um .ods/.xlsx válido.');
+        preview.innerHTML = '';
+      }
+    };
+    reader.onerror = function(){ setStatus('Erro ao ler o arquivo.'); };
+    reader.readAsArrayBuffer(file);
+  }
+
+  openBtn.addEventListener('click', ()=>{
+    const f = fileInput.files && fileInput.files[0];
+    if(!f){ alert('Selecione um arquivo .ods/.xlsx primeiro.'); return; }
+    handleFile(f);
+  });
+
+  fileInput.addEventListener('change', ()=>{
+    // auto abrir ao selecionar
+    const f = fileInput.files && fileInput.files[0];
+    if(f) handleFile(f);
+  });
+
+  exportCsvBtn.addEventListener('click', ()=>{
+    if(!currentWorkbook) { alert('Nenhum arquivo carregado.'); return; }
+    const ws = currentWorkbook.Sheets[currentSheetName];
+    const csv = XLSX.utils.sheet_to_csv(ws);
+    const fname = (currentSheetName || 'planilha') + '.csv';
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = fname; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  });
+
+  exportXlsxBtn.addEventListener('click', ()=>{
+    if(!currentWorkbook) { alert('Nenhum arquivo carregado.'); return; }
+    try{
+      const wbout = XLSX.write(currentWorkbook, {bookType:'xlsx', type:'array'});
+      const blob = new Blob([wbout], {type:'application/octet-stream'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'export.xlsx'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }catch(err){
+      console.error(err);
+      alert('Erro ao exportar XLSX.');
+    }
+  });
+
+})();
+
 </script>
 </body>
 </html>

@@ -249,13 +249,33 @@
     font-size: 13px;
   }
 
+  /* ---------- PRINT (melhoria mínima adicionada) ---------- */
   @media print {
+    /* manter o que você já tinha: esconder controles e rodapé */
     header, .menu-dropdown-content, #middle-controls, .mac-links, #copy-notice { display: none !important; }
+
+    /* tipografia consistente na impressão */
     body, html { font-family: monospace; }
-    .container { gap: 0; padding: 0; }
-    .column { box-shadow: none; border: none; }
-    .column { min-width: 40%; }
+    /* pagina A4 e margens pequenas para caber o conteúdo */
+    @page { size: A4 portrait; margin: 8mm; }
+
+    /* remove gaps e paddings que empurram para outra página */
+    .container { gap: 8px !important; padding: 0 !important; }
+    /* coloca as colunas lado a lado, ocupando cerca de 48% cada para caber */
+    .column { box-shadow: none; border: none; min-width: auto; max-width: 48%; width: 48%; }
+
+    /* reduz o espaçamento por item e evita quebra dentro do item */
+    .item { gap: 6px !important; padding: 2px 4px !important; page-break-inside: avoid; break-inside: avoid; }
+    .item span { font-size: 11px; line-height: 1.12; }
+    .item input[type="text"] { width: 44px; padding: 2px 4px; font-size: 11px; text-align: center; }
+
+    /* caso tenhamos MUITAS linhas, aplicamos uma classe (JS) para reduzir ainda mais a fonte */
+    body.print-tight { font-size: 10px !important; }
+    body.print-tight .column { max-width: 48%; width: 48%; }
+    body.print-tight .item span { font-size: 10px; }
+    body.print-tight .item input[type="text"] { width: 38px; font-size: 10px; padding: 1px 3px; }
   }
+  /* ---------- fim PRINT ---------- */
 </style>
 </head>
 <body>
@@ -828,164 +848,47 @@ function imprimirDireto() {
 }
 
 /* ============================
-   NOVA função: imprimir SOMENTE a primeira página
-   - monta uma cópia do título + colunas
-   - calcula em pixels a altura da página A4 considerando margens
-   - remove itens do final das colunas até caber
-   - abre nova aba contendo somente esse conteúdo e chama print()
+   NOVA função: imprimir diretamente a página (sem gerar PDF)
+   - Esconde header/rodapé via @media print (CSS acima)
+   - Chama transferir() para garantir os valores atualizados
+   - Aplica classe print-tight quando houver muitas linhas para reduzir fonte
+   - Usa window.print() e limpa após impressão
    ============================ */
 function prepareAndPrintSinglePage() {
-  // atualiza a coluna direita
+  // garante que há conteúdo
+  const esquerda = document.getElementById('coluna-esquerda');
+  const direita = document.getElementById('coluna-direita');
+  if (!esquerda || !direita) { showBottomNotice('Nada para imprimir', 2000); return; }
+
+  // atualiza a coluna direita com valores correntes
   transferir();
 
-  // medir A4 em px usando elemento 210mm x 297mm colocado fora da tela
-  const mmEl = document.createElement('div');
-  mmEl.style.position = 'absolute';
-  mmEl.style.left = '-99999px';
-  mmEl.style.width = '210mm';
-  mmEl.style.height = '297mm';
-  document.body.appendChild(mmEl);
-  const pagePxW = mmEl.offsetWidth || Math.round(210 * 3.78);
-  const pagePxH = mmEl.offsetHeight || Math.round(297 * 3.78);
-  document.body.removeChild(mmEl);
+  // heurística para quando reduzir ainda mais a tipografia (muitos itens)
+  const totalRows = Math.max(frasesEsquerda.length, frasesDireita.length);
+  const filledLeft = Array.from(document.querySelectorAll('#coluna-esquerda input')).filter(i=>i.value.trim()!=='').length;
+  const filledRight = Array.from(document.querySelectorAll('#coluna-direita input')).filter(i=>i.value.trim()!=='').length;
+  const filledCount = Math.max(filledLeft, filledRight);
 
-  const marginMm = 8; // conforme CSS @page
-  const marginPx = Math.round(pagePxW * (marginMm / 210));
-  const availW = Math.max(10, pagePxW - marginPx * 2);
-  const availH = Math.max(10, pagePxH - marginPx * 2);
-
-  // criar container temporário fora da tela para medir altura com estilos aplicados
-  const temp = document.createElement('div');
-  temp.style.position = 'absolute';
-  temp.style.left = '-99999px';
-  temp.style.top = '0';
-  temp.style.width = availW + 'px';
-  temp.style.boxSizing = 'border-box';
-
-  // clonar título
-  const titulo = document.querySelector('.titulo-nav') ? document.querySelector('.titulo-nav').cloneNode(true) : null;
-  if (titulo) {
-    // garantir estilo visual próximo ao impresso
-    titulo.style.margin = '0 0 6px 0';
-    temp.appendChild(titulo);
+  // aplica classe que diminui fontes se necessário
+  document.body.classList.remove('print-tight');
+  if (totalRows > 34 || filledCount > 34) {
+    document.body.classList.add('print-tight');
   }
 
-  // construir container com duas colunas
-  const cont = document.createElement('div');
-  cont.style.display = 'flex';
-  cont.style.justifyContent = 'space-between';
-  cont.style.gap = '8px';
-  cont.style.boxSizing = 'border-box';
+  // cleanup após impressão
+  const cleanup = () => {
+    document.body.classList.remove('print-tight');
+    try { window.removeEventListener('afterprint', cleanup); } catch(e){}
+  };
+  try { window.addEventListener('afterprint', cleanup); } catch(e){}
 
-  const leftCol = document.createElement('div');
-  leftCol.style.width = '48%';
-  leftCol.style.boxSizing = 'border-box';
-
-  const rightCol = document.createElement('div');
-  rightCol.style.width = '48%';
-  rightCol.style.boxSizing = 'border-box';
-
-  // clonar os elementos .item preservando valores dos inputs
-  const leftItemsOrig = Array.from(document.querySelectorAll('#coluna-esquerda .item'));
-  const rightItemsOrig = Array.from(document.querySelectorAll('#coluna-direita .item'));
-
-  leftItemsOrig.forEach(orig => {
-    const clone = orig.cloneNode(true);
-    // copiar valor do input (cloneNode não copia .value dinâmico)
-    const origInput = orig.querySelector('input');
-    const cloneInput = clone.querySelector('input');
-    if (origInput && cloneInput) cloneInput.value = origInput.value || '';
-    leftCol.appendChild(clone);
-  });
-
-  rightItemsOrig.forEach(orig => {
-    const clone = orig.cloneNode(true);
-    const origInput = orig.querySelector('input');
-    const cloneInput = clone.querySelector('input');
-    if (origInput && cloneInput) cloneInput.value = origInput.value || '';
-    rightCol.appendChild(clone);
-  });
-
-  cont.appendChild(leftCol);
-  cont.appendChild(rightCol);
-  temp.appendChild(cont);
-  document.body.appendChild(temp);
-
-  // se o conteúdo exceder a altura disponível, remove itens do fim até caber
-  // removemos alternadamente da coluna que tem mais itens para manter o equilíbrio
-  let safety = 1000;
-  while (temp.offsetHeight > availH && safety-- > 0) {
-    const leftCount = leftCol.childElementCount;
-    const rightCount = rightCol.childElementCount;
-    if (rightCount > leftCount && rightCount > 0) {
-      rightCol.removeChild(rightCol.lastElementChild);
-    } else if (leftCount > 0) {
-      leftCol.removeChild(leftCol.lastElementChild);
-    } else if (rightCount > 0) {
-      rightCol.removeChild(rightCol.lastElementChild);
-    } else {
-      break;
-    }
+  // chama a impressão do navegador (usa as regras @media print acima)
+  try {
+    window.print();
+  } catch (err) {
+    showBottomNotice('Falha ao abrir impressão', 2000);
+    setTimeout(cleanup, 1000);
   }
-
-  // se ficou vazio (caso raro), abortar
-  if (leftCol.childElementCount === 0 && rightCol.childElementCount === 0) {
-    document.body.removeChild(temp);
-    showBottomNotice('Nada para imprimir', 2000);
-    return;
-  }
-
-  // montar HTML minimalista para nova aba (para imprimir somente o conteúdo selecionado)
-  const newWin = window.open('', '_blank');
-  if (!newWin) {
-    // popup bloqueado -> fallback para window.print() (menos ideal)
-    document.body.removeChild(temp);
-    showBottomNotice('Popup bloqueado — permita popups e tente novamente', 3000);
-    return;
-  }
-
-  const styleForPrint = `
-    <style>
-      html,body{ margin:0; padding:${marginPx}px; font-family:monospace; -webkit-print-color-adjust:exact; }
-      .titulo-nav{ text-align:center; margin-bottom:6px; }
-      .titulo-nav h1{ margin:0; font-size:18px; color:#111; }
-      .container-print{ display:flex; gap:8px; width:100%; box-sizing:border-box; }
-      .column-print{ width:48%; box-sizing:border-box; }
-      .item{ display:flex; align-items:center; gap:6px; padding:2px 4px; page-break-inside:avoid; break-inside:avoid; }
-      .item span{ flex:1; font-size:11px; line-height:1.12; }
-      .item input[type="text"]{ width:44px; padding:2px 4px; font-size:11px; text-align:center; }
-      @page { size: A4 portrait; margin: ${marginMm}mm; }
-    </style>
-  `;
-
-  const titleHTML = titulo ? titulo.outerHTML : `<div class="titulo-nav"><h1>${escapeHtml(document.getElementById('titulo-principal') ? document.getElementById('titulo-principal').textContent : '')}</h1></div>`;
-
-  const contentHTML = `
-    <div class="titulo-nav">${titleHTML}</div>
-    <div class="container-print">
-      <div class="column-print">${leftCol.innerHTML}</div>
-      <div class="column-print">${rightCol.innerHTML}</div>
-    </div>
-  `;
-
-  newWin.document.open();
-  newWin.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Imprimir - MAC 77</title>${styleForPrint}</head><body>${contentHTML}</body></html>`);
-  newWin.document.close();
-
-  // pequeno delay para garantir renderização antes de chamar print
-  setTimeout(() => {
-    try {
-      newWin.focus();
-      newWin.print();
-      // NÃO fechamos a aba automaticamente — deixa o usuário revisar
-    } catch (err) {
-      showBottomNotice('Erro ao iniciar impressão', 2000);
-      console.error(err);
-    } finally {
-      // cleanup do temp local
-      try { document.body.removeChild(temp); } catch(e){}
-    }
-  }, 250);
 }
 
 /* ============================
@@ -1096,7 +999,7 @@ if (printBtn) {
     ev.preventDefault();
     // proteção contra double click rápido
     if (printBtn.disabled) return;
-    // chama a nova rotina que imprime somente a primeira página
+    // chama a nova rotina de impressão de página (mantendo imprimirDireto intacta)
     prepareAndPrintSinglePage();
   });
 }

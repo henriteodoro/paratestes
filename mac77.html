@@ -110,6 +110,7 @@
     margin:0;
     font-size:18px;
     color:#111;
+    text-align:center;
   }
   .titulo-nav a {
     color: var(--azul);
@@ -126,7 +127,6 @@
     border-radius:6px;
     cursor:pointer;
     color:var(--azul-escuro);
-    text-decoration:none;
   }
   .titulo-nav .arrow:hover { background:#f0f8ff; }
 
@@ -234,7 +234,7 @@
     #middle-controls button { width: 120px; }
   }
 
-  /* aviso / toast discreto (reaproveitamos #copy-notice) */
+  /* aviso / toast discreto */
   #copy-notice {
     position: fixed;
     right: 18px;
@@ -249,12 +249,40 @@
     font-size: 13px;
   }
 
+  /* ====== IMPRESSÃO (sem zoom/scale) ====== */
   @media print {
-    header, .menu-dropdown-content, #middle-controls, .mac-links, #copy-notice { display: none !important; }
-    body, html { font-family: monospace; }
-    .container { gap: 0; padding: 0; }
-    .column { box-shadow: none; border: none; }
-    .column { min-width: 40%; }
+    /* esconder UI e rodapé */
+    header,
+    .menu-dropdown-content,
+    #middle-controls,
+    .mac-links,
+    #copy-notice { display: none !important; }
+
+    /* pagina e contenção */
+    @page { size: A4 portrait; margin: 8mm; }
+
+    html, body { height:auto !important; overflow:visible !important; }
+    body { font-family: monospace; font-size: 10px; }
+
+    /* compactação geral */
+    .titulo-nav { margin: 4mm 0 2mm 0; }
+    .container { gap: 6px; padding: 0; }
+    .column { gap: 4px; min-width: 40%; max-width: none; }
+    .item { gap: 6px; padding: 2px 4px; }
+    .item span { line-height: 1.2; }
+    .item input[type="text"] { width: 46px; padding: 2px 3px; font-size: 10px; }
+
+    /* imprimir somente a direita quando em modo 'print-only-right' */
+    body.print-only-right #coluna-esquerda { display: none !important; }
+    body.print-only-right #coluna-direita { width: 100% !important; max-width: none !important; }
+
+    /* esconder linhas vazias da direita quando em modo 'print-hide-empty' */
+    body.print-hide-empty #coluna-direita .item.empty { display: none !important; }
+
+    /* modo ainda mais compacto se necessário */
+    body.print-tight { font-size: 9px; }
+    body.print-tight .item input[type="text"] { font-size: 9px; width: 42px; }
+    body.print-tight .item { gap: 4px; padding: 1px 3px; }
   }
 </style>
 </head>
@@ -272,15 +300,14 @@
             <small class="chev">▸</small>
           </div>
           <div class="submenu">
-            <!-- interliguei para os arquivos macXX.html -->
-            <a href="mac77.html">MAC Bairro São Geraldo - Cód. 77</a>
-            <a href="mac78.html">MAC Bairro Planalto - Cód. 78</a>
-            <a href="mac79.html">MAC Romeu Duarte - Cód. 79</a>
-            <a href="mac80.html">MAC Rua São Geraldo / Centro 2 - Cód. 80</a>
-            <a href="mac277.html">MAC Matriz - Cód. 277</a>
-            <a href="mac853.html">MAC Concesso - Cód. 853</a>
-            <a href="mac1249.html">MAC Jardim do Lago - Cód. 1249</a>
-            <a href="mac989.html">MAC Araújos - Cód. 989</a>
+            <a href="#" data-mac="77" onclick="abrirMac(event, 'MAC Bairro São Geraldo - Cód. 77')">MAC Bairro São Geraldo - Cód. 77</a>
+            <a href="#" data-mac="78" onclick="abrirMac(event, 'MAC Bairro Planalto - Cód. 78')">MAC Bairro Planalto - Cód. 78</a>
+            <a href="#" data-mac="79" onclick="abrirMac(event, 'MAC Romeu Duarte - Cód. 79')">MAC Romeu Duarte - Cód. 79</a>
+            <a href="#" data-mac="80" onclick="abrirMac(event, 'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC Rua São Geraldo / Centro 2 - Cód. 80</a>
+            <a href="#" data-mac="277" onclick="abrirMac(event, 'MAC Matriz - Cód. 277')">MAC Matriz - Cód. 277</a>
+            <a href="#" data-mac="853" onclick="abrirMac(event, 'MAC Concesso - Cód. 853')">MAC Concesso - Cód. 853</a>
+            <a href="#" data-mac="1249" onclick="abrirMac(event, 'MAC Jardim do Lago - Cód. 1249')">MAC Jardim do Lago - Cód. 1249</a>
+            <a href="#" data-mac="989" onclick="abrirMac(event, 'MAC Araújos - Cód. 989')">MAC Araújos - Cód. 989</a>
           </div>
         </div>
 
@@ -290,17 +317,17 @@
             <small class="chev">▸</small>
           </div>
           <div class="submenu">
-            <a href="#">São José</a>
-            <a href="#">Pão Total</a>
+            <a href="#" onclick="abrirLocal(event, 'São José')">São José</a>
+            <a href="#" onclick="abrirLocal(event, 'Pão Total')">Pão Total</a>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- X (fechar) — agora redireciona ao index (sem confirmação) -->
+    <!-- X (fechar) — sem confirm -->
     <button class="icon-btn" id="btn-close" title="Fechar" onclick="fecharPagina()">❌</button>
 
-    <!-- Home — redireciona ao index -->
+    <!-- Home — placeholder sem alert (vai receber redirecionamento depois) -->
     <button class="icon-btn" id="btn-home" title="Menu inicial" onclick="voltarMenu()">🏠</button>
   </div>
 
@@ -314,14 +341,10 @@
       </div>
     </div>
 
-    <!-- botão imprimir: listener adicionado via JS mais abaixo -->
-    <button class="icon-btn" id="btn-print" title="Imprimir">
-      🖨️
-    </button>
+    <!-- botão imprimir: agora chama prepareAndPrintSinglePage() -->
+    <button class="icon-btn" id="btn-print" title="Imprimir">🖨️</button>
 
-    <button class="icon-btn" id="btn-copy" title="Copiar" onclick="copiarDireita()">
-      📋
-    </button>
+    <button class="icon-btn" id="btn-copy" title="Copiar" onclick="copiarDireita()">📋</button>
   </div>
 </header>
 
@@ -346,14 +369,13 @@
 <div id="contador-linhas">Linhas preenchidas: 0</div>
 
 <div class="mac-links" role="navigation" aria-label="Outros MACs">
-  <!-- interliguei o rodapé para as páginas corretas -->
-  <a href="mac78.html">MAC 78 - Bairro Planalto</a>
-  <a href="mac79.html">MAC 79 - Romeu Duarte</a>
-  <a href="mac80.html">MAC 80 - Rua São Geraldo / Centro 2</a>
-  <a href="mac277.html">MAC 277 - Matriz</a>
-  <a href="mac853.html">MAC 853 - Concesso</a>
-  <a href="mac1249.html">MAC 1249 - Jardim do Lago</a>
-  <a href="mac989.html">MAC 989 - Araújos</a>
+  <a href="#" onclick="abrirMac(event,'MAC Bairro Planalto - Cód. 78')">MAC 78 - Bairro Planalto</a>
+  <a href="#" onclick="abrirMac(event,'MAC Roumeu Duarte - Cód. 79')">MAC 79 - Romeu Duarte</a>
+  <a href="#" onclick="abrirMac(event,'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC 80 - Rua São Geraldo / Centro 2</a>
+  <a href="#" onclick="abrirMac(event,'MAC Matriz - Cód. 277')">MAC 277 - Matriz</a>
+  <a href="#" onclick="abrirMac(event,'MAC Concesso - Cód. 853')">MAC 853 - Concesso</a>
+  <a href="#" onclick="abrirMac(event,'MAC Jardim do Lago - Cód. 1249')">MAC 1249 - Jardim do Lago</a>
+  <a href="#" onclick="abrirMac(event,'MAC Araújos - Cód. 989')">MAC 989 - Araújos</a>
 </div>
 
 <!-- aviso discreto (reaproveitado para toasts) -->
@@ -400,7 +422,7 @@ const frasesEsquerda = [
   "SALGADOS EMPADA DE FRANGO MP 1 KG",
   "SALGADOS ENROLADINHO PRESUNTO MP 1 KG",
   "SALGADOS PASTEL CATUPIRY MP 1 KG",
-  "SALGADOS KIBE CATUPIRY MP 1 KG",  
+  "SALGADOS KIBE CATUPIRY MP 1 KG",
   "SONHO MP PAC 3 KG"
 ];
 
@@ -445,7 +467,7 @@ const frasesDireita = [
   "Trancinha redonda"
 ];
 
-const mapaConexao = [6,7,8,9,11,33,12,13,14,15,31,20,21,32,16,17,34,35,19,22,10,24,25,18,23,1,2,3,4,5,36,37,27,26,38,28,29,30]
+const mapaConexao = [6,7,8,9,11,33,12,13,14,15,31,20,21,32,16,17,34,35,19,22,10,24,25,18,23,1,2,3,4,5,36,37,27,26,38,28,29,30];
 
 /* ============================
    Utilitários
@@ -466,21 +488,12 @@ function escapeHtml(s) {
 function showBottomNotice(message = 'Copiado!', duration = 2000) {
   const el = document.getElementById('copy-notice');
   if (!el) return;
-  if (el._hideTimeout) {
-    clearTimeout(el._hideTimeout);
-    el._hideTimeout = null;
-  }
+  if (el._hideTimeout) { clearTimeout(el._hideTimeout); el._hideTimeout = null; }
   el.textContent = message;
   el.style.display = 'block';
-  el._hideTimeout = setTimeout(() => {
-    el.style.display = 'none';
-    el._hideTimeout = null;
-  }, duration);
+  el._hideTimeout = setTimeout(() => { el.style.display = 'none'; el._hideTimeout = null; }, duration);
 }
-
-function mostrarAvisoCopia() {
-  showBottomNotice('Copiado!', 2000);
-}
+function mostrarAvisoCopia() { showBottomNotice('Copiado!', 2000); }
 
 /* ============================
    Construção da interface
@@ -648,8 +661,9 @@ function salvarComoTXT(e) {
   const linhas = [];
   outputs.forEach((output) => {
     if (output.value.trim() !== "") {
-      const label = output.parentElement.querySelector("span").textContent;
-      linhas.push(`${label}: ${output.value}`);
+      const produto = output.parentElement.querySelector("span").textContent;
+      const qtd = output.value.trim();
+      linhas.push(`${produto}: ${qtd}`);
     }
   });
   if (linhas.length === 0) {
@@ -702,30 +716,11 @@ function salvarComoPDF(e) {
   showBottomNotice('PDF salvo', 2000);
 }
 
-function salvarComoExcel(e) {
-  if (e) e.preventDefault();
-  const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
-  const data = [];
-  data.push(["Produto", "Quantidade"]);
-  outputs.forEach((output) => {
-    if (output.value.trim() !== "") {
-      const produto = output.parentElement.querySelector("span").textContent;
-      const qtd = output.value.trim();
-      data.push([produto, qtd]);
-    }
-  });
-  if (data.length === 1) { showBottomNotice('Nenhum item preenchido para exportar Excel', 2000); return; }
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet(data);
-  XLSX.utils.book_append_sheet(wb, ws, "MAC 77");
-  XLSX.writeFile(wb, "lista_mac_77.xlsx");
-  showBottomNotice('Excel salvo', 2000);
-}
-
 /* ============================
-   Imprimir -> gerar PDF e abrir em nova aba (corrigido para 1 aba)
+   (MANTIDO) imprimirDireto – não usado para o botão 🖨️
    ============================ */
 function imprimirDireto() {
+  // Mantido apenas como utilidade extra; o botão padrão usa prepareAndPrintSinglePage()
   const printBtn = document.getElementById('btn-print');
   if (printBtn) printBtn.disabled = true;
 
@@ -771,28 +766,14 @@ function imprimirDireto() {
 
   try {
     const newWin = window.open('', '_blank');
-    if (!newWin) {
-      doc.save("lista_mac_77.pdf");
-      showBottomNotice('PDF baixado', 2000);
-      if (printBtn) printBtn.disabled = false;
-      return;
-    }
+    if (!newWin) { doc.save("lista_mac_77.pdf"); showBottomNotice('PDF baixado', 2000); if (printBtn) printBtn.disabled = false; return; }
     const pdfBlob = doc.output('blob');
     const url = URL.createObjectURL(pdfBlob);
-    try {
-      newWin.location.href = url;
-    } catch (e) {
+    try { newWin.location.href = url; }
+    catch (e) {
       try {
         newWin.document.open();
-        newWin.document.write(`
-          <!doctype html>
-          <html>
-            <head><title>PDF - MAC 77</title></head>
-            <body style="margin:0">
-              <embed src="${url}" type="application/pdf" width="100%" height="100%"/>
-            </body>
-          </html>
-        `);
+        newWin.document.write(`<html><head><title>PDF - MAC 77</title></head><body style="margin:0"><embed src="${url}" type="application/pdf" width="100%" height="100%"/></body></html>`);
         newWin.document.close();
       } catch (err2) {
         doc.save("lista_mac_77.pdf");
@@ -807,6 +788,55 @@ function imprimirDireto() {
   } finally {
     if (printBtn) printBtn.disabled = false;
   }
+}
+
+/* ============================
+   IMPRESSÃO NO ESTILO "IGUAL AO OUTRO ARQUIVO"
+   (sem aplicar scale; usa window.print + CSS @media print)
+   ============================ */
+function hasConteudoImprimivel(){
+  // Considera imprimível se existir a coluna da direita com itens
+  const direita = document.getElementById('coluna-direita');
+  return !!(direita && direita.querySelector('.item'));
+}
+
+function prepareAndPrintSinglePage(){
+  // igual ao outro: sem zoom. Apenas prepara a página (oculta o que não interessa) e chama window.print().
+  if (!hasConteudoImprimivel()) { showBottomNotice('Nada para imprimir', 2000); return; }
+
+  const body = document.body;
+
+  // 1) marca linhas vazias na direita e ativa modo "somente direita" + "ocultar vazias"
+  const itens = Array.from(document.querySelectorAll('#coluna-direita .item'));
+  let filledCount = 0;
+  itens.forEach(it => {
+    const input = it.querySelector('input[type="text"]');
+    const filled = input && input.value.trim() !== '';
+    it.classList.toggle('empty', !filled);
+    it.classList.toggle('filled', !!filled);
+    if (filled) filledCount++;
+  });
+
+  // ativa classes de impressão
+  body.classList.add('print-only-right', 'print-hide-empty');
+
+  // se tiver muita coisa, modo mais compacto (tenta caber em 1 página)
+  if (filledCount > 36) { body.classList.add('print-tight'); }
+
+  // cleanup após impressão (igual abordagem do outro arquivo)
+  const cleanup = () => {
+    body.classList.remove('print-only-right','print-hide-empty','print-tight');
+    itens.forEach(it => { it.classList.remove('empty','filled'); });
+    try{ window.removeEventListener('afterprint', cleanup); }catch(e){}
+  };
+  try { window.addEventListener('afterprint', cleanup); } catch(e){}
+
+  // 2) dispara impressão
+  try { window.print(); }
+  catch(e){ showBottomNotice('Falha ao abrir a impressão', 2000); }
+
+  // fallback de limpeza
+  setTimeout(cleanup, 1500);
 }
 
 /* ============================
@@ -867,21 +897,19 @@ document.addEventListener('click', (ev) => {
 
 /* ============================
    Placeholders / ações dos ícones esquerdo
-   (agora redirecionam para index.html)
    ============================ */
-function fecharPagina() {
-  // redireciona para o menu (index.html)
-  window.location.href = 'index.html';
+function fecharPagina() { try { window.close(); } catch(e) { /* ignore */ } }
+function voltarMenu() { /* placeholder: adicione seu redirecionamento aqui */ }
+function navegarAnterior() { /* placeholder */ }
+function navegarProximo() { /* placeholder */ }
+function abrirMac(e, nome) {
+  if (e) e.preventDefault();
+  document.getElementById('titulo-principal').textContent = nome;
+  toggleMenu('dropdown-menu');
 }
-function voltarMenu() {
-  // redireciona para o menu (index.html)
-  window.location.href = 'index.html';
-}
-function navegarAnterior() {
-  // deixei vazio — implemente se quiser navegar entre macs
-}
-function navegarProximo() {
-  // deixei vazio — implemente se quiser navegar entre macs
+function abrirLocal(e, nome) {
+  if (e) e.preventDefault();
+  toggleMenu('dropdown-menu');
 }
 
 /* ============================
@@ -889,18 +917,20 @@ function navegarProximo() {
    ============================ */
 montarInterface();
 
+// reforça atualização da contagem depois do clique no botão transferir
 const transferBtn = document.querySelector('#middle-controls #btn-transfer');
 if (transferBtn) transferBtn.addEventListener('click', () => {
   setTimeout(() => atualizarContagemDireita(), 80);
 });
 
+// Botão imprimir -> mesmo estilo do outro arquivo (sem scale)
 const printBtn = document.getElementById('btn-print');
 if (printBtn) {
   try { printBtn.onclick = null; } catch(e){}
   printBtn.addEventListener('click', (ev) => {
     ev.preventDefault();
     if (printBtn.disabled) return;
-    imprimirDireto();
+    prepareAndPrintSinglePage();
   });
 }
 </script>

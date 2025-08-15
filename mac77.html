@@ -21,7 +21,7 @@
     font-family: monospace;
     color:#111;
     background:#fff;
-    font-size:14px;
+    /* REMOVIDO: font-size fix — para manter exata métrica do menu original */
   }
 
   /* header */
@@ -109,7 +109,7 @@
     <div class="menu-dropdown">
       <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')">☰</button>
 
-      <!-- === INSERI O MENU SANDUÍCHE AQUI (conteúdo copiado do seu snippet) === -->
+      <!-- === MENU SANDUÍCHE (copiado do seu snippet original) === -->
       <div class="menu-dropdown-content" id="dropdown-menu" role="menu" aria-hidden="true">
         <div class="dropdown-section">
           <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)">
@@ -139,7 +139,7 @@
           </div>
         </div>
       </div>
-      <!-- === FIM DO MENU SANDUÍCHE === -->
+      <!-- === FIM MENU === -->
 
     </div>
 

@@ -254,15 +254,18 @@
     /* manter o que você já tinha: esconder controles e rodapé */
     header, .menu-dropdown-content, #middle-controls, .mac-links, #copy-notice { display: none !important; }
 
-    /* tipografia consistente na impressão */
-    body, html { font-family: monospace; }
+    /* força alturas automáticas (isso evita a segunda página em branco causada por height:100%) */
+    html, body { height: auto !important; min-height: auto !important; font-family: monospace; }
+
     /* pagina A4 e margens pequenas para caber o conteúdo */
     @page { size: A4 portrait; margin: 8mm; }
 
-    /* remove gaps e paddings que empurram para outra página */
-    .container { gap: 8px !important; padding: 0 !important; }
-    /* coloca as colunas lado a lado, ocupando cerca de 48% cada para caber */
-    .column { box-shadow: none; border: none; min-width: auto; max-width: 48%; width: 48%; }
+    /* evita problemas de impressão com flex: usar blocos e floats no print */
+    .container { display: block !important; gap: 8px !important; padding: 0 !important; }
+    .container:after { content: ''; display: block; clear: both; }
+
+    /* coloca as colunas lado a lado usando float (mais previsível em impressão) */
+    .column { box-shadow: none; border: none; min-width: auto; max-width: 48%; width: 48%; float: left !important; box-sizing: border-box; }
 
     /* reduz o espaçamento por item e evita quebra dentro do item */
     .item { gap: 6px !important; padding: 2px 4px !important; page-break-inside: avoid; break-inside: avoid; }
@@ -271,7 +274,7 @@
 
     /* caso tenhamos MUITAS linhas, aplicamos uma classe (JS) para reduzir ainda mais a fonte */
     body.print-tight { font-size: 10px !important; }
-    body.print-tight .column { max-width: 48%; width: 48%; }
+    body.print-tight .column { max-width: 48%; width: 48%; float: left !important; }
     body.print-tight .item span { font-size: 10px; }
     body.print-tight .item input[type="text"] { width: 38px; font-size: 10px; padding: 1px 3px; }
   }

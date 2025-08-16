@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MAC 77 - Organizador de Lista</title>
+  <title>Lista Ordenada</title>
 
   <!-- jsPDF + SheetJS via CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -42,7 +42,6 @@
     .column { display:flex; flex-direction:column; gap:10px; min-width:300px; max-width:560px; width:100%; }
 
     /* === sem retângulo de fundo atrás do texto === */
-    /* removidos cartões; apenas o textarea fica visível */
 
     h2 { margin:4px 0 4px; font-size:14px; color:#333; font-weight:700; }
 
@@ -125,7 +124,7 @@
 
   <!-- ===== título (sem seta) ===== -->
   <div class="titulo-nav" role="navigation" aria-label="Navegação MAC">
-    <h1 id="titulo-principal">MAC Bairro São Geraldo - Cód. 77</h1>
+    <h1 id="titulo-principal">Lista Ordenada</h1>
   </div>
 
   <!-- ===== área principal: conversor do BAT ===== -->
@@ -166,12 +165,7 @@
       el._hideTimeout = setTimeout(() => { el.style.display = 'none'; el._hideTimeout = null; }, duration);
     }
 
-    /* ========== conversão (lógica do BAT em JS) ==========
-       - remove palavras: pacote/pac/pact/pct (como palavras inteiras, sem diferenciar maiúsculas)
-       - se a linha começar com número, move esse número para o final
-       - normaliza espaços, remove vazias
-       - ordena A→Z (pt-BR, ignorando acentos)
-    */
+    /* ========== conversão (lógica do BAT em JS) ========== */
     function pipelineTransform(lines, opts) {
       const banned = /(\b)(pacote|pac|pact|pct)(\b)/gi;
       const moved = [];
@@ -263,7 +257,7 @@
       linhas.forEach(l=>{ doc.text(l, marginLeft, y, {maxWidth}); y+=14; if(y>doc.internal.pageSize.getHeight()-60){ doc.addPage(); doc.setFontSize(11); doc.setFont('courier','normal'); y=40; }}); y+=8; doc.text(`Linhas preenchidas: ${linhas.length}`, marginLeft, y);
       try{
         const newWin = window.open('', '_blank'); if(!newWin){ doc.save('resultado.pdf'); showBottomNotice('PDF baixado', 2000); if(btn) btn.disabled=false; return; }
-        const pdfBlob = doc.output('blob'); const url = URL.createObjectURL(pdfBlob); try { newWin.location.href = url; } catch(e){ try { newWin.document.open(); newWin.document.write(`<!doctype html><html><head><title>PDF - Resultado</title></head><body style=\"margin:0\"><embed src=\"${url}\" type=\"application/pdf\" width=\"100%\" height=\"100%\"/></body></html>`); newWin.document.close(); } catch(err2){ doc.save('resultado.pdf'); showBottomNotice('PDF baixado', 2000); try{ newWin.close(); }catch(_){} } }
+        const pdfBlob = doc.output('blob'); const url = URL.createObjectURL(pdfBlob); try { newWin.location.href = url; } catch(e){ try { newWin.document.open(); newWin.document.write(`<!doctype html><html><head><title>PDF - Resultado</title></head><body style="margin:0"><embed src="${url}" type="application/pdf" width="100%" height="100%"/></body></html>`); newWin.document.close(); } catch(err2){ doc.save('resultado.pdf'); showBottomNotice('PDF baixado', 2000); try{ newWin.close(); }catch(_){} } }
         setTimeout(()=>{ try{ URL.revokeObjectURL(url);}catch(_){ } }, 60000);
       } catch(err){ showBottomNotice('Erro ao gerar PDF', 3000); console.error(err); }
       finally { if(btn) btn.disabled=false; }

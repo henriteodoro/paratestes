@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Visualizador ODS — estilo MAC</title>
+
+<!-- SheetJS: lê .ods/.xlsx no navegador -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+  /* ===== base / tipografia ===== */
+  :root{
+    --azul:#007BFF;
+    --amarelo:#FFD700;
+    --vermelho:#b22222;
+    --cinza:#f7fbff;
+    --borda:#e5e7eb;
+    --texto:#111;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ height:100% }
+  body{
+    font-family: monospace;
+    margin:0; padding:0;
+    -webkit-font-smoothing:antialiased;
+    color:var(--texto);
+    background:#fff;
+  }
+
+  /* ===== header (estética MAC) ===== */
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:var(--azul);
+    color:#fff;
+    padding:10px 14px;
+    gap:12px;
+    position:sticky; top:0; z-index:999;
+  }
+  .menu-left,.menu-right{ display:flex; gap:8px; align-items:center; }
+  .icon-btn{
+    background:none; border:none; color:#fff;
+    font-size:18px; cursor:pointer;
+    padding:6px 8px; border-radius:6px; user-select:none;
+  }
+  .icon-btn:hover{ background:rgba(255,255,255,.08) }
+
+  /* dropdowns */
+  .menu-dropdown{ position:relative; }
+  .menu-dropdown-content{
+    display:none; position:absolute; top:calc(100% + 6px);
+    right:0; background:#fff; color:#111; border-radius:6px;
+    box-shadow:0 6px 18px rgba(0,0,0,.15);
+    min-width:190px; overflow:auto; z-index:1200; padding:6px 0;
+  }
+  .menu-dropdown-content a{
+    display:block; padding:8px 12px; color:#111; text-decoration:none;
+  }
+  .menu-dropdown-content a:hover{ background:#f2f2f2; }
+
+  /* ===== título (sem setas) ===== */
+  .titulo-nav{
+    display:flex; justify-content:center; align-items:center;
+    gap:16px; margin:14px 10px 8px; text-align:center;
+  }
+  .titulo-nav h1{ margin:0; font-size:18px; color:#111; }
+
+  /* ===== layout geral ===== */
+  .wrap{ max-width:1100px; margin:0 auto; padding:8px 14px 28px; }
+
+  /* ===== uploader (drag & drop) ===== */
+  #uploader{ margin-top:8px; }
+  .dropzone{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:6px; width:100%;
+    border:2px dashed var(--azul);
+    border-radius:12px; padding:28px; text-align:center;
+    background:var(--cinza); color:#0b305a;
+    cursor:pointer; user-select:none;
+    transition:.15s ease;
+    min-height:180px;
+  }
+  .dropzone .title{ font-weight:700; margin-bottom:6px; font-size:14px; }
+  .dropzone .hint{ font-size:12px; opacity:.8; }
+  .dropzone.dragover{ background:#eef6ff; border-style:solid; transform:scale(1.01); }
+  #file-input{ position:absolute; left:-9999px; width:1px; height:1px; opacity:0; }
+
+  /* ===== viewer ===== */
+  #viewer{ display:none; }
+  .actions-top{
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:10px 0;
+  }
+  .tabs{
+    display:flex; gap:6px; flex-wrap:wrap; margin:10px 0 10px;
+  }
+  .tab-btn{
+    padding:6px 10px; border:1px solid var(--borda); border-radius:6px;
+    background:#fff; cursor:pointer; font-family:monospace; font-size:12px;
+  }
+  .tab-btn.active{ background:#e8f2ff; border-color:#cfe2ff; color:#0b305a; }
+
+  .sheets{
+    width:100%; overflow:auto; border:1px solid var(--borda);
+    border-radius:8px; background:#fff;
+  }
+  .sheet{ display:none; padding:12px; }
+  .sheet.active{ display:block; }
+  .sheet table{
+    width:100%; border-collapse:collapse; table-layout:auto; font-size:12px;
+  }
+  .sheet th,.sheet td{
+    border:1px solid #ddd; padding:6px 8px; vertical-align:top; word-break:break-word;
+  }
+  .sheet thead th{ background:#f9fafb; font-weight:700; }
+  .sheet tbody tr:nth-child(even){ background:#fafafa; }
+
+  .viewer-footer{
+    margin-top:10px; display:flex; flex-wrap:wrap;
+    gap:10px; align-items:center; justify-content:space-between;
+  }
+  .status{ font-size:12px; color:#333; }
+  .btn{
+    border:1px solid var(--borda); background:#fff; cursor:pointer;
+    padding:8px 12px; border-radius:6px; font-family:monospace; font-size:12px;
+  }
+  .btn-primaria{ background:#e8f2ff; border-color:#cfe2ff; color:#0b305a; }
+  .btn-perigo{ background:var(--vermelho); color:#fff; border:none; }
+
+  /* aviso/Toast */
+  #copy-notice{
+    position: fixed; right: 18px; bottom: 18px;
+    background: rgba(0,0,0,0.84); color: white;
+    padding: 9px 13px; border-radius: 8px;
+    display: none; z-index: 2000; font-size:12px;
+  }
+
+  /* ===== impressão ===== */
+  @media print{
+    /* esconde controles */
+    header, .menu-dropdown-content, #uploader, #copy-notice, .viewer-footer .btn { display:none !important; }
+
+    /* evita segunda página: altura natural e nada de overflow “preso” */
+    html, body { background:#fff; height:auto !important; overflow:visible !important; }
+
+    /* não deixar padding/margens empurrarem conteúdo */
+    .wrap{ padding:0; max-width:none; page-break-after:avoid; break-after:avoid-page; }
+    .titulo-nav{ margin:0 0 6px 0; }
+
+    .sheet{ padding:0; }
+    .sheets{ border:none; }
+
+    /* tipografia na impressão */
+    .sheet table{ font-size:10px; page-break-inside:auto; }
+    .sheet tr, .sheet td, .sheet th{ page-break-inside:avoid; break-inside:avoid; }
+
+    /* tamanho da página e margens internas (não remove cabeç./rodapés do navegador) */
+    @page{ size:A4 portrait; margin:10mm; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <!-- ESQUERDA -->
+  <div class="menu-left">
+    <div class="menu-dropdown">
+      <button class="icon-btn" title="Menu (☰)" onclick="toggleMenu('dropdown-menu')">☰</button>
+      <div class="menu-dropdown-content" id="dropdown-menu">
+        <a href="#" onclick="showToast('Página 1 (em breve)');return false;">Página 1 (em breve)</a>
+        <a href="#" onclick="showToast('Página 2 (em breve)');return false;">Página 2 (em breve)</a>
+        <a href="#" onclick="showToast('Página 3 (em breve)');return false;">Página 3 (em breve)</a>
+      </div>
+    </div>
+    <button class="icon-btn" title="Fechar (❌)" onclick="fecharPagina()">❌</button>
+    <button class="icon-btn" title="Menu inicial (🏠)" onclick="voltarMenu()">🏠</button>
+  </div>
+
+  <!-- DIREITA -->
+  <div class="menu-right">
+    <div class="menu-dropdown">
+      <button class="icon-btn" id="btn-salvar" title="Salvar (💾)" onclick="toggleMenu('dropdown-save')">💾</button>
+      <div class="menu-dropdown-content" id="dropdown-save" aria-labelledby="btn-salvar">
+        <a href="#" onclick="exportarXLSX();fecharTodosMenus();return false;">Salvar como XLSX</a>
+        <a href="#" onclick="exportarCSVAtivo();fecharTodosMenus();return false;">Salvar CSV (aba ativa)</a>
+        <a href="#" onclick="exportarJSON();fecharTodosMenus();return false;">Salvar como JSON</a>
+      </div>
+    </div>
+    <button class="icon-btn" id="btn-print" title="Imprimir (🖨️)" onclick="imprimirAtual()">🖨️</button>
+    <button class="icon-btn" id="btn-copy" title="Copiar (📋)" onclick="copiarTabelaAtiva()">📋</button>
+  </div>
+</header>
+
+<!-- Título -->
+<div class="titulo-nav">
+  <h1 id="titulo">Visualizador de Planilhas (.ods)</h1>
+</div>
+
+<div class="wrap">
+  <!-- ===== Uploader ===== -->
+  <section id="uploader" aria-label="Carregar planilha">
+    <input id="file-input" type="file" accept=".ods,.xlsx,.xls,.csv" />
+    <label class="dropzone" id="dropzone" for="file-input">
+      <div class="title">Arraste e solte seu arquivo .ods aqui</div>
+      <div class="hint">ou clique nesta área para selecionar do computador</div>
+    </label>
+  </section>
+
+  <!-- ===== Viewer ===== -->
+  <section id="viewer" aria-label="Visualização da planilha">
+    <div class="actions-top">
+      <span style="font-size:12px;opacity:.75;">Arquivo: <strong id="nome-arquivo">—</strong></span>
+    </div>
+
+    <div class="tabs" id="tabs"></div>
+
+    <div class="sheets" id="sheets"></div>
+
+    <div class="viewer-footer">
+      <div class="status" id="status">Pronto.</div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <!-- O botão Ordenar A–Z será injetado aqui automaticamente após o arquivo carregar -->
+        <button class="btn" onclick="exportarCSVAtivo()" title="Salvar CSV da aba atual">Salvar CSV (aba ativa)</button>
+        <button class="btn" onclick="exportarXLSX()" title="Salvar arquivo completo em XLSX">Salvar XLSX</button>
+        <button class="btn" onclick="exportarJSON()" title="Salvar todas as abas em JSON">Salvar JSON</button>
+        <button class="btn btn-primaria" id="btn-outro" onclick="resetViewer()" title="Carregar outro arquivo">Fazer com outro arquivo</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="copy-notice">Copiado!</div>
+
+<script>
+/* ========= helpers visuais / toasts ========= */
+function showToast(msg){
+  const el = document.getElementById('copy-notice');
+  el.textContent = msg;
+  el.style.display = 'block';
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>{ el.style.display='none'; }, 1700);
+}
+function toggleMenu(id){
+  document.querySelectorAll('.menu-dropdown-content').forEach(el=>{
+    if(el.id !== id){ el.style.display='none'; el.style.opacity=0; }
+  });
+  const el = document.getElementById(id);
+  if(!el) return;
+  if(el.style.display==='block'){ el.style.opacity=0; setTimeout(()=>el.style.display='none',180); }
+  else{ el.style.display='block'; el.style.opacity=0; setTimeout(()=>el.style.opacity=1,10); }
+}
+function fecharTodosMenus(){
+  document.querySelectorAll('.menu-dropdown-content').forEach(el=>{ el.style.display='none'; el.style.opacity=0; });
+}
+document.addEventListener('click',(ev)=>{
+  if(!ev.target.closest('.menu-dropdown')) fecharTodosMenus();
+});
+function fecharPagina(){ if(confirm('Fechar a página? (pode não funcionar em todos navegadores)')){ try{ window.close(); }catch(e){} } }
+function voltarMenu(){ showToast('Voltar ao menu (configure o redirecionamento).'); }
+
+/* ========= estado ========= */
+let currentWB = null;         // workbook carregado
+let currentFileName = null;   // nome do arquivo
+let activeSheetName = null;   // aba ativa
+let originalSheetsAOA = {};    // snapshot AOA por aba (para restaurar)
+let sortedSheets = new Set();  // abas atualmente ordenadas
+
+/* ========= elementos ========= */
+const uploader = document.getElementById('uploader');
+const viewer   = document.getElementById('viewer');
+const dropzone = document.getElementById('dropzone');
+const fileInput= document.getElementById('file-input');
+const tabs     = document.getElementById('tabs');
+const sheets   = document.getElementById('sheets');
+const statusEl = document.getElementById('status');
+
+/* ========= drag & drop / seleção ========= */
+dropzone.addEventListener('dragover', (e)=>{ e.preventDefault(); dropzone.classList.add('dragover'); });
+dropzone.addEventListener('dragleave', ()=> dropzone.classList.remove('dragover'));
+dropzone.addEventListener('drop', (e)=>{
+  e.preventDefault(); dropzone.classList.remove('dragover');
+  const f = e.dataTransfer.files && e.dataTransfer.files[0];
+  if(f) processFile(f);
+});
+fileInput.addEventListener('change', (e)=>{
+  const f = e.target.files && e.target.files[0];
+  if(f) processFile(f);
+});
+
+/* ========= processamento ========= */
+function processFile(file){
+  statusEl.textContent = 'Lendo arquivo...';
+  // reseta estados de ordenação ao abrir novo arquivo
+  originalSheetsAOA = {};
+  sortedSheets = new Set();
+  currentFileName = file.name;
+  document.getElementById('titulo').textContent = `Visualizador de Planilhas — ${currentFileName}`;
+  document.getElementById('nome-arquivo').textContent = currentFileName;
+
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    try{
+      const data = new Uint8Array(evt.target.result);
+      const wb = XLSX.read(data, { type:'array' }); // suporta .ods/.xlsx
+      currentWB = wb;
+      renderWorkbook(wb);
+      uploader.style.display = 'none';
+      viewer.style.display   = 'block';
+      statusEl.textContent   = `Carregado: ${file.name} (${wb.SheetNames.length} aba${wb.SheetNames.length>1?'s':''})`;
+    }catch(err){
+      console.error(err);
+      statusEl.textContent = 'Erro ao ler o arquivo.';
+      showToast('Não consegui abrir esse arquivo.');
+    }
+  };
+  reader.onerror = function(){ statusEl.textContent = 'Falha na leitura do arquivo.'; showToast('Falha na leitura do arquivo.'); };
+  reader.readAsArrayBuffer(file);
+}
+
+function renderWorkbook(wb){
+  tabs.innerHTML = '';
+  sheets.innerHTML = '';
+  sheets.style.display = 'block';
+  tabs.style.display   = 'flex';
+
+  wb.SheetNames.forEach((name, idx)=>{
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn';
+    btn.textContent = name || `Aba ${idx+1}`;
+    btn.addEventListener('click', ()=> setActiveSheet(name));
+    tabs.appendChild(btn);
+
+    const ws = wb.Sheets[name];
+    // snapshot da matriz original (AOA) para restaurar depois
+    const __aoa = XLSX.utils.sheet_to_json(ws, { header:1 });
+    originalSheetsAOA[name] = __aoa.map(r => Array.isArray(r) ? r.slice() : []);
+    const html = XLSX.utils.sheet_to_html(ws, { id:`sheet-${idx}`, header:'', footer:'' });
+
+    const pane = document.createElement('div');
+    pane.className = 'sheet';
+    pane.dataset.name = name;
+    pane.innerHTML = html; // a <table> vem pronta
+    sheets.appendChild(pane);
+  });
+
+  setActiveSheet(wb.SheetNames[0]);
+
+  // 👉 injeta o botão de ordenação somente após o arquivo ser processado
+  injectSortButton();
+}
+
+function setActiveSheet(name){
+  activeSheetName = name;
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.classList.toggle('active', btn.textContent === name);
+  });
+  document.querySelectorAll('.sheet').forEach(p=>{
+    p.classList.toggle('active', p.dataset.name === name);
+  });
+  updateSortButtonLabel();
+}
+
+/* ========= exportações ========= */
+function exportarXLSX(){
+  if(!currentWB){ showToast('Nada para salvar.'); return; }
+  const nome = (currentFileName || 'planilha') + '.xlsx';
+  XLSX.writeFile(currentWB, nome);
+  showToast('Baixando XLSX…');
+}
+function exportarCSVAtivo(){
+  if(!currentWB || !activeSheetName){ showToast('Nenhuma aba ativa.'); return; }
+  const ws = currentWB.Sheets[activeSheetName];
+  const csv = XLSX.utils.sheet_to_csv(ws);
+  downloadText(csv, sanitizeFileName(activeSheetName)+'.csv', 'text/csv;charset=utf-8;');
+  showToast('CSV gerado.');
+}
+function exportarJSON(){
+  if(!currentWB){ showToast('Nada para salvar.'); return; }
+  const out = {};
+  currentWB.SheetNames.forEach(name=>{
+    const ws = currentWB.Sheets[name];
+    out[name] = XLSX.utils.sheet_to_json(ws, { defval:null });
+  });
+  downloadText(JSON.stringify(out,null,2), (currentFileName||'planilha')+'.json', 'application/json;charset=utf-8;');
+  showToast('JSON gerado.');
+}
+function downloadText(content, filename, type){
+  const blob = new Blob([content], { type });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+function sanitizeFileName(s){ return (s||'').toString().replace(/[\\/:*?"<>|]+/g,'_').trim() || 'aba'; }
+
+/* ========= copiar ========= */
+function copiarTabelaAtiva(){
+  if(!activeSheetName || !currentWB){ showToast('Nada para copiar.'); return; }
+  const ws = currentWB.Sheets[activeSheetName];
+  const tsv = XLSX.utils.sheet_to_csv(ws, { FS:"\t" });
+  navigator.clipboard.writeText(tsv).then(()=>showToast('Copiado!')).catch(()=>showToast('Não foi possível copiar.'));
+}
+
+/* ========= imprimir ========= */
+function hasConteudoImprimivel(){
+  if(!currentWB) return false;
+  const ativa = document.querySelector('.sheet.active table');
+  if(!ativa) return false;
+  return ativa.querySelector('td,th') !== null;
+}
+function imprimirAtual(){
+  if(!hasConteudoImprimivel()){ showToast('Nada para imprimir.'); return; }
+  window.print();
+}
+
+/* ========= reset (fazer com outro) ========= */
+function resetViewer(){
+  tabs.innerHTML = '';
+  sheets.innerHTML = '';
+  currentWB = null; activeSheetName = null;
+  originalSheetsAOA = {}; sortedSheets = new Set();
+  document.getElementById('nome-arquivo').textContent = '—';
+  document.getElementById('titulo').textContent = 'Visualizador de Planilhas (.ods)';
+  statusEl.textContent = 'Pronto.';
+  try{ fileInput.value = ''; }catch(e){}
+  const btnSort = document.getElementById('btn-sort-az');
+  if(btnSort) btnSort.remove(); // remove o botão ao voltar
+  viewer.style.display = 'none';
+  uploader.style.display = 'block';
+}
+
+/* ========= acessibilidade/UX ========= */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape'){ fecharTodosMenus(); }
+});
+
+/* ========= ORDENAR A–Z (injetado só após carregar) ========= */
+function injectSortButton(){
+  if(document.getElementById('btn-sort-az')) return; // não duplica
+  const container = document.querySelector('.viewer-footer > div:last-of-type');
+  if(!container) return;
+  const b = document.createElement('button');
+  b.className = 'btn';
+  b.id = 'btn-sort-az';
+  b.title = 'Ordenar linhas da aba atual (A→Z) pela 1ª coluna';
+  b.textContent = 'Ordenar A–Z (1ª coluna)';
+  b.addEventListener('click', toggleSortSheetAtiva);
+  const btnOutro = document.getElementById('btn-outro');
+  container.insertBefore(b, btnOutro || null);
+  updateSortButtonLabel();
+}
+
+function updateSortButtonLabel(){
+  const b = document.getElementById('btn-sort-az');
+  if(!b){ return; }
+  const sorted = sortedSheets.has(activeSheetName);
+  b.textContent = sorted ? 'Restaurar ordem original' : 'Ordenar A–Z (1ª coluna)';
+  b.title = sorted ? 'Voltar à ordem original da aba atual' : 'Ordenar linhas da aba atual (A→Z) pela 1ª coluna';
+}
+
+function toggleSortSheetAtiva(){
+  if(!currentWB || !activeSheetName){ showToast('Nenhuma aba ativa.'); return; }
+
+  // garante snapshot da aba ativa
+  if(!originalSheetsAOA[activeSheetName]){
+    const ws0 = currentWB.Sheets[activeSheetName];
+    const aoa0 = XLSX.utils.sheet_to_json(ws0, { header:1 });
+    originalSheetsAOA[activeSheetName] = aoa0.map(r => Array.isArray(r) ? r.slice() : []);
+  }
+
+  const isSorted = sortedSheets.has(activeSheetName);
+
+  let novoWS;
+  if(isSorted){
+    // RESTAURAR
+    const base = originalSheetsAOA[activeSheetName].map(r => r.slice());
+    novoWS = XLSX.utils.aoa_to_sheet(base);
+    sortedSheets.delete(activeSheetName);
+    statusEl.textContent = `Ordem original restaurada na aba "${activeSheetName}"`;
+    showToast('Ordem original restaurada.');
+  }else{
+    // ORDENAR A–Z pela 1ª coluna, preservando cabeçalho
+    const base = originalSheetsAOA[activeSheetName];
+    if(base.length <= 1){ showToast('Nada para ordenar.'); return; }
+    const header = base[0].slice();
+    const linhas = base.slice(1).map(r => r.slice());
+
+    const collator = new Intl.Collator('pt', { sensitivity:'base', numeric:true });
+    const norm = v => (v ?? '').toString().trim();
+    linhas.sort((a,b)=>{
+      const A = norm(a[0]);
+      const B = norm(b[0]);
+      if(!A && !B) return 0;
+      if(!A) return 1;
+      if(!B) return -1;
+      return collator.compare(A, B);
+    });
+    const novaMatriz = [header, ...linhas];
+    novoWS = XLSX.utils.aoa_to_sheet(novaMatriz);
+    sortedSheets.add(activeSheetName);
+    statusEl.textContent = `Ordenado A–Z por 1ª coluna na aba "${activeSheetName}"`;
+    showToast('Ordenado com sucesso!');
+  }
+
+  // aplica na planilha e re-renderiza a aba ativa
+  currentWB.Sheets[activeSheetName] = novoWS;
+  const idx = currentWB.SheetNames.indexOf(activeSheetName);
+  const html = XLSX.utils.sheet_to_html(novoWS, { id:`sheet-${idx}`, header:'', footer:'' });
+  const pane = document.querySelector(`.sheet[data-name="${CSS.escape(activeSheetName)}"]`);
+  if(pane) pane.innerHTML = html;
+
+  updateSortButtonLabel();
+}
+</script>
+</body>
+</html>

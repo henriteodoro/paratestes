@@ -16,7 +16,7 @@
   html,body { height:100%; margin:0; }
   body{
     font-family: monospace;
-    background: linear-gradient(180deg,#f7fbff 0%, #ffffff 100%);
+    background:#f7fbff;
     color:#111;
     -webkit-font-smoothing:antialiased;
     padding:18px;
@@ -69,7 +69,13 @@
     color:#0b3b6b; border:1px solid transparent; margin-bottom:6px;
   }
   .list a:hover { background:#f3f8ff; border-color:#e3f0ff; }
-  .list .muted { color:var(--muted); font-size:12px; }
+  $1
+
+  /* Grid para planilhas de autocontrole */
+  .list.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .list.grid-2 a { margin-bottom:0; }
+  .card.featured { border:1px solid var(--azul); background:#f7fbff; box-shadow:0 6px 18px rgba(11,78,167,0.08); }
+  @media (max-width:640px){ .list.grid-2 { grid-template-columns:1fr; } }
 
   /* ========= Non-clickable text items (Guias) ======== */
   .no-link {
@@ -115,7 +121,7 @@
       </div>
 
       <div class="card">
-        <a href="#" data-href="#" target="_blank" id="link-catalogo">Catálogo</a>
+        <a href="https://github.com/henriteodoro/paratestes/releases/download/v1.0/Catalogo.Sao.Jose.2025.AT03.pdf" target="_blank" id="link-catalogo">Catálogo</a>
         <small>Catálogo de produtos (PDF).</small>
       </div>
     </div>
@@ -177,10 +183,10 @@
 
         <div id="body-guias" class="section-body" aria-hidden="true">
 
-          <!-- Sub-item: Macs (guia) AGORA COLAPSÁVEL -->
+          <!-- Macs -->
           <div class="card" style="margin-bottom:8px;">
             <div tabindex="0" class="section-head sub-head" role="button" aria-expanded="false" data-target="body-guias-macs">
-              <div class="section-title"><strong>Macs (guia)</strong></div>
+              <div class="section-title"><strong>Macs</strong></div>
               <div class="chev" aria-hidden="true">▶</div>
             </div>
             <div id="body-guias-macs" class="section-body sublist" aria-hidden="true">
@@ -197,24 +203,7 @@
             </div>
           </div>
 
-          <!-- Sub-item: Casa Fidélis -->
-          <div class="card" style="margin-bottom:8px;">
-            <div tabindex="0" class="section-head sub-head" role="button" aria-expanded="false" data-target="body-guias-fidelis">
-              <div class="section-title"><strong>Casa Fidélis</strong></div>
-              <div class="chev" aria-hidden="true">▶</div>
-            </div>
-            <div id="body-guias-fidelis" class="section-body sublist" aria-hidden="true">
-              <ul class="list">
-                <li class="no-link">Casa Fidélis 914 - Avenida Dr. Roberto Melo Queiroz</li>
-                <li class="no-link">Casa Fidélis 971 - Avenida Doutor Manoel Pereira</li>
-                <li class="no-link">Casa Fidélis 1088 - Avenida Guarujá</li>
-                <li class="no-link">Fidélis Supermercados (Comercial Neide) 1089 - Avenida Martinho Campos</li>
-                <li class="no-link">Casa Fidélis 273 - Luz</li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Sub-item: Redes Somar -->
+          <!-- Redes Somar -->
           <div class="card" style="margin-bottom:8px;">
             <div tabindex="0" class="section-head sub-head" role="button" aria-expanded="false" data-target="body-guias-somar">
               <div class="section-title"><strong>Redes Somar</strong></div>
@@ -233,7 +222,7 @@
             </div>
           </div>
 
-          <!-- Sub-item: Ester Amaral -->
+          <!-- Ester Amaral -->
           <div class="card" style="margin-bottom:8px;">
             <div tabindex="0" class="section-head sub-head" role="button" aria-expanded="false" data-target="body-guias-ester">
               <div class="section-title"><strong>Ester Amaral</strong></div>
@@ -249,7 +238,24 @@
             </div>
           </div>
 
-          <!-- Sub-item: Supermercado Josildo -->
+          <!-- Casa Fidélis -->
+          <div class="card" style="margin-bottom:8px;">
+            <div tabindex="0" class="section-head sub-head" role="button" aria-expanded="false" data-target="body-guias-fidelis">
+              <div class="section-title"><strong>Casa Fidélis</strong></div>
+              <div class="chev" aria-hidden="true">▶</div>
+            </div>
+            <div id="body-guias-fidelis" class="section-body sublist" aria-hidden="true">
+              <ul class="list">
+                <li class="no-link">Casa Fidélis 914 - Avenida Dr. Roberto Melo Queiroz</li>
+                <li class="no-link">Casa Fidélis 971 - Avenida Doutor Manoel Pereira</li>
+                <li class="no-link">Casa Fidélis 1088 - Avenida Guarujá</li>
+                <li class="no-link">Fidélis Supermercados (Comercial Neide) 1089 - Avenida Martinho Campos</li>
+                <li class="no-link">Casa Fidélis 273 - Luz</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Supermercado Josildo -->
           <div class="card" style="margin-bottom:8px;">
             <div tabindex="0" class="section-head sub-head" role="button" aria-expanded="false" data-target="body-guias-josildo">
               <div class="section-title"><strong>Supermercado Josildo</strong></div>
@@ -302,26 +308,31 @@
         </div>
       </section>
 
-      <!-- Relatório Produção (com PDFs) -->
-      <section class="section" id="sec-relatorio">
-        <div tabindex="0" class="section-head" role="button" aria-expanded="false" data-target="body-relatorio">
+      <!-- Planilhas de Autocontrole (Produção) -->
+      <section class="section" id="sec-autocontrole">
+        <div tabindex="0" class="section-head" role="button" aria-expanded="false" data-target="body-autocontrole">
           <div class="section-title">
-            <span class="badge">Relatório</span>
-            <h3>Relatório Produção</h3>
+            <span class="badge">Planilhas de Autocontrole</span>
+            <h3>Planilhas de Autocontrole Produção</h3>
           </div>
           <div class="chev" aria-hidden="true">▶</div>
         </div>
-        <div id="body-relatorio" class="section-body" aria-hidden="true">
-          <ul class="list">
-            <li><a target="_blank" href="pdfs/Planilha%20Gilson.pdf">Planilha de Autocontrole Setor Pão de Sal</a></li>
-            <li><a target="_blank" href="pdfs/Planilha%20Cear%C3%A1.pdf">Planilha de Autocontrole Setor Pães Doce</a></li>
-            <li><a target="_blank" href="pdfs/Planilha%20Valdecino.pdf">Planilha de Autocontrole Setor Salgado e Biscoitos</a></li>
-            <li><a target="_blank" href="pdfs/Planilha%20Pre%20Pesagem.pdf">Planilha de Autocontrole Setor Pré-peságem</a></li>
-            <li><a target="_blank" href="pdfs/Planilha%20Embalagem.pdf">Planilha de Autocontrole Setor Embalagem</a></li>
-            <li><a target="_blank" href="pdfs/Planilha%20Jo%C3%A3o%20Estoque.pdf">Planilha de Autocontrole Setor Estoque</a></li>
-            <li><a target="_blank" href="pdfs/Planilha%20Jaqueline.pdf">Planilha de Autocontrole Setor Limpeza</a></li>
-            <li><a target="_blank" href="pdfs/Planilha%20Mateus.pdf">Planilha de Autocontrole Mateus</a></li>
-            <li><a target="_blank" href="pdfs/Planilhas%20de%20Autocontrole%20-%20P%C3%A3o%20de%20Ouro%20Atualizadas.pdf">Planilha de Autocontrole Arquivo Original</a></li>
+        <div id="body-autocontrole" class="section-body" aria-hidden="true">
+
+          <div class="card featured" style="margin-bottom:10px;">
+            <a target="_blank" href="pdfs/Planilhas%20de%20Autocontrole%20-%20P%C3%A3o%20de%20Ouro%20Atualizadas.pdf"><strong>PDF original</strong></a>
+            <small>Arquivo completo para referência</small>
+          </div>
+
+          <ul class="list grid-2">
+            <li><a target="_blank" href="pdfs/Planilha%20Gilson.pdf">Setor Pão de Sal</a></li>
+            <li><a target="_blank" href="pdfs/Planilha%20Cear%C3%A1.pdf">Setor Pães Doce</a></li>
+            <li><a target="_blank" href="pdfs/Planilha%20Valdecino.pdf">Setor Salgado e Biscoitos</a></li>
+            <li><a target="_blank" href="pdfs/Planilha%20Pre%20Pesagem.pdf">Setor Pré-peságem</a></li>
+            <li><a target="_blank" href="pdfs/Planilha%20Embalagem.pdf">Setor Embalagem</a></li>
+            <li><a target="_blank" href="pdfs/Planilha%20Jo%C3%A3o%20Estoque.pdf">Setor Estoque</a></li>
+            <li><a target="_blank" href="pdfs/Planilha%20Jaqueline.pdf">Setor Limpeza</a></li>
+            <li><a target="_blank" href="pdfs/Planilha%20Mateus.pdf">Setor Manutenção</a></li>
           </ul>
         </div>
       </section>

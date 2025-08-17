@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MAC 77 - Organizador de Lista</title>
+<title>Lista Ordenada</title>
 
 <!-- jsPDF + SheetJS via CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -321,7 +321,7 @@
 </header>
 
 <div class="titulo-nav" aria-label="Título">
-  <h1 id="titulo-principal">MAC Bairro São Geraldo - Cód. 77</h1>
+  <h1 id="titulo-principal">Lista Ordenada</h1>
 </div>
 
 <div class="container">
@@ -343,7 +343,7 @@
   </div>
 
   <div class="column">
-    <label class="small">Resultado ordenado</label>
+    <label class="small">Lista Ordenada</label>
     <pre id="output" aria-live="polite"></pre>
   </div>
 </div>
@@ -452,7 +452,7 @@ function salvarComoTXT(e){
   if(e) e.preventDefault();
   const texto = document.getElementById('output').textContent || '';
   if(!texto.trim()){ showBottomNotice('Nenhum item preenchido para salvar',2000); return; }
-  baixarArquivo(texto, 'resultado-ordenado.txt', 'text/plain');
+  baixarArquivo(texto, 'lista-ordenada.txt', 'text/plain');
   showBottomNotice('Arquivo TXT salvo',2000);
 }
 
@@ -471,7 +471,7 @@ function salvarComoPDF(e){
     if(y>doc.internal.pageSize.getHeight()-60){ doc.addPage(); doc.setFont('courier','normal'); y=40; }
   });
   y+=8; doc.text(`Linhas preenchidas: ${linhas.filter(x=>x.trim()!=='').length}`, marginLeft, y);
-  doc.save('resultado-ordenado.pdf');
+  doc.save('lista-ordenada.pdf');
   showBottomNotice('PDF salvo',2000);
 }
 
@@ -484,7 +484,7 @@ function salvarComoExcel(e){
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(data);
   XLSX.utils.book_append_sheet(wb, ws, 'Lista');
-  XLSX.writeFile(wb, 'resultado-ordenado.xlsx');
+  XLSX.writeFile(wb, 'lista-ordenada.xlsx');
   showBottomNotice('Excel salvo',2000);
 }
 

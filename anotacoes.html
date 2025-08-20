@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Painel de Rotas — Anotações Diárias</title>
+  <style>
+    :root{
+      --bg:#f7f8fb; --card:#ffffff; --ink:#111827; --muted:#6b7280;
+      --brand:#2563eb; --brand-weak:#e5edff; --ok:#16a34a; --warn:#ef4444;
+      --ring:rgba(37,99,235,.25);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial}
+    h1{font-size:clamp(18px,2.8vw,24px);text-align:center;margin:14px 12px}
+    .wrap{max-width:1200px;margin:0 auto;padding:12px}
+
+    /* Top controls */
+    .context{display:grid;gap:8px;margin:8px 0 12px;grid-template-columns:1fr}
+    @media(min-width:860px){.context{grid-template-columns: 1.1fr .9fr .9fr}}
+    .card{background:var(--card);border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+    .pad{padding:12px}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .row>label{font-weight:600;color:var(--muted)}
+
+    .segmented{display:inline-flex;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden}
+    .segmented button{padding:8px 12px;background:#fff;border:0;cursor:pointer}
+    .segmented button.active{background:var(--brand);color:#fff}
+
+    select, input[type="text"]{padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;outline:none;width:100%}
+    select:focus, input[type="text"]:focus{box-shadow:0 0 0 4px var(--ring)}
+    .ghost{background:transparent;border:1px solid #e5e7eb;border-radius:10px;padding:8px 12px;cursor:pointer}
+
+    .addbar{display:grid;grid-template-columns:1fr .7fr .25fr;gap:8px}
+    @media(max-width:720px){.addbar{grid-template-columns:1fr}}
+
+    /* Columns */
+    .grid{display:grid;gap:12px;grid-template-columns:repeat(1, minmax(0,1fr));}
+    @media(min-width:880px){.grid{grid-template-columns:repeat(3, minmax(0,1fr))}}
+
+    .column{position:relative;display:flex;flex-direction:column;min-height:160px;max-height:460px;overflow:auto}
+    .colhead{position:sticky;top:0;background:linear-gradient(#fff,#fff);border-bottom:1px solid #eef0f3;z-index:2}
+    .title{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px}
+    .title h3{margin:0;font-size:15px}
+    .title .mini{font-size:12px;color:var(--muted)}
+    .filters{display:flex;gap:6px;padding:8px 10px;border-top:1px dashed #eef0f3}
+    .filters button{border:1px solid #e5e7eb;background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer}
+    .filters button.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+    .notes{padding:10px}
+    .note{display:flex;align-items:center;gap:8px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin:8px 0}
+    .note.done{background:#e6f9ea;border-color:#bbf7d0}
+    .note input[type="text"]{border:0;background:transparent;flex:1;padding:6px;border-radius:8px}
+    .note input[type="text"]:focus{background:#fff;box-shadow:0 0 0 3px var(--ring)}
+    .nbtn{border:0;background:transparent;cursor:pointer;font-size:18px;line-height:1}
+
+    /* Lixeira */
+    .trash{position:relative}
+    details.trash>summary{cursor:pointer;list-style:none;padding:10px 12px;border-bottom:1px solid #eef0f3}
+    details.trash>summary::-webkit-details-marker{display:none}
+    .trashlist{padding:10px}
+    .trashitem{display:flex;gap:8px;align-items:flex-start;background:#f9fafb;border:1px solid #eef0f3;border-radius:10px;padding:10px;margin:8px 0}
+    .tag{font-size:11px;color:#065f46;background:#d1fae5;border:1px solid #a7f3d0;border-radius:999px;padding:2px 8px}
+    .weak{color:var(--muted);font-size:12px}
+
+    .muted{color:var(--muted)}
+    .pill{display:inline-flex;gap:6px;align-items:center;background:var(--brand-weak);color:#1e40af;border-radius:999px;padding:6px 10px;font-size:12px}
+    .spacer{flex:1}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Painel de Rotas — Anotações Diárias</h1>
+
+    <!-- CONTEXTO: semana/dia + navegação -->
+    <section class="context">
+      <div class="card pad">
+        <div class="row">
+          <label>Semana</label>
+          <div class="segmented" id="weekToggle">
+            <button data-week="W0" class="active">Atual</button>
+            <button data-week="W1">Próxima</button>
+          </div>
+          <span class="pill" id="contextLabel">Vendo: —</span>
+          <span class="spacer"></span>
+          <button class="ghost" id="prevDay">« Dia anterior</button>
+          <select id="daySelect" style="max-width:220px"></select>
+          <button class="ghost" id="nextDay">Próximo dia »</button>
+        </div>
+      </div>
+
+      <!-- ENTRADA ÚNICA: texto + destino dinâmico -->
+      <div class="card pad">
+        <div class="row" style="margin-bottom:8px"><label>Adicionar anotação</label></div>
+        <div class="addbar">
+          <input id="noteInput" type="text" placeholder="Escreva sua anotação e escolha o destino…" />
+          <select id="destSelect"></select>
+          <button id="addBtn" class="ghost" style="background:var(--brand);border-color:var(--brand);color:#fff">+ Adicionar</button>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <span class="weak">Dicas: Use 📌 para fixar no topo, ✓ para concluir (fica verde). Concluídas com +7 dias vão para a Lixeira.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- GRID de colunas -->
+    <section class="grid" id="columns"></section>
+
+    <!-- LIXEIRA -->
+    <section class="card trash" style="margin-top:12px">
+      <details class="trash" id="trashPanel">
+        <summary class="title"><h3 style="margin:0">🗑️ Lixeira</h3><span class="mini muted">Itens concluídos e arquivados (≥ 7 dias)</span></summary>
+        <div class="pad">
+          <div class="row">
+            <button id="trashPurgeOld" class="ghost" title="Remove itens com mais de 7 dias na lixeira">Apagar itens > 7 dias</button>
+            <button id="trashEmpty" class="ghost" style="border-color:var(--warn);color:var(--warn)" title="Esvazia tudo da lixeira">Esvaziar lixeira</button>
+            <span class="spacer"></span>
+            <span class="weak" id="trashCount">—</span>
+          </div>
+        </div>
+        <div class="trashlist" id="trashList"></div>
+      </details>
+    </section>
+  </div>
+
+  <script>
+  ;(()=>{
+    // ========== Configuração de rotas por dia ==========
+    const ROUTES = {
+      'Segunda': ['Rota Nélio','Rota Guilherme','Rota Salsicha'],
+      'Terça': ['Rota Nélio','Rota Guilherme','Rota Salsicha','Rota Aldivan'],
+      'Quarta': ['Rota Salsicha','Rota Nélio','Rota Guilherme','Rota Aldivan'],
+      'Quinta': ['Rota Salsicha','Rota Nélio','Rota Guilherme','Rota Jovi'],
+      'Sexta': ['Rota Nélio','Rota Guilherme','Rota Salsicha','Rota Jovi BH','Rota Azevedo']
+    };
+    const DAYS = ['Segunda','Terça','Quarta','Quinta','Sexta'];
+    const WEEK_MS = 7*24*60*60*1000;
+
+    // ========== Estado & persistência ==========
+    const LS_KEY = 'painel-rotas-state-v1';
+    const state = loadState();
+
+    function loadState(){
+      let s = JSON.parse(localStorage.getItem(LS_KEY)||'null');
+      if(!s){
+        s = { version:1, context: defaultContext(), filters:{}, notes:{ W0: blankWeek(), W1: blankWeek() }, fixed:[], trash:[] };
+        saveState(s);
+      }
+      return s;
+    }
+    function saveState(s=state){ localStorage.setItem(LS_KEY, JSON.stringify(s)); }
+
+    function blankWeek(){
+      const obj = {}; DAYS.forEach(d=>{ obj[d] = { day:[], routes:{} }; ROUTES[d].forEach(r=> obj[d].routes[r]=[] ); });
+      return obj;
+    }
+    function defaultContext(){
+      const d = new Date();
+      let wd = d.getDay(); // 0=dom,1=seg,...
+      let name = DAYS[Math.max(0, Math.min(DAYS.length-1, wd-1))] || 'Segunda';
+      // Se sábado(6) ou domingo(0), cair pra Segunda
+      if(wd===0 || wd===6) name = 'Segunda';
+      return { week:'W0', day:name };
+    }
+
+    // ========== Utilidades ==========
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+    const uid = ()=>'id_'+Math.random().toString(36).slice(2)+Date.now().toString(36);
+
+    function setContext(week, day){ state.context.week=week; state.context.day=day; saveState(); renderAll(); }
+
+    function contextLabel(){
+      const map = {W0:'Semana Atual', W1:'Próxima Semana'}; return `${map[state.context.week]} — ${state.context.day}`;
+    }
+
+    function getWeek(){ return state.notes[state.context.week]; }
+    function getDayBucket(){ return getWeek()[state.context.day]; }
+
+    // ========== Inicialização UI ==========
+    function initUI(){
+      // Week toggle
+      $('#weekToggle').addEventListener('click', e=>{
+        const btn = e.target.closest('button'); if(!btn) return;
+        $$('#weekToggle button').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        setContext(btn.dataset.week, state.context.day);
+      });
+
+      // Day select + nav
+      const ds = $('#daySelect'); ds.innerHTML = DAYS.map(d=>`<option value="${d}">${d}</option>`).join('');
+      ds.addEventListener('change', ()=> setContext(state.context.week, ds.value));
+      $('#prevDay').addEventListener('click', ()=> shiftDay(-1));
+      $('#nextDay').addEventListener('click', ()=> shiftDay(+1));
+
+      // Add note
+      $('#addBtn').addEventListener('click', addNoteFromInput);
+      $('#noteInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter') addNoteFromInput(); });
+
+      // Lixeira
+      $('#trashEmpty').addEventListener('click', ()=>{ if(confirm('Esvaziar toda a lixeira?')){ state.trash=[]; saveState(); renderTrash(); }});
+      $('#trashPurgeOld').addEventListener('click', ()=>{ const now=Date.now(); state.trash = state.trash.filter(t=> now - (t.doneAt||t.createdAt) <= WEEK_MS ); saveState(); renderTrash(); });
+
+      renderAll();
+    }
+
+    function shiftDay(delta){
+      let idx = DAYS.indexOf(state.context.day);
+      idx = (idx + delta + DAYS.length) % DAYS.length;
+      setContext(state.context.week, DAYS[idx]);
+    }
+
+    // ========== Entrada / destino ==========
+    function buildDestOptions(){
+      const day = state.context.day; const routes = ROUTES[day];
+      const opts = [
+        `<option value="fixed">📌 Anotações Fixas (aparecem todos os dias)</option>`,
+        `<option value="day">🗓️ Anotações do Dia — ${day}</option>`,
+        `<option disabled>—— Rotas de ${day} ——</option>`,
+        ...routes.map(r=>`<option value="route|${r}">${r}</option>`)
+      ];
+      $('#destSelect').innerHTML = opts.join('');
+    }
+
+    function addNoteFromInput(){
+      const txt = $('#noteInput').value.trim(); if(!txt) return;
+      const dest = $('#destSelect').value;
+      const note = { id:uid(), text:txt, done:false, createdAt:Date.now(), doneAt:null };
+      if(dest==='fixed') state.fixed.push(note);
+      else if(dest==='day') getDayBucket().day.push(note);
+      else if(dest.startsWith('route|')){
+        const r = dest.split('|')[1]; (getDayBucket().routes[r] ||= []).push(note);
+      }
+      $('#noteInput').value=''; saveState(); renderColumns();
+    }
+
+    // ========== Renderização ==========
+    function renderAll(){
+      // Toggle state
+      $$('#weekToggle button').forEach(b=> b.classList.toggle('active', b.dataset.week===state.context.week));
+      $('#daySelect').value = state.context.day;
+      $('#contextLabel').textContent = 'Vendo: '+contextLabel();
+      buildDestOptions();
+      sweepOldDoneToTrash();
+      renderColumns();
+      renderTrash();
+    }
+
+    function renderColumns(){
+      const host = $('#columns'); host.innerHTML='';
+      const day = state.context.day; const routes = ROUTES[day];
+
+      // Coluna: Anotações do Dia
+      host.appendChild( makeColumn({ key:colKey('day'), title:`🗓️ Anotações do Dia — ${day}`, notes:getDayBucket().day }) );
+      // Colunas: Rotas
+      routes.forEach(r=>{
+        host.appendChild( makeColumn({ key:colKey('route', r), title:rLabel(day, r), notes:getDayBucket().routes[r] }) );
+      });
+      // Coluna: Fixas
+      host.appendChild( makeColumn({ key:colKey('fixed'), title:'📌 Anotações Fixas (todos os dias)', notes:state.fixed }) );
+    }
+
+    function rLabel(day, r){
+      if(day==='Sexta' && r==='Rota Jovi BH') return r+' — (quinzenal)';
+      if(day==='Sexta' && r==='Rota Azevedo') return r+' — (ocasional)';
+      return r;
+    }
+
+    function colKey(type, name=''){
+      // chave única por coluna + contexto (dia+semana) para filtros
+      return `${state.context.week}|${state.context.day}|${type}${name?('|'+name):''}`;
+    }
+
+    function makeColumn({key, title, notes}){
+      const col = document.createElement('div'); col.className='card column';
+
+      // Cabeçalho
+      const head = document.createElement('div'); head.className='colhead';
+      head.innerHTML = `
+        <div class="title">
+          <h3>${escapeHtml(title)}</h3>
+          <div class="row">
+            <button class="nbtn" title="Minimizar" data-action="toggle">▾</button>
+          </div>
+        </div>
+        <div class="filters">
+          <button data-mode="all">Todos</button>
+          <button data-mode="pendentes">Pendentes</button>
+          <button data-mode="feitos">Feitos</button>
+        </div>`;
+      col.appendChild(head);
+
+      const list = document.createElement('div'); list.className='notes'; col.appendChild(list);
+
+      // Estado do filtro
+      const mode = state.filters[key] || 'all';
+      head.querySelectorAll('.filters button').forEach(b=>{
+        b.classList.toggle('active', b.dataset.mode===mode);
+      });
+
+      // Eventos do cabeçalho
+      head.addEventListener('click', (e)=>{
+        const btn = e.target.closest('button'); if(!btn) return;
+        if(btn.dataset.action==='toggle'){
+          list.style.display = list.style.display==='none' ? 'block':'none';
+          btn.textContent = (list.style.display==='none') ? '▸' : '▾';
+        } else if(btn.dataset.mode){
+          state.filters[key] = btn.dataset.mode; saveState();
+          head.querySelectorAll('.filters button').forEach(b=> b.classList.toggle('active', b===btn));
+          renderNotes();
+        }
+      });
+
+      function renderNotes(){
+        list.innerHTML='';
+        (notes||[]).forEach(n=>{
+          if(mode==='pendentes' && n.done) return;
+          if(mode==='feitos' && !n.done) return;
+          list.appendChild( noteEl(n, notes) );
+        });
+      }
+
+      renderNotes();
+      return col;
+    }
+
+    function noteEl(note, container){
+      const el = document.createElement('div'); el.className='note'; if(note.done) el.classList.add('done');
+      el.innerHTML = `
+        <button class="nbtn" title="Concluir" data-act="toggle">✓</button>
+        <input type="text" value="${escapeHtml(note.text)}" />
+        <button class="nbtn" title="Fixar no topo" data-act="pin">📌</button>
+        <button class="nbtn" title="Excluir" data-act="del">🗑️</button>`;
+
+      const input = el.querySelector('input');
+      input.addEventListener('blur', ()=>{ note.text = input.value.trim(); saveState(); });
+      input.addEventListener('keydown', e=>{ if(e.key==='Enter'){ input.blur(); }});
+
+      el.addEventListener('click', e=>{
+        const b = e.target.closest('button'); if(!b) return;
+        const act = b.dataset.act;
+        if(act==='toggle'){
+          note.done = !note.done; note.doneAt = note.done ? Date.now() : null; saveState();
+          el.classList.toggle('done', note.done); sweepOldDoneToTrash(); renderColumns();
+        } else if(act==='pin'){
+          // mover para o topo do container
+          const idx = container.findIndex(x=>x.id===note.id); if(idx>0){ container.splice(idx,1); container.unshift(note); saveState(); renderColumns(); }
+        } else if(act==='del'){
+          if(confirm('Remover esta anotação?')){ const idx = container.findIndex(x=>x.id===note.id); if(idx>-1){ container.splice(idx,1); saveState(); renderColumns(); } }
+        }
+      });
+      return el;
+    }
+
+    // ========== Lixeira ==========
+    function sweepOldDoneToTrash(){
+      const now = Date.now(); let moved = 0;
+      function sweepList(list, origin){
+        for(let i=list.length-1;i>=0;i--){
+          const n=list[i];
+          if(n.done && n.doneAt && now - n.doneAt > WEEK_MS){
+            moved++;
+            state.trash.push({ ...n, origin, removedAt: now });
+            list.splice(i,1);
+          }
+        }
+      }
+      ['W0','W1'].forEach(w=>{ const week = state.notes[w]; DAYS.forEach(d=>{
+        const buck = week[d]; if(!buck) return;
+        sweepList(buck.day, {type:'day', week:w, day:d});
+        Object.keys(buck.routes||{}).forEach(r=> sweepList(buck.routes[r], {type:'route', week:w, day:d, route:r}) );
+      }); });
+      sweepList(state.fixed, {type:'fixed'});
+      if(moved){ saveState(); }
+    }
+
+    function renderTrash(){
+      const list = $('#trashList'); const c = state.trash.length; $('#trashCount').textContent = c? `${c} item(ns)`: 'Lixeira vazia';
+      list.innerHTML='';
+      state.trash.slice().reverse().forEach(t=>{
+        const when = new Date(t.doneAt||t.createdAt).toLocaleDateString();
+        const origin = originLabel(t.origin);
+        const row = document.createElement('div'); row.className='trashitem';
+        row.innerHTML = `
+          <div class="tag">${origin}</div>
+          <div class="spacer"></div>
+          <div style="flex:1">${escapeHtml(t.text)}<div class="weak">finalizada em ${when}</div></div>
+          <button class="ghost" title="Remover da lixeira">Excluir</button>`;
+        row.querySelector('button').addEventListener('click', ()=>{ const idx = state.trash.findIndex(x=>x.id===t.id); if(idx>-1){ state.trash.splice(idx,1); saveState(); renderTrash(); }});
+        list.appendChild(row);
+      });
+    }
+    function originLabel(o){
+      if(!o) return '—';
+      if(o.type==='fixed') return 'Fixa';
+      if(o.type==='day') return `Dia • ${o.day} (${o.week==='W0'?'Atual':'Próxima'})`;
+      if(o.type==='route') return `${o.route} • ${o.day} (${o.week==='W0'?'Atual':'Próxima'})`;
+      return '—';
+    }
+
+    // ========== Helpers ==========
+    function escapeHtml(s){ return s.replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c])); }
+
+    // Start
+    initUI();
+  })();
+  </script>
+</body>
+</html>

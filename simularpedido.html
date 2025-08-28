@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MAC 77 - Simulador de Pedido (Híbrido)</title>
+
+<!-- bibliotecas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+  /* ===== base / tipografia (mantive seu visual) ===== */
+  :root {
+    --azul: #007BFF;
+    --azul-escuro: #0056b3;
+    --amarelo: #FFD700;
+    --vermelho: #b22222;
+    --bg: #ffffff;
+    --muted: #666;
+  }
+  html,body { height:100%; }
+  body {
+    font-family: monospace;
+    margin: 0;
+    padding: 0;
+    color: #111;
+    background: #f7f9fb;
+  }
+
+  /* ===== header ===== */
+  header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background: var(--azul);
+    color: white;
+    padding: 10px 14px;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+  }
+  .menu-left, .menu-right {
+    display:flex;
+    gap: 8px;
+    align-items:center;
+  }
+  .icon-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 6px;
+  }
+  .icon-btn:hover { background: rgba(255,255,255,0.08); }
+
+  /* dropdowns */
+  .menu-dropdown { position: relative; }
+  .menu-dropdown-content {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    background: white;
+    color: #111;
+    border-radius: 6px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    min-width: 220px;
+    max-width: calc(100vw - 40px);
+    overflow: auto;
+    z-index: 1200;
+    padding: 6px 0;
+    white-space: normal;
+  }
+  .menu-right .menu-dropdown-content { right: 0; left: auto; }
+
+  .menu-dropdown-content a {
+    display:block;
+    padding: 8px 12px;
+    color: #111;
+    text-decoration: none;
+    font-family: monospace;
+  }
+  .menu-dropdown-content a:hover { background: #f2f2f2; }
+
+  .dropdown-section { border-top: 1px solid #f0f0f0; padding-top: 6px; margin-top: 6px; }
+  .section-header {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-weight:700;
+  }
+  .section-header small { font-weight:400; color:#666; }
+  .submenu { display:none; padding-left: 6px; padding-bottom:6px; }
+  .submenu a { padding-left: 18px; font-weight:500; }
+
+  /* ===== título com setas ===== */
+  .titulo-nav {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap: 16px;
+    margin: 14px 10px 8px;
+  }
+  .titulo-nav h1 {
+    margin:0;
+    font-size:18px;
+    color:#111;
+  }
+  .titulo-nav a {
+    color: var(--azul);
+    text-decoration:none;
+    font-size:22px;
+    user-select:none;
+  }
+  .titulo-nav .arrow {
+    width:28px;
+    height:28px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:6px;
+    cursor:pointer;
+    color:var(--azul-escuro);
+    text-decoration:none;
+  }
+  .titulo-nav .arrow:hover { background:#f0f8ff; }
+
+  /* ===== container ===== */
+  .container {
+    display:flex;
+    justify-content:center;
+    gap: 48px;
+    align-items:flex-start;
+    padding: 10px 14px 24px;
+    flex-wrap:wrap;
+  }
+
+  /* center table */
+  .table-wrap {
+    width:100%;
+    max-width:1100px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(2,6,23,0.08);
+    overflow: auto;
+    border: 1px solid #e6eef8;
+  }
+  table {
+    width:100%;
+    border-collapse: collapse;
+    min-width: 760px;
+  }
+  thead th{position:sticky;top:0;background:#f8fafc;text-align:left;font-weight:700;color:#0b1225;border-bottom:1px solid #e6eef8;padding:12px}
+  tbody td{padding:10px 12px;border-bottom:1px solid #f1f5f9}
+  tfoot td{padding:14px 12px;font-weight:700;background:#f8fafc;border-top:1px solid #e6eef8}
+  .col-prod{width:48%}
+  .col-preco{width:16%}
+  .col-qtd{width:16%}
+  .col-total{width:20%}
+
+  input.qty{width:100%;max-width:86px;padding:8px;border-radius:8px;border:1px solid #e6eef8}
+  .row-total{font-variant-numeric:tabular-nums}
+
+  #middle-controls{display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;min-width:170px}
+  #middle-controls button{width:170px;padding:10px 12px;font-size:14px;border-radius:6px;border:none;cursor:pointer}
+  .btn-amarelo{background:var(--amarelo);color:#000}
+  .btn-vermelho{background:var(--vermelho);color:#fff}
+  .btn-azul{background:var(--azul);color:#fff}
+
+  #contador-linhas{ text-align:center; margin: 12px 0 24px; font-weight:700; }
+
+  .mac-links{margin: 0 14px 30px;display:grid;grid-template-columns: repeat(4, 1fr);gap: 10px;align-items:stretch}
+  .mac-links a{display:block;padding:8px 10px;background:#f7fbff;border:1px solid #e6f0ff;color:var(--azul);text-decoration:none;border-radius:6px;text-align:center;font-family:monospace}
+
+  #copy-notice{position: fixed;right: 18px;bottom: 18px;background: rgba(0,0,0,0.78);color: white;padding: 8px 12px;border-radius: 6px;display: none;z-index: 2000;font-family: monospace;font-size: 13px}
+
+  @media (max-width:900px){.container{gap:20px;padding:10px}.mac-links{grid-template-columns: repeat(2,1fr)}#middle-controls{order:2}}
+  @media (max-width:520px){.container{flex-direction:column;align-items:center}.mac-links{grid-template-columns:repeat(1,1fr)}#middle-controls{flex-direction:row;gap:8px}#middle-controls button{width:120px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="menu-left">
+    <div class="menu-dropdown">
+      <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')">☰</button>
+
+      <div class="menu-dropdown-content" id="dropdown-menu" role="menu" aria-hidden="true">
+        <div class="dropdown-section">
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)">
+            <span>MACS</span>
+            <small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="#" data-mac="77" onclick="abrirMac(event, 'MAC Bairro São Geraldo - Cód. 77')">MAC Bairro São Geraldo - Cód. 77</a>
+            <a href="#" data-mac="78" onclick="abrirMac(event, 'MAC Bairro Planalto - Cód. 78')">MAC Bairro Planalto - Cód. 78</a>
+            <a href="#" data-mac="79" onclick="abrirMac(event, 'MAC Romeu Duarte - Cód. 79')">MAC Romeu Duarte - Cód. 79</a>
+            <a href="#" data-mac="80" onclick="abrirMac(event, 'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC Rua São Geraldo / Centro 2 - Cód. 80</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="icon-btn" id="btn-close" title="Fechar" onclick="fecharPagina()">❌</button>
+    <button class="icon-btn" id="btn-home" title="Menu inicial" onclick="voltarMenu()">🏠</button>
+  </div>
+
+  <div class="menu-right">
+    <div class="menu-dropdown">
+      <button class="icon-btn" id="btn-salvar" title="Salvar" onclick="toggleMenu('dropdown-save')">💾</button>
+      <div class="menu-dropdown-content" id="dropdown-save" aria-labelledby="btn-salvar">
+        <a href="#" onclick="salvarComoTXT(event)" title="Salvar como TXT">Salvar como TXT</a>
+        <a href="#" onclick="salvarComoPDF(event)" title="Salvar como PDF">Salvar como PDF</a>
+        <a href="#" onclick="salvarComoExcel(event)" title="Salvar como Excel">Salvar como Excel</a>
+      </div>
+    </div>
+
+    <button class="icon-btn" id="btn-print" title="Imprimir">🖨️</button>
+    <button class="icon-btn" id="btn-copy" title="Copiar" onclick="copiarTabela()">📋</button>
+  </div>
+</header>
+
+<div class="titulo-nav" role="navigation" aria-label="Navegação MAC">
+  <span style="width:28px;display:inline-block"></span>
+  <h1 id="titulo-principal">MAC Bairro São Geraldo - Cód. 77</h1>
+  <a href="#" class="arrow" id="arrow-right" title="Próximo MAC" onclick="navegarProximo()">→</a>
+</div>
+
+<div class="container">
+  <div class="table-wrap" id="table-wrap">
+    <table id="tabela-produtos" aria-label="Tabela de produtos">
+      <thead>
+        <tr>
+          <th class="col-prod">PRODUTO</th>
+          <th class="col-preco">VALOR PCT</th>
+          <th class="col-qtd">QUANTIDADE</th>
+          <th class="col-total">VALOR TOTAL</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-produtos">
+        <!-- preenchido dinamicamente -->
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" class="sticky-total">SOMA TOTAL</td>
+          <td class="sticky-total" id="grandTotal">R$ 0,00</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div id="middle-controls" aria-hidden="false">
+    <button id="btn-hide" class="btn-amarelo" onclick="toggleVazias()">Remover Linhas Vazias</button>
+    <button id="btn-reset" class="btn-vermelho" onclick="resetarTudo()">Resetar Tudo</button>
+    <button id="btn-export" class="btn-azul" onclick="salvarComoExcel()">Salvar em Excel</button>
+  </div>
+</div>
+
+<div id="contador-linhas">Linhas preenchidas: 0</div>
+
+<div class="mac-links" role="navigation" aria-label="Outros MACs">
+  <a href="#" onclick="abrirMac(event,'MAC Bairro Planalto - Cód. 78')">MAC 78 - Bairro Planalto</a>
+  <a href="#" onclick="abrirMac(event,'MAC Roumeu Duarte - Cód. 79')">MAC 79 - Romeu Duarte</a>
+  <a href="#" onclick="abrirMac(event,'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC 80 - Rua São Geraldo / Centro 2</a>
+  <a href="#" onclick="abrirMac(event,'MAC Matriz - Cód. 277')">MAC 277 - Matriz</a>
+  <a href="#" onclick="abrirMac(event,'MAC Concesso - Cód. 853')">MAC 853 - Concesso</a>
+  <a href="#" onclick="abrirMac(event,'MAC Jardim do Lago - Cód. 1249')">MAC 1249 - Jardim do Lago</a>
+  <a href="#" onclick="abrirMac(event,'MAC Araújos - Cód. 989')">MAC 989 - Araújos</a>
+</div>
+
+<div id="copy-notice">Copiado!</div>
+
+<script>
+/* ==========================
+   Lista de produtos (sua lista completa)
+   ========================== */
+const produtos = [
+  {nome: 'Baguete 06h 7kg', preco: 50.68},
+  {nome: 'Baguete 12h 7kg', preco: 50.68},
+  {nome: 'Biscoitinho de doce 1 kg', preco: 17.84},
+  {nome: 'Biscoitinho de doce grande 1kg com 10 unidades', preco: 18.94},
+  {nome: 'Biscoito chipa 1kg', preco: 20.40},
+  {nome: 'Biscoito chipa 7kg', preco: 139.30},
+  {nome: 'Biscoito de queijo 1kg', preco: 20.62},
+  {nome: 'Biscoito de queijo 7kg', preco: 135.17},
+  {nome: 'Biscoito três queijos 1kg', preco: 20.95},
+  {nome: 'Biscoito três queijos 7kg', preco: 141.12},
+  {nome: 'Bolinha de carne pequeno 1kg', preco: 21.78},
+  {nome: 'Bolo cremoso de fubá 1 unidade', preco: 8.25},
+  {nome: 'Bolo cremoso de milho 1 unidade', preco: 8.92},
+  {nome: 'Broa de fubá grande com 10 unidades', preco: 13.70},
+  {nome: 'Broinha de fubá doce 1kg', preco: 16.92},
+  {nome: 'Broinha de fubá doce 7kg', preco: 111.44},
+  {nome: 'Broinha de sal e queijo 1kg', preco: 16.92},
+  {nome: 'Broinha de sal e queijo 7kg', preco: 111.44},
+  {nome: 'Broinha temperada com bacon 1kg', preco: 20.50},
+  {nome: 'Broinha temperada com bacon 7KG', preco: 136.50},
+  {nome: 'Canudinho de queijo 7kg', preco: 157.50},
+  {nome: 'Canudinho Romeu e Julieta 7kg', preco: 157.50},
+  {nome: 'Caracol 7kg', preco: 71.12},
+  {nome: 'Carioca 7kg', preco: 60.97},
+  {nome: 'Coxinha de frango grande 10 unidades', preco: 23.90},
+  {nome: 'Coxinha de frango pequeno 1kg', preco: 19.06},
+  {nome: 'Creme de confeiteiro preparado 1kg', preco: 9.62},
+  {nome: 'Croissant de frango 7kg', preco: 189.49},
+  {nome: 'Croissant de presunto 7kg', preco: 189.49},
+  {nome: 'Empada de frango grande 10 unidades', preco: 30.80},
+  {nome: 'Empadão de frango com catupiry 10 unidades', preco: 41.00},
+  {nome: 'Empadinha de frango pequeno 1kg', preco: 28.83},
+  {nome: 'Enroladinho de salsicha grande 10 unidades', preco: 23.00},
+  {nome: 'Enroladinho presunto mussarela grande 10 unidades', preco: 28.90},
+  {nome: 'Enroladinho presunto mussarela pequeno  1kg', preco: 19.06},
+  {nome: 'Inseticida de citronela', preco: 22.05},
+  {nome: 'Mandi 7kg', preco: 60.97},
+  {nome: 'Meia lua 1kg com 10 unidades', preco: 18.80},
+  {nome: 'Mini carioca 7kg', preco: 60.97},
+  {nome: 'Mini pão francês 06h 7kg', preco: 47.74},
+  {nome: 'Mini pão francês 12h 7kg', preco: 47.74},
+  {nome: 'Mini roscovado 1 unidade', preco: 2.84},
+  {nome: 'Mistura biscoito sequilho 4,5kg', preco: 69.21},
+  {nome: 'Mistura de bolo de chocolate 4kg', preco: 62.33},
+  {nome: 'Mistura de bolo de farinha 4kg', preco: 50.04},
+  {nome: 'Palitão de provolone 1kg com 10 unidades', preco: 18.80},
+  {nome: 'Panhoca 06h 7kg', preco: 50.68},
+  {nome: 'Panhoca 12h 7kg', preco: 50.68},
+  {nome: 'Pão de batata 7kg', preco: 71.05},
+  {nome: 'Pão de milho 7kg', preco: 71.05},
+  {nome: 'Pão de queijo com frango grande 1kg', preco: 32.30},
+  {nome: 'Pão de queijo com frango pequeno 1kg', preco: 23.65},
+  {nome: 'Pão de queijo com frango pequeno 7kg', preco: 157.85},
+  {nome: 'Pão de queijo tradicional grande 1kg', preco: 17.20},
+  {nome: 'Pão de queijo tradicional pequeno 1kg', preco: 16.92},
+  {nome: 'Pão de queijo tradicional pequeno 7kg', preco: 111.44},
+  {nome: 'Pão francês 04h 7kg', preco: 47.74},
+  {nome: 'Pão francês 06h 7kg', preco: 47.74},
+  {nome: 'Pão francês 12h 7kg', preco: 47.74},
+  {nome: 'Pão francês 18h 7kg', preco: 47.74},
+  {nome: 'Par de luvas', preco: 36.63},
+  {nome: 'Pastel assado de frango grande 10 unidades', preco: 29.90},
+  {nome: 'Pastel português de carne grande 10 unidades', preco: 27.00},
+  {nome: 'Pastelzinho catupiry pequeno 1kg', preco: 19.06},
+  {nome: 'Quibe com catupiry pequeno 1KG', preco: 21.75},
+  {nome: 'Quibe grande 10 unidades', preco: 31.60},
+  {nome: 'Rosca caseira 10 unidades', preco: 33.60},
+  {nome: 'Rosca creme e coco comprida 5 unidades', preco: 26.35},
+  {nome: 'Rosca creme e coco redonda 5 unidades', preco: 26.35},
+  {nome: 'Rosca frutas cristalizadas comprida 5 unidades', preco: 26.35},
+  {nome: 'Rosca frutas cristalizadas redonda 5 unidades', preco: 26.35},
+  {nome: 'Roscovado comum 1 unidade', preco: 4.94},
+  {nome: 'Sonho 3kg', preco: 32.07},
+  {nome: 'Tortinha de frango, abacaxi e passas 10 unidades', preco: 41.00},
+  {nome: 'Trança 3kg com 10 unidades', preco: 33.60},
+  {nome: 'Trancinha 3kg', preco: 29.67},
+  {nome: 'Trancinha redonda 3kg', preco: 29.67}
+];
+
+/* ===== utilidades ===== */
+const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+const tbody = document.getElementById('tbody-produtos');
+const grandTotalEl = document.getElementById('grandTotal');
+const contadorEl = document.getElementById('contador-linhas');
+let hideEmpty = false;
+let hiddenRows = [];
+
+function renderTable(){
+  const frag = document.createDocumentFragment();
+  produtos.forEach((p, i) => {
+    const tr = document.createElement('tr');
+    // nome
+    const tdNome = document.createElement('td'); tdNome.className='col-prod'; tdNome.textContent = p.nome;
+    // preco
+    const tdPreco = document.createElement('td'); tdPreco.className='col-preco'; tdPreco.textContent = BRL.format(p.preco); tdPreco.dataset.preco = String(p.preco);
+    // quantidade
+    const tdQtd = document.createElement('td'); tdQtd.className='col-qtd';
+    const input = document.createElement('input'); input.type='number'; input.className='qty'; input.min='0'; input.step='1'; input.placeholder='0';
+    input.addEventListener('input', () => { updateRow(tr); if(hideEmpty) applyHide(); });
+    input.addEventListener('focus', ()=>input.select());
+    tdQtd.appendChild(input);
+    // total
+    const tdTotal = document.createElement('td'); tdTotal.className='col-total row-total'; tdTotal.textContent = BRL.format(0);
+
+    tr.appendChild(tdNome); tr.appendChild(tdPreco); tr.appendChild(tdQtd); tr.appendChild(tdTotal);
+    frag.appendChild(tr);
+  });
+  tbody.appendChild(frag);
+  updateGrand();
+}
+
+function parseQty(val){
+  const s = String(val).trim();
+  if(s === '') return 0;
+  // aceitar inteiros
+  const n = parseInt(s.replace(/[^0-9\-]/g,''), 10);
+  return Number.isFinite(n) ? Math.max(0, n) : 0;
+}
+
+function updateRow(tr){
+  const preco = parseFloat(tr.querySelector('td.col-preco').dataset.preco);
+  const qtd = parseQty(tr.querySelector('input.qty').value);
+  const total = preco * qtd;
+  tr.querySelector('td.row-total').textContent = BRL.format(total);
+  updateGrand();
+}
+
+function updateGrand(){
+  let sum = 0; let filled = 0;
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const preco = parseFloat(tr.querySelector('td.col-preco').dataset.preco);
+    const qtd = parseQty(tr.querySelector('input.qty').value);
+    sum += preco * qtd;
+    if(qtd > 0) filled++;
+  });
+  grandTotalEl.textContent = BRL.format(sum);
+  contadorEl.textContent = `Linhas preenchidas: ${filled}`;
+}
+
+function applyHide(){
+  hiddenRows = [];
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const qtd = parseQty(tr.querySelector('input.qty').value);
+    if(hideEmpty && qtd === 0){ tr.style.display = 'none'; hiddenRows.push(tr); }
+    else tr.style.display = '';
+  });
+  updateGrand();
+}
+
+function toggleVazias(){
+  hideEmpty = !hideEmpty;
+  document.getElementById('btn-hide').textContent = hideEmpty ? 'Restaurar Linhas Vazias' : 'Remover Linhas Vazias';
+  applyHide();
+}
+
+function resetarTudo(){
+  tbody.querySelectorAll('tr').forEach(tr => {
+    tr.querySelector('input.qty').value = '';
+    tr.style.display = '';
+    tr.querySelector('td.row-total').textContent = BRL.format(0);
+  });
+  hideEmpty = false; document.getElementById('btn-hide').textContent = 'Remover Linhas Vazias';
+  updateGrand();
+}
+
+/* =========================
+   Export / copiar / imprimir
+   ========================= */
+function copiarTabela(){
+  const lines = [];
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const nome = tr.querySelector('td.col-prod').textContent;
+    const qtd = tr.querySelector('input.qty').value.trim();
+    if(qtd !== '') lines.push(`${nome}: ${qtd}`);
+  });
+  if(lines.length === 0){ showBottomNotice('Nada para copiar', 1600); return; }
+  const texto = lines.join('\n');
+  navigator.clipboard.writeText(texto).then(()=> showBottomNotice('Copiado!', 1400)).catch(()=>{ showBottomNotice('Falha ao copiar', 1600); });
+}
+
+function salvarComoTXT(e){ if(e) e.preventDefault();
+  const lines = [];
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const nome = tr.querySelector('td.col-prod').textContent;
+    const qtd = tr.querySelector('input.qty').value.trim();
+    if(qtd !== '') lines.push(`${nome}: ${qtd}`);
+  });
+  if(lines.length === 0){ showBottomNotice('Nenhum item preenchido para salvar', 1600); return; }
+  baixarArquivo(lines.join('\n'), 'pedido.txt', 'text/plain');
+  showBottomNotice('Arquivo TXT salvo', 1400);
+}
+
+function salvarComoPDF(e){ if(e) e.preventDefault();
+  const linhas = [];
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const nome = tr.querySelector('td.col-prod').textContent;
+    const qtd = tr.querySelector('input.qty').value.trim();
+    if(qtd !== '') linhas.push({nome,qtd});
+  });
+  if(linhas.length === 0){ showBottomNotice('Nenhum item preenchido para salvar em PDF', 1600); return; }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  doc.setFont('courier'); doc.setFontSize(11);
+  const margin = 40; let y = 40;
+  doc.text(document.getElementById('titulo-principal').textContent, margin, y);
+  y += 18;
+  linhas.forEach(({nome,qtd})=>{
+    doc.text(nome, margin, y, { maxWidth: 420 });
+    doc.text(String(qtd), margin + 420, y);
+    y += 14;
+    if(y > doc.internal.pageSize.getHeight() - 60){ doc.addPage(); y = 40; }
+  });
+  y += 8; doc.text(`Linhas preenchidas: ${linhas.length}`, margin, y);
+
+  // abrir em nova aba (evita popup blockers se chamado por clique)
+  try{
+    const newWin = window.open('', '_blank');
+    if(!newWin){ doc.save('pedido.pdf'); showBottomNotice('PDF baixado',1400); return; }
+    const pdfBlob = doc.output('blob');
+    const url = URL.createObjectURL(pdfBlob);
+    newWin.location.href = url;
+    setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} }, 60000);
+  }catch(err){ console.error(err); doc.save('pedido.pdf'); showBottomNotice('PDF baixado',1400); }
+}
+
+function salvarComoExcel(e){ if(e) e.preventDefault();
+  salvarComoExcel(); // chama função principal abaixo
+}
+
+function salvarComoExcel(){
+  const rows = [['PRODUTO','VALOR PCT','QUANTIDADE','VALOR TOTAL']];
+  let soma = 0;
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const nome = tr.querySelector('td.col-prod').textContent;
+    const preco = parseFloat(tr.querySelector('td.col-preco').dataset.preco);
+    const qtd = parseQty(tr.querySelector('input.qty').value);
+    const total = preco * qtd;
+    if(qtd > 0){ rows.push([nome, preco, qtd, total]); soma += total; }
+  });
+  if(rows.length === 1){ showBottomNotice('Nenhum item preenchido para exportar Excel', 1600); return; }
+  rows.push(['','', 'TOTAL', soma]);
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{wch:50},{wch:12},{wch:12},{wch:14}];
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Pedido');
+  const now = new Date(); const pad = n=>String(n).padStart(2,'0');
+  const fname = `pedido_${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}.xlsx`;
+  XLSX.writeFile(wb, fname);
+  showBottomNotice('Excel salvo', 1400);
+}
+
+function baixarArquivo(conteudo, nomeArquivo, tipo){
+  const blob = new Blob([conteudo], { type: tipo });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nomeArquivo; document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* ==================== imprimir direto (reaproveita salvarComoPDF) ==================== */
+function imprimirDireto(){
+  // apenas chamar salvarComoPDF que já abre em nova aba
+  salvarComoPDF();
+}
+
+/* ==================== toasts ==================== */
+function showBottomNotice(message = 'Copiado!', duration = 2000){
+  const el = document.getElementById('copy-notice');
+  if(!el) return; if(el._hideTimeout){ clearTimeout(el._hideTimeout); el._hideTimeout = null; }
+  el.textContent = message; el.style.display = 'block'; el._hideTimeout = setTimeout(()=>{ el.style.display = 'none'; el._hideTimeout = null; }, duration);
+}
+
+/* ==================== dropdown helpers (mantive) ==================== */
+function toggleMenu(id){
+  document.querySelectorAll('.menu-dropdown-content').forEach(el => { if(el.id !== id){ el.style.display = 'none'; el.style.opacity = 0; el.setAttribute('aria-hidden','true'); }});
+  const el = document.getElementById(id); if(!el) return; if(el.style.display === 'block'){ el.style.opacity = 0; setTimeout(()=>{ el.style.display = 'none'; el.setAttribute('aria-hidden','true'); }, 180); } else { el.style.display = 'block'; el.style.opacity = 0; el.setAttribute('aria-hidden','false'); setTimeout(()=> el.style.opacity = 1, 10); }
+}
+function toggleSubmenu(headerEl){ const submenu = headerEl.nextElementSibling; if(!submenu) return; const chev = headerEl.querySelector('.chev'); if(submenu.style.display === 'block'){ submenu.style.display = 'none'; if(chev) chev.textContent = '▸'; } else { submenu.style.display = 'block'; if(chev) chev.textContent = '▾'; }}
+
+document.addEventListener('click', (ev)=>{ if(!ev.target.closest('.menu-dropdown')){ document.querySelectorAll('.menu-dropdown-content').forEach(el=>{ el.style.display='none'; el.style.opacity=0; el.setAttribute('aria-hidden','true'); }); }});
+
+/* ====== placeholders do seu código ====== */
+function fecharPagina(){ try{ window.close(); }catch(e){} }
+function voltarMenu(){ /* placeholder */ }
+function navegarProximo(){ /* placeholder */ }
+function abrirMac(e, nome){ if(e) e.preventDefault(); document.getElementById('titulo-principal').textContent = nome; toggleMenu('dropdown-menu'); }
+function abrirLocal(e, nome){ if(e) e.preventDefault(); toggleMenu('dropdown-menu'); }
+
+/* ====== inicialização ====== */
+renderTable();
+
+// print button listener — evita onclick inline
+const printBtn = document.getElementById('btn-print');
+if(printBtn){ printBtn.addEventListener('click', (ev)=>{ ev.preventDefault(); if(printBtn.disabled) return; printBtn.disabled = true; try{ imprimirDireto(); }finally{ setTimeout(()=>printBtn.disabled=false, 800); } }); }
+
+</script>
+</body>
+</html>

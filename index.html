@@ -1,447 +1,297 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Menu Inicial — MACs & Guias</title>
-<style>
-  /* ========= Base visual ========= */
-  :root{
-    --azul:#007BFF;
-    --fundo:#fbfcfe;
-    --card:#ffffff;
-    --muted:#6b7280;
-    --accent:#0b5ed7;
-  }
-  html,body { height:100%; margin:0; }
-  body{
-    font-family: monospace;
-    background:#f7fbff;
-    color:#111;
-    -webkit-font-smoothing:antialiased;
-    padding:18px;
-  }
-  .wrap { max-width: 980px; margin: 0 auto; }
-  h1 { margin:0 0 12px 0; font-size:20px; color:var(--accent); }
-  p.lead { margin:4px 0 18px 0; color:var(--muted); font-size:13px; }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simular Pedido — São José</title>
+  <style>
+    :root{
+      --azul:#007BFF;
+      --fundo:#fbfcfe;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --accent:#0b5ed7;
+      --glass: rgba(11,78,167,0.04);
+    }
+    html,body{height:100%;margin:0;font-family:monospace;background:var(--fundo);color:#111}
+    .wrap{max-width:1100px;margin:18px auto;padding:18px}
+    h1{margin:0 0 8px 0;color:var(--accent);font-size:20px}
+    p.lead{margin:4px 0 18px 0;color:var(--muted);font-size:13px}
 
-  /* ========= Top cards (PDFs) ========= */
-  .top-grid {
-    display:grid;
-    grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
-    gap:12px;
-    margin-bottom:18px;
-  }
-  .card {
-    background: var(--card);
-    border: 1px solid #e6eefc;
-    padding:12px;
-    border-radius:8px;
-    box-shadow: 0 4px 12px rgba(11,78,167,0.04);
-  }
-  .card a{ text-decoration:none; color:var(--azul); font-weight:600; display:block; }
-  .card small { color:var(--muted); display:block; margin-top:8px; font-size:12px; }
+    .grid{display:grid;grid-template-columns: 360px 1fr;gap:16px}
+    @media (max-width:860px){ .grid{grid-template-columns:1fr} }
 
-  /* ========= Menu list (colapsáveis) ========= */
-  .menu-list { margin: 6px 0 18px 0; display:block; }
-  .section { margin-bottom:8px; }
-  .section-head {
-    display:flex; align-items:center; justify-content:space-between; gap:8px;
-    cursor:pointer; padding:10px; border-radius:8px; background:#fff; border:1px solid #e9f2ff;
-  }
-  .section-head:hover { background:#fbfdff; }
-  .section-title { display:flex; gap:10px; align-items:center; }
-  .section-title .badge {
-    background:var(--azul); color:white; padding:4px 8px; border-radius:6px; font-size:12px;
-  }
-  .section-title h3 { margin:0; font-size:14px; color:#0b4fa0; }
-  .chev { transition: transform .18s ease; font-size:16px; color:var(--muted); }
-  .chev.open { transform:rotate(90deg); color: var(--azul); }
+    .card{background:var(--card);border:1px solid #e6eefc;padding:12px;border-radius:8px;box-shadow:0 4px 12px var(--glass)}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input[type=text], input[type=number]{width:100%;padding:8px;border-radius:6px;border:1px solid #eef6ff;background:#fff}
+    .row{display:flex;gap:8px}
+    .btn{display:inline-block;padding:8px 10px;border-radius:8px;border:0;background:var(--azul);color:white;font-weight:600;cursor:pointer}
+    .btn.ghost{background:transparent;color:var(--azul);border:1px solid #e6eefc}
+    .btn.warn{background:#ff7b59}
+    .preset-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+    .preset{padding:6px 8px;border-radius:6px;border:1px solid #e6eefc;background:#f7fbff;cursor:pointer;font-size:13px}
 
-  .section-body {
-    max-height:0; overflow:hidden; transition:max-height .26s ease, padding .18s ease; padding:0 10px;
-  }
-  .section-body.open { padding:10px; }
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{padding:8px;border-bottom:1px solid #f0f6ff;text-align:left}
+    th{font-size:13px;color:var(--muted)}
+    td.actions{width:100px;text-align:right}
+    .qty-input{width:72px}
 
-  .list { list-style:none; margin:0; padding:0; display:block; gap:6px; }
-  .list a {
-    display:flex; justify-content:space-between; text-decoration:none; padding:8px; border-radius:6px;
-    color:#0b3b6b; border:1px solid transparent; margin-bottom:6px;
-  }
-  .list a:hover { background:#f3f8ff; border-color:#e3f0ff; }
-  $1
+    .totals{display:flex;justify-content:flex-end;gap:18px;align-items:center;margin-top:12px}
+    .totals .total{font-size:18px;font-weight:700;color:var(--azul)}
 
-  /* Grid para planilhas de autocontrole */
-  .list.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-  .list.grid-2 a { margin-bottom:0; }
-  .card.featured { border:1px solid var(--azul); background:#f7fbff; box-shadow:0 6px 18px rgba(11,78,167,0.08); }
-  @media (max-width:640px){ .list.grid-2 { grid-template-columns:1fr; } }
+    .meta{font-size:13px;color:var(--muted);margin-top:10px}
 
-  /* ========= Non-clickable text items (Guias) ======== */
-  .no-link {
-    display:flex; justify-content:space-between; padding:8px; border-radius:6px; color:#0b3b6b;
-    border:1px solid transparent; margin-bottom:6px; cursor:default; background:transparent;
-  }
-  .no-link:hover { background:transparent; border-color:transparent; }
-
-  /* ========= Sub-grid para guias (indentado) ======== */
-  .sublist { padding-left:6px; border-left:2px dashed #eef6ff; margin-top:6px; }
-
-  /* ========= Em breve pill ======== */
-  .soon { font-size:12px; color:#9aa0a6; font-style:italic; }
-
-  /* ========= Footer/legend etc ======== */
-  .meta { font-size:13px; color:var(--muted); margin-top:10px; }
-
-  /* keyboard focus */
-  .section-head:focus { outline: 3px solid rgba(0,123,255,0.12); }
-
-  /* Responsivo */
-  @media (max-width:640px) {
-    body { padding:14px; }
-    .top-grid { grid-template-columns:1fr; }
-  }
-</style>
+    /* small helpers */
+    .small{font-size:12px;color:var(--muted)}
+    .empty{padding:12px;text-align:center;color:var(--muted)}
+  </style>
 </head>
 <body>
   <div class="wrap" role="main">
-    <h1>Menu Inicial</h1>
-    <p class="lead">Acesse MACs, Guias e Tabelas de Preço — clique para expandir / abrir.</p>
+    <h1>Simular Pedido</h1>
+    <p class="lead">Monte um pedido rapidamente: adicione produtos, ajuste quantidades e gere um resumo imprimível ou exporte em CSV.</p>
 
-    <!-- ======= PDFs ======= -->
-    <div class="top-grid" aria-label="Tabelas e Catálogo">
-      <div class="card">
-        <a href="pdfs/Tabela%202025%20Geral.pdf" target="_blank" id="link-tabela-geral">Tabela de Preços Geral</a>
-        <small>Tabela de preços uso geral e clientes.</small>
+    <div class="grid">
+      <!-- coluna esquerda: adicionar produtos / presets -->
+      <div class="card" aria-labelledby="add-title">
+        <div id="add-title"><strong>Adicionar produto</strong></div>
+        <div style="margin-top:8px">
+          <label for="prod-name">Nome do produto</label>
+          <input id="prod-name" type="text" placeholder="Ex: Baguete 7kg" />
+        </div>
+        <div style="margin-top:8px">
+          <label for="prod-price">Preço unitário (R$)</label>
+          <input id="prod-price" type="text" placeholder="Ex: 50,00" />
+        </div>
+        <div style="margin-top:8px">
+          <label for="prod-qty">Quantidade</label>
+          <input id="prod-qty" type="number" min="1" step="1" value="1" class="qty-input" />
+        </div>
+
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button id="btn-add" class="btn">Adicionar</button>
+          <button id="btn-clear-form" class="btn ghost">Limpar</button>
+        </div>
+
+        <div style="margin-top:14px">
+          <div class="small">Presets rápidos</div>
+          <div class="preset-list" id="preset-list">
+            <!-- preenchidos via JS -->
+          </div>
+        </div>
+
+        <div style="margin-top:12px" class="small">Dica: clique no produto preset para adicioná-lo rapidamente. Valores aceitam vírgula ou ponto.</div>
       </div>
 
-      <div class="card">
-        <a href="pdfs/Tabela%202025%20Empresa.pdf" target="_blank" id="link-tabela-empresa">Tabela de Preços Empresa</a>
-        <small>Tabela de preços uso empresa (pdf).</small>
-      </div>
+      <!-- coluna direita: tabela do pedido -->
+      <div class="card" aria-labelledby="order-title">
+        <div id="order-title" style="display:flex;justify-content:space-between;align-items:center">
+          <strong>Resumo do pedido</strong>
+          <div style="display:flex;gap:8px">
+            <button id="btn-copy" class="btn ghost" title="Copiar resumo">Copiar</button>
+            <button id="btn-csv" class="btn ghost" title="Exportar CSV">CSV</button>
+            <button id="btn-print" class="btn">Imprimir</button>
+          </div>
+        </div>
 
-      <div class="card">
-        <a href="https://github.com/henriteodoro/paratestes/releases/download/v1.0/Catalogo.Sao.Jose.2025.AT03.pdf" target="_blank" id="link-catalogo">Catálogo</a>
-        <small>Catálogo de produtos (PDF).</small>
+        <div id="order-table-wrapper">
+          <table id="order-table" aria-live="polite">
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th>Valor unit.</th>
+                <th>Qtd</th>
+                <th style="text-align:right">Subtotal</th>
+                <th class="actions" aria-hidden="true"></th>
+              </tr>
+            </thead>
+            <tbody id="order-body">
+              <tr class="empty-row"><td colspan="5" class="empty">Nenhum item adicionado. Use o formulário ao lado ou os presets.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="totals">
+          <div class="small">Itens: <span id="count-items">0</span></div>
+          <div class="total">Total: <span id="total">R$ 0,00</span></div>
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+          <button id="btn-clear" class="btn ghost">Limpar pedido</button>
+        </div>
+
+        <div class="meta">Salvamento automático: o pedido atual é mantido localmente no seu navegador.</div>
       </div>
     </div>
 
-    <!-- ======= Menu com seções colapsáveis ======= -->
-    <nav class="menu-list" aria-label="Menu principal">
-
-      <!-- MACS -->
-      <section class="section" id="sec-macs">
-        <div tabindex="0" class="section-head" role="button" aria-expanded="false" data-target="body-macs">
-          <div class="section-title">
-            <span class="badge">MACS</span>
-            <h3>Lista de MACs</h3>
-          </div>
-          <div class="chev" aria-hidden="true">▶</div>
-        </div>
-
-        <div id="body-macs" class="section-body" aria-hidden="true">
-          <ul class="list">
-            <li><a href="mac77.html" class="mac-link">MAC Bairro São Geraldo - Cód. 77</a></li>
-            <li><a href="mac78.html" class="mac-link">MAC Bairro Planalto - Cód. 78</a></li>
-            <li><a href="mac79.html" class="mac-link">MAC Romeu Duarte - Cód. 79</a></li>
-            <li><a href="mac80.html" class="mac-link">MAC Rua São Geraldo / Centro 2 - Cód. 80</a></li>
-            <li><a href="mac277.html" class="mac-link">MAC Matriz - Cód. 277</a></li>
-            <li><a href="mac853.html" class="mac-link">MAC Concesso - Cód. 853</a></li>
-            <li><a href="mac1249.html" class="mac-link">MAC Jardim do Lago - Cód. 1249</a></li>
-            <li><a href="mac989.html" class="mac-link">MAC Araújos - Cód. 989</a></li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- São José -->
-      <section class="section" id="sec-saojose">
-        <div tabindex="0" class="section-head" role="button" aria-expanded="false" data-target="body-saojose">
-          <div class="section-title">
-            <span class="badge">São José</span>
-            <h3>São José</h3>
-          </div>
-          <div class="chev" aria-hidden="true">▶</div>
-        </div>
-
-        <div id="body-saojose" class="section-body" aria-hidden="true">
-          <ul class="list">
-            <li><a href="saojose.html" class="saojose-link">São José</a></li>
-            <li><a href="#" class="plain-link">Pão Total</a></li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- Guias -->
-      <section class="section" id="sec-guias">
-        <div tabindex="0" class="section-head" role="button" aria-expanded="false" data-target="body-guias">
-          <div class="section-title">
-            <span class="badge">Guias</span>
-            <h3>Guias</h3>
-          </div>
-          <div class="chev" aria-hidden="true">▶</div>
-        </div>
-
-        <div id="body-guias" class="section-body" aria-hidden="true">
-
-          <!-- Macs -->
-          <div class="card" style="margin-bottom:8px;">
-            <div tabindex="0" class="section-head sub-head" role="button" aria-expanded="false" data-target="body-guias-macs">
-              <div class="section-title"><strong>Macs</strong></div>
-              <div class="chev" aria-hidden="true">▶</div>
-            </div>
-            <div id="body-guias-macs" class="section-body sublist" aria-hidden="true">
-              <ul class="list">
-                <li class="no-link">MAC 77 - Bairro São Geraldo</li>
-                <li class="no-link">MAC 78 - Bairro Planalto</li>
-                <li class="no-link">MAC 79 - Romeu Duarte</li>
-                <li class="no-link">MAC 80 - Rua São Geraldo / Centro 2</li>
-                <li class="no-link">MAC 277 - Matriz</li>
-                <li class="no-link">MAC 853 - Concesso</li>
-                <li class="no-link">MAC 1249 - Jardim do Lago</li>
-                <li class="no-link">MAC 989 - Araújos</li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Redes Somar -->
-          <div class="card" style="margin-bottom:8px;">
-            <div tabindex="0" class="section-head sub-head" role="button" aria-expanded="false" data-target="body-guias-somar">
-              <div class="section-title"><strong>Redes Somar</strong></div>
-              <div class="chev" aria-hidden="true">▶</div>
-            </div>
-            <div id="body-guias-somar" class="section-body sublist" aria-hidden="true">
-              <ul class="list">
-                <li class="no-link">Somar 782 - Rua Joaquim Nabuco Bairro Porto Velho</li>
-                <li class="no-link">Kit do Adriano 793 - Divinópolis</li>
-                <li class="no-link">Kit 2 Irmãos 794 - Divinópolis</li>
-                <li class="no-link">Somar 795 - Rua Bom Sucesso Bairro Nações</li>
-                <li class="no-link">Somar 797 - Av. Espírito Santo Bairro Sidil</li>
-                <li class="no-link">Comércio de Alimentos Teixeira Rabelo 796 - Carmo do Cajuru</li>
-                <li class="no-link">Somar 1260 - Perdigão</li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Ester Amaral -->
-          <div class="card" style="margin-bottom:8px;">
-            <div tabindex="0" class="section-head sub-head" role="button" aria-expanded="false" data-target="body-guias-ester">
-              <div class="section-title"><strong>Ester Amaral</strong></div>
-              <div class="chev" aria-hidden="true">▶</div>
-            </div>
-            <div id="body-guias-ester" class="section-body sublist" aria-hidden="true">
-              <ul class="list">
-                <li class="no-link">Eifa Padaria e Confeitaria 33 - Rua Bahia Bairro Centro</li>
-                <li class="no-link">M.X.A. Comércio e Serviços 296 - Rua Itumiritinga Bairro Bom Pastor</li>
-                <li class="no-link">Ester Amaral Pães &amp; Cia (MXA Comércio e Serviços) 854 - Rua Rio de Janeiro Bairro Levino de Paula Pereira</li>
-                <li class="no-link">Torre Gourmet 1102 - Rua Cristóvão Teixeira Bairro Bom Pastor</li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Casa Fidélis -->
-          <div class="card" style="margin-bottom:8px;">
-            <div tabindex="0" class="section-head sub-head" role="button" aria-expanded="false" data-target="body-guias-fidelis">
-              <div class="section-title"><strong>Casa Fidélis</strong></div>
-              <div class="chev" aria-hidden="true">▶</div>
-            </div>
-            <div id="body-guias-fidelis" class="section-body sublist" aria-hidden="true">
-              <ul class="list">
-                <li class="no-link">Casa Fidélis 914 - Avenida Dr. Roberto Melo Queiroz</li>
-                <li class="no-link">Casa Fidélis 971 - Avenida Doutor Manoel Pereira</li>
-                <li class="no-link">Casa Fidélis 1088 - Avenida Guarujá</li>
-                <li class="no-link">Fidélis Supermercados (Comercial Neide) 1089 - Avenida Martinho Campos</li>
-                <li class="no-link">Casa Fidélis 273 - Luz</li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Supermercado Josildo -->
-          <div class="card" style="margin-bottom:8px;">
-            <div tabindex="0" class="section-head sub-head" role="button" aria-expanded="false" data-target="body-guias-josildo">
-              <div class="section-title"><strong>Supermercado Josildo</strong></div>
-              <div class="chev" aria-hidden="true">▶</div>
-            </div>
-            <div id="body-guias-josildo" class="section-body sublist" aria-hidden="true">
-              <ul class="list">
-                <li class="no-link">Supermercado Josildo 131 - Bairro Santa Clara</li>
-                <li class="no-link">Supermercado Josildo 132 - Bairro Icaraí</li>
-              </ul>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- Ferramentas (antes: Futuro) -->
-      <section class="section" id="sec-future">
-        <div tabindex="0" class="section-head" role="button" aria-expanded="false" data-target="body-future">
-          <div class="section-title">
-            <span class="badge">Ferramentas</span>
-            <h3>Ferramentas</h3>
-          </div>
-          <div class="chev" aria-hidden="true">▶</div>
-        </div>
-
-        <div id="body-future" class="section-body" aria-hidden="true">
-          <ul class="list">
-            <li>
-              <a href="listaordenada.html">Lista Ordenada</a>
-            </li>
-            <li>
-              <a href="ods.html">Abrir arquivo .ODS</a>
-            </li>
-            <!-- ADIÇÃO: link para Anotações -->
-            <li>
-              <a href="anotacoes.html">Anotações</a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- lista de média por pacote (em breve) -->
-      <section class="section" id="sec-media">
-        <div tabindex="0" class="section-head" role="button" aria-expanded="false" data-target="body-media">
-          <div class="section-title">
-            <span class="badge">Média</span>
-            <h3>Lista de média de produto por pacote</h3>
-          </div>
-          <div class="chev" aria-hidden="true">▶</div>
-        </div>
-        <div id="body-media" class="section-body" aria-hidden="true">
-          <div class="soon">Em breve</div>
-        </div>
-      </section>
-
-      <!-- Planilhas de Autocontrole (Produção) -->
-      <section class="section" id="sec-autocontrole">
-        <div tabindex="0" class="section-head" role="button" aria-expanded="false" data-target="body-autocontrole">
-          <div class="section-title">
-            <span class="badge">Planilhas de Autocontrole</span>
-            <h3>Planilhas de Autocontrole Produção</h3>
-          </div>
-          <div class="chev" aria-hidden="true">▶</div>
-        </div>
-        <div id="body-autocontrole" class="section-body" aria-hidden="true">
-
-          <div class="card featured" style="margin-bottom:10px;">
-            <a target="_blank" href="pdfs/Planilhas%20de%20Autocontrole%20-%20P%C3%A3o%20de%20Ouro%20Atualizadas.pdf"><strong>PDF original</strong></a>
-            <small>Arquivo completo para referência</small>
-          </div>
-
-          <ul class="list grid-2">
-            <li><a target="_blank" href="pdfs/Planilha%20Gilson.pdf">Setor Pão de Sal</a></li>
-            <li><a target="_blank" href="pdfs/Planilha%20Cear%C3%A1.pdf">Setor Pães Doce</a></li>
-            <li><a target="_blank" href="pdfs/Planilha%20Valdecino.pdf">Setor Salgado e Biscoitos</a></li>
-            <li><a target="_blank" href="pdfs/Planilha%20Pre%20Pesagem.pdf">Setor Pré-peságem</a></li>
-            <li><a target="_blank" href="pdfs/Planilha%20Embalagem.pdf">Setor Embalagem</a></li>
-            <li><a target="_blank" href="pdfs/Planilha%20Jo%C3%A3o%20Estoque.pdf">Setor Estoque</a></li>
-            <li><a target="_blank" href="pdfs/Planilha%20Jaqueline.pdf">Setor Limpeza</a></li>
-            <li><a target="_blank" href="pdfs/Planilha%20Mateus.pdf">Setor Manutenção</a></li>
-          </ul>
-        </div>
-      </section>
-
-    </nav>
-
-    <div class="meta">Dica: clique no título ou na seta para abrir as opções.</div>
   </div>
 
-<script>
-/* ====== Código JS para toggles e comportamento ====== */
+  <script>
+    // dados iniciais (exemplos) - altere conforme precisar
+    const PRESETS = [
+      {name: 'Baguete 06h 7kg', price: 50},
+      {name: 'Pão Francês 1kg', price: 10},
+      {name: 'Pão Doce (cx)', price: 20},
+      {name: 'Brioche Médio', price: 18},
+    ];
 
-function toggleSection(headEl){
-  const targetId = headEl.getAttribute('data-target') || headEl.dataset.target;
-  if(!targetId) return;
-  const body = document.getElementById(targetId);
-  if(!body) return;
-  const chev = headEl.querySelector('.chev') || headEl.querySelector('[aria-hidden="true"]');
-  const isOpen = body.classList.contains('open');
+    // estado
+    let items = [];
 
-  if(isOpen){
-    // anima fechar: de altura atual para 0
-    if (getComputedStyle(body).maxHeight === 'none') {
-      body.style.maxHeight = body.scrollHeight + 'px';
+    // elementos
+    const elName = document.getElementById('prod-name');
+    const elPrice = document.getElementById('prod-price');
+    const elQty = document.getElementById('prod-qty');
+    const btnAdd = document.getElementById('btn-add');
+    const btnClearForm = document.getElementById('btn-clear-form');
+    const presetList = document.getElementById('preset-list');
+    const orderBody = document.getElementById('order-body');
+    const totalEl = document.getElementById('total');
+    const countItems = document.getElementById('count-items');
+    const btnCopy = document.getElementById('btn-copy');
+    const btnCSV = document.getElementById('btn-csv');
+    const btnPrint = document.getElementById('btn-print');
+    const btnClear = document.getElementById('btn-clear');
+
+    // util: formata número para BRL
+    function fmtBRL(v){
+      return Number(v || 0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
     }
-    requestAnimationFrame(()=>{
-      body.style.maxHeight = '0px';
-      body.classList.remove('open');
-      headEl.setAttribute('aria-expanded','false');
-      body.setAttribute('aria-hidden','true');
-      if(chev) chev.classList.remove('open');
-    });
-  } else {
-    // abrir
-    body.classList.add('open');
-    body.style.maxHeight = body.scrollHeight + 'px';
-    headEl.setAttribute('aria-expanded','true');
-    body.setAttribute('aria-hidden','false');
-    if(chev) chev.classList.add('open');
 
-    const onEnd = (e)=>{
-      if(e.propertyName !== 'max-height') return;
-      if(body.classList.contains('open')){
-        // solta a altura para permitir múltiplas abertas sem quebrar layout
-        body.style.maxHeight = 'none';
-      }
-      body.removeEventListener('transitionend', onEnd);
-    };
-    body.addEventListener('transitionend', onEnd);
-  }
-}
-
-// delegação: adiciona listeners a todos os .section-head no menu
-function attachSectionHandlers(){
-  document.querySelectorAll('.section-head').forEach(head=>{
-    if (head.__hasToggle) return; // evita duplicar
-    head.__hasToggle = true;
-    head.addEventListener('click', ()=> toggleSection(head));
-    head.addEventListener('keydown', (e)=>{
-      if(e.key === 'Enter' || e.key === ' '){
-        e.preventDefault(); toggleSection(head);
-      } else if(e.key === 'ArrowRight'){
-        const targetId = head.dataset.target; const body = document.getElementById(targetId);
-        if(body && !body.classList.contains('open')) toggleSection(head);
-      } else if(e.key === 'ArrowLeft'){
-        const targetId = head.dataset.target; const body = document.getElementById(targetId);
-        if(body && body.classList.contains('open')) toggleSection(head);
-      }
-    });
-  });
-}
-attachSectionHandlers();
-
-// Fecha todas as sections quando clicar fora do menu (opcional)
-document.addEventListener('click', (ev)=>{
-  const menu = document.querySelector('.menu-list');
-  if(!menu) return;
-  if(menu.contains(ev.target)) return;
-  document.querySelectorAll('.section-body.open').forEach(b=>{
-    const head = document.querySelector(`[data-target="${b.id}"]`);
-    if(head) toggleSection(head);
-  });
-});
-
-/* ======= Links MACs: navegam para arquivos macXX.html ======= */
-document.querySelectorAll('.mac-link').forEach(a=>{
-  a.addEventListener('click', (e)=>{
-    const href = (a.getAttribute('href') || '').trim();
-    if (href && href !== '#') {
-      e.preventDefault(); window.location.href = href; return;
+    function parsePrice(str){
+      if(!str) return NaN;
+      // aceita vírgula ou ponto
+      const normalized = String(str).replace(/\s/g,'').replace(',','.').replace(/[^0-9.\-]/g,'');
+      return parseFloat(normalized);
     }
-    e.preventDefault(); const txt = a.textContent.trim();
-    alert(`${txt}\n\n(Em breve: substitua por link real para abrir a página do MAC)`);
-  });
-});
 
-/* ======= Links simples (São José etc) ======= */
-document.querySelectorAll('.plain-link').forEach(a=>{
-  a.addEventListener('click', (e)=>{ e.preventDefault(); alert('Página ainda não disponível (em breve).'); });
-});
+    // render presets
+    function renderPresets(){
+      presetList.innerHTML = '';
+      PRESETS.forEach(p=>{
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'preset';
+        b.textContent = `${p.name} — ${fmtBRL(p.price)}`;
+        b.addEventListener('click', ()=>{ addProduct(p.name, p.price, 1); });
+        presetList.appendChild(b);
+      });
+    }
 
-/* ======= Inicial: garante todos os bodies fechados ======= */
-document.addEventListener('DOMContentLoaded', ()=>{
-  document.querySelectorAll('.section-body').forEach(b=>{ b.style.maxHeight = null; });
-});
-</script>
+    // adicionar produto
+    function addProduct(name, price, qty){
+      const p = parseFloat(price);
+      const q = Number(qty) || 1;
+      if(!name || isNaN(p) || p < 0 || q <= 0){ alert('Nome, preço e quantidade válidos são necessários.'); return; }
+      items.push({name: String(name).trim(), price: round(p,2), qty: Math.floor(q)});
+      saveState(); render();
+    }
+
+    function round(n,dec=2){ return Math.round((n+Number.EPSILON)*Math.pow(10,dec))/Math.pow(10,dec); }
+
+    // render tabela
+    function render(){
+      // limpa linhas
+      orderBody.innerHTML = '';
+      if(items.length === 0){
+        const tr = document.createElement('tr'); tr.className='empty-row';
+        tr.innerHTML = `<td colspan="5" class="empty">Nenhum item adicionado. Use o formulário ao lado ou os presets.</td>`;
+        orderBody.appendChild(tr);
+      } else {
+        items.forEach((it, idx)=>{
+          const tr = document.createElement('tr');
+          const subtotal = round(it.price * it.qty,2);
+          tr.innerHTML = `
+            <td>${escapeHtml(it.name)}</td>
+            <td>${fmtBRL(it.price)}</td>
+            <td><input class="qty-input" type="number" min="1" step="1" value="${it.qty}" data-idx="${idx}" aria-label="Quantidade ${escapeHtml(it.name)}"></td>
+            <td style="text-align:right">${fmtBRL(subtotal)}</td>
+            <td class="actions"><button data-remove="${idx}" title="Remover" class="btn ghost">Remover</button></td>
+          `;
+          orderBody.appendChild(tr);
+        });
+      }
+
+      // attach listeners for qty and remove
+      orderBody.querySelectorAll('input[type=number]').forEach(inp=>{
+        inp.addEventListener('change', (e)=>{
+          const i = Number(e.target.dataset.idx); const v = Number(e.target.value) || 1;
+          items[i].qty = Math.max(1, Math.floor(v)); saveState(); render();
+        });
+      });
+      orderBody.querySelectorAll('button[data-remove]').forEach(b=>{
+        b.addEventListener('click', ()=>{
+          const i = Number(b.getAttribute('data-remove'));
+          items.splice(i,1); saveState(); render();
+        });
+      });
+
+      // atualiza total
+      const tot = items.reduce((s,it)=> s + it.price*it.qty, 0);
+      totalEl.textContent = fmtBRL(round(tot,2));
+      countItems.textContent = items.length;
+    }
+
+    // escape HTML para segurança básica
+    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    // handlers
+    btnAdd.addEventListener('click', ()=>{
+      const n = elName.value.trim();
+      const p = parsePrice(elPrice.value);
+      const q = Number(elQty.value) || 1;
+      if(!n || isNaN(p)) { alert('Preencha nome e preço corretamente.'); return; }
+      addProduct(n, p, q);
+      elName.value=''; elPrice.value=''; elQty.value = 1; elName.focus();
+    });
+
+    btnClearForm.addEventListener('click', ()=>{ elName.value=''; elPrice.value=''; elQty.value=1; elName.focus(); });
+
+    btnClear.addEventListener('click', ()=>{
+      if(confirm('Limpar o pedido atual?')){ items = []; saveState(); render(); }
+    });
+
+    // copiar resumo para área de transferência
+    btnCopy.addEventListener('click', async ()=>{
+      if(items.length===0){ alert('Nenhum item para copiar.'); return; }
+      const lines = items.map(it => `${it.qty} x ${it.name} — ${fmtBRL(it.price)} = ${fmtBRL(round(it.price*it.qty,2))}`);
+      lines.push('---'); lines.push('Total: ' + totalEl.textContent);
+      const text = lines.join('\n');
+      try{ await navigator.clipboard.writeText(text); alert('Resumo copiado para a área de transferência.'); } catch(e){ prompt('Copie manualmente o texto abaixo:', text); }
+    });
+
+    // exportar CSV
+    btnCSV.addEventListener('click', ()=>{
+      if(items.length===0){ alert('Nenhum item para exportar.'); return; }
+      const header = ['Produto','PrecoUnit','Quantidade','Subtotal'];
+      const rows = items.map(it=> [it.name, it.price.toFixed(2), it.qty, (it.price*it.qty).toFixed(2)].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
+      const csv = [header.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'pedido.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    });
+
+    // imprimir (abre nova janela com resumo simplificado)
+    btnPrint.addEventListener('click', ()=>{
+      if(items.length===0){ alert('Nenhum item para imprimir.'); return; }
+      const w = window.open('', '_blank');
+      const rows = items.map(it=> `<tr><td>${escapeHtml(it.name)}</td><td style="text-align:right">${fmtBRL(it.price)}</td><td style="text-align:center">${it.qty}</td><td style="text-align:right">${fmtBRL(round(it.price*it.qty,2))}</td></tr>`).join('');
+      const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Resumo do Pedido</title><style>body{font-family:monospace;padding:20px}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #ddd}h2{color:#0b5ed7}</style></head><body><h2>Resumo do Pedido</h2><table><thead><tr><th>Produto</th><th>Valor unit.</th><th>Qtd</th><th style="text-align:right">Subtotal</th></tr></thead><tbody>${rows}</tbody></table><h3 style="text-align:right">Total: ${totalEl.textContent}</h3><p style="font-size:12px;color:#666">Gerado em ${new Date().toLocaleString('pt-BR')}</p><script>window.print();</script></body></html>`;
+      w.document.open(); w.document.write(html); w.document.close();
+    });
+
+    // estado em localStorage
+    function saveState(){ try{ localStorage.setItem('simularpedido_items', JSON.stringify(items)); }catch(e){} }
+    function loadState(){ try{ const s = localStorage.getItem('simularpedido_items'); if(s) items = JSON.parse(s); }catch(e){ items = []; } }
+
+    // inicialização
+    (function init(){
+      renderPresets(); loadState(); render();
+
+      // atalho Enter no campo preço para adicionar
+      elPrice.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') btnAdd.click(); });
+    })();
+  </script>
 </body>
 </html>

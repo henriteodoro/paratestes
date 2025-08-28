@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pedido — São José (Mix estética + lógica)</title>
+
+<!-- jsPDF, AutoTable e SheetJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+  :root {
+    --azul: #007BFF;
+    --azul-escuro: #0056b3;
+    --amarelo: #FFD700;
+    --vermelho: #b22222;
+    --bg: #ffffff;
+    --ink: #111;
+    --line: #e6eef9;
+  }
+  html,body { height:100%; }
+  body {
+    font-family: monospace;
+    margin: 0; padding: 0; color: var(--ink); background: var(--bg);
+  }
+  /* ===== Header / Menus (mantidos da estética original) ===== */
+  header {
+    display:flex; justify-content:space-between; align-items:center;
+    background: var(--azul); color: white; padding: 10px 14px; gap: 12px;
+    position: sticky; top: 0; z-index: 999;
+  }
+  .menu-left, .menu-right { display:flex; gap: 8px; align-items:center; }
+  .icon-btn { background:none; border:none; color:white; font-size:18px; cursor:pointer; padding:6px 8px; border-radius:6px; }
+  .icon-btn:hover { background: rgba(255,255,255,0.08); }
+  .menu-dropdown { position: relative; }
+  .menu-dropdown-content {
+    display: none; position: absolute; top: calc(100% + 6px);
+    left: 0; background: white; color: #111; border-radius: 6px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15); min-width: 220px; max-width: calc(100vw - 40px);
+    overflow:auto; z-index: 1200; padding: 6px 0; white-space: normal;
+  }
+  .menu-right .menu-dropdown-content { right: 0; left: auto; }
+  .menu-dropdown-content a { display:block; padding:8px 12px; color:#111; text-decoration:none; }
+  .menu-dropdown-content a:hover { background:#f2f2f2; }
+  .dropdown-section { border-top:1px solid #f0f0f0; padding-top:6px; margin-top:6px; }
+  .section-header { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 12px; cursor:pointer; font-weight:700; }
+  .section-header small { font-weight:400; color:#666; }
+  .submenu { display:none; padding-left:6px; padding-bottom:6px; }
+  .submenu a { padding-left:18px; font-weight:500; }
+
+  /* ===== Título + Navegação ===== */
+  .titulo-nav { display:flex; justify-content:center; align-items:center; gap:16px; margin:14px 10px 8px; }
+  .titulo-nav h1 { margin:0; font-size:18px; color:#111; }
+  .titulo-nav .arrow { width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; cursor:pointer; color:var(--azul-escuro); text-decoration:none; }
+  .titulo-nav .arrow:hover { background:#f0f8ff; }
+
+  /* ===== Barra de Data ===== */
+  .datebar { display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap; margin:8px 12px 0; }
+  .datebar label { color:#333; }
+  /* Troca para TEXT para ter cursor piscando e digitação livre */
+  .datebar input[type="text"]{
+    border:1px solid #ddd; border-radius:6px; padding:6px 8px; width:140px;
+    caret-color: #111; /* garante cursor visível */
+    -webkit-appearance: none; appearance: none;
+  }
+  .datebar input[type="text"]:focus { outline:none; border-color:var(--azul-escuro); box-shadow:0 0 0 3px rgba(0,123,255,.12); }
+  .chip { background:#fff; border:1px solid #e5e7eb; border-radius:999px; padding:6px 10px; font-size:12px; cursor:pointer; }
+  .chip:hover{ border-color:#cbd5e1 }
+  .date-preview{ font-weight:700; color:var(--azul-escuro); }
+
+  /* ===== Container / Colunas ===== */
+  /* GRID de 3 colunas: esquerda e direita sempre com a MESMA largura */
+  .container {
+    display:grid; grid-template-columns: 1fr auto 1fr; align-items:start; justify-content:center; gap: 32px;
+    padding: 10px 14px 24px; 
+  }
+  .column { display:flex; flex-direction:column; gap:6px; min-width: 300px; max-width: 520px; width:100%; border:1px solid var(--line); border-radius:10px; padding:10px; }
+  .column h3 { margin:2px 6px 8px; font-size:14px; color:#0f172a; }
+  .item { display:flex; align-items:center; gap:10px; padding:6px 8px; border-radius:6px; border-bottom:1px dashed #eef2ff; }
+  .item:last-child{ border-bottom:none }
+  .item span { flex:1; color:#111; }
+  .item input[type="number"] { width: 84px; padding:6px 6px; text-align:center; border:1px solid #ddd; border-radius:6px; background:#fff; }
+  .item input[type="number"]:focus { outline:none; border-color:var(--azul-escuro); box-shadow:0 0 0 3px rgba(0,123,255,.12); }
+  .item.hidden-empty{ display:none }
+
+  /* ===== Middle controls ===== */
+  #middle-controls { display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:center; min-width:190px; }
+  #middle-controls button { width:190px; padding:10px 12px; font-size:14px; border-radius:6px; border:none; cursor:pointer; }
+  #btn-linhas { background: var(--amarelo); color:black; }
+  #btn-linhas:hover { background:#e6c200; }
+  .btn-vermelho { background: var(--vermelho); color:white; }
+  .btn-vermelho:hover { background:#8b1a1a; }
+
+  /* ===== Rodapé Links ===== */
+  .mac-links { margin: 0 14px 30px; display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; align-items:stretch; }
+  .mac-links a { display:block; padding:8px 10px; background:#f7fbff; border:1px solid #e6f0ff; color: var(--azul); text-decoration:none; border-radius:6px; text-align:center; }
+  .mac-links a:hover { background:#eef6ff; }
+
+  @media (max-width:1100px){ .container { gap: 20px; } }
+  @media (max-width:900px){
+    /* no mobile, empilha: esquerda -> controles -> direita */
+    .container { grid-template-columns: 1fr; }
+    #middle-controls { order:2; }
+  }
+  @media (max-width:520px){ 
+    .column { max-width:100%; min-width:auto; width:100%; }
+    .mac-links { grid-template-columns: 1fr; }
+    #middle-controls { flex-direction:row; gap:8px; }
+    #middle-controls button { width: 140px; }
+  }
+
+  /* ===== Toast ===== */
+  #copy-notice { position: fixed; right: 18px; bottom: 18px; background: rgba(0,0,0,0.78); color: white; padding: 8px 12px; border-radius: 6px; display: none; z-index: 2000; font-size: 13px; }
+
+  @media print { header, .menu-dropdown-content, #middle-controls, .mac-links, #copy-notice, .datebar { display:none !important; } .container { gap:0; padding:0; } .column { box-shadow:none; border:none; min-width:40%; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="menu-left">
+    <div class="menu-dropdown">
+      <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')">☰</button>
+      <div class="menu-dropdown-content" id="dropdown-menu" role="menu" aria-hidden="true">
+        <div class="dropdown-section">
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)"><span>MACS</span><small class="chev">▸</small></div>
+          <div class="submenu">
+            <a href="#" data-mac="77" onclick="abrirMac(event, 'MAC Bairro São Geraldo - Cód. 77')">MAC Bairro São Geraldo - Cód. 77</a>
+            <a href="#" data-mac="78" onclick="abrirMac(event, 'MAC Bairro Planalto - Cód. 78')">MAC Bairro Planalto - Cód. 78</a>
+            <a href="#" data-mac="79" onclick="abrirMac(event, 'MAC Romeu Duarte - Cód. 79')">MAC Romeu Duarte - Cód. 79</a>
+            <a href="#" data-mac="80" onclick="abrirMac(event, 'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC Rua São Geraldo / Centro 2 - Cód. 80</a>
+            <a href="#" data-mac="277" onclick="abrirMac(event, 'MAC Matriz - Cód. 277')">MAC Matriz - Cód. 277</a>
+            <a href="#" data-mac="853" onclick="abrirMac(event, 'MAC Concesso - Cód. 853')">MAC Concesso - Cód. 853</a>
+            <a href="#" data-mac="1249" onclick="abrirMac(event, 'MAC Jardim do Lago - Cód. 1249')">MAC Jardim do Lago - Cód. 1249</a>
+            <a href="#" data-mac="989" onclick="abrirMac(event, 'MAC Araújos - Cód. 989')">MAC Araújos - Cód. 989</a>
+          </div>
+        </div>
+        <div class="dropdown-section">
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)"><span>São José</span><small class="chev">▸</small></div>
+          <div class="submenu">
+            <a href="#" onclick="abrirLocal(event, 'São José')">São José</a>
+            <a href="#" onclick="abrirLocal(event, 'Pão Total')">Pão Total</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="icon-btn" id="btn-close" title="Fechar" onclick="fecharPagina()">❌</button>
+    <button class="icon-btn" id="btn-home" title="Menu inicial" onclick="voltarMenu()">🏠</button>
+  </div>
+
+  <div class="menu-right">
+    <div class="menu-dropdown">
+      <button class="icon-btn" id="btn-salvar" title="Salvar" onclick="toggleMenu('dropdown-save')">💾</button>
+      <div class="menu-dropdown-content" id="dropdown-save" aria-labelledby="btn-salvar">
+        <a href="#" onclick="salvarTXT(event)" title="Salvar como TXT">Salvar como TXT</a>
+        <a href="#" onclick="salvarPDF(event)" title="Salvar como PDF">Salvar como PDF</a>
+        <a href="#" onclick="salvarExcel(event)" title="Salvar como Excel">Salvar como Excel</a>
+      </div>
+    </div>
+    <button class="icon-btn" id="btn-print" title="Imprimir">🖨️</button>
+    <button class="icon-btn" id="btn-copy" title="Copiar" onclick="copiarTudo()">📋</button>
+  </div>
+</header>
+
+<div class="titulo-nav" role="navigation" aria-label="Navegação MAC">
+  <span style="width:28px;display:inline-block"></span>
+  <h1 id="titulo-principal">MAC Bairro São Geraldo - Cód. 77</h1>
+  <a href="#" class="arrow" id="arrow-right" title="Próximo MAC" onclick="navegarProximo()">→</a>
+</div>
+
+<!-- Barra de Data -->
+<div class="datebar">
+  <label for="dataPedido">Data:</label>
+  <!-- TROCA para TEXT para ter cursor piscando; aceita 2025-08-27, 27/08 ou 27/08/2025 -->
+  <input id="dataPedido" type="text" placeholder="aaaa-mm-dd" inputmode="numeric" autocomplete="off" />
+  <button class="chip" id="chipHoje">Hoje</button>
+  <button class="chip" id="chipOntem">Ontem</button>
+  <button class="chip" id="chipAmanha">Amanhã</button>
+  <span class="date-preview" id="datePreview"></span>
+</div>
+
+<div class="container">
+  <div class="column" id="coluna-principal">
+    <h3>PRODUTOS</h3>
+    <div id="listaPrincipal"></div>
+  </div>
+
+  <div id="middle-controls" aria-hidden="false">
+    <button onclick="alternarLinhas()" id="btn-linhas">Ocultar Linhas Vazias</button>
+    <button onclick="resetarTudo()" class="btn-vermelho">Resetar Tudo</button>
+  </div>
+
+  <div class="column" id="coluna-ilha">
+    <h3>ILHA SÃO JOSÉ</h3>
+    <div id="listaIlha"></div>
+  </div>
+</div>
+
+<div class="mac-links" role="navigation" aria-label="Outros MACs">
+  <a href="#" onclick="abrirMac(event,'MAC Bairro Planalto - Cód. 78')">MAC 78 - Bairro Planalto</a>
+  <a href="#" onclick="abrirMac(event,'MAC Roumeu Duarte - Cód. 79')">MAC 79 - Romeu Duarte</a>
+  <a href="#" onclick="abrirMac(event,'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC 80 - Rua São Geraldo / Centro 2</a>
+  <a href="#" onclick="abrirMac(event,'MAC Matriz - Cód. 277')">MAC 277 - Matriz</a>
+  <a href="#" onclick="abrirMac(event,'MAC Concesso - Cód. 853')">MAC 853 - Concesso</a>
+  <a href="#" onclick="abrirMac(event,'MAC Jardim do Lago - Cód. 1249')">MAC 1249 - Jardim do Lago</a>
+  <a href="#" onclick="abrirMac(event,'MAC Araújos - Cód. 989')">MAC 989 - Araújos</a>
+</div>
+
+<!-- Toast / aviso -->
+<div id="copy-notice">Copiado!</div>
+
+<script>
+/***********************  Dados das listas ***********************/
+const PRODUTOS_PRINCIPAL = [
+  "Biscoito doce frito 1kg",
+  "Biscoito chipa 7kg",
+  "Biscoito de queijo 7kg",
+  "Biscoito três queijos 7kg",
+  "Bolinha de carne pequena 1kg",
+  "Broinha de fubá doce grande 7kg",
+  "Broinha de fubá doce 7kg",
+  "Broinha de sal e queijo 7kg",
+  "Broinha temperada com bacon 7kg",
+  "Canudinho Romeu e Julieta 7kg",
+  "Canudinho de queijo 7kg",
+  "Carioca 7kg",
+  "Coxinha de frango pequena 1kg",
+  "Coxinha de frango grande 10 unidades",
+  "Croissant de frango 7kg",
+  "Croissant de presunto 7kg",
+  "Empadão de frango com catupiry 10 unidades",
+  "Empadinha de frango pequena 1kg",
+  "Enroladinho de presunto e mussarela grande 10 uni",
+  "Enroladinho de presunto pequeno 1kg",
+  "Enroladinho de salsicha grande 10 unidades",
+  "Mandi 7kg",
+  "Meia lua 1kg com 10 unidades",
+  "Mini carioca 7kg",
+  "Pão de queijo recheado frango 7kg",
+  "Mini pão francês 06hrs 7kg",
+  "Panhoca 06hrs 7kg",
+  "Pão de queijo grande 7kg",
+  "Pão de queijo tradicional 7kg",
+  "Pão de queijo recheado frango grande 7kg",
+  "Pão francês 12hrs 7kg",
+  "Pão francês 04hrs 7kg",
+  "Pão francês 06hrs 7kg",
+  "Pastelzinho catupiry pequeno 1kg",
+  "Quibe com catupiry pequeno 1kg",
+  "Quibe grande 1kg",
+  "Rosca caseira PCT com 10 unidades",
+  "Tortinha de frango, abacaxi e passas 10 unidades",
+  "Biscoito de doce grande 10 unidades"
+];
+
+const PRODUTOS_ILHA = [
+  "Biscoito chipa 1kg",
+  "Biscoito de queijo 1kg",
+  "Biscoito três queijos 1kg",
+  "Bolinha de carne pequena 1kg",
+  "Broinha de fubá doce 1kg",
+  "Broinha de sal e queijo 1kg",
+  "Broinha temperada com bacon 1kg",
+  "Coxinha de frango pequena 1kg",
+  "Empada de frango 10 unidades",
+  "Empadinha de frango pequena 1kg",
+  "Enroladinho de presunto pequeno 1kg",
+  "Meia lua 1kg com 10 unidades",
+  "Pão de queijo grande 1kg",
+  "Pão de queijo recheado frango 1kg",
+  "Pão de queijo tradicional 1kg",
+  "Pastelzinho catupiry pequeno 1kg",
+  "Quibe com catupiry pequeno 1kg"
+];
+
+/***********************  Helpers UI ***********************/
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+function showBottomNotice(message = 'Copiado!', duration = 2000) {
+  const el = document.getElementById('copy-notice');
+  if (!el) return;
+  if (el._hideTimeout) { clearTimeout(el._hideTimeout); el._hideTimeout = null; }
+  el.textContent = message; el.style.display = 'block';
+  el._hideTimeout = setTimeout(() => { el.style.display = 'none'; el._hideTimeout = null; }, duration);
+}
+
+/***********************  Monta listas ***********************/
+function makeItem(nome){
+  const wrap = document.createElement('div');
+  wrap.className = 'item';
+  const label = document.createElement('span');
+  label.textContent = nome;
+  const input = document.createElement('input');
+  input.type = 'number'; input.min = '0'; input.step = '1'; input.placeholder = '0';
+  input.addEventListener('input', ()=> { if(ocultando) applyHideState(); atualizarContagem(); });
+  wrap.appendChild(label); wrap.appendChild(input);
+  return wrap;
+}
+
+function montarListas(){
+  const p = $('#listaPrincipal'); const i = $('#listaIlha');
+  p.innerHTML = ''; i.innerHTML = '';
+  PRODUTOS_PRINCIPAL.forEach(n=> p.appendChild(makeItem(n)));
+  PRODUTOS_ILHA.forEach(n=> i.appendChild(makeItem(n)));
+}
+
+/***********************  Data (chips + preview dd/MM) ***********************/
+// Agora #dataPedido é TEXT para ter cursor piscando. Aceita: "YYYY-MM-DD", "DD/MM" e "DD/MM/YYYY".
+function pad2(n){ return String(n).padStart(2,'0'); }
+function toISO(date){ return `${date.getFullYear()}-${pad2(date.getMonth()+1)}-${pad2(date.getDate())}`; }
+function setDateTo(date){
+  $('#dataPedido').value = toISO(date);
+  updateDatePreview();
+}
+function updateDatePreview(){
+  const iso = normalizeToISO($('#dataPedido').value.trim());
+  if(!iso){ $('#datePreview').textContent = ''; return; }
+  const [y,m,d] = iso.split('-');
+  $('#datePreview').textContent = `${d}/${m}`;
+}
+function getDataCurta(){
+  const iso = normalizeToISO($('#dataPedido').value.trim());
+  if(!iso) return '';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}`;
+}
+// Normaliza o que o usuário digitou para YYYY-MM-DD se possível
+function normalizeToISO(v){
+  if(!v) return '';
+  v = v.replace(/\s+/g,'');
+  // YYYY-MM-DD
+  if(/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+  // DD/MM ou DD/MM/YYYY
+  const m = v.match(/^(\d{2})\/(\d{2})(?:\/(\d{4}))?$/);
+  if(m){
+    const d = m[1], mo = m[2], y = m[3] || String(new Date().getFullYear());
+    return `${y}-${mo}-${d}`;
+  }
+  return '';
+}
+
+/***********************  Coleta ***********************/
+function coletarSeção(rootSel){
+  const rows = $$(rootSel + ' .item');
+  const out = [];
+  rows.forEach(r=>{
+    const nome = r.querySelector('span').textContent.trim();
+    const val = r.querySelector('input').value.trim();
+    if(val!=='' && Number(val)>0){ out.push({prod:nome, qtd:Number(val)}); }
+  });
+  return out;
+}
+
+/***********************  Toggle Linhas Vazias ***********************/
+let ocultando = false;
+function applyHideState(){
+  const rows = $$('#listaPrincipal .item, #listaIlha .item');
+  if(!ocultando){ rows.forEach(r=> r.classList.remove('hidden-empty')); return; }
+  rows.forEach(r=>{
+    const v = r.querySelector('input').value.trim();
+    if(v==='' || Number(v)<=0) r.classList.add('hidden-empty'); else r.classList.remove('hidden-empty');
+  });
+}
+function alternarLinhas(){
+  ocultando = !ocultando; applyHideState();
+  const b = $('#btn-linhas'); b.textContent = ocultando ? 'Mostrar Linhas Vazias' : 'Ocultar Linhas Vazias';
+}
+
+/***********************  Reset ***********************/
+function resetarTudo(){
+  $$('#listaPrincipal input, #listaIlha input').forEach(i=> i.value='');
+  ocultando = false; applyHideState();
+  $('#btn-linhas').textContent = 'Ocultar Linhas Vazias';
+  setDateTo(new Date());
+  atualizarContagem();
+  showBottomNotice('Tudo limpo');
+}
+
+/***********************  Contagem preenchidos ***********************/
+function atualizarContagem(){
+  const n = coletarSeção('#listaPrincipal').length + coletarSeção('#listaIlha').length;
+}
+
+/***********************  Copiar ***********************/
+function copiarTudo(){
+  const p = coletarSeção('#listaPrincipal');
+  const i = coletarSeção('#listaIlha');
+  if(p.length===0 && i.length===0){ showBottomNotice('Nada para copiar'); return; }
+  let txt = '';
+  txt += 'PRODUTOS\n';
+  p.forEach(({prod,qtd})=> txt += `${prod.toUpperCase()} * ${qtd}\n`);
+  if(i.length>0){
+    txt += '\nILHA SÃO JOSÉ\n';
+    i.forEach(({prod,qtd})=> txt += `${prod.toUpperCase()} * ${qtd}\n`);
+  }
+  navigator.clipboard.writeText(txt).then(()=> showBottomNotice('Copiado!')).catch(()=> showBottomNotice('Falha ao copiar'));
+}
+
+/***********************  TXT ***********************/
+function salvarTXT(e){ if(e) e.preventDefault();
+  const p = coletarSeção('#listaPrincipal');
+  const i = coletarSeção('#listaIlha');
+  if(p.length===0 && i.length===0){ showBottomNotice('Nada para salvar'); return; }
+  const ddmm = getDataCurta();
+  let txt = `PEDIDO SÃO JOSÉ ${ddmm}\n`;
+  txt += `PRODUTOS;QUANTIDADE (PCT)\n`;
+  p.forEach(({prod,qtd})=> txt += `${prod.toUpperCase()};${qtd}\n`);
+  if(i.length>0){
+    txt += `\nILHA SÃO JOSÉ;QUANTIDADE (PCT)\n`;
+    i.forEach(({prod,qtd})=> txt += `${prod.toUpperCase()};${qtd}\n`);
+  }
+  const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `PEDIDO_SAO_JOSE_${ddmm.replace('/','-')}.txt`; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=> URL.revokeObjectURL(a.href), 1000);
+  showBottomNotice('TXT gerado');
+}
+
+/***********************  PDF / Impressão — AJUSTE AUTOMÁTICO PARA CABER EM 1 PÁGINA ***********************/
+// Estratégia: tenta gerar com um fontSize base; se estourar 1 página, reduz fonte/margem e tenta de novo, até caber em 1 página.
+function gerarPDF({abrirEmNovaAba=false, baixarNome}){
+  const p = coletarSeção('#listaPrincipal');
+  const i = coletarSeção('#listaIlha');
+  if(p.length===0 && i.length===0){ showBottomNotice('Nada para imprimir'); return; }
+
+  const ddmm = getDataCurta();
+  const titulo = `PEDIDO SÃO JOSÉ ${ddmm}`;
+
+  // Tabelas prontas
+  const bodyP = p.map(({prod,qtd})=> [prod.toUpperCase(), String(qtd)]);
+  const bodyI = i.map(({prod,qtd})=> [prod.toUpperCase(), String(qtd)]);
+
+  let fontSize = 10;           // começa confortável
+  let minFont = 5;             // limite mínimo
+  const headFill = [230,235,245];
+  const headText = [15,23,42];
+
+  // Tentativa incremental: reduz fonte e margens até ficar 1 página
+  let doc, fits = false;
+  let margin = 36;             // margem padrão
+
+  while(!fits && fontSize >= minFont){
+    const { jsPDF } = window.jspdf;
+    doc = new jsPDF({unit:'pt', format:'a4'});
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+
+    doc.setFont('helvetica','bold'); doc.setFontSize(14);
+    doc.text(titulo, pageW/2, 48, {align:'center'});
+
+    // Produtos
+    doc.setFont('helvetica','');
+    doc.autoTable({
+      startY: 70,
+      head: [["PRODUTOS","QUANTIDADE (PCT)"]],
+      body: bodyP,
+      theme: 'grid',
+      margin: {left: margin, right: margin},
+      styles: { font: 'helvetica', fontSize: fontSize, cellPadding: 2 },
+      headStyles: { fillColor: headFill, textColor: headText, fontStyle: 'bold' },
+      didDrawPage: function(data){}
+    });
+
+    let nextY = doc.lastAutoTable.finalY + (bodyI.length>0 ? 20 : 0);
+
+    // Ilha (se houver)
+    if(bodyI.length>0){
+      doc.autoTable({
+        startY: nextY,
+        head: [["ILHA SÃO JOSÉ","QUANTIDADE (PCT)"]],
+        body: bodyI,
+        theme: 'grid',
+        margin: {left: margin, right: margin},
+        styles: { font: 'helvetica', fontSize: fontSize, cellPadding: 2 },
+        headStyles: { fillColor: headFill, textColor: headText, fontStyle: 'bold' },
+      });
+    }
+
+    const pages = doc.internal.getNumberOfPages();
+    const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY : 0;
+
+    // Verifica se coube na primeira página com uma folga de 24pt do rodapé
+    if(pages === 1 && finalY <= (pageH - 24)){
+      fits = true;
+      break;
+    }
+
+    // Não coube: reduz fonte (e um pouco a margem) e tenta de novo
+    fontSize -= 1;
+    if(margin > 24) margin -= 2;
+  }
+
+  // Se mesmo no limite mínimo não coube, mantém 2+ páginas (melhor do que cortar conteúdo)
+  const arquivo = baixarNome || `PEDIDO_SAO_JOSE_${ddmm.replace('/','-')}.pdf`;
+  if(abrirEmNovaAba){
+    const blob = doc.output('blob'); const url = URL.createObjectURL(blob);
+    const win = window.open('', '_blank');
+    if(!win){ doc.save(arquivo); showBottomNotice('PDF baixado'); return; }
+    try { win.location.href = url; } catch(e){
+      try {
+        win.document.open();
+        win.document.write(`<!doctype html><html><head><title>PDF</title></head><body style="margin:0"><embed src="${url}" type="application/pdf" width="100%" height="100%"/></body></html>`);
+        win.document.close();
+      } catch(err){ doc.save(arquivo); }
+    }
+    setTimeout(()=> URL.revokeObjectURL(url), 60000);
+  } else {
+    doc.save(arquivo);
+  }
+}
+
+function salvarPDF(e){ if(e) e.preventDefault();
+  const p = coletarSeção('#listaPrincipal');
+  const i = coletarSeção('#listaIlha');
+  if(p.length===0 && i.length===0){ showBottomNotice('Nada para salvar'); return; }
+  gerarPDF({abrirEmNovaAba:false});
+  showBottomNotice('PDF gerado');
+}
+
+function imprimirDireto(){
+  const p = coletarSeção('#listaPrincipal');
+  const i = coletarSeção('#listaIlha');
+  if(p.length===0 && i.length===0){ showBottomNotice('Nada para imprimir'); return; }
+  gerarPDF({abrirEmNovaAba:true});
+}
+
+/***********************  Excel (SheetJS) ***********************/
+function salvarExcel(e){ if(e) e.preventDefault();
+  const p = coletarSeção('#listaPrincipal');
+  const i = coletarSeção('#listaIlha');
+  if(p.length===0 && i.length===0){ showBottomNotice('Nada para salvar'); return; }
+  const ddmm = getDataCurta();
+  const linhas = [];
+  // A vazia; B título; C vazio (para mesclar)
+  linhas.push(["", `PEDIDO SÃO JOSÉ ${ddmm}`, ""]);
+  linhas.push(["", "PRODUTOS", "QUANTIDADE (PCT)"]);
+  p.forEach(({prod,qtd})=> linhas.push(["", prod.toUpperCase(), String(qtd)]));
+  if(i.length>0){
+    linhas.push(["", "", ""]); // linha em branco
+    linhas.push(["", "ILHA SÃO JOSÉ", "QUANTIDADE (PCT)"]);
+    i.forEach(({prod,qtd})=> linhas.push(["", prod.toUpperCase(), String(qtd)]));
+  }
+  const ws = XLSX.utils.aoa_to_sheet(linhas);
+  ws['!merges'] = [{ s:{r:0,c:1}, e:{r:0,c:2} }]; // mescla B1:C1
+  ws['!cols'] = [ {wch:2}, {wch:47.57}, {wch:19.57} ]; // A vazia; B,C larguras
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'PEDIDO');
+  XLSX.writeFile(wb, `PEDIDO_SAO_JOSE_${ddmm.replace('/','-')}.xlsx`);
+  showBottomNotice('Excel gerado');
+}
+
+/***********************  Menus (mesmo do seu template) ***********************/
+function toggleMenu(id){
+  document.querySelectorAll('.menu-dropdown-content').forEach(el=>{
+    if(el.id!==id){ el.style.display='none'; el.style.opacity=0; el.setAttribute('aria-hidden','true'); }
+  });
+  const el = document.getElementById(id); if(!el) return;
+  if(el.style.display==='block'){ el.style.opacity=0; setTimeout(()=>{ el.style.display='none'; el.setAttribute('aria-hidden','true'); },180); }
+  else { el.style.display='block'; el.style.opacity=0; el.setAttribute('aria-hidden','false'); setTimeout(()=> el.style.opacity=1, 10); }
+}
+function toggleSubmenu(headerEl){ const submenu = headerEl.nextElementSibling; if(!submenu) return; const chev = headerEl.querySelector('.chev'); if(submenu.style.display==='block'){ submenu.style.display='none'; if(chev) chev.textContent='▸'; } else { submenu.style.display='block'; if(chev) chev.textContent='▾'; } }
+
+document.addEventListener('click', (ev)=>{ if(!ev.target.closest('.menu-dropdown')){ document.querySelectorAll('.menu-dropdown-content').forEach(el=>{ el.style.display='none'; el.style.opacity=0; el.setAttribute('aria-hidden','true'); }); } });
+
+function fecharPagina(){ try { window.close(); } catch(e){} }
+function voltarMenu(){ /* placeholder de navegação */ }
+function navegarProximo(){ /* placeholder de navegação */ }
+function abrirMac(e, nome){ if(e) e.preventDefault(); document.getElementById('titulo-principal').textContent = nome; toggleMenu('dropdown-menu'); }
+function abrirLocal(e, nome){ if(e) e.preventDefault(); toggleMenu('dropdown-menu'); }
+
+/***********************  Inicialização ***********************/
+function init(){
+  montarListas();
+  setDateTo(new Date());
+
+  // Eventos do campo de data (TEXT): cursor piscando e normalização
+  const $data = $('#dataPedido');
+  $data.addEventListener('input', ()=>{ updateDatePreview(); });
+  $data.addEventListener('blur', ()=>{
+    const iso = normalizeToISO($data.value.trim());
+    $data.value = iso || ''; // normaliza ou limpa
+    updateDatePreview();
+  });
+
+  $('#chipHoje').addEventListener('click', ()=> setDateTo(new Date()));
+  $('#chipOntem').addEventListener('click', ()=>{ const d=new Date(); d.setDate(d.getDate()-1); setDateTo(d); });
+  $('#chipAmanha').addEventListener('click', ()=>{ const d=new Date(); d.setDate(d.getDate()+1); setDateTo(d); });
+
+  const printBtn = document.getElementById('btn-print'); if(printBtn){ printBtn.addEventListener('click', (ev)=>{ ev.preventDefault(); imprimirDireto(); }); }
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

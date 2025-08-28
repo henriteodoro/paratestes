@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Menu Inicial — MACs & Guias</title>
 <style>
   /* ========= Base visual ========= */
@@ -24,20 +24,6 @@
   .wrap { max-width: 980px; margin: 0 auto; }
   h1 { margin:0 0 12px 0; font-size:20px; color:var(--accent); }
   p.lead { margin:4px 0 18px 0; color:var(--muted); font-size:13px; }
-
-  /* Botão rápido para Simular Pedido */
-  .btn-simular {
-    display:inline-block;
-    padding:8px 12px;
-    background:var(--accent);
-    color:#fff;
-    border-radius:8px;
-    text-decoration:none;
-    font-weight:600;
-    margin-bottom:12px;
-    box-shadow: 0 6px 18px rgba(11,78,167,0.12);
-  }
-  .btn-simular:hover { filter:brightness(0.95); }
 
   /* ========= Top cards (PDFs) ========= */
   .top-grid {
@@ -120,9 +106,6 @@
   <div class="wrap" role="main">
     <h1>Menu Inicial</h1>
     <p class="lead">Acesse MACs, Guias e Tabelas de Preço — clique para expandir / abrir.</p>
-
-    <!-- Botão rápido que leva ao simularpedido.html -->
-    <a href="simularpedido.html" id="link-simularpedido" class="btn-simular" role="button">Simular Pedido</a>
 
     <!-- ======= PDFs ======= -->
     <div class="top-grid" aria-label="Tabelas e Catálogo">
@@ -310,9 +293,9 @@
             <li>
               <a href="anotacoes.html">Anotações</a>
             </li>
-            <!-- ADIÇÃO SOLICITADA: Simular Pedido -->
+            <!-- ADIÇÃO SOLICITADA: Simular Pedido (SOMENTE AQUI) -->
             <li>
-              <a href="simularpedido.html">Simular Pedido</a>
+              <a href="simularpedido.html" id="link-simularpedido">Simular Pedido</a>
             </li>
           </ul>
         </div>
@@ -449,7 +432,9 @@ document.querySelectorAll('.mac-link').forEach(a=>{
       e.preventDefault(); window.location.href = href; return;
     }
     e.preventDefault(); const txt = a.textContent.trim();
-    alert(`${txt}\n\n(Em breve: substitua por link real para abrir a página do MAC)`);
+    alert(`${txt}
+
+(Em breve: substitua por link real para abrir a página do MAC)`);
   });
 });
 

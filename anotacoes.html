@@ -34,15 +34,6 @@
     .addbar{display:grid;grid-template-columns:1fr .7fr .25fr;gap:8px}
     @media(max-width:720px){.addbar{grid-template-columns:1fr}}
 
-    /* Novos estilos para o seletor de data melhorado */
-    .date-selector {display: flex; flex-direction: column; gap: 8px;}
-    .date-option {display: flex; align-items: center; padding: 8px; border-radius: 8px; cursor: pointer;}
-    .date-option:hover {background-color: #f3f4f6;}
-    .date-option.selected {background-color: var(--brand-weak);}
-    .date-label {flex: 1; font-weight: 500;}
-    .date-detail {font-size: 12px; color: var(--muted);}
-    .week-separator {margin: 8px 0; padding: 4px 8px; background-color: #f3f4f6; border-radius: 6px; font-weight: 600;}
-
     /* Columns */
     .grid{display:grid;gap:12px;grid-template-columns:repeat(1, minmax(0,1fr));}
     @media(min-width:880px){.grid{grid-template-columns:repeat(3, minmax(0,1fr))}}
@@ -103,8 +94,7 @@
         <div class="row" style="margin-bottom:8px"><label>Adicionar anotação</label></div>
         <div class="addbar">
           <input id="noteInput" type="text" placeholder="Escreva sua anotação e escolha o destino…" />
-          <select id="destSelect" style="display:none"></select>
-          <div id="dateSelectorContainer" class="date-selector"></div>
+          <select id="destSelect"></select>
           <button id="addBtn" class="ghost" style="background:var(--brand);border-color:var(--brand);color:#fff">+ Adicionar</button>
         </div>
         <div class="row" style="margin-top:8px">
@@ -220,103 +210,8 @@
       setContext(state.context.week, DAYS[idx]);
     }
 
-    // ========== NOVA FUNCIONALIDADE: Seletor de data melhorado ==========
-    function buildDateSelector() {
-      const container = $('#dateSelectorContainer');
-      container.innerHTML = '';
-      
-      // Opção para anotações fixas
-      const fixedOption = document.createElement('div');
-      fixedOption.className = 'date-option';
-      fixedOption.dataset.dest = 'fixed';
-      fixedOption.innerHTML = `
-        <span class="date-label">📌 Anotações Fixas</span>
-        <span class="date-detail">(aparecem todos os dias)</span>
-      `;
-      container.appendChild(fixedOption);
-      
-      // Separador para a semana atual
-      const currentWeekSep = document.createElement('div');
-      currentWeekSep.className = 'week-separator';
-      currentWeekSep.textContent = 'Semana Atual';
-      container.appendChild(currentWeekSep);
-      
-      // Opções para a semana atual
-      DAYS.forEach(day => {
-        // Opção para o dia inteiro
-        const dayOption = document.createElement('div');
-        dayOption.className = 'date-option';
-        dayOption.dataset.dest = `day|W0|${day}`;
-        dayOption.innerHTML = `
-          <span class="date-label">🗓️ ${day}</span>
-          <span class="date-detail">(dia inteiro)</span>
-        `;
-        container.appendChild(dayOption);
-        
-        // Opções para cada rota deste dia
-        ROUTES[day].forEach(route => {
-          const routeOption = document.createElement('div');
-          routeOption.className = 'date-option';
-          routeOption.dataset.dest = `route|W0|${day}|${route}`;
-          routeOption.innerHTML = `
-            <span class="date-label" style="margin-left: 12px">↳ ${route}</span>
-            <span class="date-detail">${rLabel(day, route)}</span>
-          `;
-          container.appendChild(routeOption);
-        });
-      });
-      
-      // Separador para a próxima semana
-      const nextWeekSep = document.createElement('div');
-      nextWeekSep.className = 'week-separator';
-      nextWeekSep.textContent = 'Próxima Semana';
-      container.appendChild(nextWeekSep);
-      
-      // Opções para a próxima semana
-      DAYS.forEach(day => {
-        // Opção para o dia inteiro
-        const dayOption = document.createElement('div');
-        dayOption.className = 'date-option';
-        dayOption.dataset.dest = `day|W1|${day}`;
-        dayOption.innerHTML = `
-          <span class="date-label">🗓️ ${day}</span>
-          <span class="date-detail">(dia inteiro)</span>
-        `;
-        container.appendChild(dayOption);
-        
-        // Opções para cada rota deste dia
-        ROUTES[day].forEach(route => {
-          const routeOption = document.createElement('div');
-          routeOption.className = 'date-option';
-          routeOption.dataset.dest = `route|W1|${day}|${route}`;
-          routeOption.innerHTML = `
-            <span class="date-label" style="margin-left: 12px">↳ ${route}</span>
-            <span class="date-detail">${rLabel(day, route)}</span>
-          `;
-          container.appendChild(routeOption);
-        });
-      });
-      
-      // Adicionar event listeners para seleção
-      $$('.date-option').forEach(option => {
-        option.addEventListener('click', () => {
-          // Remover seleção anterior
-          $$('.date-option').forEach(opt => opt.classList.remove('selected'));
-          // Selecionar a opção atual
-          option.classList.add('selected');
-        });
-      });
-      
-      // Selecionar automaticamente o dia atual
-      const currentSelection = $(`.date-option[data-dest="day|${state.context.week}|${state.context.day}"]`);
-      if (currentSelection) {
-        currentSelection.classList.add('selected');
-      }
-    }
-
     // ========== Entrada / destino ==========
     function buildDestOptions(){
-      // Esta função foi mantida para compatibilidade, mas o seletor está oculto
       const day = state.context.day; const routes = ROUTES[day];
       const opts = [
         `<option value="fixed">📌 Anotações Fixas (aparecem todos os dias)</option>`,
@@ -329,40 +224,14 @@
 
     function addNoteFromInput(){
       const txt = $('#noteInput').value.trim(); if(!txt) return;
-      
-      // Obter destino selecionado
-      const selectedOption = $('.date-option.selected');
-      if (!selectedOption) {
-        alert('Por favor, selecione um destino para a anotação.');
-        return;
-      }
-      
-      const dest = selectedOption.dataset.dest;
+      const dest = $('#destSelect').value;
       const note = { id:uid(), text:txt, done:false, createdAt:Date.now(), doneAt:null };
-      
-      if(dest === 'fixed') {
-        state.fixed.push(note);
-      } else {
-        const parts = dest.split('|');
-        const type = parts[0];
-        const week = parts[1];
-        const day = parts[2];
-        
-        if (type === 'day') {
-          state.notes[week][day].day.push(note);
-        } else if (type === 'route') {
-          const route = parts[3];
-          (state.notes[week][day].routes[route] ||= []).push(note);
-        }
+      if(dest==='fixed') state.fixed.push(note);
+      else if(dest==='day') getDayBucket().day.push(note);
+      else if(dest.startsWith('route|')){
+        const r = dest.split('|')[1]; (getDayBucket().routes[r] ||= []).push(note);
       }
-      
-      $('#noteInput').value=''; 
-      saveState(); 
-      
-      // Atualizar visualização se necessário
-      if (dest.includes(state.context.week) && dest.includes(state.context.day)) {
-        renderColumns();
-      }
+      $('#noteInput').value=''; saveState(); renderColumns();
     }
 
     // ========== Renderização ==========
@@ -371,10 +240,6 @@
       $$('#weekToggle button').forEach(b=> b.classList.toggle('active', b.dataset.week===state.context.week));
       $('#daySelect').value = state.context.day;
       $('#contextLabel').textContent = 'Vendo: '+contextLabel();
-      
-      // Construir o novo seletor de datas
-      buildDateSelector();
-      
       buildDestOptions();
       sweepOldDoneToTrash();
       renderColumns();

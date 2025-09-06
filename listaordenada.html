@@ -133,10 +133,18 @@
   /* rótulos uniformes para evitar diferenças de altura entre colunas */
   .small {
     font-size:13px;
-    color:#757575;
+    color:#111; /* mudado para preto conforme solicitado */
     display:block;
     margin:0 0 6px 0;
   }
+
+  /* ===== nova regra: quando dentro do header da coluna direita, mantenha inline ===== */
+  .col-header { display:flex; align-items:center; justify-content:flex-start; gap:8px; }
+  .col-header .small { display:inline-flex; align-items:center; gap:6px; margin:0; font-size:13px; color:#111; }
+  .col-header .counter { font-weight:700; font-size:13px; margin-left:0; color:#111; font-family: monospace; display:inline-block; }
+
+  /* rótulo das opções (antes inline) */
+  .opt-label { font-size:13px; color:#111; }
 
   .item {
     display:flex;
@@ -195,7 +203,8 @@
     border-radius:8px;
     border:1px solid #e6e9ef;
     background:white;
-    font-size:14px;
+    font-size:14px; /* padronizado para 14px */
+    font-family: monospace;
     color:#111;
     line-height:1.4;
     margin:0; /* garante topo alinhado */
@@ -212,10 +221,13 @@
     color:#111;
     min-height:460px;
     margin:0; /* zera a margem padrão do <pre> que deixava mais baixo */
+    font-size:14px; /* padronizado para 14px */
+    font-family: monospace;
+    line-height:1.4;
   }
 
-  /* contador direita */
-  #contador-linhas { text-align:center; margin: 12px 0 24px; font-weight:700; }
+  /* contador dentro do cabeçalho da coluna direita */
+  #contador-linhas { text-align:right; margin: 0; font-weight:700; font-size:13px; color:#111; }
 
   /* aviso / toast */
   #copy-notice {
@@ -245,7 +257,7 @@
 
   /* ---------- PRINT (mantido) ---------- */
   @media print {
-    header, .menu-dropdown-content, #middle-controls, #copy-notice { display: none !important; }
+    header, .menu-dropdown-content, #middle-controls, #copy-notice, #contador-linhas { display: none !important; }
     html, body { height: auto !important; min-height: auto !important; font-family: monospace; }
     @page { size: A4 portrait; margin: 8mm; }
     .container { display: block !important; gap: 8px !important; padding: 0 !important; }
@@ -331,9 +343,9 @@
 
     <!-- opções -->
     <div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap;">
-      <label style="font-size:13px;color:#757575;"><input type="checkbox" id="optRemove" checked> Remover palavras (pct, pcts, pacote(s), pct de)</label>
-      <label style="font-size:13px;color:#757575;"><input type="checkbox" id="optMoveNum" checked> Mover número do início para o fim</label>
-      <label style="font-size:13px;color:#757575;"><input type="checkbox" id="optReplace" checked> Substituir "kibe" → "quibe"</label>
+      <label class="opt-label"><input type="checkbox" id="optRemove" checked> Remover palavras (pct, pcts, pacote(s), pct de)</label>
+      <label class="opt-label"><input type="checkbox" id="optMoveNum" checked> Mover número do início para o fim</label>
+      <label class="opt-label"><input type="checkbox" id="optReplace" checked> Substituir "kibe" → "quibe"</label>
     </div>
   </div>
 
@@ -343,12 +355,13 @@
   </div>
 
   <div class="column">
-    <label class="small">Resultado</label>
+    <div class="col-header">
+      <label class="small">Resultado</label>
+      <span id="contador-inline" aria-live="polite" class="counter">(Linhas preenchidas: 0)</span>
+    </div>
     <pre id="output" aria-live="polite"></pre>
   </div>
 </div>
-
-<div id="contador-linhas">Linhas preenchidas: 0</div>
 
 <!-- aviso discreto -->
 <div id="copy-notice">Copiado!</div>
@@ -420,7 +433,13 @@ function transferir(){
 function atualizarContagemDireita(){
   const out = document.getElementById('output').textContent || '';
   const preenchidos = out.split(/\r?\n/).filter(l=>l.trim()!=='').length;
-  document.getElementById('contador-linhas').innerText = `Linhas preenchidas: ${preenchidos}`;
+  const contadorEl = document.getElementById('contador-inline');
+  if(contadorEl){
+    contadorEl.textContent = `(Linhas preenchidas: ${preenchidos})`;
+  } else {
+    const contadorOld = document.getElementById('contador-linhas');
+    if(contadorOld) contadorOld.innerText = `Linhas preenchidas: ${preenchidos}`;
+  }
 }
 
 function copiarDireita(){
@@ -525,7 +544,7 @@ function abrirLocal(e, nome){ if(e) e.preventDefault(); toggleMenu('dropdown-men
    Inicialização
    ============================ */
 // liga eventos
-const transferBtn = document.querySelector('#middle-controls #btn-transfer'); if(transferBtn) transferBtn.addEventListener('click', () => { transferir(); setTimeout(() => atualizarContagemDireita(), 80); });
+const transferBtn = document.querySelector('#middle-controls #btn-transfer'); if(transferBtn) transferBtn.addEventListener('click', () => { transferir(); });
 const printBtn = document.getElementById('btn-print'); if(printBtn){ try{ printBtn.onclick = null; }catch(e){}; printBtn.addEventListener('click', (ev)=>{ ev.preventDefault(); if(printBtn.disabled) return; prepareAndPrintSinglePage(); }); }
 
 // input UX
@@ -533,6 +552,8 @@ const inputEl = document.getElementById('input'); if(inputEl){
   inputEl.addEventListener('keydown',(e)=>{ if((e.ctrlKey||e.metaKey) && e.key==='Enter'){ e.preventDefault(); transferir(); } });
 }
 
+// atualiza contador no carregamento (se necessário)
+document.addEventListener('DOMContentLoaded', atualizarContagemDireita);
 </script>
 </body>
 </html>

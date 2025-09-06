@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Pedido — São José (Mix estética + lógica)</title>
+<title>Pedido — São José (Mix estética + lógica) — Atualizado</title>
 
 <!-- jsPDF, AutoTable e SheetJS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -25,7 +25,22 @@
     font-family: monospace;
     margin: 0; padding: 0; color: var(--ink); background: var(--bg);
   }
-  /* ===== Header / Menus (mantidos da estética original) ===== */
+
+  /* ===== Top center (titulo + data) ===== */
+  .top-center { max-width: 920px; margin: 12px auto; text-align:center; }
+  .titulo-nav { display:flex; justify-content:center; align-items:center; gap:16px; margin:0 auto 8px; }
+  .titulo-nav h1 { margin:0; font-size:18px; color:#111; }
+  .datebar { display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap; margin:0 auto; }
+  .datebar label { color:#333; }
+  .datebar input[type="text"]{
+    border:1px solid #ddd; border-radius:6px; padding:6px 8px; width:160px;
+    caret-color: #111; -webkit-appearance: none; appearance: none;
+  }
+  .datebar input[type="text"]:focus { outline:none; border-color:var(--azul-escuro); box-shadow:0 0 0 3px rgba(0,123,255,.12); }
+  .chip { background:#fff; border:1px solid #e5e7eb; border-radius:999px; padding:6px 10px; font-size:12px; cursor:pointer; }
+  .chip:hover{ border-color:#cbd5e1 }
+
+  /* ===== Header / Menus ===== */
   header {
     display:flex; justify-content:space-between; align-items:center;
     background: var(--azul); color: white; padding: 10px 14px; gap: 12px;
@@ -35,63 +50,44 @@
   .icon-btn { background:none; border:none; color:white; font-size:18px; cursor:pointer; padding:6px 8px; border-radius:6px; }
   .icon-btn:hover { background: rgba(255,255,255,0.08); }
   .menu-dropdown { position: relative; }
-  .menu-dropdown-content {
-    display: none; position: absolute; top: calc(100% + 6px);
-    left: 0; background: white; color: #111; border-radius: 6px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15); min-width: 220px; max-width: calc(100vw - 40px);
-    overflow:auto; z-index: 1200; padding: 6px 0; white-space: normal;
-  }
+  .menu-dropdown-content { display: none; position: absolute; top: calc(100% + 6px); left: 0; background: white; color: #111; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,0.15); min-width: 220px; max-width: calc(100vw - 40px); overflow:auto; z-index: 1200; padding: 6px 0; white-space: normal; }
   .menu-right .menu-dropdown-content { right: 0; left: auto; }
   .menu-dropdown-content a { display:block; padding:8px 12px; color:#111; text-decoration:none; }
   .menu-dropdown-content a:hover { background:#f2f2f2; }
   .dropdown-section { border-top:1px solid #f0f0f0; padding-top:6px; margin-top:6px; }
   .section-header { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 12px; cursor:pointer; font-weight:700; }
-  .section-header small { font-weight:400; color:#666; }
   .submenu { display:none; padding-left:6px; padding-bottom:6px; }
-  .submenu a { padding-left:18px; font-weight:500; }
-
-  /* ===== Título + Navegação ===== */
-  .titulo-nav { display:flex; justify-content:center; align-items:center; gap:16px; margin:14px 10px 8px; }
-  .titulo-nav h1 { margin:0; font-size:18px; color:#111; }
-  .titulo-nav .arrow { width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; cursor:pointer; color:var(--azul-escuro); text-decoration:none; }
-  .titulo-nav .arrow:hover { background:#f0f8ff; }
-
-  /* ===== Barra de Data ===== */
-  .datebar { display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap; margin:8px 12px 0; }
-  .datebar label { color:#333; }
-  /* Troca para TEXT para ter cursor piscando e digitação livre */
-  .datebar input[type="text"]{
-    border:1px solid #ddd; border-radius:6px; padding:6px 8px; width:140px;
-    caret-color: #111; /* garante cursor visível */
-    -webkit-appearance: none; appearance: none;
-  }
-  .datebar input[type="text"]:focus { outline:none; border-color:var(--azul-escuro); box-shadow:0 0 0 3px rgba(0,123,255,.12); }
-  .chip { background:#fff; border:1px solid #e5e7eb; border-radius:999px; padding:6px 10px; font-size:12px; cursor:pointer; }
-  .chip:hover{ border-color:#cbd5e1 }
-  .date-preview{ font-weight:700; color:var(--azul-escuro); }
 
   /* ===== Container / Colunas ===== */
-  /* GRID de 3 colunas: esquerda e direita sempre com a MESMA largura */
+  /* Garantir espaço igual entre coluna esquerda / controles / coluna direita */
   .container {
-    display:grid; grid-template-columns: 1fr auto 1fr; align-items:start; justify-content:center; gap: 32px;
-    padding: 10px 14px 24px; 
+    display:grid; grid-template-columns: minmax(260px,1fr) 200px minmax(260px,1fr); align-items:start; justify-content:center; gap: 32px;
+    padding: 10px 14px 24px; max-width:1200px; margin: 0 auto;
   }
-  .column { display:flex; flex-direction:column; gap:6px; min-width: 300px; max-width: 520px; width:100%; border:1px solid var(--line); border-radius:10px; padding:10px; }
-  .column h3 { margin:2px 6px 8px; font-size:14px; color:#0f172a; }
-  .item { display:flex; align-items:center; gap:10px; padding:6px 8px; border-radius:6px; border-bottom:1px dashed #eef2ff; }
+  .column { display:flex; flex-direction:column; gap:6px; min-width: 300px; max-width: 520px; width:100%; border:1px solid var(--line); border-radius:10px; padding:12px; box-sizing:border-box; }
+  .column h3 { margin:0 6px 8px; font-size:14px; color:#0f172a; }
+
+  /* Usar grid para garantir alinhamento fixo entre nome e quantidade em todas as colunas */
+  /* A segunda coluna (quantidade) aumentada para evitar quebra em PDFs */
+  .item { display:grid; grid-template-columns: 1fr 120px; align-items:center; gap:10px; padding:6px 8px; border-bottom:1px dashed #eef2ff; }
   .item:last-child{ border-bottom:none }
-  .item span { flex:1; color:#111; }
-  .item input[type="number"] { width: 84px; padding:6px 6px; text-align:center; border:1px solid #ddd; border-radius:6px; background:#fff; }
+  .item .label { color:#111; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .item input[type="number"] { width:100%; padding:6px 6px; text-align:center; border:1px solid #ddd; border-radius:6px; background:#fff; box-sizing:border-box; }
   .item input[type="number"]:focus { outline:none; border-color:var(--azul-escuro); box-shadow:0 0 0 3px rgba(0,123,255,.12); }
   .item.hidden-empty{ display:none }
 
   /* ===== Middle controls ===== */
-  #middle-controls { display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:center; min-width:190px; }
-  #middle-controls button { width:190px; padding:10px 12px; font-size:14px; border-radius:6px; border:none; cursor:pointer; }
+  #middle-controls { display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:center; min-width:200px; }
+  #middle-controls button { width:160px; padding:10px 12px; font-size:14px; border-radius:6px; border:none; cursor:pointer; }
   #btn-linhas { background: var(--amarelo); color:black; }
   #btn-linhas:hover { background:#e6c200; }
   .btn-vermelho { background: var(--vermelho); color:white; }
   .btn-vermelho:hover { background:#8b1a1a; }
+
+  /* ===== Observações ===== */
+  .obs-box { max-width:1200px; margin: 12px auto 22px; padding:10px; border:1px solid var(--line); border-radius:10px; }
+  .obs-box h3{ margin:0 0 8px 0; font-size:14px; }
+  .obs-box textarea{ width:100%; min-height:90px; padding:8px; resize:vertical; border-radius:6px; border:1px solid #ddd; font-family: monospace; }
 
   /* ===== Rodapé Links ===== */
   .mac-links { margin: 0 14px 30px; display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; align-items:stretch; }
@@ -99,22 +95,25 @@
   .mac-links a:hover { background:#eef6ff; }
 
   @media (max-width:1100px){ .container { gap: 20px; } }
-  @media (max-width:900px){
-    /* no mobile, empilha: esquerda -> controles -> direita */
-    .container { grid-template-columns: 1fr; }
-    #middle-controls { order:2; }
-  }
-  @media (max-width:520px){ 
-    .column { max-width:100%; min-width:auto; width:100%; }
-    .mac-links { grid-template-columns: 1fr; }
-    #middle-controls { flex-direction:row; gap:8px; }
-    #middle-controls button { width: 140px; }
-  }
+  @media (max-width:900px){ .container { grid-template-columns: 1fr; } #middle-controls { order:2; } }
+  @media (max-width:520px){ .column { max-width:100%; min-width:auto; width:100%; } .mac-links { grid-template-columns: 1fr; } #middle-controls { flex-direction:row; gap:8px; } #middle-controls button { width: 140px; } }
 
   /* ===== Toast ===== */
   #copy-notice { position: fixed; right: 18px; bottom: 18px; background: rgba(0,0,0,0.78); color: white; padding: 8px 12px; border-radius: 6px; display: none; z-index: 2000; font-size: 13px; }
 
-  @media print { header, .menu-dropdown-content, #middle-controls, .mac-links, #copy-notice, .datebar { display:none !important; } .container { gap:0; padding:0; } .column { box-shadow:none; border:none; min-width:40%; } }
+  .page-bottom-space { height: 120px; }
+
+  /* Impressão: forçar bordas e linhas em preto */
+  @media print {
+    header, .menu-dropdown-content, #middle-controls, .mac-links, #copy-notice { display:none !important; }
+    .top-center { display:block !important; }
+    .container { gap:0; padding:0; max-width: none; }
+    .column { box-shadow:none; border:1px solid #000 !important; min-width:40%; }
+    .item { border-bottom:1px solid #000 !important; }
+    .obs-box { border:1px solid #000 !important; }
+    .page-bottom-space { display:none; }
+    body { color: #000; background: #fff; }
+  }
 </style>
 </head>
 <body>
@@ -164,21 +163,21 @@
   </div>
 </header>
 
-<div class="titulo-nav" role="navigation" aria-label="Navegação MAC">
-  <span style="width:28px;display:inline-block"></span>
-  <h1 id="titulo-principal">MAC Bairro São Geraldo - Cód. 77</h1>
-  <a href="#" class="arrow" id="arrow-right" title="Próximo MAC" onclick="navegarProximo()">→</a>
-</div>
+<!-- Top center (titulo + data) -->
+<div class="top-center">
+  <div class="titulo-nav" role="navigation" aria-label="Navegação MAC">
+    <span style="width:28px;display:inline-block"></span>
+    <h1 id="titulo-principal">MAC Bairro São Geraldo - Cód. 77</h1>
+    <!-- seta removida conforme pedido -->
+  </div>
 
-<!-- Barra de Data -->
-<div class="datebar">
-  <label for="dataPedido">Data:</label>
-  <!-- TROCA para TEXT para ter cursor piscando; aceita 2025-08-27, 27/08 ou 27/08/2025 -->
-  <input id="dataPedido" type="text" placeholder="aaaa-mm-dd" inputmode="numeric" autocomplete="off" />
-  <button class="chip" id="chipHoje">Hoje</button>
-  <button class="chip" id="chipOntem">Ontem</button>
-  <button class="chip" id="chipAmanha">Amanhã</button>
-  <span class="date-preview" id="datePreview"></span>
+  <!-- Barra de Data -->
+  <div class="datebar">
+    <label for="dataPedido">Data:</label>
+    <input id="dataPedido" type="text" placeholder="dd/mm/aaaa" inputmode="numeric" autocomplete="off" />
+    <button class="chip" id="chipHoje">Hoje</button>
+    <button class="chip" id="chipAmanha">Amanhã</button>
+  </div>
 </div>
 
 <div class="container">
@@ -198,26 +197,36 @@
   </div>
 </div>
 
+<!-- Observações (nova seção) -->
+<div class="obs-box">
+  <h3>OBSERVAÇÕES</h3>
+  <textarea id="observacoes" placeholder="Escreva observações que aparecerão ao copiar/salvar/imprimir..."></textarea>
+</div>
+
 <!-- Toast / aviso -->
 <div id="copy-notice">Copiado!</div>
 
+<!-- espaço vazio final apenas para aparência -->
+<div class="page-bottom-space"></div>
+
 <script>
-/***********************  Dados das listas ***********************/
+/***********************  Dados das listas (substituídos conforme pedido) ***********************/
 const PRODUTOS_PRINCIPAL = [
-  "Biscoito doce frito 7kg",
+  "Biscoitinho de doce grande 10 unidades",
   "Biscoito chipa 7kg",
   "Biscoito de queijo 7kg",
+  "Biscoito doce frito 7kg",
   "Biscoito três queijos 7kg",
   "Bolinha de carne pequena 1kg",
-  "Broinha de fubá doce grande 7kg",
   "Broinha de fubá doce 7kg",
+  "Broinha de fubá doce grande 7kg",
   "Broinha de sal e queijo 7kg",
   "Broinha temperada com bacon 7kg",
-  "Canudinho Romeu e Julieta 7kg",
   "Canudinho de queijo 7kg",
+  "Canudinho Romeu e Julieta 7kg",
   "Carioca 7kg",
-  "Coxinha de frango pequena 1kg",
   "Coxinha de frango grande 10 unidades",
+  "Coxinha de frango pequena 1kg",
   "Croissant de frango 7kg",
   "Croissant de presunto 7kg",
   "Empadão de frango com catupiry 10 unidades",
@@ -228,28 +237,23 @@ const PRODUTOS_PRINCIPAL = [
   "Mandi 7kg",
   "Meia lua 1kg com 10 unidades",
   "Mini carioca 7kg",
-  "Pão de queijo recheado frango 7kg",
   "Mini pão francês 06hrs 7kg",
   "Panhoca 06hrs 7kg",
-  "Pão de queijo grande 7kg",
-  "Pão de queijo tradicional 7kg",
   "Pão de queijo recheado frango grande 7kg",
-  "Pão francês 12hrs 7kg",
+  "Pão de queijo recheado frango pequeno 7kg",
+  "Pão de queijo tradicional grande 7kg",
+  "Pão de queijo tradicional pequeno 7kg",
   "Pão francês 04hrs 7kg",
   "Pão francês 06hrs 7kg",
+  "Pão francês 12hrs 7kg",
   "Pastelzinho catupiry pequeno 1kg",
   "Quibe com catupiry pequeno 1kg",
   "Quibe grande 1kg",
   "Rosca caseira PCT com 10 unidades",
-  "Tortinha de frango, abacaxi e passas 10 unidades",
-  "Biscoito de doce grande 10 unidades"
+  "Tortinha de frango, abacaxi e passas 10 unidades"
 ];
 
 const PRODUTOS_ILHA = [
-  "Biscoito chipa 1kg",
-  "Biscoito de queijo 1kg",
-  "Biscoito três queijos 1kg",
-  "Bolinha de carne pequena 1kg",
   "Broinha de fubá doce 1kg",
   "Broinha de sal e queijo 1kg",
   "Broinha temperada com bacon 1kg",
@@ -258,12 +262,56 @@ const PRODUTOS_ILHA = [
   "Empadinha de frango pequena 1kg",
   "Enroladinho de presunto pequeno 1kg",
   "Meia lua 1kg com 10 unidades",
-  "Pão de queijo grande 1kg",
   "Pão de queijo recheado frango 1kg",
-  "Pão de queijo tradicional 1kg",
+  "Pão de queijo tradicional grande 1kg",
+  "Pão de queijo tradicional pequeno 1kg",
   "Pastelzinho catupiry pequeno 1kg",
   "Quibe com catupiry pequeno 1kg"
 ];
+
+/***********************  Mapa de nomes para impressão/exportação ***********************/
+const PRINT_NAME_MAP = {
+  "Biscoitinho de doce grande 10 unidades": "BISCOITINHO DE DOCE GRANDE",
+  "Biscoito chipa 7kg": "BISCOITO CHIPA",
+  "Biscoito de queijo 7kg": "BISCOITO DE QUEIJO",
+  "Biscoito doce frito 7kg": "BISCOITO DOCE FRITO 7KG",
+  "Biscoito três queijos 7kg": "BISCOITO TRÊS QUEIJOS",
+  "Bolinha de carne pequena 1kg": "BOLINHA DE CARNE PEQUENA",
+  "Broinha de fubá doce 7kg": "BROINHA DE FUBÁ DOCE",
+  "Broinha de fubá doce grande 7kg": "BROINHA DE FUBÁ DOCE GRANDE 7KG",
+  "Broinha de sal e queijo 7kg": "BROINHA DE SAL E QUEIJO",
+  "Broinha temperada com bacon 7kg": "BROINHA TEMPERADA COM BACON",
+  "Canudinho de queijo 7kg": "CANUDINHO DE QUEIJO",
+  "Canudinho Romeu e Julieta 7kg": "CANUDINHO ROMEU E JULIETA",
+  "Carioca 7kg": "CARIOCA",
+  "Coxinha de frango grande 10 unidades": "COXINHA DE FRANGO GRANDE",
+  "Coxinha de frango pequena 1kg": "COXINHA DE FRANGO PEQUENA",
+  "Croissant de frango 7kg": "CROISSANT DE FRANGO",
+  "Croissant de presunto 7kg": "CROISSANT DE PRESUNTO",
+  "Empadão de frango com catupiry 10 unidades": "EMPADÃO DE FRANGO COM CATUPIRY",
+  "Empadinha de frango pequena 1kg": "EMPADINHA DE FRANGO PEQUENA",
+  "Enroladinho de presunto e mussarela grande 10 uni": "ENROLADINHO DE PRESUNTO E MUSSARELA GRANDE",
+  "Enroladinho de presunto pequeno 1kg": "ENROLADINHO DE PRESUNTO PEQUENO",
+  "Enroladinho de salsicha grande 10 unidades": "ENROLADINHO DE SALSICHA GRANDE",
+  "Mandi 7kg": "MANDI",
+  "Meia lua 1kg com 10 unidades": "MEIA LUA 7KG",
+  "Mini carioca 7kg": "MINI CARIOCA",
+  "Mini pão francês 06hrs 7kg": "MINI PÃO FRANCÊS 06HRS",
+  "Panhoca 06hrs 7kg": "PANHOCA 06HRS",
+  "Pão de queijo recheado frango grande 7kg": "PÃO DE QUEIJO RECHEADO FRANGO GRANDE 7KG",
+  "Pão de queijo recheado frango pequeno 7kg": "PÃO DE QUEIJO RECHEADO FRANGO PEQUENO",
+  "Pão de queijo tradicional grande 7kg": "PÃO DE QUEIJO TRADICIONAL GRANDE 7KG",
+  "Pão de queijo tradicional pequeno 7kg": "PÃO DE QUEIJO TRADICIONAL PEQUENO",
+  "Pão francês 04hrs 7kg": "PÃO FRANCÊS 04HRS",
+  "Pão francês 06hrs 7kg": "PÃO FRANCÊS 06HRS",
+  "Pão francês 12hrs 7kg": "PÃO FRANCÊS 12HRS",
+  "Pastelzinho catupiry pequeno 1kg": "PASTELZINHO CATUPIRY PEQUENO",
+  "Quibe com catupiry pequeno 1kg": "QUIBE COM CATUPIRY PEQUENO",
+  "Quibe grande 1kg": "QUIBE GRANDE",
+  "Rosca caseira PCT com 10 unidades": "ROSCA CASEIRA",
+  "Tortinha de frango, abacaxi e passas 10 unidades": "TORTINHA DE FRANGO, ABACAXI E PASSAS"
+};
+function getPrintName(prod){ return PRINT_NAME_MAP[prod] || prod.toUpperCase(); }
 
 /***********************  Helpers UI ***********************/
 const $ = (sel) => document.querySelector(sel);
@@ -282,6 +330,7 @@ function makeItem(nome){
   const wrap = document.createElement('div');
   wrap.className = 'item';
   const label = document.createElement('span');
+  label.className = 'label';
   label.textContent = nome;
   const input = document.createElement('input');
   input.type = 'number'; input.min = '0'; input.step = '1'; input.placeholder = '0';
@@ -297,47 +346,28 @@ function montarListas(){
   PRODUTOS_ILHA.forEach(n=> i.appendChild(makeItem(n)));
 }
 
-/***********************  Data (chips + preview dd/MM) ***********************/
-// Agora #dataPedido é TEXT para ter cursor piscando. Aceita: "YYYY-MM-DD", "DD/MM" e "DD/MM/YYYY".
+/***********************  Data (campo com dd/mm/aaaa) ***********************/
 function pad2(n){ return String(n).padStart(2,'0'); }
-function toISO(date){ return `${date.getFullYear()}-${pad2(date.getMonth()+1)}-${pad2(date.getDate())}`; }
-function setDateTo(date){
-  $('#dataPedido').value = toISO(date);
-  updateDatePreview();
-}
-function updateDatePreview(){
-  const iso = normalizeToISO($('#dataPedido').value.trim());
-  if(!iso){ $('#datePreview').textContent = ''; return; }
-  const [y,m,d] = iso.split('-');
-  $('#datePreview').textContent = `${d}/${m}`;
-}
-function getDataCurta(){
-  const iso = normalizeToISO($('#dataPedido').value.trim());
-  if(!iso) return '';
-  const [y,m,d] = iso.split('-');
-  return `${d}/${m}`;
-}
-// Normaliza o que o usuário digitou para YYYY-MM-DD se possível
-function normalizeToISO(v){
-  if(!v) return '';
-  v = v.replace(/\s+/g,'');
-  // YYYY-MM-DD
-  if(/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
-  // DD/MM ou DD/MM/YYYY
-  const m = v.match(/^(\d{2})\/(\d{2})(?:\/(\d{4}))?$/);
-  if(m){
-    const d = m[1], mo = m[2], y = m[3] || String(new Date().getFullYear());
-    return `${y}-${mo}-${d}`;
+function formatDDMMYYYY(date){ return `${pad2(date.getDate())}/${pad2(date.getMonth()+1)}/${date.getFullYear()}`; }
+function parseDateInput(v){ if(!v) return null; v = v.replace(/\s+/g,'');
+  if(/^\d{4}-\d{2}-\d{2}$/.test(v)){
+    const d = new Date(v);
+    if(!isNaN(d)) return d;
   }
-  return '';
+  const m = v.match(/^(\d{2})\/(\d{2})(?:\/(\d{4}))?$/);
+  if(m){ const d = parseInt(m[1],10); const mo = parseInt(m[2],10)-1; const y = m[3] ? parseInt(m[3],10) : (new Date()).getFullYear(); const date = new Date(y,mo,d); if(!isNaN(date)) return date; }
+  return null;
 }
+function setDateTo(date){ if(!date) return; $('#dataPedido').value = formatDDMMYYYY(date); }
+function getDisplayDateFull(){ const v = $('#dataPedido').value.trim(); const dt = parseDateInput(v); return dt ? formatDDMMYYYY(dt) : ''; }
+function sanitizeDateForFile(s){ return s ? s.replace(/\//g,'-') : ''; }
 
 /***********************  Coleta ***********************/
 function coletarSeção(rootSel){
   const rows = $$(rootSel + ' .item');
   const out = [];
   rows.forEach(r=>{
-    const nome = r.querySelector('span').textContent.trim();
+    const nome = r.querySelector('.label').textContent.trim();
     const val = r.querySelector('input').value.trim();
     if(val!=='' && Number(val)>0){ out.push({prod:nome, qtd:Number(val)}); }
   });
@@ -365,6 +395,7 @@ function resetarTudo(){
   ocultando = false; applyHideState();
   $('#btn-linhas').textContent = 'Ocultar Linhas Vazias';
   setDateTo(new Date());
+  $('#observacoes').value = '';
   atualizarContagem();
   showBottomNotice('Tudo limpo');
 }
@@ -374,63 +405,69 @@ function atualizarContagem(){
   const n = coletarSeção('#listaPrincipal').length + coletarSeção('#listaIlha').length;
 }
 
-/***********************  Copiar ***********************/
+/***********************  Copiar (inclui observações) ***********************/
 function copiarTudo(){
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
-  if(p.length===0 && i.length===0){ showBottomNotice('Nada para copiar'); return; }
+  const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
+  if(p.length===0 && i.length===0 && !obs){ showBottomNotice('Nada para copiar'); return; }
   let txt = '';
+  const ddmm = getDisplayDateFull();
+  txt += `PEDIDO SÃO JOSÉ ${ddmm}\n`;
   txt += 'PRODUTOS\n';
-  p.forEach(({prod,qtd})=> txt += `${prod.toUpperCase()} * ${qtd}\n`);
+  p.forEach(({prod,qtd})=> txt += `${getPrintName(prod)} * ${qtd}\n`);
   if(i.length>0){
     txt += '\nILHA SÃO JOSÉ\n';
-    i.forEach(({prod,qtd})=> txt += `${prod.toUpperCase()} * ${qtd}\n`);
+    i.forEach(({prod,qtd})=> txt += `${getPrintName(prod)} * ${qtd}\n`);
   }
+  if(obs){ txt += `\nOBSERVAÇÕES:\n${obs}\n`; }
   navigator.clipboard.writeText(txt).then(()=> showBottomNotice('Copiado!')).catch(()=> showBottomNotice('Falha ao copiar'));
 }
 
-/***********************  TXT ***********************/
+/***********************  TXT (inclui observações) ***********************/
 function salvarTXT(e){ if(e) e.preventDefault();
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
-  if(p.length===0 && i.length===0){ showBottomNotice('Nada para salvar'); return; }
-  const ddmm = getDataCurta();
+  const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
+  if(p.length===0 && i.length===0 && !obs){ showBottomNotice('Nada para salvar'); return; }
+  const ddmm = getDisplayDateFull();
   let txt = `PEDIDO SÃO JOSÉ ${ddmm}\n`;
   txt += `PRODUTOS;QUANTIDADE (PCT)\n`;
-  p.forEach(({prod,qtd})=> txt += `${prod.toUpperCase()};${qtd}\n`);
+  p.forEach(({prod,qtd})=> txt += `${getPrintName(prod)};${qtd}\n`);
   if(i.length>0){
     txt += `\nILHA SÃO JOSÉ;QUANTIDADE (PCT)\n`;
-    i.forEach(({prod,qtd})=> txt += `${prod.toUpperCase()};${qtd}\n`);
+    i.forEach(({prod,qtd})=> txt += `${getPrintName(prod)};${qtd}\n`);
   }
+  if(obs){ txt += `\nOBSERVAÇÕES:\n${obs}\n`; }
   const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = `PEDIDO_SAO_JOSE_${ddmm.replace('/','-')}.txt`; document.body.appendChild(a); a.click(); a.remove();
+  const fileDate = sanitizeDateForFile(ddmm) || 'sem-data';
+  a.download = `PEDIDO_SAO_JOSE_${fileDate}.txt`; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=> URL.revokeObjectURL(a.href), 1000);
   showBottomNotice('TXT gerado');
 }
 
-/***********************  PDF / Impressão — AJUSTE AUTOMÁTICO PARA CABER EM 1 PÁGINA ***********************/
-// Estratégia: tenta gerar com um fontSize base; se estourar 1 página, reduz fonte/margem e tenta de novo, até caber em 1 página.
+/***********************  PDF / Impressão — AJUSTE AUTOMÁTICO PARA CABER EM 1 PÁGINA (inclui observações e bordas pretas) ***********************/
 function gerarPDF({abrirEmNovaAba=false, baixarNome}){
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
-  if(p.length===0 && i.length===0){ showBottomNotice('Nada para imprimir'); return; }
+  const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
+  if(p.length===0 && i.length===0 && !obs){ showBottomNotice('Nada para imprimir'); return; }
 
-  const ddmm = getDataCurta();
+  const ddmm = getDisplayDateFull();
   const titulo = `PEDIDO SÃO JOSÉ ${ddmm}`;
 
-  // Tabelas prontas
-  const bodyP = p.map(({prod,qtd})=> [prod.toUpperCase(), String(qtd)]);
-  const bodyI = i.map(({prod,qtd})=> [prod.toUpperCase(), String(qtd)]);
+  const bodyP = p.map(({prod,qtd})=> [getPrintName(prod), String(qtd)]);
+  const bodyI = i.map(({prod,qtd})=> [getPrintName(prod), String(qtd)]);
 
-  let fontSize = 10;           // começa confortável
-  let minFont = 5;             // limite mínimo
-  const headFill = [230,235,245];
-  const headText = [15,23,42];
+  let fontSize = 10;
+  let minFont = 6;
+  const headFill = [255,255,255];
+  const headText = [0,0,0];
 
-  // Tentativa incremental: reduz fonte e margens até ficar 1 página
   let doc, fits = false;
-  let margin = 36;             // margem padrão
+  let margin = 36;
+  const numericColWidth = 120; // aumentado para evitar quebra de 'QUANTIDADE (PCT)'
 
   while(!fits && fontSize >= minFont){
     const { jsPDF } = window.jspdf;
@@ -441,7 +478,6 @@ function gerarPDF({abrirEmNovaAba=false, baixarNome}){
     doc.setFont('helvetica','bold'); doc.setFontSize(14);
     doc.text(titulo, pageW/2, 48, {align:'center'});
 
-    // Produtos
     doc.setFont('helvetica','');
     doc.autoTable({
       startY: 70,
@@ -449,14 +485,14 @@ function gerarPDF({abrirEmNovaAba=false, baixarNome}){
       body: bodyP,
       theme: 'grid',
       margin: {left: margin, right: margin},
-      styles: { font: 'helvetica', fontSize: fontSize, cellPadding: 2 },
+      tableWidth: pageW - margin*2,
+      styles: { font: 'helvetica', fontSize: fontSize, cellPadding: 2, lineColor: [0,0,0], lineWidth: 0.5, textColor: [0,0,0], overflow: 'linebreak' },
       headStyles: { fillColor: headFill, textColor: headText, fontStyle: 'bold' },
-      didDrawPage: function(data){}
+      columnStyles: { 0: { cellWidth: pageW - margin*2 - numericColWidth }, 1: { cellWidth: numericColWidth } },
     });
 
-    let nextY = doc.lastAutoTable.finalY + (bodyI.length>0 ? 20 : 0);
+    let nextY = doc.lastAutoTable ? doc.lastAutoTable.finalY + (bodyI.length>0 ? 18 : 0) : 70;
 
-    // Ilha (se houver)
     if(bodyI.length>0){
       doc.autoTable({
         startY: nextY,
@@ -464,48 +500,54 @@ function gerarPDF({abrirEmNovaAba=false, baixarNome}){
         body: bodyI,
         theme: 'grid',
         margin: {left: margin, right: margin},
-        styles: { font: 'helvetica', fontSize: fontSize, cellPadding: 2 },
+        tableWidth: pageW - margin*2,
+        styles: { font: 'helvetica', fontSize: fontSize, cellPadding: 2, lineColor: [0,0,0], lineWidth: 0.5, textColor: [0,0,0], overflow: 'linebreak' },
         headStyles: { fillColor: headFill, textColor: headText, fontStyle: 'bold' },
+        columnStyles: { 0: { cellWidth: pageW - margin*2 - numericColWidth }, 1: { cellWidth: numericColWidth } },
       });
+    }
+
+    // Observações (mesma fonte e tamanho das demais)
+    if(obs){
+      const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY : nextY;
+      const obsStartY = finalY + 14;
+      doc.setFont('helvetica','bold'); doc.setFontSize(fontSize);
+      doc.text('OBSERVAÇÕES:', margin, obsStartY);
+      doc.setFont('helvetica',''); doc.setFontSize(fontSize);
+      const maxWidth = pageW - margin*2;
+      const splitObs = doc.splitTextToSize(obs, maxWidth);
+      doc.text(splitObs, margin, obsStartY + fontSize + 4);
     }
 
     const pages = doc.internal.getNumberOfPages();
     const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY : 0;
 
-    // Verifica se coube na primeira página com uma folga de 24pt do rodapé
     if(pages === 1 && finalY <= (pageH - 24)){
       fits = true;
       break;
     }
 
-    // Não coube: reduz fonte (e um pouco a margem) e tenta de novo
     fontSize -= 1;
     if(margin > 24) margin -= 2;
   }
 
-  // Se mesmo no limite mínimo não coube, mantém 2+ páginas (melhor do que cortar conteúdo)
-  const arquivo = baixarNome || `PEDIDO_SAO_JOSE_${ddmm.replace('/','-')}.pdf`;
+  const arquivo = baixarNome || `PEDIDO_SAO_JOSE_${sanitizeDateForFile(ddmm) || 'sem-data'}.pdf`;
   if(abrirEmNovaAba){
     const blob = doc.output('blob'); const url = URL.createObjectURL(blob);
     const win = window.open('', '_blank');
     if(!win){ doc.save(arquivo); showBottomNotice('PDF baixado'); return; }
     try { win.location.href = url; } catch(e){
-      try {
-        win.document.open();
-        win.document.write(`<!doctype html><html><head><title>PDF</title></head><body style="margin:0"><embed src="${url}" type="application/pdf" width="100%" height="100%"/></body></html>`);
-        win.document.close();
-      } catch(err){ doc.save(arquivo); }
+      try { win.document.open(); win.document.write(`<!doctype html><html><head><title>PDF</title></head><body style="margin:0"><embed src="${url}" type="application/pdf" width="100%" height="100%"/></body></html>`); win.document.close(); } catch(err){ doc.save(arquivo); }
     }
     setTimeout(()=> URL.revokeObjectURL(url), 60000);
-  } else {
-    doc.save(arquivo);
-  }
+  } else { doc.save(arquivo); }
 }
 
 function salvarPDF(e){ if(e) e.preventDefault();
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
-  if(p.length===0 && i.length===0){ showBottomNotice('Nada para salvar'); return; }
+  const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
+  if(p.length===0 && i.length===0 && !obs){ showBottomNotice('Nada para salvar'); return; }
   gerarPDF({abrirEmNovaAba:false});
   showBottomNotice('PDF gerado');
 }
@@ -513,39 +555,35 @@ function salvarPDF(e){ if(e) e.preventDefault();
 function imprimirDireto(){
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
-  if(p.length===0 && i.length===0){ showBottomNotice('Nada para imprimir'); return; }
+  const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
+  if(p.length===0 && i.length===0 && !obs){ showBottomNotice('Nada para imprimir'); return; }
   gerarPDF({abrirEmNovaAba:true});
 }
 
-/***********************  Excel (SheetJS) ***********************/
+/***********************  Excel (SheetJS) (inclui observações) ***********************/
 function salvarExcel(e){ if(e) e.preventDefault();
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
-  if(p.length===0 && i.length===0){ showBottomNotice('Nada para salvar'); return; }
-  const ddmm = getDataCurta();
+  const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
+  if(p.length===0 && i.length===0 && !obs){ showBottomNotice('Nada para salvar'); return; }
+  const ddmm = getDisplayDateFull();
   const linhas = [];
-  // A vazia; B título; C vazio (para mesclar)
   linhas.push(["", `PEDIDO SÃO JOSÉ ${ddmm}`, ""]);
   linhas.push(["", "PRODUTOS", "QUANTIDADE (PCT)"]);
-  p.forEach(({prod,qtd})=> linhas.push(["", prod.toUpperCase(), String(qtd)]));
-  if(i.length>0){
-    linhas.push(["", "", ""]); // linha em branco
-    linhas.push(["", "ILHA SÃO JOSÉ", "QUANTIDADE (PCT)"]);
-    i.forEach(({prod,qtd})=> linhas.push(["", prod.toUpperCase(), String(qtd)]));
-  }
+  p.forEach(({prod,qtd})=> linhas.push(["", getPrintName(prod), String(qtd)]));
+  if(i.length>0){ linhas.push(["", "", ""]); linhas.push(["", "ILHA SÃO JOSÉ", "QUANTIDADE (PCT)"]); i.forEach(({prod,qtd})=> linhas.push(["", getPrintName(prod), String(qtd)])); }
+  if(obs){ linhas.push(["", "", ""]); linhas.push(["", "OBSERVAÇÕES", ""]); const obsLines = obs.split(/\r?\n/); obsLines.forEach(l=> linhas.push(["", l, ""])); }
   const ws = XLSX.utils.aoa_to_sheet(linhas);
-  ws['!merges'] = [{ s:{r:0,c:1}, e:{r:0,c:2} }]; // mescla B1:C1
-  ws['!cols'] = [ {wch:2}, {wch:47.57}, {wch:19.57} ]; // A vazia; B,C larguras
+  ws['!merges'] = [{ s:{r:0,c:1}, e:{r:0,c:2} }];
+  ws['!cols'] = [ {wch:2}, {wch:50}, {wch:30} ]; // largura da coluna numérica aumentada
   const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'PEDIDO');
-  XLSX.writeFile(wb, `PEDIDO_SAO_JOSE_${ddmm.replace('/','-')}.xlsx`);
+  XLSX.writeFile(wb, `PEDIDO_SAO_JOSE_${sanitizeDateForFile(ddmm) || 'sem-data'}.xlsx`);
   showBottomNotice('Excel gerado');
 }
 
 /***********************  Menus (mesmo do seu template) ***********************/
 function toggleMenu(id){
-  document.querySelectorAll('.menu-dropdown-content').forEach(el=>{
-    if(el.id!==id){ el.style.display='none'; el.style.opacity=0; el.setAttribute('aria-hidden','true'); }
-  });
+  document.querySelectorAll('.menu-dropdown-content').forEach(el=>{ if(el.id!==id){ el.style.display='none'; el.style.opacity=0; el.setAttribute('aria-hidden','true'); } });
   const el = document.getElementById(id); if(!el) return;
   if(el.style.display==='block'){ el.style.opacity=0; setTimeout(()=>{ el.style.display='none'; el.setAttribute('aria-hidden','true'); },180); }
   else { el.style.display='block'; el.style.opacity=0; el.setAttribute('aria-hidden','false'); setTimeout(()=> el.style.opacity=1, 10); }
@@ -555,8 +593,8 @@ function toggleSubmenu(headerEl){ const submenu = headerEl.nextElementSibling; i
 document.addEventListener('click', (ev)=>{ if(!ev.target.closest('.menu-dropdown')){ document.querySelectorAll('.menu-dropdown-content').forEach(el=>{ el.style.display='none'; el.style.opacity=0; el.setAttribute('aria-hidden','true'); }); } });
 
 function fecharPagina(){ try { window.close(); } catch(e){} }
-function voltarMenu(){ /* placeholder de navegação */ }
-function navegarProximo(){ /* placeholder de navegação */ }
+function voltarMenu(){ }
+function navegarProximo(){ }
 function abrirMac(e, nome){ if(e) e.preventDefault(); document.getElementById('titulo-principal').textContent = nome; toggleMenu('dropdown-menu'); }
 function abrirLocal(e, nome){ if(e) e.preventDefault(); toggleMenu('dropdown-menu'); }
 
@@ -565,17 +603,10 @@ function init(){
   montarListas();
   setDateTo(new Date());
 
-  // Eventos do campo de data (TEXT): cursor piscando e normalização
   const $data = $('#dataPedido');
-  $data.addEventListener('input', ()=>{ updateDatePreview(); });
-  $data.addEventListener('blur', ()=>{
-    const iso = normalizeToISO($data.value.trim());
-    $data.value = iso || ''; // normaliza ou limpa
-    updateDatePreview();
-  });
+  $data.addEventListener('blur', ()=>{ const d = parseDateInput($data.value.trim()); $data.value = d ? formatDDMMYYYY(d) : ''; });
 
   $('#chipHoje').addEventListener('click', ()=> setDateTo(new Date()));
-  $('#chipOntem').addEventListener('click', ()=>{ const d=new Date(); d.setDate(d.getDate()-1); setDateTo(d); });
   $('#chipAmanha').addEventListener('click', ()=>{ const d=new Date(); d.setDate(d.getDate()+1); setDateTo(d); });
 
   const printBtn = document.getElementById('btn-print'); if(printBtn){ printBtn.addEventListener('click', (ev)=>{ ev.preventDefault(); imprimirDireto(); }); }

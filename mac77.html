@@ -26,6 +26,19 @@
     background: #fff;
   }
 
+  /* small helper for screen readers */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   /* ===== header ===== */
   header {
     display:flex;
@@ -52,8 +65,21 @@
     cursor: pointer;
     padding: 6px 8px;
     border-radius: 6px;
+
+    /* align SVG nicely */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
   .icon-btn:hover { background: rgba(255,255,255,0.08); }
+
+  /* sizing only (cada SVG controla fill/stroke via currentColor) */
+  .icon-btn svg {
+    width: 22px;
+    height: 22px;
+    display: block;
+    flex-shrink: 0;
+  }
 
   /* dropdowns */
   .menu-dropdown { position: relative; }
@@ -249,12 +275,15 @@
     font-size: 13px;
   }
 
+  /* espaço estético no final da página */
+  .tail-space { height: 0px; }
+
   /* ---------- PRINT (melhoria mínima adicionada) ---------- */
   @media print {
-    /* manter o que você já tinha: esconder controles e rodapé */
+    /* esconder controles e rodapé */
     header, .menu-dropdown-content, #middle-controls, .mac-links, #copy-notice { display: none !important; }
 
-    /* força alturas automáticas (isso evita a segunda página em branco causada por height:100%) */
+    /* alturas automáticas */
     html, body { height: auto !important; min-height: auto !important; font-family: monospace; }
 
     /* pagina A4 e margens pequenas para caber o conteúdo */
@@ -272,6 +301,9 @@
     .item span { font-size: 11px; line-height: 1.12; }
     .item input[type="text"] { width: 44px; padding: 2px 4px; font-size: 11px; text-align: center; }
 
+    /* ajustar o espaço estético também para o print */
+    .tail-space { height: 18mm; }
+
     /* caso tenhamos MUITAS linhas, aplicamos uma classe (JS) para reduzir ainda mais a fonte */
     body.print-tight { font-size: 10px !important; }
     body.print-tight .column { max-width: 48%; width: 48%; float: left !important; }
@@ -286,7 +318,17 @@
 <header>
   <div class="menu-left">
     <div class="menu-dropdown">
-      <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')">☰</button>
+      <!-- MENU (substituído pelo SVG fornecido) -->
+      <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')" aria-haspopup="true" aria-controls="dropdown-menu" aria-expanded="false">
+        <!-- svg: três fileiras / menu sanduíche -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+          <title>Menu</title>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+        <span class="sr-only">Abrir menu</span>
+      </button>
 
       <div class="menu-dropdown-content" id="dropdown-menu" role="menu" aria-hidden="true">
         <div class="dropdown-section">
@@ -295,14 +337,14 @@
             <small class="chev">▸</small>
           </div>
           <div class="submenu">
-            <a href="#" data-mac="77" onclick="abrirMac(event, 'MAC Bairro São Geraldo - Cód. 77')">MAC Bairro São Geraldo - Cód. 77</a>
-            <a href="#" data-mac="78" onclick="abrirMac(event, 'MAC Bairro Planalto - Cód. 78')">MAC Bairro Planalto - Cód. 78</a>
-            <a href="#" data-mac="79" onclick="abrirMac(event, 'MAC Romeu Duarte - Cód. 79')">MAC Romeu Duarte - Cód. 79</a>
-            <a href="#" data-mac="80" onclick="abrirMac(event, 'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC Rua São Geraldo / Centro 2 - Cód. 80</a>
-            <a href="#" data-mac="277" onclick="abrirMac(event, 'MAC Matriz - Cód. 277')">MAC Matriz - Cód. 277</a>
-            <a href="#" data-mac="853" onclick="abrirMac(event, 'MAC Concesso - Cód. 853')">MAC Concesso - Cód. 853</a>
-            <a href="#" data-mac="1249" onclick="abrirMac(event, 'MAC Jardim do Lago - Cód. 1249')">MAC Jardim do Lago - Cód. 1249</a>
-            <a href="#" data-mac="989" onclick="abrirMac(event, 'MAC Araújos - Cód. 989')">MAC Araújos - Cód. 989</a>
+            <a href="mac77.html" data-mac="77" onclick="abrirMac(event, 'MAC Bairro São Geraldo - Cód. 77')">MAC Bairro São Geraldo - Cód. 77</a>
+            <a href="mac78.html" data-mac="78" onclick="abrirMac(event, 'MAC Bairro Planalto - Cód. 78')">MAC Bairro Planalto - Cód. 78</a>
+            <a href="mac79.html" data-mac="79" onclick="abrirMac(event, 'MAC Romeu Duarte - Cód. 79')">MAC Romeu Duarte - Cód. 79</a>
+            <a href="mac80.html" data-mac="80" onclick="abrirMac(event, 'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC Rua São Geraldo / Centro 2 - Cód. 80</a>
+            <a href="mac277.html" data-mac="277" onclick="abrirMac(event, 'MAC Matriz - Cód. 277')">MAC Matriz - Cód. 277</a>
+            <a href="mac853.html" data-mac="853" onclick="abrirMac(event, 'MAC Concesso - Cód. 853')">MAC Concesso - Cód. 853</a>
+            <a href="mac1249.html" data-mac="1249" onclick="abrirMac(event, 'MAC Jardim do Lago - Cód. 1249')">MAC Jardim do Lago - Cód. 1249</a>
+            <a href="mac989.html" data-mac="989" onclick="abrirMac(event, 'MAC Araújos - Cód. 989')">MAC Araújos - Cód. 989</a>
           </div>
         </div>
 
@@ -319,16 +361,40 @@
       </div>
     </div>
 
-    <!-- X (fechar) — sem confirm -->
-    <button class="icon-btn" id="btn-close" title="Fechar" onclick="fecharPagina()">❌</button>
+    <!-- X (fechar) — substituído pelo SVG fornecido -->
+    <button class="icon-btn" id="btn-close" title="Fechar" onclick="fecharPagina()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+        <title>Fechar</title>
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+      <span class="sr-only">Fechar</span>
+    </button>
 
-    <!-- Home — placeholder sem alert (vai receber redirecionamento depois) -->
-    <button class="icon-btn" id="btn-home" title="Menu inicial" onclick="voltarMenu()">🏠</button>
+    <!-- Home — agora com SVG preenchido -->
+    <button class="icon-btn" id="btn-home" title="Menu inicial" onclick="voltarMenu()">
+      <svg xmlns="http://www.w3.org/2000/svg"
+           width="22" height="22"
+           viewBox="0 0 24 24"
+           fill="currentColor" aria-hidden="true">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M21.4498 10.275L11.9998 3.1875L2.5498 10.275L2.9998 11.625H3.7498V20.25H20.2498V11.625H20.9998L21.4498 10.275ZM5.2498 18.75V10.125L11.9998 5.0625L18.7498 10.125V18.75H14.9999V14.3333L14.2499 13.5833H9.74988L8.99988 14.3333V18.75H5.2498ZM10.4999 18.75H13.4999V15.0833H10.4999V18.75Z"/>
+      </svg>
+      <span class="sr-only">Menu inicial</span>
+    </button>
   </div>
 
   <div class="menu-right">
     <div class="menu-dropdown">
-      <button class="icon-btn" id="btn-salvar" title="Salvar" onclick="toggleMenu('dropdown-save')">💾</button>
+      <!-- botão salvar (mantido) -->
+      <button class="icon-btn" id="btn-salvar" title="Salvar" onclick="toggleMenu('dropdown-save')" aria-haspopup="true" aria-controls="dropdown-save" aria-expanded="false">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <title>Salvar</title>
+          <path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7z"/>
+          <path d="M17 3v4H7V3"/>
+          <rect x="7" y="13" width="10" height="8" rx="1"/>
+        </svg>
+        <span class="sr-only">Salvar</span>
+      </button>
       <div class="menu-dropdown-content" id="dropdown-save" aria-labelledby="btn-salvar">
         <a href="#" onclick="salvarComoTXT(event)" title="Salvar como TXT">Salvar como TXT</a>
         <a href="#" onclick="salvarComoPDF(event)" title="Salvar como PDF">Salvar como PDF</a>
@@ -336,13 +402,27 @@
       </div>
     </div>
 
-    <!-- botão imprimir: listener adicionado via JS mais abaixo -->
+    <!-- botão imprimir: com SVG fornecido -->
     <button class="icon-btn" id="btn-print" title="Imprimir">
-      🖨️
+      <svg xmlns="http://www.w3.org/2000/svg"
+           width="22" height="22"
+           viewBox="0 0 24 24"
+           fill="none"
+           stroke="currentColor"
+           stroke-width="2"
+           stroke-linecap="round"
+           stroke-linejoin="round" aria-hidden="true">
+        <path d="M7 18H6.2C5.0799 18 4.51984 18 4.09202 17.782C3.71569 17.5903 3.40973 17.2843 3.21799 16.908C3 16.4802 3 15.9201 3 14.8V10.2C3 9.0799 3 8.51984 3.21799 8.09202C3.40973 7.71569 3.71569 7.40973 4.09202 7.21799C4.51984 7 5.0799 7 6.2 7H7M17 18H17.8C18.9201 18 19.4802 18 19.908 17.782C20.2843 17.5903 20.5903 17.2843 20.782 16.908C21 16.4802 21 15.9201 21 14.8V10.2C21 9.07989 21 8.51984 20.782 8.09202C20.5903 7.71569 20.2843 7.40973 19.908 7.21799C19.4802 7 18.9201 7 17.8 7H17M7 11H7.01M17 7V5.4V4.6C17 4.03995 17 3.75992 16.891 3.54601C16.7951 3.35785 16.6422 3.20487 16.454 3.10899C16.2401 3 15.9601 3 15.4 3H8.6C8.03995 3 7.75992 3 7.54601 3.10899C7.35785 3.20487 7.20487 3.35785 7.10899 3.54601C7 3.75992 7 4.03995 7 4.6V5.4V7M17 7H7M8.6 21H15.4C15.9601 21 16.2401 21 16.454 20.891C16.6422 20.7951 16.7951 20.6422 16.891 20.454C17 20.2401 17 19.9601 17 19.4V16.6C17 16.0399 17 15.7599 16.891 15.546C16.7951 15.3578 16.6422 15.2049 16.454 15.109C16.2401 15 15.9601 15 15.4 15H8.6C8.03995 15 7.75992 15 7.54601 15.109C7.35785 15.2049 7.20487 15.3578 7.10899 15.546C7 15.7599 7 16.0399 7 16.6V19.4C7 19.9601 7 20.2401 7.10899 20.454C7.20487 20.6422 7.35785 20.7951 7.54601 20.891C7.75992 21 8.03995 21 8.6 21Z"/>
+      </svg>
     </button>
 
+    <!-- botão copiar: ícone substituído conforme pedido (agora usa currentColor -> branco pela regra .icon-btn) -->
     <button class="icon-btn" id="btn-copy" title="Copiar" onclick="copiarDireita()">
-      📋
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <title>Copiar</title>
+        <path d="M15 17v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1H7" />
+        <rect x="7" y="3" width="12" height="14" rx="1" />
+      </svg>
     </button>
   </div>
 </header>
@@ -379,6 +459,9 @@
 
 <!-- aviso discreto (reaproveitado para toasts) -->
 <div id="copy-notice">Copiado!</div>
+
+<!-- espaço estético no fim da página -->
+<div class="tail-space" aria-hidden="true"></div>
 
 <script>
 /* ============================
@@ -736,15 +819,12 @@ function salvarComoExcel(e) {
 }
 
 /* ============================
-   Imprimir -> gerar PDF e abrir em nova aba (corrigido para 1 aba)
-   (mantive essa função exatamente como no seu código original)
+   Imprimir -> gerar PDF e abrir em nova aba (mantida)
    ============================ */
 function imprimirDireto() {
   const printBtn = document.getElementById('btn-print');
-  // desabilita botão para prevenir clicks repetidos
   if (printBtn) printBtn.disabled = true;
 
-  // monta as mesmas linhas que salvarComoPDF usa (mantendo ordem do mapaConexao)
   const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
   const linhas = [];
   mapaConexao.forEach((origemOneBased, idxDestino) => {
@@ -786,27 +866,18 @@ function imprimirDireto() {
   doc.text(`Linhas preenchidas: ${linhas.length}`, marginLeft, y);
 
   try {
-    // 1) abre uma nova aba em branco durante o clique (síncrono) - isso evita popup blocker em muitos casos
     const newWin = window.open('', '_blank');
-
-    // 2) se a aba foi bloqueada (null) -> fallback para download direto
     if (!newWin) {
-      // fallback: salva o arquivo para o usuário (download)
       doc.save("lista_mac_77.pdf");
       showBottomNotice('PDF baixado', 2000);
       if (printBtn) printBtn.disabled = false;
       return;
     }
-
-    // 3) gera o blob (síncrono) e cria URL
     const pdfBlob = doc.output('blob');
     const url = URL.createObjectURL(pdfBlob);
-
-    // 4) redireciona a aba recém-aberta para o blob URL (um único open)
     try {
       newWin.location.href = url;
     } catch (e) {
-      // se não for possível setar location (por alguma razão), escrevemos um embed simples
       try {
         newWin.document.open();
         newWin.document.write(`
@@ -820,17 +891,13 @@ function imprimirDireto() {
         `);
         newWin.document.close();
       } catch (err2) {
-        // último recurso: faz download
         doc.save("lista_mac_77.pdf");
         showBottomNotice('PDF baixado', 2000);
         try { newWin.close(); } catch(e){}
       }
     }
-
-    // 5) revoga a URL depois (garantir limpeza)
     setTimeout(() => { try { URL.revokeObjectURL(url); } catch(e) {} }, 60000);
   } catch (err) {
-    // erro inesperado — mostrar mensagem rápida
     showBottomNotice('Erro ao gerar PDF', 3000);
     console.error(err);
   } finally {
@@ -839,41 +906,31 @@ function imprimirDireto() {
 }
 
 /* ============================
-   NOVA função: imprimir diretamente a página (sem gerar PDF)
-   - Esconde header/rodapé via @media print (CSS acima)
-   - Chama transferir() para garantir os valores atualizados
-   - Aplica classe print-tight quando houver muitas linhas para reduzir fonte
-   - Usa window.print() e limpa após impressão
+   Imprimir diretamente a página (sem gerar PDF)
    ============================ */
 function prepareAndPrintSinglePage() {
-  // garante que há conteúdo
   const esquerda = document.getElementById('coluna-esquerda');
   const direita = document.getElementById('coluna-direita');
   if (!esquerda || !direita) { showBottomNotice('Nada para imprimir', 2000); return; }
 
-  // atualiza a coluna direita com valores correntes
   transferir();
 
-  // heurística para quando reduzir ainda mais a tipografia (muitos itens)
   const totalRows = Math.max(frasesEsquerda.length, frasesDireita.length);
   const filledLeft = Array.from(document.querySelectorAll('#coluna-esquerda input')).filter(i=>i.value.trim()!=='').length;
   const filledRight = Array.from(document.querySelectorAll('#coluna-direita input')).filter(i=>i.value.trim()!=='').length;
   const filledCount = Math.max(filledLeft, filledRight);
 
-  // aplica classe que diminui fontes se necessário
   document.body.classList.remove('print-tight');
   if (totalRows > 34 || filledCount > 34) {
     document.body.classList.add('print-tight');
   }
 
-  // cleanup após impressão
   const cleanup = () => {
     document.body.classList.remove('print-tight');
     try { window.removeEventListener('afterprint', cleanup); } catch(e){}
   };
   try { window.addEventListener('afterprint', cleanup); } catch(e){}
 
-  // chama a impressão do navegador (usa as regras @media print acima)
   try {
     window.print();
   } catch (err) {
@@ -907,11 +964,19 @@ function toggleMenu(id) {
   if (el.style.display === 'block') {
     el.style.opacity = 0;
     setTimeout(() => { el.style.display = 'none'; el.setAttribute('aria-hidden','true'); }, 180);
+    try {
+      const btn = document.querySelector(`[aria-controls="${id}"]`);
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    } catch(e){}
   } else {
     el.style.display = 'block';
     el.style.opacity = 0;
     el.setAttribute('aria-hidden','false');
     setTimeout(() => el.style.opacity = 1, 10);
+    try {
+      const btn = document.querySelector(`[aria-controls="${id}"]`);
+      if (btn) btn.setAttribute('aria-expanded', 'true');
+    } catch(e){}
   }
 }
 
@@ -935,29 +1000,21 @@ document.addEventListener('click', (ev) => {
       el.style.opacity = 0;
       el.setAttribute('aria-hidden','true');
     });
+    document.querySelectorAll('[aria-controls]').forEach(b => { try { b.setAttribute('aria-expanded','false'); } catch(e){} });
   }
 });
 
 /* ============================
-   Placeholders / ações dos ícones esquerdo
-   (REMOVIDOS alert/confirm para você adicionar nav/redirecionamento depois)
+   Placeholders de navegação
    ============================ */
 function fecharPagina() {
-  // sem confirmação, apenas tenta fechar (você adicionará redirecionamento futuro)
-  try { window.close(); } catch(e) { /* silently ignore */ }
+  window.location.href = "index.html"; 
 }
 function voltarMenu() {
-  // placeholder vazio (substitua por window.location = '...'; quando quiser)
-  // console.info('voltarMenu() chamado — substitua por redirecionamento quando for preciso.');
+  window.location.href = "menu.html";
 }
-function navegarAnterior() {
-  // placeholder vazio — implemente navegação se quiser
-  // console.info('navegarAnterior() chamado — implemente comportamento aqui.');
-}
-function navegarProximo() {
-  // placeholder vazio — implemente navegação se quiser
-  // console.info('navegarProximo() chamado — implemente comportamento aqui.');
-}
+function navegarAnterior() { }
+function navegarProximo() { }
 function abrirMac(e, nome) {
   if (e) e.preventDefault();
   document.getElementById('titulo-principal').textContent = nome;
@@ -965,8 +1022,6 @@ function abrirMac(e, nome) {
 }
 function abrirLocal(e, nome) {
   if (e) e.preventDefault();
-  // placeholder vazio — substitua por comportamento real futuramente
-  // console.info('abrirLocal:', nome);
   toggleMenu('dropdown-menu');
 }
 
@@ -975,22 +1030,17 @@ function abrirLocal(e, nome) {
    ============================ */
 montarInterface();
 
-// reforça atualização da contagem depois do clique no botão transferir
 const transferBtn = document.querySelector('#middle-controls #btn-transfer');
 if (transferBtn) transferBtn.addEventListener('click', () => {
   setTimeout(() => atualizarContagemDireita(), 80);
 });
 
-// ADICIONA o listener do botão imprimir (sem onclick inline) — evita duplicação
 const printBtn = document.getElementById('btn-print');
 if (printBtn) {
-  // remove qualquer onclick inline residual (precaução)
   try { printBtn.onclick = null; } catch(e){}
   printBtn.addEventListener('click', (ev) => {
     ev.preventDefault();
-    // proteção contra double click rápido
     if (printBtn.disabled) return;
-    // chama a nova rotina de impressão de página (mantendo imprimirDireto intacta)
     prepareAndPrintSinglePage();
   });
 }

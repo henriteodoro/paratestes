@@ -354,8 +354,8 @@
             <small class="chev">▸</small>
           </div>
           <div class="submenu">
-            <a href="#" onclick="abrirLocal(event, 'São José')">São José</a>
-            <a href="#" onclick="abrirLocal(event, 'Pão Total')">Pão Total</a>
+            <a href="saojose.html" onclick="abrirLocal(event, 'São José')">São José</a>
+            <a href="paototal.html" onclick="abrirLocal(event, 'Pão Total')">Pão Total</a>
           </div>
         </div>
       </div>
@@ -448,13 +448,13 @@
 <div id="contador-linhas">Linhas preenchidas: 0</div>
 
 <div class="mac-links" role="navigation" aria-label="Outros MACs">
-  <a href="#" onclick="abrirMac(event,'MAC Bairro Planalto - Cód. 78')">MAC 78 - Bairro Planalto</a>
-  <a href="#" onclick="abrirMac(event,'MAC Roumeu Duarte - Cód. 79')">MAC 79 - Romeu Duarte</a>
-  <a href="#" onclick="abrirMac(event,'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC 80 - Rua São Geraldo / Centro 2</a>
-  <a href="#" onclick="abrirMac(event,'MAC Matriz - Cód. 277')">MAC 277 - Matriz</a>
-  <a href="#" onclick="abrirMac(event,'MAC Concesso - Cód. 853')">MAC 853 - Concesso</a>
-  <a href="#" onclick="abrirMac(event,'MAC Jardim do Lago - Cód. 1249')">MAC 1249 - Jardim do Lago</a>
-  <a href="#" onclick="abrirMac(event,'MAC Araújos - Cód. 989')">MAC 989 - Araújos</a>
+  <a href="mac78.html" onclick="abrirMac(event,'MAC Bairro Planalto - Cód. 78')">MAC 78 - Bairro Planalto</a>
+  <a href="mac79.html" onclick="abrirMac(event,'MAC Roumeu Duarte - Cód. 79')">MAC 79 - Romeu Duarte</a>
+  <a href="mac80.html" onclick="abrirMac(event,'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC 80 - Rua São Geraldo / Centro 2</a>
+  <a href="mac277.html" onclick="abrirMac(event,'MAC Matriz - Cód. 277')">MAC 277 - Matriz</a>
+  <a href="mac853.html" onclick="abrirMac(event,'MAC Concesso - Cód. 853')">MAC 853 - Concesso</a>
+  <a href="mac1249.html" onclick="abrirMac(event,'MAC Jardim do Lago - Cód. 1249')">MAC 1249 - Jardim do Lago</a>
+  <a href="mac989.html" onclick="abrirMac(event,'MAC Araújos - Cód. 989')">MAC 989 - Araújos</a>
 </div>
 
 <!-- aviso discreto (reaproveitado para toasts) -->
@@ -1006,6 +1006,7 @@ document.addEventListener('click', (ev) => {
 
 /* ============================
    Placeholders de navegação
+   (alteradas para permitir redirecionamento quando o href está presente)
    ============================ */
 function fecharPagina() {
   window.location.href = "index.html"; 
@@ -1015,12 +1016,46 @@ function voltarMenu() {
 }
 function navegarAnterior() { }
 function navegarProximo() { }
+
 function abrirMac(e, nome) {
+  // se o link tem href válido, fazemos a navegação para esse href
+  try {
+    if (e && e.currentTarget) {
+      const href = e.currentTarget.getAttribute('href');
+      if (href && href !== '#' && href.trim() !== '') {
+        if (nome) {
+          const titulo = document.getElementById('titulo-principal');
+          if (titulo) titulo.textContent = nome;
+        }
+        const menu = document.getElementById('dropdown-menu');
+        if (menu) { menu.style.display = 'none'; menu.setAttribute('aria-hidden','true'); }
+        // navega programaticamente (substitui o comportamento padrão)
+        window.location.href = href;
+        return;
+      }
+    }
+  } catch(err) { /* ignore */ }
   if (e) e.preventDefault();
   document.getElementById('titulo-principal').textContent = nome;
   toggleMenu('dropdown-menu');
 }
+
 function abrirLocal(e, nome) {
+  try {
+    if (e && e.currentTarget) {
+      const href = e.currentTarget.getAttribute('href');
+      if (href && href !== '#' && href.trim() !== '') {
+        if (nome) {
+          const titulo = document.getElementById('titulo-principal');
+          if (titulo) titulo.textContent = nome;
+        }
+        const menu = document.getElementById('dropdown-menu');
+        if (menu) { menu.style.display = 'none'; menu.setAttribute('aria-hidden','true'); }
+        window.location.href = href;
+        return;
+      }
+    }
+  } catch(err) { /* ignore */ }
   if (e) e.preventDefault();
   toggleMenu('dropdown-menu');
 }
@@ -1047,4 +1082,3 @@ if (printBtn) {
 </script>
 </body>
 </html>
-

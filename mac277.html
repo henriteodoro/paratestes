@@ -428,9 +428,9 @@
 </header>
 
 <div class="titulo-nav" role="navigation" aria-label="Navegação MAC">
-  <a href="mac79.html" class="arrow" id="arrow-left" title="MAC Anterior" onclick="abrirMac(event,'MAC Roumeu Duarte - Cód. 79')">←</a>
-  <h1 id="titulo-principal">MAC Rua São Geraldo / Centro 2 - Cód. 80</h1>
-  <a href="mac277.html" class="arrow" id="arrow-right" title="Próximo MAC" onclick="abrirMac(event,'MAC Matriz - Cód. 277')">→</a>
+  <a href="mac80.html" class="arrow" id="arrow-left" title="MAC Anterior" onclick="abrirMac(event,'MAC Rua São Geraldo / Centro 2 - Cód. 80')">←</a>
+  <h1 id="titulo-principal">MAC Matriz - Cód. 277</h1>
+  <a href="mac853.html" class="arrow" id="arrow-right" title="Próximo MAC" onclick="abrirMac(event,'MAC Concesso - Cód. 853')">→</a>
 </div>
 
 <div class="container">
@@ -451,7 +451,7 @@
   <a href="mac77.html" onclick="abrirMac(event,'MAC Bairro São Geraldo - Cód. 77')">MAC 77 - Bairro São Geraldo</a>
   <a href="mac78.html" onclick="abrirMac(event,'MAC Bairro Planalto - Cód. 78')">MAC 78 - Bairro Planalto</a>
   <a href="mac79.html" onclick="abrirMac(event,'MAC Romeu Duarte - Cód. 79')">MAC 79 - Romeu Duarte</a>
-  <a href="mac80.html" onclick="abrirMac(event,'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC 80 - Rua São Geraldo / Centro 2</a>
+  <a href="mac80.html" onclick="abrirMac(event,'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC 80 - Matriz</a>
   <a href="mac853.html" onclick="abrirMac(event,'MAC Concesso - Cód. 853')">MAC 853 - Concesso</a>
   <a href="mac1249.html" onclick="abrirMac(event,'MAC Jardim do Lago - Cód. 1249')">MAC 1249 - Jardim do Lago</a>
   <a href="mac989.html" onclick="abrirMac(event,'MAC Araújos - Cód. 989')">MAC 989 - Araújos</a>
@@ -468,42 +468,45 @@
    Dados
    ============================ */
 const frasesEsquerda = [
-  "PÃO DE QUEIJO",
+  "PÃO DE QUEIJO RECHEADO FRANGO PAC 7 KG",
   "PÃO DE QUEIJO GRANDE",
-  "PÃO DE QUEIJO RECHEADO FRANGO 7KG",
-  "PÃO FRANCÊS 6 HORAS 7KG",
-  "PÃO FRANCÊS 12 HORAS 7KG",
-  "PÃO FRANCÊS 4 HORAS 7KG",
-  "BAGUETE 6 HORAS 7KG",
-  "BAGUETE 12 HORAS 7KG",
-  "BISCOITO DOCE FRITO 1KG",
-  "BISCOITO DE QUEIJO MP 7KG",
-  "BISCOITO 3 QUEIJOS MP 7KG",
-  "BOLO FUBÁ CREMOSO MP UNIDADE",
-  "BOLO MILHO MP UNIDADE",
-  "BISCOITO SEQUILO MANGA PCT C/ 3",
-  "BROINHA DE FUBA GRANDE 10 UNIDADES",
-  "BROINHA DE FUBA DOCE MP 7KG",
-  "BROINHA SAL E QUEIJO MP 7KG",
-  "BROINHA BACON TEMPERADA MP 7KG",
-  "CROISSANT DE FRANGO MP 7KG",
-  "CROISSANT DE PRESUNTO MP 7KG",
-  "PÃO DE BATATA MP 7KG",
-  "PÃO DE QUEIJO MEIA LUA PCT COM 10 UNI MP",
-  "PÃO DOCE COM CREME MP 7KG",
-  "PÃO DOCE MP 7KG",
-  "PÃO PANHOCA MP 6 HORAS 7KG",
+  "PÃO FRANCÊS 6HRS PAC 7 KG",
+  "PÃO FRANCÊS 12HRS 7 KG",
+  "PÃO FRANCÊS 18HRS 7 KG",
+  "PAO DE 4 HRS 7KG",
+  "PAO DE QUEIJO 7KG",
+  "BAGUETE 6 HRS 7 KG",
+  "BAGUETE 12 HRS 7 KG",
+  "BISCOITO CHIPA MP KG 7KG",
+  "BISCOITO DOCE FRITO MP 1 KG",
+  "BISCOITO DE QUEIJO MP 7 KG",
+  "BISCOITO SEQUILHO MP MANGA",
+  "BISCOITO TRES QUEIJOS MP 7 KG",
+  "BOLO FUBA CREMOSO MP 1 UNIDADE",
+  "BOLO MILHO MP 1 UNIDADE",
+  "BROINHA DE FUBA DOCE MP 7 KG",
+  "BROINHA BACON TEMPERADA MP 7 KG",
+  "CROISSANT DE FRANGO MP 7 KG",
+  "CROISSANT DE PRESUNTO MP 7 KG",
+  "PÃO DE BATATA MP 7 KG",
+  "PÃO DE QUEIJO MEIA LUA PAC COM 10 UNI",
+  "PÃO DOCE C/CREME MP 7 KG CARACOL",
+  "PÃO DOCE MP 7 KG",
+  "PÃO DOCE MINI MP 7 KG",
+  "PÃO MILHO MP 7 KG",
+  "PÃO PANHOCA MP 7 KG",
   "ROSCOVADO MP UNIDADE",
-  "ROSCA CREME E COCO MP PCT COM 5 UNI",
-  "ROSCA FRUTAS CRISTALIZADAS MP C/ 5 UNI",
-  "ROSCA TRANCA MP PCT COM 10 UNI",
-  "ROSCA TRANCINHA MP PCT COM 3KG",
-  "ROSQUINHA CANUDINHO DE QUEIJO MP 7KG",
-  "SALGADO COXINHA DE FRANGO PCT 1KG",
-  "SALGADOS BOLINHA DE CARNE MP PCT 1KG",
-  "SALGADOS EMPADA DE FRANGO MP PCT 1KG",
-  "SALGADOS ENROLADINHO DE PRESUNTO PCT 1KG",
-  "SALGADOS PASTEL CATUPIRY MP PCT 1KG",
+  "ROSCA CREME E COCO MP PAC COM 5 UNI",
+  "ROSCA FRUTAS CRISTALIZADAS PCT 5 UNI",
+  "ROSCA TRANÇA MP PAC COM 10 UNID",
+  "ROSCA TRANCINHA MP PAC 3KG",
+  "ROSCA TRANÇA REDONDA MP",
+  "ROSQUINHA CANUDINHO DE QUEIJO MP PAC COM 7KG",
+  "SALGADO COXINHA DE FRANGO MP 1 KG",
+  "SALGADOS BOLINHA DE CARNE MP 1 KG",
+  "SALGADOS EMPADA DE FRANGO MP 1 KG",
+  "SALGADOS ENROLADINHO PRESUNTO MP 1 KG",
+  "SALGADOS PASTEL CATUPIRY MP 1 KG",
   "SALGADOS KIBE CATUPIRY MP 1 KG",
   "SONHO MP PAC 3 KG"
 ];
@@ -512,14 +515,13 @@ const frasesDireita = [
   "Baguete 06hrs 7kg",
   "Baguete 12hrs 7kg",
   "Biscoitinho doce frito 1kg",
+  "Biscoito chipa 7kg",
   "Biscoito de queijo 7kg",
   "Biscoito três queijos 7kg",
   "Bolinha de carne pequena 1kg",
   "Bolo cremoso de fubá 1 unidade",
   "Bolo cremoso de milho 1 unidade",
   "Broinha de fubá doce 7kg",
-  "Broinha de fubá doce grande 10 unidades",
-  "Broinha de sal e queijo 7kg",
   "Broinha temperada com bacon 7kg",
   "Canudinho de queijo 7kg",
   "Caracol 7kg",
@@ -530,26 +532,30 @@ const frasesDireita = [
   "Empadinha de frango pequena 1kg",
   "Enroladinho de presunto pequeno 1kg",
   "Meia lua 1kg com 10 unidades",
+  "Mini carioca 7kg",
   "Mistura biscoito sequilho 4kg",
-  "Panhoca 06hrs 7kg",
+  "Panhoca 7kg",
   "Pão de batata 7kg",
-  "Pão de queijo recheado frango 7kg",
-  "Pão de queijo tradicional grande",
-  "Pão de queijo tradicional 7kg",
+  "Pão de milho 7kg",
+  "Pão de queijo recheado frango pequeno 7kg",
+  "Pão de queijo tradicional grande 1kg",
+  "Pão de queijo tradicional pequeno 7kg",
   "Pão francês 04hrs 7kg",
   "Pão francês 06hrs 7kg",
   "Pão francês 12hrs 7kg",
+  "Pão francês 18hrs 7kg",
   "Pastelzinho catupiry pequeno 1kg",
   "Quibe com catupiry pequeno 1kg",
   "Rosca creme e coco PCT 5 unidades",
-  "Rosca frutas cristalizadas PCT 5 unidades",
+  "Rosca frutas cristalizadas PCT 5 unidades",  
   "Roscovado 1 unidade",
   "Sonho PCT 3kg",
   "Trança PCT 10 unidades",
-  "Trancinha PCT 3kg"
+  "Trancinha PCT 3kg",
+  "Trancinha redonda"
 ];
 
-const mapaConexao = [7,8,9,10,11,33,12,13,16,15,17,18,31,23,24,32,19,20,34,35,22,14,25,21,3,2,1,6,4,5,36,37,27,28,26,38,29,30];
+const mapaConexao = [8,9,11,10,12,14,36,15,16,17,18,34,23,24,35,19,20,37,38,22,25,13,27,21,26,1,2,7,6,3,4,5,39,40,29,30,28,41,31,32,33]
 
 /* ============================
    Utilitários

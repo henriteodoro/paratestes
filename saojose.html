@@ -32,11 +32,15 @@
   .titulo-nav h1 { margin:0; font-size:18px; color:#111; }
   .datebar { display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap; margin:0 auto; }
   .datebar label { color:#333; }
+  .date-input-wrap { display:flex; align-items:center; gap:4px; }
   .datebar input[type="text"]{
     border:1px solid #ddd; border-radius:6px; padding:6px 8px; width:160px;
     caret-color: #111; -webkit-appearance: none; appearance: none;
   }
   .datebar input[type="text"]:focus { outline:none; border-color:var(--azul-escuro); box-shadow:0 0 0 3px rgba(0,123,255,.12); }
+  .date-spinner { display:flex; flex-direction:column; gap:2px; }
+  .date-spinner button { background:transparent; border:none; padding:2px 6px; cursor:pointer; font-size:12px; line-height:1; border-radius:4px; }
+  .date-spinner button:hover { background: rgba(0,0,0,0.04); }
   .chip { background:#fff; border:1px solid #e5e7eb; border-radius:999px; padding:6px 10px; font-size:12px; cursor:pointer; }
   .chip:hover{ border-color:#cbd5e1 }
 
@@ -71,8 +75,12 @@
   /* A segunda coluna (quantidade) aumentada para evitar quebra em PDFs */
   .item { display:grid; grid-template-columns: 1fr 120px; align-items:center; gap:10px; padding:6px 8px; border-bottom:1px dashed #eef2ff; }
   .item:last-child{ border-bottom:none }
-  .item .label { color:#111; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .item input[type="number"] { width:100%; padding:6px 6px; text-align:center; border:1px solid #ddd; border-radius:6px; background:#fff; box-sizing:border-box; }
+  .item .label { display:block; color:#111; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .item .label.expanded { white-space:normal; }
+  .label-text { display:inline-block; vertical-align:middle; }
+  .more-btn { display:none; background:none; border:none; cursor:pointer; padding:0 6px; font-weight:700; font-size:14px; color:var(--azul-escuro); }
+  .more-btn.visible { display:inline-block; }
+  .item input[type="number"] { width:100%; padding:6px 6px; text-align:left; border:1px solid #ddd; border-radius:6px; background:#fff; box-sizing:border-box; }
   .item input[type="number"]:focus { outline:none; border-color:var(--azul-escuro); box-shadow:0 0 0 3px rgba(0,123,255,.12); }
   .item.hidden-empty{ display:none }
 
@@ -88,6 +96,7 @@
   .obs-box { max-width:1200px; margin: 12px auto 22px; padding:10px; border:1px solid var(--line); border-radius:10px; }
   .obs-box h3{ margin:0 0 8px 0; font-size:14px; }
   .obs-box textarea{ width:100%; min-height:90px; padding:8px; resize:vertical; border-radius:6px; border:1px solid #ddd; font-family: monospace; }
+  .obs-controls { margin-top:8px; display:flex; align-items:center; gap:8px; }
 
   /* ===== Rodapé Links ===== */
   .mac-links { margin: 0 14px 30px; display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; align-items:stretch; }
@@ -108,9 +117,10 @@
     header, .menu-dropdown-content, #middle-controls, .mac-links, #copy-notice { display:none !important; }
     .top-center { display:block !important; }
     .container { gap:0; padding:0; max-width: none; }
-    .column { box-shadow:none; border:1px solid #000 !important; min-width:40%; }
-    .item { border-bottom:1px solid #000 !important; }
-    .obs-box { border:1px solid #000 !important; }
+    .column { box-shadow:none; border:2px solid #000 !important; min-width:30%; }
+    #coluna-principal { min-width:28%; }
+    .item { border-bottom:2px solid #000 !important; }
+    .obs-box { border:2px solid #000 !important; min-height:160px; }
     .page-bottom-space { display:none; }
     body { color: #000; background: #fff; }
   }
@@ -174,7 +184,14 @@
   <!-- Barra de Data -->
   <div class="datebar">
     <label for="dataPedido">Data:</label>
-    <input id="dataPedido" type="text" placeholder="dd/mm/aaaa" inputmode="numeric" autocomplete="off" />
+    <div class="date-input-wrap">
+      <input id="dataPedido" type="text" placeholder="dd/mm/aaaa" inputmode="numeric" autocomplete="off" />
+      <div class="date-spinner" aria-hidden="true">
+        <button id="date-up" title="Aumentar data">▲</button>
+        <button id="date-down" title="Diminuir data">▼</button>
+      </div>
+    </div>
+    <button class="chip" id="chipOntem">Ontem</button>
     <button class="chip" id="chipHoje">Hoje</button>
     <button class="chip" id="chipAmanha">Amanhã</button>
   </div>
@@ -201,6 +218,9 @@
 <div class="obs-box">
   <h3>OBSERVAÇÕES</h3>
   <textarea id="observacoes" placeholder="Escreva observações que aparecerão ao copiar/salvar/imprimir..."></textarea>
+  <div class="obs-controls">
+    <label><input type="checkbox" id="chkPrintObsTitle" checked /> Incluir título "Observações" na impressão</label>
+  </div>
 </div>
 
 <!-- Toast / aviso -->
@@ -329,13 +349,44 @@ function showBottomNotice(message = 'Copiado!', duration = 2000) {
 function makeItem(nome){
   const wrap = document.createElement('div');
   wrap.className = 'item';
-  const label = document.createElement('span');
+
+  // label container (allows truncated text + "..." button)
+  const label = document.createElement('div');
   label.className = 'label';
-  label.textContent = nome;
+
+  const labelText = document.createElement('span');
+  labelText.className = 'label-text';
+  labelText.textContent = nome;
+
+  const moreBtn = document.createElement('button');
+  moreBtn.type = 'button';
+  moreBtn.className = 'more-btn';
+  moreBtn.textContent = '...';
+  moreBtn.title = 'Mostrar texto completo';
+  moreBtn.addEventListener('click', ()=>{
+    const expanded = label.classList.toggle('expanded');
+    moreBtn.textContent = expanded ? '↩' : '...';
+    // after toggling, recompute layout
+    requestAnimationFrame(()=> updateOverflowForItem(wrap));
+  });
+
+  label.appendChild(labelText);
+  label.appendChild(moreBtn);
+
   const input = document.createElement('input');
   input.type = 'number'; input.min = '0'; input.step = '1'; input.placeholder = '0';
   input.addEventListener('input', ()=> { if(ocultando) applyHideState(); atualizarContagem(); });
-  wrap.appendChild(label); wrap.appendChild(input);
+
+  // Enter navigation: pula para o próximo campo
+  input.addEventListener('keydown', (ev)=>{
+    if(ev.key === 'Enter'){
+      ev.preventDefault();
+      moveFocusToNext(input);
+    }
+  });
+
+  wrap.appendChild(label);
+  wrap.appendChild(input);
   return wrap;
 }
 
@@ -344,13 +395,32 @@ function montarListas(){
   p.innerHTML = ''; i.innerHTML = '';
   PRODUTOS_PRINCIPAL.forEach(n=> p.appendChild(makeItem(n)));
   PRODUTOS_ILHA.forEach(n=> i.appendChild(makeItem(n)));
+
+  // after items exist, update overflow indicators
+  requestAnimationFrame(()=> updateOverflowForAll());
 }
+
+/*********************** Overflow / "..." detection ***********************/
+function updateOverflowForItem(item){
+  const labelText = item.querySelector('.label-text');
+  const moreBtn = item.querySelector('.more-btn');
+  if(!labelText || !moreBtn) return;
+  // force single-line to measure
+  const prevWhite = labelText.style.whiteSpace;
+  labelText.style.whiteSpace = 'nowrap';
+  const isOverflowing = labelText.scrollWidth > labelText.clientWidth + 2;
+  labelText.style.whiteSpace = prevWhite || '';
+  if(isOverflowing){ moreBtn.classList.add('visible'); } else { moreBtn.classList.remove('visible'); item.querySelector('.label').classList.remove('expanded'); moreBtn.textContent = '...'; }
+}
+function updateOverflowForAll(){ $$('#listaPrincipal .item, #listaIlha .item').forEach(updateOverflowForItem); }
+window.addEventListener('resize', ()=> requestAnimationFrame(updateOverflowForAll));
 
 /***********************  Data (campo com dd/mm/aaaa) ***********************/
 function pad2(n){ return String(n).padStart(2,'0'); }
 function formatDDMMYYYY(date){ return `${pad2(date.getDate())}/${pad2(date.getMonth()+1)}/${date.getFullYear()}`; }
+function formatDDMMSHORT(date){ return `${pad2(date.getDate())}/${pad2(date.getMonth()+1)}`; }
 function parseDateInput(v){ if(!v) return null; v = v.replace(/\s+/g,'');
-  if(/^\d{4}-\d{2}-\d{2}$/.test(v)){
+  if(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(v)){
     const d = new Date(v);
     if(!isNaN(d)) return d;
   }
@@ -362,12 +432,14 @@ function setDateTo(date){ if(!date) return; $('#dataPedido').value = formatDDMMY
 function getDisplayDateFull(){ const v = $('#dataPedido').value.trim(); const dt = parseDateInput(v); return dt ? formatDDMMYYYY(dt) : ''; }
 function sanitizeDateForFile(s){ return s ? s.replace(/\//g,'-') : ''; }
 
+function addDays(date, days){ const d = new Date(date); d.setDate(d.getDate() + days); return d; }
+
 /***********************  Coleta ***********************/
 function coletarSeção(rootSel){
   const rows = $$(rootSel + ' .item');
   const out = [];
   rows.forEach(r=>{
-    const nome = r.querySelector('.label').textContent.trim();
+    const nome = r.querySelector('.label-text').textContent.trim();
     const val = r.querySelector('input').value.trim();
     if(val!=='' && Number(val)>0){ out.push({prod:nome, qtd:Number(val)}); }
   });
@@ -396,6 +468,7 @@ function resetarTudo(){
   $('#btn-linhas').textContent = 'Ocultar Linhas Vazias';
   setDateTo(new Date());
   $('#observacoes').value = '';
+  $('#chkPrintObsTitle').checked = true;
   atualizarContagem();
   showBottomNotice('Tudo limpo');
 }
@@ -410,6 +483,7 @@ function copiarTudo(){
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
   const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
+  const includeObsTitle = document.getElementById('chkPrintObsTitle').checked;
   if(p.length===0 && i.length===0 && !obs){ showBottomNotice('Nada para copiar'); return; }
   let txt = '';
   const ddmm = getDisplayDateFull();
@@ -420,7 +494,7 @@ function copiarTudo(){
     txt += '\nILHA SÃO JOSÉ\n';
     i.forEach(({prod,qtd})=> txt += `${getPrintName(prod)} * ${qtd}\n`);
   }
-  if(obs){ txt += `\nOBSERVAÇÕES:\n${obs}\n`; }
+  if(obs){ txt += '\n'; if(includeObsTitle) txt += `OBSERVAÇÕES:\n`; txt += `${obs}\n`; }
   navigator.clipboard.writeText(txt).then(()=> showBottomNotice('Copiado!')).catch(()=> showBottomNotice('Falha ao copiar'));
 }
 
@@ -429,6 +503,7 @@ function salvarTXT(e){ if(e) e.preventDefault();
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
   const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
+  const includeObsTitle = document.getElementById('chkPrintObsTitle').checked;
   if(p.length===0 && i.length===0 && !obs){ showBottomNotice('Nada para salvar'); return; }
   const ddmm = getDisplayDateFull();
   let txt = `PEDIDO SÃO JOSÉ ${ddmm}\n`;
@@ -438,7 +513,7 @@ function salvarTXT(e){ if(e) e.preventDefault();
     txt += `\nILHA SÃO JOSÉ;QUANTIDADE (PCT)\n`;
     i.forEach(({prod,qtd})=> txt += `${getPrintName(prod)};${qtd}\n`);
   }
-  if(obs){ txt += `\nOBSERVAÇÕES:\n${obs}\n`; }
+  if(obs){ txt += `\n`; if(includeObsTitle) txt += `OBSERVAÇÕES:\n`; txt += `${obs}\n`; }
   const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   const fileDate = sanitizeDateForFile(ddmm) || 'sem-data';
@@ -452,6 +527,7 @@ function gerarPDF({abrirEmNovaAba=false, baixarNome}){
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
   const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
+  const includeObsTitle = document.getElementById('chkPrintObsTitle').checked;
   if(p.length===0 && i.length===0 && !obs){ showBottomNotice('Nada para imprimir'); return; }
 
   const ddmm = getDisplayDateFull();
@@ -467,7 +543,7 @@ function gerarPDF({abrirEmNovaAba=false, baixarNome}){
 
   let doc, fits = false;
   let margin = 36;
-  const numericColWidth = 120; // aumentado para evitar quebra de 'QUANTIDADE (PCT)'
+  const numericColWidth = 160; // aumentado para reduzir a largura da coluna de produtos
 
   while(!fits && fontSize >= minFont){
     const { jsPDF } = window.jspdf;
@@ -475,10 +551,11 @@ function gerarPDF({abrirEmNovaAba=false, baixarNome}){
     const pageW = doc.internal.pageSize.getWidth();
     const pageH = doc.internal.pageSize.getHeight();
 
-    doc.setFont('helvetica','bold'); doc.setFontSize(14);
+    // use fonte monoespaçada para combinar com o resto do layout
+    doc.setFont('courier','bold'); doc.setFontSize(14);
     doc.text(titulo, pageW/2, 48, {align:'center'});
 
-    doc.setFont('helvetica','');
+    doc.setFont('courier','');
     doc.autoTable({
       startY: 70,
       head: [["PRODUTOS","QUANTIDADE (PCT)"]],
@@ -486,7 +563,7 @@ function gerarPDF({abrirEmNovaAba=false, baixarNome}){
       theme: 'grid',
       margin: {left: margin, right: margin},
       tableWidth: pageW - margin*2,
-      styles: { font: 'helvetica', fontSize: fontSize, cellPadding: 2, lineColor: [0,0,0], lineWidth: 0.5, textColor: [0,0,0], overflow: 'linebreak' },
+      styles: { font: 'courier', fontSize: fontSize, cellPadding: 2, lineColor: [0,0,0], lineWidth: 1.2, textColor: [0,0,0], overflow: 'linebreak' },
       headStyles: { fillColor: headFill, textColor: headText, fontStyle: 'bold' },
       columnStyles: { 0: { cellWidth: pageW - margin*2 - numericColWidth }, 1: { cellWidth: numericColWidth } },
     });
@@ -501,7 +578,7 @@ function gerarPDF({abrirEmNovaAba=false, baixarNome}){
         theme: 'grid',
         margin: {left: margin, right: margin},
         tableWidth: pageW - margin*2,
-        styles: { font: 'helvetica', fontSize: fontSize, cellPadding: 2, lineColor: [0,0,0], lineWidth: 0.5, textColor: [0,0,0], overflow: 'linebreak' },
+        styles: { font: 'courier', fontSize: fontSize, cellPadding: 2, lineColor: [0,0,0], lineWidth: 1.2, textColor: [0,0,0], overflow: 'linebreak' },
         headStyles: { fillColor: headFill, textColor: headText, fontStyle: 'bold' },
         columnStyles: { 0: { cellWidth: pageW - margin*2 - numericColWidth }, 1: { cellWidth: numericColWidth } },
       });
@@ -511,12 +588,12 @@ function gerarPDF({abrirEmNovaAba=false, baixarNome}){
     if(obs){
       const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY : nextY;
       const obsStartY = finalY + 14;
-      doc.setFont('helvetica','bold'); doc.setFontSize(fontSize);
-      doc.text('OBSERVAÇÕES:', margin, obsStartY);
-      doc.setFont('helvetica',''); doc.setFontSize(fontSize);
+      doc.setFont('courier',''); doc.setFontSize(fontSize);
+      if(includeObsTitle){ doc.setFont('courier','bold'); doc.text('OBSERVAÇÕES:', margin, obsStartY); doc.setFont('courier',''); }
       const maxWidth = pageW - margin*2;
       const splitObs = doc.splitTextToSize(obs, maxWidth);
-      doc.text(splitObs, margin, obsStartY + fontSize + 4);
+      const obsY = obsStartY + (includeObsTitle ? fontSize + 4 : 0) + 4;
+      doc.text(splitObs, margin, obsY);
     }
 
     const pages = doc.internal.getNumberOfPages();
@@ -565,6 +642,7 @@ function salvarExcel(e){ if(e) e.preventDefault();
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
   const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
+  const includeObsTitle = document.getElementById('chkPrintObsTitle').checked;
   if(p.length===0 && i.length===0 && !obs){ showBottomNotice('Nada para salvar'); return; }
   const ddmm = getDisplayDateFull();
   const linhas = [];
@@ -572,10 +650,10 @@ function salvarExcel(e){ if(e) e.preventDefault();
   linhas.push(["", "PRODUTOS", "QUANTIDADE (PCT)"]);
   p.forEach(({prod,qtd})=> linhas.push(["", getPrintName(prod), String(qtd)]));
   if(i.length>0){ linhas.push(["", "", ""]); linhas.push(["", "ILHA SÃO JOSÉ", "QUANTIDADE (PCT)"]); i.forEach(({prod,qtd})=> linhas.push(["", getPrintName(prod), String(qtd)])); }
-  if(obs){ linhas.push(["", "", ""]); linhas.push(["", "OBSERVAÇÕES", ""]); const obsLines = obs.split(/\r?\n/); obsLines.forEach(l=> linhas.push(["", l, ""])); }
+  if(obs){ linhas.push(["", "", ""]); if(includeObsTitle) linhas.push(["", "OBSERVAÇÕES", ""]); const obsLines = obs.split(/\r?\n/); obsLines.forEach(l=> linhas.push(["", l, ""])); }
   const ws = XLSX.utils.aoa_to_sheet(linhas);
   ws['!merges'] = [{ s:{r:0,c:1}, e:{r:0,c:2} }];
-  ws['!cols'] = [ {wch:2}, {wch:50}, {wch:30} ]; // largura da coluna numérica aumentada
+  ws['!cols'] = [ {wch:2}, {wch:40}, {wch:18} ]; // largura ajustada
   const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'PEDIDO');
   XLSX.writeFile(wb, `PEDIDO_SAO_JOSE_${sanitizeDateForFile(ddmm) || 'sem-data'}.xlsx`);
   showBottomNotice('Excel gerado');
@@ -598,10 +676,40 @@ function navegarProximo(){ }
 function abrirMac(e, nome){ if(e) e.preventDefault(); document.getElementById('titulo-principal').textContent = nome; toggleMenu('dropdown-menu'); }
 function abrirLocal(e, nome){ if(e) e.preventDefault(); toggleMenu('dropdown-menu'); }
 
+/***********************  Enter navigation logic across columns ***********************/
+function moveFocusToNext(currentInput){
+  const inputs = Array.from(document.querySelectorAll('#listaPrincipal .item input, #listaIlha .item input'));
+  const idx = inputs.indexOf(currentInput);
+  const next = inputs[idx+1] || inputs[0];
+  if(next){ next.focus(); next.select ? next.select() : next.focus(); }
+}
+
+/***********************  Date chips & spinner behavior ***********************/
+function updateChips(){
+  const today = new Date();
+  const ontem = addDays(today, -1);
+  const amanha = addDays(today, 1);
+  const chipHoje = $('#chipHoje'); const chipAmanha = $('#chipAmanha'); const chipOntem = $('#chipOntem');
+  if(chipHoje) chipHoje.textContent = `Hoje (${formatDDMMSHORT(today)})`;
+  if(chipAmanha) chipAmanha.textContent = `Amanhã (${formatDDMMSHORT(amanha)})`;
+  if(chipOntem) chipOntem.textContent = `Ontem (${formatDDMMSHORT(ontem)})`;
+}
+
+function initDateControls(){
+  updateChips();
+  $('#chipHoje').addEventListener('click', ()=> setDateTo(new Date()));
+  $('#chipAmanha').addEventListener('click', ()=> setDateTo(addDays(new Date(),1)));
+  $('#chipOntem').addEventListener('click', ()=> setDateTo(addDays(new Date(),-1)));
+  $('#date-up').addEventListener('click', ()=>{ const d = parseDateInput($('#dataPedido').value) || new Date(); setDateTo(addDays(d,1)); });
+  $('#date-down').addEventListener('click', ()=>{ const d = parseDateInput($('#dataPedido').value) || new Date(); setDateTo(addDays(d,-1)); });
+  $('#dataPedido').addEventListener('keydown', (e)=>{ if(e.key === 'ArrowUp'){ e.preventDefault(); const d = parseDateInput($('#dataPedido').value) || new Date(); setDateTo(addDays(d,1)); } if(e.key === 'ArrowDown'){ e.preventDefault(); const d = parseDateInput($('#dataPedido').value) || new Date(); setDateTo(addDays(d,-1)); } });
+}
+
 /***********************  Inicialização ***********************/
 function init(){
   montarListas();
   setDateTo(new Date());
+  initDateControls();
 
   const $data = $('#dataPedido');
   $data.addEventListener('blur', ()=>{ const d = parseDateInput($data.value.trim()); $data.value = d ? formatDDMMYYYY(d) : ''; });
@@ -610,7 +718,11 @@ function init(){
   $('#chipAmanha').addEventListener('click', ()=>{ const d=new Date(); d.setDate(d.getDate()+1); setDateTo(d); });
 
   const printBtn = document.getElementById('btn-print'); if(printBtn){ printBtn.addEventListener('click', (ev)=>{ ev.preventDefault(); imprimirDireto(); }); }
+
+  // update overflow in case fonts/size changed after load
+  requestAnimationFrame(updateOverflowForAll);
 }
+
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Pedido — São José (Mix estética + lógica) — Atualizado</title>
+<title>Pedido — São José (Mix estética + lógica) — Atualizado (Impressão)</title>
 
 <!-- jsPDF, AutoTable e SheetJS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -19,10 +19,20 @@
     --bg: #ffffff;
     --ink: #111;
     --line: #e6eef9;
+
+    /* FONTES: alterar aqui para trocar a fonte de impressão facilmente
+       Exemplo para voltar à fonte antiga (Courier):
+         --print-font: 'Courier New', Courier, monospace;
+    */
+    --screen-font: monospace; /* fonte usada na tela */
+    --print-font: 'Helvetica', Arial, sans-serif; /* fonte consistente para impressão/PDF */
+
+    /* borda de impressão (alterar para deixar mais fina/grossa) */
+    --print-border: 3px;
   }
   html,body { height:100%; }
   body {
-    font-family: monospace;
+    font-family: var(--screen-font);
     margin: 0; padding: 0; color: var(--ink); background: var(--bg);
   }
 
@@ -59,7 +69,6 @@
   .submenu { display:none; padding-left:6px; padding-bottom:6px; }
 
   /* ===== Container / Colunas ===== */
-  /* Garantir espaço igual entre coluna esquerda / controles / coluna direita */
   .container {
     display:grid; grid-template-columns: minmax(260px,1fr) 200px minmax(260px,1fr); align-items:start; justify-content:center; gap: 32px;
     padding: 10px 14px 24px; max-width:1200px; margin: 0 auto;
@@ -71,8 +80,11 @@
   /* A segunda coluna (quantidade) aumentada para evitar quebra em PDFs */
   .item { display:grid; grid-template-columns: 1fr 120px; align-items:center; gap:10px; padding:6px 8px; border-bottom:1px dashed #eef2ff; }
   .item:last-child{ border-bottom:none }
-  .item .label { color:#111; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .item input[type="number"] { width:100%; padding:6px 6px; text-align:center; border:1px solid #ddd; border-radius:6px; background:#fff; box-sizing:border-box; }
+  .label-wrap{ display:flex; align-items:center; gap:8px; min-width:0; }
+  .item .label { color:#111; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; min-width:0; }
+  .item .label.expanded{ white-space:normal; overflow:visible; }
+  .ellipsis-btn{ background:none; border:none; cursor:pointer; font-weight:700; padding:2px 6px; border-radius:6px; font-size:12px; }
+  .item input[type="number"] { width:100%; padding:6px 6px; text-align:left; border:1px solid #ddd; border-radius:6px; background:#fff; box-sizing:border-box; }
   .item input[type="number"]:focus { outline:none; border-color:var(--azul-escuro); box-shadow:0 0 0 3px rgba(0,123,255,.12); }
   .item.hidden-empty{ display:none }
 
@@ -88,6 +100,7 @@
   .obs-box { max-width:1200px; margin: 12px auto 22px; padding:10px; border:1px solid var(--line); border-radius:10px; }
   .obs-box h3{ margin:0 0 8px 0; font-size:14px; }
   .obs-box textarea{ width:100%; min-height:90px; padding:8px; resize:vertical; border-radius:6px; border:1px solid #ddd; font-family: monospace; }
+  .obs-options{ display:flex; align-items:center; gap:8px; margin-top:8px; }
 
   /* ===== Rodapé Links ===== */
   .mac-links { margin: 0 14px 30px; display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; align-items:stretch; }
@@ -103,16 +116,22 @@
 
   .page-bottom-space { height: 120px; }
 
-  /* Impressão: forçar bordas e linhas em preto */
+  /* Impressão: forçar bordas e linhas em preto e fonte consistente */
   @media print {
     header, .menu-dropdown-content, #middle-controls, .mac-links, #copy-notice { display:none !important; }
     .top-center { display:block !important; }
-    .container { gap:0; padding:0; max-width: none; }
-    .column { box-shadow:none; border:1px solid #000 !important; min-width:40%; }
-    .item { border-bottom:1px solid #000 !important; }
-    .obs-box { border:1px solid #000 !important; }
+    .container { gap:0; padding:0; max-width: none; grid-template-columns: minmax(200px,0.45fr) 0 minmax(200px,0.55fr); }
+    .column { box-shadow:none; border: var(--print-border) solid #000 !important; min-width:40%; }
+    .item { border-bottom: var(--print-border) solid #000 !important; }
+    .obs-box { border: var(--print-border) solid #000 !important; }
     .page-bottom-space { display:none; }
-    body { color: #000; background: #fff; }
+
+    /* garantir fonte única e consistente para tudo que é impresso */
+    body { color: #000; background: #fff; font-family: var(--print-font); font-size: 11pt; }
+    .obs-box textarea{ min-height:160px; font-size:11pt; font-family: var(--print-font); line-height:1.25; white-space: pre-wrap; }
+
+    /* garantir que labels e tabelas também usem a mesma fonte */
+    .item .label, .item input, .titulo-nav h1 { font-family: var(--print-font); }
   }
 </style>
 </head>
@@ -175,6 +194,7 @@
   <div class="datebar">
     <label for="dataPedido">Data:</label>
     <input id="dataPedido" type="text" placeholder="dd/mm/aaaa" inputmode="numeric" autocomplete="off" />
+    <button class="chip" id="chipOntem">Ontem</button>
     <button class="chip" id="chipHoje">Hoje</button>
     <button class="chip" id="chipAmanha">Amanhã</button>
   </div>
@@ -201,6 +221,9 @@
 <div class="obs-box">
   <h3>OBSERVAÇÕES</h3>
   <textarea id="observacoes" placeholder="Escreva observações que aparecerão ao copiar/salvar/imprimir..."></textarea>
+  <div class="obs-options">
+    <label><input type="checkbox" id="printObsTitle" checked /> Incluir o título "OBSERVAÇÕES" na impressão</label>
+  </div>
 </div>
 
 <!-- Toast / aviso -->
@@ -329,13 +352,43 @@ function showBottomNotice(message = 'Copiado!', duration = 2000) {
 function makeItem(nome){
   const wrap = document.createElement('div');
   wrap.className = 'item';
+
+  const labelWrap = document.createElement('div');
+  labelWrap.className = 'label-wrap';
+
   const label = document.createElement('span');
   label.className = 'label';
   label.textContent = nome;
+
+  const ell = document.createElement('button');
+  ell.type = 'button';
+  ell.className = 'ellipsis-btn';
+  ell.textContent = '...';
+  ell.title = 'Mostrar texto completo';
+  ell.style.display = 'none';
+  ell.addEventListener('click', (ev)=>{
+    ev.preventDefault();
+    const expanded = label.classList.toggle('expanded');
+    ell.textContent = expanded ? '▴' : '...';
+    ell.title = expanded ? 'Fechar' : 'Mostrar texto completo';
+  });
+
+  labelWrap.appendChild(label);
+  labelWrap.appendChild(ell);
+
   const input = document.createElement('input');
   input.type = 'number'; input.min = '0'; input.step = '1'; input.placeholder = '0';
   input.addEventListener('input', ()=> { if(ocultando) applyHideState(); atualizarContagem(); });
-  wrap.appendChild(label); wrap.appendChild(input);
+
+  // Enter navigation handler
+  input.addEventListener('keydown', (ev)=>{
+    if(ev.key === 'Enter'){
+      ev.preventDefault();
+      focusNextInput(ev.target);
+    }
+  });
+
+  wrap.appendChild(labelWrap); wrap.appendChild(input);
   return wrap;
 }
 
@@ -344,11 +397,27 @@ function montarListas(){
   p.innerHTML = ''; i.innerHTML = '';
   PRODUTOS_PRINCIPAL.forEach(n=> p.appendChild(makeItem(n)));
   PRODUTOS_ILHA.forEach(n=> i.appendChild(makeItem(n)));
+  // adicionar checagem de "..." após inserir na DOM
+  setTimeout(checkTruncations, 30);
 }
+
+function checkTruncations(){
+  $$('#listaPrincipal .item, #listaIlha .item').forEach(item=>{
+    const label = item.querySelector('.label'); const btn = item.querySelector('.ellipsis-btn');
+    if(!label || !btn) return;
+    // se o texto real for maior que o espaço disponível, mostrar botão
+    const isTruncated = label.scrollWidth > label.clientWidth + 2;
+    btn.style.display = isTruncated ? 'inline-block' : 'none';
+    if(!isTruncated){ label.classList.remove('expanded'); btn.textContent = '...'; }
+  });
+}
+
+window.addEventListener('resize', ()=>{ setTimeout(checkTruncations, 100); });
 
 /***********************  Data (campo com dd/mm/aaaa) ***********************/
 function pad2(n){ return String(n).padStart(2,'0'); }
 function formatDDMMYYYY(date){ return `${pad2(date.getDate())}/${pad2(date.getMonth()+1)}/${date.getFullYear()}`; }
+function formatDDMM(date){ return `${pad2(date.getDate())}/${pad2(date.getMonth()+1)}`; }
 function parseDateInput(v){ if(!v) return null; v = v.replace(/\s+/g,'');
   if(/^\d{4}-\d{2}-\d{2}$/.test(v)){
     const d = new Date(v);
@@ -372,6 +441,19 @@ function coletarSeção(rootSel){
     if(val!=='' && Number(val)>0){ out.push({prod:nome, qtd:Number(val)}); }
   });
   return out;
+}
+
+/***********************  Enter navigation helper ***********************/
+function focusNextInput(current){
+  const inputs = Array.from(document.querySelectorAll('#listaPrincipal input[type="number"], #listaIlha input[type="number"]'));
+  const idx = inputs.indexOf(current);
+  if(idx === -1) return;
+  // procurar próximo input disponível (mesmo se vazio)
+  for(let i=idx+1;i<inputs.length;i++){
+    const next = inputs[i];
+    if(next){ next.focus(); next.select(); return; }
+  }
+  // se não houver próximo, nada (poderíamos voltar pro primeiro)
 }
 
 /***********************  Toggle Linhas Vazias ***********************/
@@ -475,10 +557,11 @@ function gerarPDF({abrirEmNovaAba=false, baixarNome}){
     const pageW = doc.internal.pageSize.getWidth();
     const pageH = doc.internal.pageSize.getHeight();
 
+    // usar fonte consistente (definida como --print-font no CSS). jsPDF tem 'helvetica' como fonte base.
     doc.setFont('helvetica','bold'); doc.setFontSize(14);
     doc.text(titulo, pageW/2, 48, {align:'center'});
 
-    doc.setFont('helvetica','');
+    doc.setFont('helvetica','normal');
     doc.autoTable({
       startY: 70,
       head: [["PRODUTOS","QUANTIDADE (PCT)"]],
@@ -486,7 +569,7 @@ function gerarPDF({abrirEmNovaAba=false, baixarNome}){
       theme: 'grid',
       margin: {left: margin, right: margin},
       tableWidth: pageW - margin*2,
-      styles: { font: 'helvetica', fontSize: fontSize, cellPadding: 2, lineColor: [0,0,0], lineWidth: 0.5, textColor: [0,0,0], overflow: 'linebreak' },
+      styles: { font: 'helvetica', fontSize: fontSize, cellPadding: 2, lineColor: [0,0,0], lineWidth: 1.2, textColor: [0,0,0], overflow: 'linebreak' },
       headStyles: { fillColor: headFill, textColor: headText, fontStyle: 'bold' },
       columnStyles: { 0: { cellWidth: pageW - margin*2 - numericColWidth }, 1: { cellWidth: numericColWidth } },
     });
@@ -501,7 +584,7 @@ function gerarPDF({abrirEmNovaAba=false, baixarNome}){
         theme: 'grid',
         margin: {left: margin, right: margin},
         tableWidth: pageW - margin*2,
-        styles: { font: 'helvetica', fontSize: fontSize, cellPadding: 2, lineColor: [0,0,0], lineWidth: 0.5, textColor: [0,0,0], overflow: 'linebreak' },
+        styles: { font: 'helvetica', fontSize: fontSize, cellPadding: 2, lineColor: [0,0,0], lineWidth: 1.2, textColor: [0,0,0], overflow: 'linebreak' },
         headStyles: { fillColor: headFill, textColor: headText, fontStyle: 'bold' },
         columnStyles: { 0: { cellWidth: pageW - margin*2 - numericColWidth }, 1: { cellWidth: numericColWidth } },
       });
@@ -511,17 +594,20 @@ function gerarPDF({abrirEmNovaAba=false, baixarNome}){
     if(obs){
       const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY : nextY;
       const obsStartY = finalY + 14;
+      const includeTitle = document.getElementById('printObsTitle') ? document.getElementById('printObsTitle').checked : true;
       doc.setFont('helvetica','bold'); doc.setFontSize(fontSize);
-      doc.text('OBSERVAÇÕES:', margin, obsStartY);
-      doc.setFont('helvetica',''); doc.setFontSize(fontSize);
+      if(includeTitle){ doc.text('OBSERVAÇÕES:', margin, obsStartY); }
+      doc.setFont('helvetica','normal'); doc.setFontSize(fontSize);
       const maxWidth = pageW - margin*2;
       const splitObs = doc.splitTextToSize(obs, maxWidth);
-      doc.text(splitObs, margin, obsStartY + fontSize + 4);
+      const textY = obsStartY + (includeTitle ? fontSize + 4 : 0);
+      doc.text(splitObs, margin, textY);
     }
 
     const pages = doc.internal.getNumberOfPages();
     const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY : 0;
 
+    // checar se tudo coube em uma página
     if(pages === 1 && finalY <= (pageH - 24)){
       fits = true;
       break;
@@ -599,18 +685,29 @@ function abrirMac(e, nome){ if(e) e.preventDefault(); document.getElementById('t
 function abrirLocal(e, nome){ if(e) e.preventDefault(); toggleMenu('dropdown-menu'); }
 
 /***********************  Inicialização ***********************/
+function setChipLabels(){
+  const hoje = new Date(); const amanha = new Date(); amanha.setDate(hoje.getDate()+1); const ontem = new Date(); ontem.setDate(hoje.getDate()-1);
+  const chHoje = document.getElementById('chipHoje'); const chAmanha = document.getElementById('chipAmanha'); const chOntem = document.getElementById('chipOntem');
+  if(chHoje) chHoje.textContent = `Hoje (${formatDDMM(hoje)})`;
+  if(chAmanha) chAmanha.textContent = `Amanhã (${formatDDMM(amanha)})`;
+  if(chOntem) chOntem.textContent = `Ontem (${formatDDMM(ontem)})`;
+}
+
 function init(){
   montarListas();
   setDateTo(new Date());
+  setChipLabels();
 
   const $data = $('#dataPedido');
   $data.addEventListener('blur', ()=>{ const d = parseDateInput($data.value.trim()); $data.value = d ? formatDDMMYYYY(d) : ''; });
 
   $('#chipHoje').addEventListener('click', ()=> setDateTo(new Date()));
   $('#chipAmanha').addEventListener('click', ()=>{ const d=new Date(); d.setDate(d.getDate()+1); setDateTo(d); });
+  $('#chipOntem').addEventListener('click', ()=>{ const d=new Date(); d.setDate(d.getDate()-1); setDateTo(d); });
 
   const printBtn = document.getElementById('btn-print'); if(printBtn){ printBtn.addEventListener('click', (ev)=>{ ev.preventDefault(); imprimirDireto(); }); }
 }
+
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>

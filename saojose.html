@@ -57,8 +57,12 @@
     position: sticky; top: 0; z-index: 999;
   }
   .menu-left, .menu-right { display:flex; gap: 8px; align-items:center; }
-  .icon-btn { background:none; border:none; color:white; font-size:18px; cursor:pointer; padding:6px 8px; border-radius:6px; }
+  .icon-btn { 
+    background:none; border:none; color:white; font-size:18px; cursor:pointer; padding:6px 8px; border-radius:6px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
   .icon-btn:hover { background: rgba(255,255,255,0.08); }
+  .icon-btn img { width: 22px; height: 22px; display: block; flex-shrink: 0; filter: brightness(0) invert(1); }
   .menu-dropdown { position: relative; }
   .menu-dropdown-content { display: none; position: absolute; top: calc(100% + 6px); left: 0; background: white; color: #111; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,0.15); min-width: 220px; max-width: calc(100vw - 40px); overflow:auto; z-index: 1200; padding: 6px 0; white-space: normal; }
   .menu-right .menu-dropdown-content { right: 0; left: auto; }
@@ -81,11 +85,26 @@
   .item { display:grid; grid-template-columns: 1fr 120px; align-items:center; gap:10px; padding:6px 8px; border-bottom:1px dashed #eef2ff; }
   .item:last-child{ border-bottom:none }
   .label-wrap{ display:flex; align-items:center; gap:8px; min-width:0; }
-  .item .label { color:#111; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; min-width:0; }
+  .item .label { color:#111; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; min-width:0; font-family: var(--screen-font); }
   .item .label.expanded{ white-space:normal; overflow:visible; }
   .ellipsis-btn{ background:none; border:none; cursor:pointer; font-weight:700; padding:2px 6px; border-radius:6px; font-size:12px; }
-  .item input[type="number"] { width:100%; padding:6px 6px; text-align:left; border:1px solid #ddd; border-radius:6px; background:#fff; box-sizing:border-box; }
-  .item input[type="number"]:focus { outline:none; border-color:var(--azul-escuro); box-shadow:0 0 0 3px rgba(0,123,255,.12); }
+  
+  .item input[type="number"] { 
+    width: 100%; 
+    padding: 6px 6px; 
+    text-align: center; /* CENTRALIZADO */
+    border: 1px solid #ddd; 
+    border-radius: 6px; 
+    background: #fff; 
+    box-sizing: border-box; 
+    font-family: var(--screen-font); /* MESMA FONTE DOS PRODUTOS */
+    font-size: 14px;
+  }
+  .item input[type="number"]:focus { 
+    outline: none; 
+    border-color: var(--azul-escuro); 
+    box-shadow: 0 0 0 3px rgba(0,123,255,.12); 
+  }
   .item.hidden-empty{ display:none }
 
   /* ===== Middle controls ===== */
@@ -95,6 +114,8 @@
   #btn-linhas:hover { background:#e6c200; }
   .btn-vermelho { background: var(--vermelho); color:white; }
   .btn-vermelho:hover { background:#8b1a1a; }
+  .btn-imprimir { background: #28a745; color:white; }
+  .btn-imprimir:hover { background:#218838; }
 
   /* ===== Observações ===== */
   .obs-box { max-width:1200px; margin: 12px auto 22px; padding:10px; border:1px solid var(--line); border-radius:10px; }
@@ -116,19 +137,103 @@
 
   .page-bottom-space { height: 120px; }
 
+  /* Botão de adicionar item - ATUALIZADO (sem emoji, mesma fonte, cor harmoniosa) */
+  .add-item-btn { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 6px; 
+    margin-top: 8px; 
+    padding: 8px 12px; 
+    background: #f7fbff; 
+    border: 1px dashed #b8d4ff; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-size: 13px; 
+    color: #007BFF; 
+    font-family: var(--screen-font);
+    transition: all 0.2s ease;
+  }
+  .add-item-btn:hover { 
+    background: #eef6ff; 
+    border-color: #007BFF;
+    border-style: solid;
+  }
+
+  /* Item customizado - ATUALIZADO (campos iguais aos outros) */
+  .custom-item { 
+    display: grid; 
+    grid-template-columns: 1fr 120px 30px; 
+    align-items: center; 
+    gap: 10px; 
+    padding: 6px 8px; 
+    border-bottom: 1px dashed #eef2ff; 
+  }
+  .custom-item input[type="text"] {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-family: var(--screen-font);
+  }
+  .custom-item input[type="number"] {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-family: var(--screen-font);
+    text-align: center; /* CENTRALIZADO */
+  }
+  .custom-item input[type="number"]:focus,
+  .custom-item input[type="text"]:focus {
+    outline: none;
+    border-color: var(--azul-escuro);
+    box-shadow: 0 0 0 3px rgba(0,123,255,.12);
+  }
+  /* Botão de remover - ATUALIZADO (sem vermelho, mais discreto) */
+  .remove-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #6c757d;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+  }
+  .remove-btn:hover {
+    background: #f8f9fa;
+    color: #495057;
+  }
+
   /* Impressão: forçar bordas e linhas em preto e fonte consistente */
   @media print {
-    header, .menu-dropdown-content, #middle-controls, .mac-links, #copy-notice { display:none !important; }
+    header, .menu-dropdown-content, #middle-controls, .mac-links, #copy-notice, .add-item-btn, .remove-btn { display:none !important; }
     .top-center { display:block !important; }
     .container { gap:0; padding:0; max-width: none; grid-template-columns: minmax(200px,0.45fr) 0 minmax(200px,0.55fr); }
     .column { box-shadow:none; border: var(--print-border) solid #000 !important; min-width:40%; }
     .item { border-bottom: var(--print-border) solid #000 !important; }
-    .obs-box { border: var(--print-border) solid #000 !important; }
+    .obs-box { 
+      border: var(--print-border) solid #000 !important; 
+      margin-top: 20px !important; 
+      padding: 12px !important; 
+    }
     .page-bottom-space { display:none; }
 
     /* garantir fonte única e consistente para tudo que é impresso */
     body { color: #000; background: #fff; font-family: var(--print-font); font-size: 11pt; }
-    .obs-box textarea{ min-height:160px; font-size:11pt; font-family: var(--print-font); line-height:1.25; white-space: pre-wrap; }
+    .obs-box textarea{ 
+      min-height:160px; 
+      font-size:11pt; 
+      font-family: var(--print-font); 
+      line-height:1.25; 
+      white-space: pre-wrap; 
+      border: none !important; 
+      background-color: transparent !important; 
+    }
 
     /* garantir que labels e tabelas também usem a mesma fonte */
     .item .label, .item input, .titulo-nav h1 { font-family: var(--print-font); }
@@ -140,7 +245,10 @@
 <header>
   <div class="menu-left">
     <div class="menu-dropdown">
-      <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')">☰</button>
+      <!-- Menu Hamburger PNG -->
+      <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')">
+        <img src="icones/menu-hamburger.png" alt="Menu">
+      </button>
       <div class="menu-dropdown-content" id="dropdown-menu" role="menu" aria-hidden="true">
         <div class="dropdown-section">
           <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)"><span>MACS</span><small class="chev">▸</small></div>
@@ -164,21 +272,40 @@
         </div>
       </div>
     </div>
-    <button class="icon-btn" id="btn-close" title="Fechar" onclick="fecharPagina()">❌</button>
-    <button class="icon-btn" id="btn-home" title="Menu inicial" onclick="voltarMenu()">🏠</button>
+
+    <!-- Fechar PNG -->
+    <button class="icon-btn" id="btn-close" title="Fechar" onclick="fecharPagina()">
+      <img src="icones/fechar.png" alt="Fechar">
+    </button>
+
+    <!-- Home PNG -->
+    <button class="icon-btn" id="btn-home" title="Menu inicial" onclick="voltarMenu()">
+      <img src="icones/home.png" alt="Início">
+    </button>
   </div>
 
   <div class="menu-right">
     <div class="menu-dropdown">
-      <button class="icon-btn" id="btn-salvar" title="Salvar" onclick="toggleMenu('dropdown-save')">💾</button>
+      <!-- Salvar PNG -->
+      <button class="icon-btn" id="btn-salvar" title="Salvar" onclick="toggleMenu('dropdown-save')">
+        <img src="icones/salvar.png" alt="Salvar">
+      </button>
       <div class="menu-dropdown-content" id="dropdown-save" aria-labelledby="btn-salvar">
         <a href="#" onclick="salvarTXT(event)" title="Salvar como TXT">Salvar como TXT</a>
         <a href="#" onclick="salvarPDF(event)" title="Salvar como PDF">Salvar como PDF</a>
         <a href="#" onclick="salvarExcel(event)" title="Salvar como Excel">Salvar como Excel</a>
       </div>
     </div>
-    <button class="icon-btn" id="btn-print" title="Imprimir">🖨️</button>
-    <button class="icon-btn" id="btn-copy" title="Copiar" onclick="copiarTudo()">📋</button>
+
+    <!-- Imprimir PNG -->
+    <button class="icon-btn" id="btn-print" title="Imprimir">
+      <img src="icones/imprimir.png" alt="Imprimir">
+    </button>
+
+    <!-- Copiar PNG -->
+    <button class="icon-btn" id="btn-copy" title="Copiar" onclick="copiarTudo()">
+      <img src="icones/copiar.png" alt="Copiar">
+    </button>
   </div>
 </header>
 
@@ -194,7 +321,6 @@
   <div class="datebar">
     <label for="dataPedido">Data:</label>
     <input id="dataPedido" type="text" placeholder="dd/mm/aaaa" inputmode="numeric" autocomplete="off" />
-    <button class="chip" id="chipOntem">Ontem</button>
     <button class="chip" id="chipHoje">Hoje</button>
     <button class="chip" id="chipAmanha">Amanhã</button>
   </div>
@@ -204,9 +330,11 @@
   <div class="column" id="coluna-principal">
     <h3>PRODUTOS</h3>
     <div id="listaPrincipal"></div>
+    <button class="add-item-btn" onclick="adicionarItem('listaPrincipal')">Adicionar Item</button>
   </div>
 
   <div id="middle-controls" aria-hidden="false">
+    <button onclick="imprimirDireto()" class="btn-imprimir">Imprimir</button>
     <button onclick="alternarLinhas()" id="btn-linhas">Ocultar Linhas Vazias</button>
     <button onclick="resetarTudo()" class="btn-vermelho">Resetar Tudo</button>
   </div>
@@ -214,6 +342,7 @@
   <div class="column" id="coluna-ilha">
     <h3>ILHA SÃO JOSÉ</h3>
     <div id="listaIlha"></div>
+    <button class="add-item-btn" onclick="adicionarItem('listaIlha')">Adicionar Item</button>
   </div>
 </div>
 
@@ -236,6 +365,7 @@
 /***********************  Dados das listas (substituídos conforme pedido) ***********************/
 const PRODUTOS_PRINCIPAL = [
   "Biscoitinho de doce grande 10 unidades",
+  "Biscoitinho doce frito 1kg",
   "Biscoito chipa 7kg",
   "Biscoito de queijo 7kg",
   "Biscoito doce frito 7kg",
@@ -277,7 +407,11 @@ const PRODUTOS_PRINCIPAL = [
 ];
 
 const PRODUTOS_ILHA = [
+  "Biscoito chipa 1kg",
+  "Biscoito de queijo 1kg",
+  "Bolinha de carne pequena 1kg",
   "Broinha de fubá doce 1kg",
+  "Broinha de fubá doce grande 7kg",
   "Broinha de sal e queijo 1kg",
   "Broinha temperada com bacon 1kg",
   "Coxinha de frango pequena 1kg",
@@ -285,6 +419,7 @@ const PRODUTOS_ILHA = [
   "Empadinha de frango pequena 1kg",
   "Enroladinho de presunto pequeno 1kg",
   "Meia lua 1kg com 10 unidades",
+  "Pão de queijo recheado frango grande 1kg",
   "Pão de queijo recheado frango 1kg",
   "Pão de queijo tradicional grande 1kg",
   "Pão de queijo tradicional pequeno 1kg",
@@ -295,6 +430,7 @@ const PRODUTOS_ILHA = [
 /***********************  Mapa de nomes para impressão/exportação ***********************/
 const PRINT_NAME_MAP = {
   "Biscoitinho de doce grande 10 unidades": "BISCOITINHO DE DOCE GRANDE",
+  "Biscoitinho doce frito 1kg": "BISCOITINHO DE DOCE 7KG",
   "Biscoito chipa 7kg": "BISCOITO CHIPA",
   "Biscoito de queijo 7kg": "BISCOITO DE QUEIJO",
   "Biscoito doce frito 7kg": "BISCOITO DOCE FRITO 7KG",
@@ -377,8 +513,15 @@ function makeItem(nome){
   labelWrap.appendChild(ell);
 
   const input = document.createElement('input');
-  input.type = 'number'; input.min = '0'; input.step = '1'; input.placeholder = '0';
-  input.addEventListener('input', ()=> { if(ocultando) applyHideState(); atualizarContagem(); });
+  input.type = 'number'; 
+  input.min = '0'; 
+  input.step = '1'; 
+  input.placeholder = ''; // Vazio em vez de 0
+  input.style.textAlign = 'center'; // Garantir centralização
+  input.addEventListener('input', ()=> { 
+    if(ocultando) applyHideState(); 
+    atualizarContagem(); 
+  });
 
   // Enter navigation handler
   input.addEventListener('keydown', (ev)=>{
@@ -388,7 +531,8 @@ function makeItem(nome){
     }
   });
 
-  wrap.appendChild(labelWrap); wrap.appendChild(input);
+  wrap.appendChild(labelWrap); 
+  wrap.appendChild(input);
   return wrap;
 }
 
@@ -418,7 +562,9 @@ window.addEventListener('resize', ()=>{ setTimeout(checkTruncations, 100); });
 function pad2(n){ return String(n).padStart(2,'0'); }
 function formatDDMMYYYY(date){ return `${pad2(date.getDate())}/${pad2(date.getMonth()+1)}/${date.getFullYear()}`; }
 function formatDDMM(date){ return `${pad2(date.getDate())}/${pad2(date.getMonth()+1)}`; }
-function parseDateInput(v){ if(!v) return null; v = v.replace(/\s+/g,'');
+function parseDateInput(v){ 
+  if(!v || v.trim() === '') return null; 
+  v = v.replace(/\s+/g,'');
   if(/^\d{4}-\d{2}-\d{2}$/.test(v)){
     const d = new Date(v);
     if(!isNaN(d)) return d;
@@ -428,7 +574,18 @@ function parseDateInput(v){ if(!v) return null; v = v.replace(/\s+/g,'');
   return null;
 }
 function setDateTo(date){ if(!date) return; $('#dataPedido').value = formatDDMMYYYY(date); }
-function getDisplayDateFull(){ const v = $('#dataPedido').value.trim(); const dt = parseDateInput(v); return dt ? formatDDMMYYYY(dt) : ''; }
+function getDisplayDateFull(){ 
+  const v = $('#dataPedido').value.trim(); 
+  if (v === '') return ''; // Retorna vazio se não houver data
+  const dt = parseDateInput(v); 
+  return dt ? formatDDMMYYYY(dt) : ''; 
+}
+function getDisplayDateForPrint(){ 
+  const v = $('#dataPedido').value.trim(); 
+  if (v === '') return formatDDMMYYYY(new Date()); // Se vazio, usa data atual na impressão
+  const dt = parseDateInput(v); 
+  return dt ? formatDDMMYYYY(dt) : formatDDMMYYYY(new Date());
+}
 function sanitizeDateForFile(s){ return s ? s.replace(/\//g,'-') : ''; }
 
 /***********************  Coleta ***********************/
@@ -474,9 +631,11 @@ function alternarLinhas(){
 /***********************  Reset ***********************/
 function resetarTudo(){
   $$('#listaPrincipal input, #listaIlha input').forEach(i=> i.value='');
+  // Remover também os itens customizados
+  $$('.custom-item').forEach(item => item.remove());
   ocultando = false; applyHideState();
   $('#btn-linhas').textContent = 'Ocultar Linhas Vazias';
-  setDateTo(new Date());
+  $('#dataPedido').value = ''; // Deixa vazio em vez de data atual
   $('#observacoes').value = '';
   atualizarContagem();
   showBottomNotice('Tudo limpo');
@@ -491,65 +650,167 @@ function atualizarContagem(){
 function copiarTudo(){
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
+  const customItems = coletarCustomItems();
   const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
-  if(p.length===0 && i.length===0 && !obs){ showBottomNotice('Nada para copiar'); return; }
+  if(p.length===0 && i.length===0 && customItems.length===0 && !obs){ showBottomNotice('Nada para copiar'); return; }
   let txt = '';
   const ddmm = getDisplayDateFull();
-  txt += `PEDIDO SÃO JOSÉ ${ddmm}\n`;
+  if (ddmm) {
+    txt += `PEDIDO SÃO JOSÉ ${ddmm}\n`;
+  } else {
+    txt += `PEDIDO SÃO JOSÉ\n`;
+  }
   txt += 'PRODUTOS\n';
   p.forEach(({prod,qtd})=> txt += `${getPrintName(prod)} * ${qtd}\n`);
-  if(i.length>0){
+  customItems.forEach(({prod,qtd, lista})=> {
+    if (lista === 'listaPrincipal') {
+      txt += `${prod.toUpperCase()} * ${qtd}\n`;
+    }
+  });
+  if(i.length>0 || customItems.some(item => item.lista === 'listaIlha')){
     txt += '\nILHA SÃO JOSÉ\n';
     i.forEach(({prod,qtd})=> txt += `${getPrintName(prod)} * ${qtd}\n`);
+    customItems.forEach(({prod,qtd, lista})=> {
+      if (lista === 'listaIlha') {
+        txt += `${prod.toUpperCase()} * ${qtd}\n`;
+      }
+    });
   }
   if(obs){ txt += `\nOBSERVAÇÕES:\n${obs}\n`; }
   navigator.clipboard.writeText(txt).then(()=> showBottomNotice('Copiado!')).catch(()=> showBottomNotice('Falha ao copiar'));
+}
+
+/***********************  Adicionar itens customizados ***********************/
+function adicionarItem(listaId) {
+  const lista = document.getElementById(listaId);
+  const novoItem = document.createElement('div');
+  novoItem.className = 'custom-item';
+  
+  const nomeInput = document.createElement('input');
+  nomeInput.type = 'text';
+  nomeInput.placeholder = 'Nome do produto';
+  nomeInput.dataset.lista = listaId;
+  
+  const qtdInput = document.createElement('input');
+  qtdInput.type = 'number';
+  qtdInput.min = '0';
+  qtdInput.step = '1';
+  qtdInput.placeholder = '';
+  qtdInput.style.textAlign = 'center'; // Centralizar também nos campos customizados
+  
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'remove-btn';
+  removeBtn.textContent = '✕';
+  removeBtn.title = 'Remover item';
+  removeBtn.addEventListener('click', () => {
+    novoItem.remove();
+  });
+  
+  novoItem.appendChild(nomeInput);
+  novoItem.appendChild(qtdInput);
+  novoItem.appendChild(removeBtn);
+  
+  // Inserir antes do botão de adicionar
+  const addBtn = lista.nextElementSibling;
+  lista.parentNode.insertBefore(novoItem, addBtn);
+  
+  // Focar no campo de nome
+  setTimeout(() => {
+    nomeInput.focus();
+  }, 10);
+}
+
+// Coletar itens customizados
+function coletarCustomItems() {
+  const customItems = [];
+  $$('.custom-item').forEach(item => {
+    const nomeInput = item.querySelector('input[type="text"]');
+    const qtdInput = item.querySelector('input[type="number"]');
+    const nome = nomeInput.value.trim();
+    const qtd = qtdInput.value.trim();
+    const lista = nomeInput.dataset.lista;
+    
+    if (nome !== '' && qtd !== '' && Number(qtd) > 0) {
+      customItems.push({prod: nome, qtd: Number(qtd), lista: lista});
+    }
+  });
+  return customItems;
 }
 
 /***********************  TXT (inclui observações) ***********************/
 function salvarTXT(e){ if(e) e.preventDefault();
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
+  const customItems = coletarCustomItems();
   const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
-  if(p.length===0 && i.length===0 && !obs){ showBottomNotice('Nada para salvar'); return; }
+  if(p.length===0 && i.length===0 && customItems.length===0 && !obs){ showBottomNotice('Nada para salvar'); return; }
   const ddmm = getDisplayDateFull();
-  let txt = `PEDIDO SÃO JOSÉ ${ddmm}\n`;
+  let txt = '';
+  if (ddmm) {
+    txt += `PEDIDO SÃO JOSÉ ${ddmm}\n`;
+  } else {
+    txt += `PEDIDO SÃO JOSÉ\n`;
+  }
   txt += `PRODUTOS;QUANTIDADE (PCT)\n`;
   p.forEach(({prod,qtd})=> txt += `${getPrintName(prod)};${qtd}\n`);
-  if(i.length>0){
+  customItems.forEach(({prod,qtd, lista})=> {
+    if (lista === 'listaPrincipal') {
+      txt += `${prod.toUpperCase()};${qtd}\n`;
+    }
+  });
+  if(i.length>0 || customItems.some(item => item.lista === 'listaIlha')){
     txt += `\nILHA SÃO JOSÉ;QUANTIDADE (PCT)\n`;
     i.forEach(({prod,qtd})=> txt += `${getPrintName(prod)};${qtd}\n`);
+    customItems.forEach(({prod,qtd, lista})=> {
+      if (lista === 'listaIlha') {
+        txt += `${prod.toUpperCase()};${qtd}\n`;
+      }
+    });
   }
   if(obs){ txt += `\nOBSERVAÇÕES:\n${obs}\n`; }
   const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  const fileDate = sanitizeDateForFile(ddmm) || 'sem-data';
+  const fileDate = ddmm ? sanitizeDateForFile(ddmm) : 'sem-data';
   a.download = `PEDIDO_SAO_JOSE_${fileDate}.txt`; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=> URL.revokeObjectURL(a.href), 1000);
   showBottomNotice('TXT gerado');
 }
 
-/***********************  PDF / Impressão — AJUSTE AUTOMÁTICO PARA CABER EM 1 PÁGINA (inclui observações e bordas pretas) ***********************/
+/***********************  PDF / Impressão — AGORA COM DUAS TABELAS SEPARADAS ***********************/
 function gerarPDF({abrirEmNovaAba=false, baixarNome}){
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
+  const customItems = coletarCustomItems();
   const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
-  if(p.length===0 && i.length===0 && !obs){ showBottomNotice('Nada para imprimir'); return; }
+  if(p.length===0 && i.length===0 && customItems.length===0 && !obs){ showBottomNotice('Nada para imprimir'); return; }
 
-  const ddmm = getDisplayDateFull();
+  const ddmm = getDisplayDateForPrint(); // Usa data atual se estiver vazio
   const titulo = `PEDIDO SÃO JOSÉ ${ddmm}`;
 
   const bodyP = p.map(({prod,qtd})=> [getPrintName(prod), String(qtd)]);
+  // Adicionar itens customizados da lista principal
+  customItems.filter(item => item.lista === 'listaPrincipal').forEach(({prod,qtd}) => {
+    bodyP.push([prod.toUpperCase(), String(qtd)]);
+  });
+  
   const bodyI = i.map(({prod,qtd})=> [getPrintName(prod), String(qtd)]);
+  // Adicionar itens customizados da lista ilha
+  customItems.filter(item => item.lista === 'listaIlha').forEach(({prod,qtd}) => {
+    bodyI.push([prod.toUpperCase(), String(qtd)]);
+  });
 
   let fontSize = 10;
   let minFont = 6;
-  const headFill = [255,255,255];
-  const headText = [0,0,0];
 
   let doc, fits = false;
   let margin = 36;
-  const numericColWidth = 120; // aumentado para evitar quebra de 'QUANTIDADE (PCT)'
+  
+  // Ajuste das larguras das colunas
+  const pageW = 595; // Largura A4 em pontos
+  const availableWidth = pageW - margin * 2;
+  const numericColWidth = 130;
+  const productColWidth = availableWidth - numericColWidth;
 
   while(!fits && fontSize >= minFont){
     const { jsPDF } = window.jspdf;
@@ -557,46 +818,117 @@ function gerarPDF({abrirEmNovaAba=false, baixarNome}){
     const pageW = doc.internal.pageSize.getWidth();
     const pageH = doc.internal.pageSize.getHeight();
 
-    // usar fonte consistente (definida como --print-font no CSS). jsPDF tem 'helvetica' como fonte base.
-    doc.setFont('helvetica','bold'); doc.setFontSize(14);
-    doc.text(titulo, pageW/2, 48, {align:'center'});
+    // Título
+    doc.setFont('helvetica','bold'); 
+    doc.setFontSize(14);
+    doc.text(titulo, margin, 36);
+    
+    let startY = 60; // Posição inicial para a primeira tabela
 
-    doc.setFont('helvetica','normal');
-    doc.autoTable({
-      startY: 70,
-      head: [["PRODUTOS","QUANTIDADE (PCT)"]],
-      body: bodyP,
-      theme: 'grid',
-      margin: {left: margin, right: margin},
-      tableWidth: pageW - margin*2,
-      styles: { font: 'helvetica', fontSize: fontSize, cellPadding: 2, lineColor: [0,0,0], lineWidth: 1.2, textColor: [0,0,0], overflow: 'linebreak' },
-      headStyles: { fillColor: headFill, textColor: headText, fontStyle: 'bold' },
-      columnStyles: { 0: { cellWidth: pageW - margin*2 - numericColWidth }, 1: { cellWidth: numericColWidth } },
-    });
+    // PRIMEIRA TABELA - PRODUTOS
+    if(bodyP.length > 0) {
+      const tableDataP = [];
+      tableDataP.push(["PRODUTOS", "QUANTIDADE (PCT)"]);
+      bodyP.forEach(([prod, qtd]) => tableDataP.push([prod, qtd]));
 
-    let nextY = doc.lastAutoTable ? doc.lastAutoTable.finalY + (bodyI.length>0 ? 18 : 0) : 70;
-
-    if(bodyI.length>0){
       doc.autoTable({
-        startY: nextY,
-        head: [["ILHA SÃO JOSÉ","QUANTIDADE (PCT)"]],
-        body: bodyI,
+        startY: startY,
+        head: [tableDataP[0]],
+        body: tableDataP.slice(1),
         theme: 'grid',
         margin: {left: margin, right: margin},
         tableWidth: pageW - margin*2,
-        styles: { font: 'helvetica', fontSize: fontSize, cellPadding: 2, lineColor: [0,0,0], lineWidth: 1.2, textColor: [0,0,0], overflow: 'linebreak' },
-        headStyles: { fillColor: headFill, textColor: headText, fontStyle: 'bold' },
-        columnStyles: { 0: { cellWidth: pageW - margin*2 - numericColWidth }, 1: { cellWidth: numericColWidth } },
+        styles: { 
+          font: 'helvetica', 
+          fontSize: fontSize, 
+          cellPadding: 3, 
+          lineColor: [0,0,0], 
+          lineWidth: 1.2, 
+          textColor: [0,0,0], 
+          overflow: 'linebreak',
+          minCellHeight: 12,
+          fillColor: [255,255,255]
+        },
+        headStyles: { 
+          fillColor: [255,255,255],
+          textColor: [0,0,0], 
+          fontStyle: 'bold' 
+        },
+        columnStyles: { 
+          0: { cellWidth: productColWidth },
+          1: { cellWidth: numericColWidth }
+        },
+        didParseCell: function(data) {
+          // Remover negrito dos biscoitos
+          if (data.row.index > 0 && data.cell.text[0]) {
+            const texto = data.cell.text[0].toLowerCase();
+            if (texto.includes('biscoito') || texto.includes('biscoitinho')) {
+              data.cell.styles.fontStyle = 'normal';
+            }
+          }
+        }
       });
+
+      startY = doc.lastAutoTable.finalY + 20; // Espaço após a primeira tabela
     }
 
-    // Observações (mesma fonte e tamanho das demais)
+    // SEGUNDA TABELA - ILHA SÃO JOSÉ
+    if(bodyI.length > 0) {
+      const tableDataI = [];
+      tableDataI.push(["ILHA SÃO JOSÉ", "QUANTIDADE (PCT)"]);
+      bodyI.forEach(([prod, qtd]) => tableDataI.push([prod, qtd]));
+
+      doc.autoTable({
+        startY: startY,
+        head: [tableDataI[0]],
+        body: tableDataI.slice(1),
+        theme: 'grid',
+        margin: {left: margin, right: margin},
+        tableWidth: pageW - margin*2,
+        styles: { 
+          font: 'helvetica', 
+          fontSize: fontSize, 
+          cellPadding: 3, 
+          lineColor: [0,0,0], 
+          lineWidth: 1.2, 
+          textColor: [0,0,0], 
+          overflow: 'linebreak',
+          minCellHeight: 12,
+          fillColor: [255,255,255]
+        },
+        headStyles: { 
+          fillColor: [255,255,255],
+          textColor: [0,0,0], 
+          fontStyle: 'bold' 
+        },
+        columnStyles: { 
+          0: { cellWidth: productColWidth },
+          1: { cellWidth: numericColWidth }
+        },
+        didParseCell: function(data) {
+          // Remover negrito dos biscoitos
+          if (data.row.index > 0 && data.cell.text[0]) {
+            const texto = data.cell.text[0].toLowerCase();
+            if (texto.includes('biscoito') || texto.includes('biscoitinho')) {
+              data.cell.styles.fontStyle = 'normal';
+            }
+          }
+        }
+      });
+
+      startY = doc.lastAutoTable.finalY + 20; // Espaço após a segunda tabela
+    }
+
+    // Observações
     if(obs){
-      const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY : nextY;
-      const obsStartY = finalY + 14;
+      const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY : startY;
+      const obsStartY = finalY + 20;
       const includeTitle = document.getElementById('printObsTitle') ? document.getElementById('printObsTitle').checked : true;
       doc.setFont('helvetica','bold'); doc.setFontSize(fontSize);
-      if(includeTitle){ doc.text('OBSERVAÇÕES:', margin, obsStartY); }
+      
+      if(includeTitle){ 
+        doc.text('OBSERVAÇÕES:', margin, obsStartY); 
+      }
       doc.setFont('helvetica','normal'); doc.setFontSize(fontSize);
       const maxWidth = pageW - margin*2;
       const splitObs = doc.splitTextToSize(obs, maxWidth);
@@ -632,8 +964,9 @@ function gerarPDF({abrirEmNovaAba=false, baixarNome}){
 function salvarPDF(e){ if(e) e.preventDefault();
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
+  const customItems = coletarCustomItems();
   const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
-  if(p.length===0 && i.length===0 && !obs){ showBottomNotice('Nada para salvar'); return; }
+  if(p.length===0 && i.length===0 && customItems.length===0 && !obs){ showBottomNotice('Nada para salvar'); return; }
   gerarPDF({abrirEmNovaAba:false});
   showBottomNotice('PDF gerado');
 }
@@ -641,8 +974,9 @@ function salvarPDF(e){ if(e) e.preventDefault();
 function imprimirDireto(){
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
+  const customItems = coletarCustomItems();
   const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
-  if(p.length===0 && i.length===0 && !obs){ showBottomNotice('Nada para imprimir'); return; }
+  if(p.length===0 && i.length===0 && customItems.length===0 && !obs){ showBottomNotice('Nada para imprimir'); return; }
   gerarPDF({abrirEmNovaAba:true});
 }
 
@@ -650,20 +984,60 @@ function imprimirDireto(){
 function salvarExcel(e){ if(e) e.preventDefault();
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
+  const customItems = coletarCustomItems();
   const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
-  if(p.length===0 && i.length===0 && !obs){ showBottomNotice('Nada para salvar'); return; }
+  if(p.length===0 && i.length===0 && customItems.length===0 && !obs){ showBottomNotice('Nada para salvar'); return; }
   const ddmm = getDisplayDateFull();
   const linhas = [];
-  linhas.push(["", `PEDIDO SÃO JOSÉ ${ddmm}`, ""]);
-  linhas.push(["", "PRODUTOS", "QUANTIDADE (PCT)"]);
-  p.forEach(({prod,qtd})=> linhas.push(["", getPrintName(prod), String(qtd)]));
-  if(i.length>0){ linhas.push(["", "", ""]); linhas.push(["", "ILHA SÃO JOSÉ", "QUANTIDADE (PCT)"]); i.forEach(({prod,qtd})=> linhas.push(["", getPrintName(prod), String(qtd)])); }
-  if(obs){ linhas.push(["", "", ""]); linhas.push(["", "OBSERVAÇÕES", ""]); const obsLines = obs.split(/\r?\n/); obsLines.forEach(l=> linhas.push(["", l, ""])); }
+  
+  // Título centralizado como no Excel - uma célula mesclada
+  if (ddmm) {
+    linhas.push(["PEDIDO SÃO JOSÉ " + ddmm, "", ""]);
+  } else {
+    linhas.push(["PEDIDO SÃO JOSÉ", "", ""]);
+  }
+  linhas.push(["PRODUTOS", "QUANTIDADE (PCT)", ""]);
+  p.forEach(({prod,qtd})=> linhas.push([getPrintName(prod), String(qtd), ""]));
+  customItems.forEach(({prod,qtd, lista})=> {
+    if (lista === 'listaPrincipal') {
+      linhas.push([prod.toUpperCase(), String(qtd), ""]);
+    }
+  });
+  if(i.length>0 || customItems.some(item => item.lista === 'listaIlha')){ 
+    linhas.push(["", "", ""]); 
+    linhas.push(["ILHA SÃO JOSÉ", "QUANTIDADE (PCT)", ""]); 
+    i.forEach(({prod,qtd})=> linhas.push([getPrintName(prod), String(qtd), ""])); 
+    customItems.forEach(({prod,qtd, lista})=> {
+      if (lista === 'listaIlha') {
+        linhas.push([prod.toUpperCase(), String(qtd), ""]);
+      }
+    });
+  }
+  if(obs){ 
+    linhas.push(["", "", ""]); 
+    linhas.push(["OBSERVAÇÕES", "", ""]); 
+    const obsLines = obs.split(/\r?\n/); 
+    obsLines.forEach(l=> linhas.push([l, "", ""])); 
+  }
+  
   const ws = XLSX.utils.aoa_to_sheet(linhas);
-  ws['!merges'] = [{ s:{r:0,c:1}, e:{r:0,c:2} }];
-  ws['!cols'] = [ {wch:2}, {wch:50}, {wch:30} ]; // largura da coluna numérica aumentada
-  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'PEDIDO');
-  XLSX.writeFile(wb, `PEDIDO_SAO_JOSE_${sanitizeDateForFile(ddmm) || 'sem-data'}.xlsx`);
+  
+  // Mesclar células para o título (linha 0, colunas 0-2)
+  if(!ws['!merges']) ws['!merges'] = [];
+  ws['!merges'].push({ s:{r:0,c:0}, e:{r:0,c:2} });
+  
+  // Centralizar o título
+  if(!ws.A1.s) ws.A1.s = {};
+  ws.A1.s.alignment = { horizontal: "center" };
+  ws.A1.s.font = { bold: true, sz: 14 };
+  
+  // Ajustar largura das colunas - PRODUTOS ocupa mais espaço
+  ws['!cols'] = [ {wch:50}, {wch:15}, {wch:5} ]; // PRODUTOS: 50, QUANTIDADE: 15
+  const wb = XLSX.utils.book_new(); 
+  XLSX.utils.book_append_sheet(wb, ws, 'PEDIDO');
+  
+  const fileDate = ddmm ? sanitizeDateForFile(ddmm) : 'sem-data';
+  XLSX.writeFile(wb, `PEDIDO_SAO_JOSE_${fileDate}.xlsx`);
   showBottomNotice('Excel gerado');
 }
 
@@ -686,24 +1060,26 @@ function abrirLocal(e, nome){ if(e) e.preventDefault(); toggleMenu('dropdown-men
 
 /***********************  Inicialização ***********************/
 function setChipLabels(){
-  const hoje = new Date(); const amanha = new Date(); amanha.setDate(hoje.getDate()+1); const ontem = new Date(); ontem.setDate(hoje.getDate()-1);
-  const chHoje = document.getElementById('chipHoje'); const chAmanha = document.getElementById('chipAmanha'); const chOntem = document.getElementById('chipOntem');
+  const hoje = new Date(); const amanha = new Date(); amanha.setDate(hoje.getDate()+1);
+  const chHoje = document.getElementById('chipHoje'); const chAmanha = document.getElementById('chipAmanha');
   if(chHoje) chHoje.textContent = `Hoje (${formatDDMM(hoje)})`;
   if(chAmanha) chAmanha.textContent = `Amanhã (${formatDDMM(amanha)})`;
-  if(chOntem) chOntem.textContent = `Ontem (${formatDDMM(ontem)})`;
 }
 
 function init(){
   montarListas();
-  setDateTo(new Date());
+  // Não definir data inicial - campo fica vazio
+  $('#dataPedido').value = '';
   setChipLabels();
 
   const $data = $('#dataPedido');
-  $data.addEventListener('blur', ()=>{ const d = parseDateInput($data.value.trim()); $data.value = d ? formatDDMMYYYY(d) : ''; });
+  $data.addEventListener('blur', ()=>{ 
+    const d = parseDateInput($data.value.trim()); 
+    $data.value = d ? formatDDMMYYYY(d) : ''; 
+  });
 
   $('#chipHoje').addEventListener('click', ()=> setDateTo(new Date()));
   $('#chipAmanha').addEventListener('click', ()=>{ const d=new Date(); d.setDate(d.getDate()+1); setDateTo(d); });
-  $('#chipOntem').addEventListener('click', ()=>{ const d=new Date(); d.setDate(d.getDate()-1); setDateTo(d); });
 
   const printBtn = document.getElementById('btn-print'); if(printBtn){ printBtn.addEventListener('click', (ev)=>{ ev.preventDefault(); imprimirDireto(); }); }
 }

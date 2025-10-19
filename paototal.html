@@ -209,12 +209,12 @@
     color: #495057;
   }
 
-  /* Estilo para itens com seletor de peso */
+  /* Estilo para itens com seletor de peso - ATUALIZADO: seletor ao lado do nome */
   .item-with-selector { 
-    grid-template-columns: 1fr 120px 70px; 
+    grid-template-columns: 1fr 120px; 
   }
   .weight-selector {
-    width: 100%;
+    width: 70px;
     padding: 4px 6px;
     border: 1px solid #ddd;
     border-radius: 6px;
@@ -522,11 +522,9 @@ function makeItem(nome, listaId){
   const wrap = document.createElement('div');
   
   // Verificar se este produto precisa de um seletor de peso (apenas na lista principal)
-  if (listaId === 'listaPrincipal' && PRODUCTS_WITH_WEIGHT_SELECTOR.includes(nome)) {
-    wrap.className = 'item item-with-selector';
-  } else {
-    wrap.className = 'item';
-  }
+  const hasWeightSelector = listaId === 'listaPrincipal' && PRODUCTS_WITH_WEIGHT_SELECTOR.includes(nome);
+  
+  wrap.className = 'item' + (hasWeightSelector ? ' item-with-selector' : '');
 
   const labelWrap = document.createElement('div');
   labelWrap.className = 'label-wrap';
@@ -535,7 +533,7 @@ function makeItem(nome, listaId){
   label.className = 'label';
   
   // Para produtos com seletor, mostrar apenas o nome base (apenas na lista principal)
-  if (listaId === 'listaPrincipal' && PRODUCTS_WITH_WEIGHT_SELECTOR.includes(nome)) {
+  if (hasWeightSelector) {
     if (nome === "Biscoitinho doce frito 1kg") {
       label.textContent = "Biscoitinho doce frito";
     } else if (nome === "Meia lua 1kg com 10 unidades") {
@@ -558,7 +556,30 @@ function makeItem(nome, listaId){
     ell.title = expanded ? 'Fechar' : 'Mostrar texto completo';
   });
 
+  // Primeiro adicionamos o label
   labelWrap.appendChild(label);
+  
+  // Depois adicionamos o seletor de peso (se houver) - AGORA DEPOIS DO NOME
+  if (hasWeightSelector) {
+    const selector = document.createElement('select');
+    selector.className = 'weight-selector';
+    
+    if (nome === "Biscoitinho doce frito 1kg") {
+      selector.innerHTML = `
+        <option value="1kg">1kg</option>
+        <option value="7kg">7kg</option>
+      `;
+    } else if (nome === "Meia lua 1kg com 10 unidades") {
+      selector.innerHTML = `
+        <option value="1kg com 10 unidades">1kg</option>
+        <option value="7kg">7kg</option>
+      `;
+    }
+    
+    labelWrap.appendChild(selector);
+  }
+
+  // Por último o botão de ellipsis
   labelWrap.appendChild(ell);
 
   const input = document.createElement('input');
@@ -582,26 +603,6 @@ function makeItem(nome, listaId){
 
   wrap.appendChild(labelWrap); 
   wrap.appendChild(input);
-  
-  // Adicionar seletor de peso para produtos específicos (apenas na lista principal)
-  if (listaId === 'listaPrincipal' && PRODUCTS_WITH_WEIGHT_SELECTOR.includes(nome)) {
-    const selector = document.createElement('select');
-    selector.className = 'weight-selector';
-    
-    if (nome === "Biscoitinho doce frito 1kg") {
-      selector.innerHTML = `
-        <option value="1kg">1kg</option>
-        <option value="7kg">7kg</option>
-      `;
-    } else if (nome === "Meia lua 1kg com 10 unidades") {
-      selector.innerHTML = `
-        <option value="1kg com 10 unidades">1kg</option>
-        <option value="7kg">7kg</option>
-      `;
-    }
-    
-    wrap.appendChild(selector);
-  }
 
   return wrap;
 }
@@ -665,12 +666,12 @@ function coletarSeção(rootSel){
   rows.forEach(r=>{
     let nome = '';
     const label = r.querySelector('.label');
+    const selector = r.querySelector('.weight-selector');
     
     // Para produtos com seletor de peso, construir o nome com base na seleção
-    if (r.classList.contains('item-with-selector')) {
-      const selector = r.querySelector('.weight-selector');
+    if (selector) {
       const baseName = label.textContent.trim();
-      const selectedWeight = selector ? selector.value : '';
+      const selectedWeight = selector.value;
       nome = baseName + ' ' + selectedWeight;
     } else {
       nome = label.textContent.trim();

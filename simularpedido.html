@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MAC 77 - Simulador de Pedido (Híbrido)</title>
+<title>Simulador de Pedido</title>
 
 <!-- bibliotecas -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -283,7 +283,7 @@
    ========================== */
 const produtos = [
   {nome: 'Baguete 06h 7kg', preco: 50.68},
-  {nome: 'Baguete 12h 7kg', preco: 50.68},
+  {nome: 'Baguete 12h 7kg', preco: 58.68},
   {nome: 'Biscoitinho de doce 1 kg', preco: 17.84},
   {nome: 'Biscoitinho de doce grande 1kg com 10 unidades', preco: 18.94},
   {nome: 'Biscoito chipa 1kg', preco: 20.40},
@@ -306,6 +306,7 @@ const produtos = [
   {nome: 'Canudinho Romeu e Julieta 7kg', preco: 157.50},
   {nome: 'Caracol 7kg', preco: 71.12},
   {nome: 'Carioca 7kg', preco: 60.97},
+  {nome: 'Coco ralado fino seco', preco: 19.00}, 
   {nome: 'Coxinha de frango grande 10 unidades', preco: 23.90},
   {nome: 'Coxinha de frango pequeno 1kg', preco: 19.06},
   {nome: 'Creme de confeiteiro preparado 1kg', preco: 9.62},
@@ -317,7 +318,7 @@ const produtos = [
   {nome: 'Enroladinho de salsicha grande 10 unidades', preco: 23.00},
   {nome: 'Enroladinho presunto mussarela grande 10 unidades', preco: 28.90},
   {nome: 'Enroladinho presunto mussarela pequeno  1kg', preco: 19.06},
-  {nome: 'Inseticida de citronela', preco: 22.05},
+  {nome: 'Inseticida de citronela', preco: 19.25},
   {nome: 'Mandi 7kg', preco: 60.97},
   {nome: 'Meia lua 1kg com 10 unidades', preco: 18.80},
   {nome: 'Mini carioca 7kg', preco: 60.97},
@@ -325,8 +326,8 @@ const produtos = [
   {nome: 'Mini pão francês 12h 7kg', preco: 47.74},
   {nome: 'Mini roscovado 1 unidade', preco: 2.84},
   {nome: 'Mistura biscoito sequilho 4,5kg', preco: 69.21},
-  {nome: 'Mistura de bolo de chocolate 4kg', preco: 62.33},
-  {nome: 'Mistura de bolo de farinha 4kg', preco: 50.04},
+  {nome: 'Mistura de bolo de chocolate 4kg', preco: 55.40},
+  {nome: 'Mistura de bolo de farinha 4kg', preco: 44.48},
   {nome: 'Palitão de provolone 1kg com 10 unidades', preco: 18.80},
   {nome: 'Panhoca 06h 7kg', preco: 50.68},
   {nome: 'Panhoca 12h 7kg', preco: 50.68},
@@ -342,7 +343,7 @@ const produtos = [
   {nome: 'Pão francês 06h 7kg', preco: 47.74},
   {nome: 'Pão francês 12h 7kg', preco: 47.74},
   {nome: 'Pão francês 18h 7kg', preco: 47.74},
-  {nome: 'Par de luvas', preco: 36.63},
+  {nome: 'Par de luvas', preco: 31.99},
   {nome: 'Pastel assado de frango grande 10 unidades', preco: 29.90},
   {nome: 'Pastel português de carne grande 10 unidades', preco: 27.00},
   {nome: 'Pastelzinho catupiry pequeno 1kg', preco: 19.06},
@@ -358,7 +359,8 @@ const produtos = [
   {nome: 'Tortinha de frango, abacaxi e passas 10 unidades', preco: 41.00},
   {nome: 'Trança 3kg com 10 unidades', preco: 33.60},
   {nome: 'Trancinha 3kg', preco: 29.67},
-  {nome: 'Trancinha redonda 3kg', preco: 29.67}
+  {nome: 'Trancinha redonda 3kg', preco: 29.67},
+  {nome: 'Unta forma carlo 5 litros', preco: 130.95}
 ];
 
 /* ===== utilidades ===== */
@@ -577,3 +579,4 @@ if(printBtn){ printBtn.addEventListener('click', (ev)=>{ ev.preventDefault(); if
 </script>
 </body>
 </html>
+

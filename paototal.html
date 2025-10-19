@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pedido — Pão Total (Mix estética + lógica) — Atualizado (Impressão)</title>
+
+<!-- jsPDF, AutoTable e SheetJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+  :root {
+    --azul: #007BFF;
+    --azul-escuro: #0056b3;
+    --amarelo: #FFD700;
+    --vermelho: #b22222;
+    --bg: #ffffff;
+    --ink: #111;
+    --line: #e6eef9;
+
+    /* FONTES: alterar aqui para trocar a fonte de impressão facilmente
+       Exemplo para voltar à fonte antiga (Courier):
+         --print-font: 'Courier New', Courier, monospace;
+    */
+    --screen-font: monospace; /* fonte usada na tela */
+    --print-font: 'Helvetica', Arial, sans-serif; /* fonte consistente para impressão/PDF */
+
+    /* borda de impressão (alterar para deixar mais fina/grossa) */
+    --print-border: 3px;
+  }
+  html,body { height:100%; }
+  body {
+    font-family: var(--screen-font);
+    margin: 0; padding: 0; color: var(--ink); background: var(--bg);
+  }
+
+  /* ===== Top center (titulo + data) ===== */
+  .top-center { max-width: 920px; margin: 12px auto; text-align:center; }
+  .titulo-nav { display:flex; justify-content:center; align-items:center; gap:16px; margin:0 auto 8px; }
+  .titulo-nav h1 { margin:0; font-size:18px; color:#111; }
+  .datebar { display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap; margin:0 auto; }
+  .datebar label { color:#333; }
+  .datebar input[type="text"]{
+    border:1px solid #ddd; border-radius:6px; padding:6px 8px; width:160px;
+    caret-color: #111; -webkit-appearance: none; appearance: none;
+  }
+  .datebar input[type="text"]:focus { outline:none; border-color:var(--azul-escuro); box-shadow:0 0 0 3px rgba(0,123,255,.12); }
+  .chip { background:#fff; border:1px solid #e5e7eb; border-radius:999px; padding:6px 10px; font-size:12px; cursor:pointer; }
+  .chip:hover{ border-color:#cbd5e1 }
+
+  /* ===== Header / Menus ===== */
+  header {
+    display:flex; justify-content:space-between; align-items:center;
+    background: var(--azul); color: white; padding: 10px 14px; gap: 12px;
+    position: sticky; top: 0; z-index: 999;
+  }
+  .menu-left, .menu-right { display:flex; gap: 8px; align-items:center; }
+  .icon-btn { 
+    background:none; border:none; color:white; font-size:18px; cursor:pointer; padding:6px 8px; border-radius:6px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .icon-btn:hover { background: rgba(255,255,255,0.08); }
+  .icon-btn img { width: 22px; height: 22px; display: block; flex-shrink: 0; filter: brightness(0) invert(1); }
+  .menu-dropdown { position: relative; }
+  .menu-dropdown-content { display: none; position: absolute; top: calc(100% + 6px); left: 0; background: white; color: #111; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,0.15); min-width: 220px; max-width: calc(100vw - 40px); overflow:auto; z-index: 1200; padding: 6px 0; white-space: normal; }
+  .menu-right .menu-dropdown-content { right: 0; left: auto; }
+  .menu-dropdown-content a { display:block; padding:8px 12px; color:#111; text-decoration:none; }
+  .menu-dropdown-content a:hover { background:#f2f2f2; }
+  .dropdown-section { border-top:1px solid #f0f0f0; padding-top:6px; margin-top:6px; }
+  .section-header { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 12px; cursor:pointer; font-weight:700; }
+  .submenu { display:none; padding-left:6px; padding-bottom:6px; }
+
+  /* ===== Container / Colunas ===== */
+  .container {
+    display:grid; grid-template-columns: minmax(260px,1fr) 200px minmax(260px,1fr); align-items:start; justify-content:center; gap: 32px;
+    padding: 10px 14px 24px; max-width:1200px; margin: 0 auto;
+  }
+  .column { display:flex; flex-direction:column; gap:6px; min-width: 300px; max-width: 520px; width:100%; border:1px solid var(--line); border-radius:10px; padding:12px; box-sizing:border-box; }
+  .column h3 { margin:0 6px 8px; font-size:14px; color:#0f172a; }
+
+  /* Usar grid para garantir alinhamento fixo entre nome e quantidade em todas as colunas */
+  /* A segunda coluna (quantidade) aumentada para evitar quebra em PDFs */
+  .item { display:grid; grid-template-columns: 1fr 120px; align-items:center; gap:10px; padding:6px 8px; border-bottom:1px dashed #eef2ff; }
+  .item:last-child{ border-bottom:none }
+  .label-wrap{ display:flex; align-items:center; gap:8px; min-width:0; }
+  .item .label { color:#111; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; min-width:0; font-family: var(--screen-font); }
+  .item .label.expanded{ white-space:normal; overflow:visible; }
+  .ellipsis-btn{ background:none; border:none; cursor:pointer; font-weight:700; padding:2px 6px; border-radius:6px; font-size:12px; }
+  
+  .item input[type="number"] { 
+    width: 100%; 
+    padding: 6px 6px; 
+    text-align: center; /* CENTRALIZADO */
+    border: 1px solid #ddd; 
+    border-radius: 6px; 
+    background: #fff; 
+    box-sizing: border-box; 
+    font-family: var(--screen-font); /* MESMA FONTE DOS PRODUTOS */
+    font-size: 14px;
+  }
+  .item input[type="number"]:focus { 
+    outline: none; 
+    border-color: var(--azul-escuro); 
+    box-shadow: 0 0 0 3px rgba(0,123,255,.12); 
+  }
+  .item.hidden-empty{ display:none }
+
+  /* ===== Middle controls ===== */
+  #middle-controls { display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:center; min-width:200px; }
+  #middle-controls button { width:160px; padding:10px 12px; font-size:14px; border-radius:6px; border:none; cursor:pointer; }
+  #btn-linhas { background: var(--amarelo); color:black; }
+  #btn-linhas:hover { background:#e6c200; }
+  .btn-vermelho { background: var(--vermelho); color:white; }
+  .btn-vermelho:hover { background:#8b1a1a; }
+  .btn-imprimir { background: #28a745; color:white; }
+  .btn-imprimir:hover { background:#218838; }
+
+  /* ===== Observações ===== */
+  .obs-box { max-width:1200px; margin: 12px auto 22px; padding:10px; border:1px solid var(--line); border-radius:10px; }
+  .obs-box h3{ margin:0 0 8px 0; font-size:14px; }
+  .obs-box textarea{ width:100%; min-height:90px; padding:8px; resize:vertical; border-radius:6px; border:1px solid #ddd; font-family: monospace; }
+  .obs-options{ display:flex; align-items:center; gap:8px; margin-top:8px; }
+
+  /* ===== Rodapé Links ===== */
+  .mac-links { margin: 0 14px 30px; display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; align-items:stretch; }
+  .mac-links a { display:block; padding:8px 10px; background:#f7fbff; border:1px solid #e6f0ff; color: var(--azul); text-decoration:none; border-radius:6px; text-align:center; }
+  .mac-links a:hover { background:#eef6ff; }
+
+  @media (max-width:1100px){ .container { gap: 20px; } }
+  @media (max-width:900px){ .container { grid-template-columns: 1fr; } #middle-controls { order:2; } }
+  @media (max-width:520px){ .column { max-width:100%; min-width:auto; width:100%; } .mac-links { grid-template-columns: 1fr; } #middle-controls { flex-direction:row; gap:8px; } #middle-controls button { width: 140px; } }
+
+  /* ===== Toast ===== */
+  #copy-notice { position: fixed; right: 18px; bottom: 18px; background: rgba(0,0,0,0.78); color: white; padding: 8px 12px; border-radius: 6px; display: none; z-index: 2000; font-size: 13px; }
+
+  .page-bottom-space { height: 120px; }
+
+  /* Botão de adicionar item - ATUALIZADO (sem emoji, mesma fonte, cor harmoniosa) */
+  .add-item-btn { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 6px; 
+    margin-top: 8px; 
+    padding: 8px 12px; 
+    background: #f7fbff; 
+    border: 1px dashed #b8d4ff; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-size: 13px; 
+    color: #007BFF; 
+    font-family: var(--screen-font);
+    transition: all 0.2s ease;
+  }
+  .add-item-btn:hover { 
+    background: #eef6ff; 
+    border-color: #007BFF;
+    border-style: solid;
+  }
+
+  /* Item customizado - ATUALIZADO (campos iguais aos outros) */
+  .custom-item { 
+    display: grid; 
+    grid-template-columns: 1fr 120px 30px; 
+    align-items: center; 
+    gap: 10px; 
+    padding: 6px 8px; 
+    border-bottom: 1px dashed #eef2ff; 
+  }
+  .custom-item input[type="text"] {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-family: var(--screen-font);
+  }
+  .custom-item input[type="number"] {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-family: var(--screen-font);
+    text-align: center; /* CENTRALIZADO */
+  }
+  .custom-item input[type="number"]:focus,
+  .custom-item input[type="text"]:focus {
+    outline: none;
+    border-color: var(--azul-escuro);
+    box-shadow: 0 0 0 3px rgba(0,123,255,.12);
+  }
+  /* Botão de remover - ATUALIZADO (sem vermelho, mais discreto) */
+  .remove-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #6c757d;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+  }
+  .remove-btn:hover {
+    background: #f8f9fa;
+    color: #495057;
+  }
+
+  /* Impressão: forçar bordas e linhas em preto e fonte consistente */
+  @media print {
+    header, .menu-dropdown-content, #middle-controls, .mac-links, #copy-notice, .add-item-btn, .remove-btn { display:none !important; }
+    .top-center { display:block !important; }
+    .container { gap:0; padding:0; max-width: none; grid-template-columns: minmax(200px,0.45fr) 0 minmax(200px,0.55fr); }
+    .column { box-shadow:none; border: var(--print-border) solid #000 !important; min-width:40%; }
+    .item { border-bottom: var(--print-border) solid #000 !important; }
+    .obs-box { 
+      border: var(--print-border) solid #000 !important; 
+      margin-top: 20px !important; 
+      padding: 12px !important; 
+    }
+    .page-bottom-space { display:none; }
+
+    /* garantir fonte única e consistente para tudo que é impresso */
+    body { color: #000; background: #fff; font-family: var(--print-font); font-size: 11pt; }
+    .obs-box textarea{ 
+      min-height:160px; 
+      font-size:11pt; 
+      font-family: var(--print-font); 
+      line-height:1.25; 
+      white-space: pre-wrap; 
+      border: none !important; 
+      background-color: transparent !important; 
+    }
+
+    /* garantir que labels e tabelas também usem a mesma fonte */
+    .item .label, .item input, .titulo-nav h1 { font-family: var(--print-font); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="menu-left">
+    <div class="menu-dropdown">
+      <!-- Menu Hamburger PNG -->
+      <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')">
+        <img src="icones/menu-hamburger.png" alt="Menu">
+      </button>
+      <div class="menu-dropdown-content" id="dropdown-menu" role="menu" aria-hidden="true">
+        <div class="dropdown-section">
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)"><span>MACS</span><small class="chev">▸</small></div>
+          <div class="submenu">
+            <a href="#" data-mac="77" onclick="abrirMac(event, 'MAC Bairro São Geraldo - Cód. 77')">MAC Bairro São Geraldo - Cód. 77</a>
+            <a href="#" data-mac="78" onclick="abrirMac(event, 'MAC Bairro Planalto - Cód. 78')">MAC Bairro Planalto - Cód. 78</a>
+            <a href="#" data-mac="79" onclick="abrirMac(event, 'MAC Romeu Duarte - Cód. 79')">MAC Romeu Duarte - Cód. 79</a>
+            <a href="#" data-mac="80" onclick="abrirMac(event, 'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC Rua São Geraldo / Centro 2 - Cód. 80</a>
+            <a href="#" data-mac="277" onclick="abrirMac(event, 'MAC Matriz - Cód. 277')">MAC Matriz - Cód. 277</a>
+            <a href="#" data-mac="853" onclick="abrirMac(event, 'MAC Concesso - Cód. 853')">MAC Concesso - Cód. 853</a>
+            <a href="#" data-mac="1249" onclick="abrirMac(event, 'MAC Jardim do Lago - Cód. 1249')">MAC Jardim do Lago - Cód. 1249</a>
+            <a href="#" data-mac="989" onclick="abrirMac(event, 'MAC Araújos - Cód. 989')">MAC Araújos - Cód. 989</a>
+          </div>
+        </div>
+        <div class="dropdown-section">
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)"><span>São José</span><small class="chev">▸</small></div>
+          <div class="submenu">
+            <a href="#" onclick="abrirLocal(event, 'São José')">São José</a>
+            <a href="#" onclick="abrirLocal(event, 'Pão Total')">Pão Total</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fechar PNG -->
+    <button class="icon-btn" id="btn-close" title="Fechar" onclick="fecharPagina()">
+      <img src="icones/fechar.png" alt="Fechar">
+    </button>
+
+    <!-- Home PNG -->
+    <button class="icon-btn" id="btn-home" title="Menu inicial" onclick="voltarMenu()">
+      <img src="icones/home.png" alt="Início">
+    </button>
+  </div>
+
+  <div class="menu-right">
+    <div class="menu-dropdown">
+      <!-- Salvar PNG -->
+      <button class="icon-btn" id="btn-salvar" title="Salvar" onclick="toggleMenu('dropdown-save')">
+        <img src="icones/salvar.png" alt="Salvar">
+      </button>
+      <div class="menu-dropdown-content" id="dropdown-save" aria-labelledby="btn-salvar">
+        <a href="#" onclick="salvarTXT(event)" title="Salvar como TXT">Salvar como TXT</a>
+        <a href="#" onclick="salvarPDF(event)" title="Salvar como PDF">Salvar como PDF</a>
+        <a href="#" onclick="salvarExcel(event)" title="Salvar como Excel">Salvar como Excel</a>
+      </div>
+    </div>
+
+    <!-- Imprimir PNG -->
+    <button class="icon-btn" id="btn-print" title="Imprimir">
+      <img src="icones/imprimir.png" alt="Imprimir">
+    </button>
+
+    <!-- Copiar PNG -->
+    <button class="icon-btn" id="btn-copy" title="Copiar" onclick="copiarTudo()">
+      <img src="icones/copiar.png" alt="Copiar">
+    </button>
+  </div>
+</header>
+
+<!-- Top center (titulo + data) -->
+<div class="top-center">
+  <div class="titulo-nav" role="navigation" aria-label="Navegação MAC">
+    <span style="width:28px;display:inline-block"></span>
+    <h1 id="titulo-principal">MAC Bairro São Geraldo - Cód. 77</h1>
+    <!-- seta removida conforme pedido -->
+  </div>
+
+  <!-- Barra de Data -->
+  <div class="datebar">
+    <label for="dataPedido">Data:</label>
+    <input id="dataPedido" type="text" placeholder="dd/mm/aaaa" inputmode="numeric" autocomplete="off" />
+    <button class="chip" id="chipHoje">Hoje</button>
+    <button class="chip" id="chipAmanha">Amanhã</button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="column" id="coluna-principal">
+    <h3>PRODUTOS</h3>
+    <div id="listaPrincipal"></div>
+    <button class="add-item-btn" onclick="adicionarItem('listaPrincipal')">Adicionar Item</button>
+  </div>
+
+  <div id="middle-controls" aria-hidden="false">
+    <button onclick="imprimirDireto()" class="btn-imprimir">Imprimir</button>
+    <button onclick="alternarLinhas()" id="btn-linhas">Ocultar Linhas Vazias</button>
+    <button onclick="resetarTudo()" class="btn-vermelho">Resetar Tudo</button>
+  </div>
+
+  <div class="column" id="coluna-ilha">
+    <h3>ILHA PÃO TOTAL</h3>
+    <div id="listaIlha"></div>
+    <button class="add-item-btn" onclick="adicionarItem('listaIlha')">Adicionar Item</button>
+  </div>
+</div>
+
+<!-- Observações (nova seção) -->
+<div class="obs-box">
+  <h3>OBSERVAÇÕES</h3>
+  <textarea id="observacoes" placeholder="Escreva observações que aparecerão ao copiar/salvar/imprimir..."></textarea>
+  <div class="obs-options">
+    <label><input type="checkbox" id="printObsTitle" checked /> Incluir o título "OBSERVAÇÕES" na impressão</label>
+  </div>
+</div>
+
+<!-- Toast / aviso -->
+<div id="copy-notice">Copiado!</div>
+
+<!-- espaço vazio final apenas para aparência -->
+<div class="page-bottom-space"></div>
+
+<script>
+/***********************  Dados das listas (substituídos conforme pedido) ***********************/
+const PRODUTOS_PRINCIPAL = [
+  "Biscoitinho de doce grande 10 unidades",
+  "Biscoitinho doce frito 1kg",
+  "Biscoito chipa 7kg",
+  "Biscoito de queijo 7kg",
+  "Biscoito três queijos 7kg",
+  "Bolinha de carne pequena 1kg",
+  "Broinha de fubá doce 7kg",
+  "Broinha de fubá doce grande 7kg",
+  "Broinha de sal e queijo 7kg",
+  "Broinha temperada com bacon 7kg",
+  "Canudinho de queijo 7kg",
+  "Canudinho Romeu e Julieta 7kg",
+  "Carioca 7kg",
+  "Coxinha de frango grande 10 unidades",
+  "Coxinha de frango pequena 1kg",
+  "Croissant de frango 7kg",
+  "Croissant de presunto 7kg",
+  "Empada de frango grande 10 unidades",
+  "Empadão de frango com catupiry 10 unidades",
+  "Empadinha de frango pequena 1kg",
+  "Enroladinho de presunto e mussarela grande 10 uni",
+  "Enroladinho de presunto pequeno 1kg",
+  "Enroladinho de salsicha grande 10 unidades",
+  "Mandi 7kg",
+  "Meia lua 1kg com 10 unidades",
+  "Mini carioca 7kg",
+  "Mini pão francês 06hrs 7kg",
+  "Palitão de provolone 1kg com 10 unidades	",
+  "Panhoca 06hrs 7kg",
+  "Pão de queijo recheado frango grande 7kg",
+  "Pão de queijo recheado frango pequeno 7kg",
+  "Pão de queijo tradicional grande 7kg",
+  "Pão de queijo tradicional pequeno 7kg",
+  "Pão francês 04hrs 7kg",
+  "Pão francês 06hrs 7kg",
+  "Pão francês 12hrs 7kg",
+  "Pão francês 18h 7kg",
+  "Pastel assado de frango grande 10 unidades",
+  "Pastel português de carne grande 10 unidades",
+  "Pastelzinho catupiry pequeno 1kg",
+  "Quibe com catupiry pequeno 1kg",
+  "Quibe grande 1kg",
+  "Rosca caseira PCT com 10 unidades",
+  "Tortinha de frango, abacaxi e passas 10 unidades"
+];
+
+const PRODUTOS_ILHA = [
+  "Biscoito chipa 1kg",
+  "Biscoito de queijo 1kg",
+  "Bolinha de carne pequena 1kg",
+  "Broinha de fubá doce 1kg",
+  "Broinha de fubá doce grande 7kg",
+  "Broinha de sal e queijo 1kg",
+  "Broinha temperada com bacon 1kg",
+  "Coxinha de frango pequena 1kg",
+  "Empada de frango 10 unidades",
+  "Empadinha de frango pequena 1kg",
+  "Enroladinho de presunto pequeno 1kg",
+  "Meia lua 1kg com 10 unidades",
+  "Pão de queijo recheado frango grande 1kg",
+  "Pão de queijo recheado frango 1kg",
+  "Pão de queijo tradicional grande 1kg",
+  "Pão de queijo tradicional pequeno 1kg",
+  "Pastelzinho catupiry pequeno 1kg",
+  "Quibe com catupiry pequeno 1kg"
+];
+
+/***********************  Mapa de nomes para impressão/exportação ***********************/
+const PRINT_NAME_MAP = {
+  "Biscoitinho de doce grande 10 unidades": "BISCOITINHO DE DOCE GRANDE",
+  "Biscoitinho doce frito 1kg": "BISCOITINHO DE DOCE 7KG",
+  "Biscoito chipa 7kg": "BISCOITO CHIPA",
+  "Biscoito de queijo 7kg": "BISCOITO DE QUEIJO",
+  "Biscoito três queijos 7kg": "BISCOITO TRÊS QUEIJOS",
+  "Bolinha de carne pequena 1kg": "BOLINHA DE CARNE PEQUENA",
+  "Broinha de fubá doce 7kg": "BROINHA DE FUBÁ DOCE",
+  "Broinha de fubá doce grande 7kg": "BROINHA DE FUBÁ DOCE GRANDE 7KG",
+  "Broinha de sal e queijo 7kg": "BROINHA DE SAL E QUEIJO",
+  "Broinha temperada com bacon 7kg": "BROINHA TEMPERADA COM BACON",
+  "Canudinho de queijo 7kg": "CANUDINHO DE QUEIJO",
+  "Canudinho Romeu e Julieta 7kg": "CANUDINHO ROMEU E JULIETA",
+  "Carioca 7kg": "CARIOCA",
+  "Coxinha de frango grande 10 unidades": "COXINHA DE FRANGO GRANDE",
+  "Coxinha de frango pequena 1kg": "COXINHA DE FRANGO PEQUENA",
+  "Croissant de frango 7kg": "CROISSANT DE FRANGO",
+  "Croissant de presunto 7kg": "CROISSANT DE PRESUNTO",
+  "Empada de frango grande 10 unidades": "EMPADA DE FRANGO",
+  "Empadão de frango com catupiry 10 unidades": "EMPADÃO DE FRANGO COM CATUPIRY",
+  "Empadinha de frango pequena 1kg": "EMPADINHA DE FRANGO PEQUENA",
+  "Enroladinho de presunto e mussarela grande 10 uni": "ENROLADINHO DE PRESUNTO E MUSSARELA GRANDE",
+  "Enroladinho de presunto pequeno 1kg": "ENROLADINHO DE PRESUNTO PEQUENO",
+  "Enroladinho de salsicha grande 10 unidades": "ENROLADINHO DE SALSICHA GRANDE",
+  "Mandi 7kg": "MANDI",
+  "Meia lua 1kg com 10 unidades": "MEIA LUA 7KG",
+  "Mini carioca 7kg": "MINI CARIOCA",
+  "Mini pão francês 06hrs 7kg": "MINI PÃO FRANCÊS 06HRS",
+  "Palitão de provolone 1kg com 10 unidades	": "PALITÃO DE PROVOLONE 1KG",
+  "Panhoca 06hrs 7kg": "PANHOCA 06HRS",
+  "Pão de queijo recheado frango grande 7kg": "PÃO DE QUEIJO RECHEADO FRANGO GRANDE 7KG",
+  "Pão de queijo recheado frango pequeno 7kg": "PÃO DE QUEIJO RECHEADO FRANGO PEQUENO",
+  "Pão de queijo tradicional grande 7kg": "PÃO DE QUEIJO TRADICIONAL GRANDE 7KG",
+  "Pão de queijo tradicional pequeno 7kg": "PÃO DE QUEIJO TRADICIONAL PEQUENO",
+  "Pão francês 04hrs 7kg": "PÃO FRANCÊS 04HRS",
+  "Pão francês 06hrs 7kg": "PÃO FRANCÊS 06HRS",
+  "Pão francês 12hrs 7kg": "PÃO FRANCÊS 12HRS",
+  "Pão francês 18hrs 7kg": "PÃO FRANCÊS 18H",
+  "Pastel assado de frango grande 10 unidades	": "PASTEL ASSADO DE FRANGO",
+  "Pastel português de carne grande 10 unidades": "PASTEL PORTUGUÊS DE CARNE",
+  "Pastelzinho catupiry pequeno 1kg": "PASTELZINHO CATUPIRY PEQUENO",
+  "Quibe com catupiry pequeno 1kg": "QUIBE COM CATUPIRY PEQUENO",
+  "Quibe grande 1kg": "QUIBE GRANDE",
+  "Rosca caseira PCT com 10 unidades": "ROSCA CASEIRA",
+  "Tortinha de frango, abacaxi e passas 10 unidades": "TORTINHA DE FRANGO, ABACAXI E PASSAS"
+};
+function getPrintName(prod){ return PRINT_NAME_MAP[prod] || prod.toUpperCase(); }
+
+/***********************  Helpers UI ***********************/
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+function showBottomNotice(message = 'Copiado!', duration = 2000) {
+  const el = document.getElementById('copy-notice');
+  if (!el) return;
+  if (el._hideTimeout) { clearTimeout(el._hideTimeout); el._hideTimeout = null; }
+  el.textContent = message; el.style.display = 'block';
+  el._hideTimeout = setTimeout(() => { el.style.display = 'none'; el._hideTimeout = null; }, duration);
+}
+
+/***********************  Monta listas ***********************/
+function makeItem(nome){
+  const wrap = document.createElement('div');
+  wrap.className = 'item';
+
+  const labelWrap = document.createElement('div');
+  labelWrap.className = 'label-wrap';
+
+  const label = document.createElement('span');
+  label.className = 'label';
+  label.textContent = nome;
+
+  const ell = document.createElement('button');
+  ell.type = 'button';
+  ell.className = 'ellipsis-btn';
+  ell.textContent = '...';
+  ell.title = 'Mostrar texto completo';
+  ell.style.display = 'none';
+  ell.addEventListener('click', (ev)=>{
+    ev.preventDefault();
+    const expanded = label.classList.toggle('expanded');
+    ell.textContent = expanded ? '▴' : '...';
+    ell.title = expanded ? 'Fechar' : 'Mostrar texto completo';
+  });
+
+  labelWrap.appendChild(label);
+  labelWrap.appendChild(ell);
+
+  const input = document.createElement('input');
+  input.type = 'number'; 
+  input.min = '0'; 
+  input.step = '1'; 
+  input.placeholder = ''; // Vazio em vez de 0
+  input.style.textAlign = 'center'; // Garantir centralização
+  input.addEventListener('input', ()=> { 
+    if(ocultando) applyHideState(); 
+    atualizarContagem(); 
+  });
+
+  // Enter navigation handler
+  input.addEventListener('keydown', (ev)=>{
+    if(ev.key === 'Enter'){
+      ev.preventDefault();
+      focusNextInput(ev.target);
+    }
+  });
+
+  wrap.appendChild(labelWrap); 
+  wrap.appendChild(input);
+  return wrap;
+}
+
+function montarListas(){
+  const p = $('#listaPrincipal'); const i = $('#listaIlha');
+  p.innerHTML = ''; i.innerHTML = '';
+  PRODUTOS_PRINCIPAL.forEach(n=> p.appendChild(makeItem(n)));
+  PRODUTOS_ILHA.forEach(n=> i.appendChild(makeItem(n)));
+  // adicionar checagem de "..." após inserir na DOM
+  setTimeout(checkTruncations, 30);
+}
+
+function checkTruncations(){
+  $$('#listaPrincipal .item, #listaIlha .item').forEach(item=>{
+    const label = item.querySelector('.label'); const btn = item.querySelector('.ellipsis-btn');
+    if(!label || !btn) return;
+    // se o texto real for maior que o espaço disponível, mostrar botão
+    const isTruncated = label.scrollWidth > label.clientWidth + 2;
+    btn.style.display = isTruncated ? 'inline-block' : 'none';
+    if(!isTruncated){ label.classList.remove('expanded'); btn.textContent = '...'; }
+  });
+}
+
+window.addEventListener('resize', ()=>{ setTimeout(checkTruncations, 100); });
+
+/***********************  Data (campo com dd/mm/aaaa) ***********************/
+function pad2(n){ return String(n).padStart(2,'0'); }
+function formatDDMMYYYY(date){ return `${pad2(date.getDate())}/${pad2(date.getMonth()+1)}/${date.getFullYear()}`; }
+function formatDDMM(date){ return `${pad2(date.getDate())}/${pad2(date.getMonth()+1)}`; }
+function parseDateInput(v){ 
+  if(!v || v.trim() === '') return null; 
+  v = v.replace(/\s+/g,'');
+  if(/^\d{4}-\d{2}-\d{2}$/.test(v)){
+    const d = new Date(v);
+    if(!isNaN(d)) return d;
+  }
+  const m = v.match(/^(\d{2})\/(\d{2})(?:\/(\d{4}))?$/);
+  if(m){ const d = parseInt(m[1],10); const mo = parseInt(m[2],10)-1; const y = m[3] ? parseInt(m[3],10) : (new Date()).getFullYear(); const date = new Date(y,mo,d); if(!isNaN(date)) return date; }
+  return null;
+}
+function setDateTo(date){ if(!date) return; $('#dataPedido').value = formatDDMMYYYY(date); }
+function getDisplayDateFull(){ 
+  const v = $('#dataPedido').value.trim(); 
+  if (v === '') return ''; // Retorna vazio se não houver data
+  const dt = parseDateInput(v); 
+  return dt ? formatDDMMYYYY(dt) : ''; 
+}
+function getDisplayDateForPrint(){ 
+  const v = $('#dataPedido').value.trim(); 
+  if (v === '') return formatDDMMYYYY(new Date()); // Se vazio, usa data atual na impressão
+  const dt = parseDateInput(v); 
+  return dt ? formatDDMMYYYY(dt) : formatDDMMYYYY(new Date());
+}
+function sanitizeDateForFile(s){ return s ? s.replace(/\//g,'-') : ''; }
+
+/***********************  Coleta ***********************/
+function coletarSeção(rootSel){
+  const rows = $$(rootSel + ' .item');
+  const out = [];
+  rows.forEach(r=>{
+    const nome = r.querySelector('.label').textContent.trim();
+    const val = r.querySelector('input').value.trim();
+    if(val!=='' && Number(val)>0){ out.push({prod:nome, qtd:Number(val)}); }
+  });
+  return out;
+}
+
+/***********************  Enter navigation helper ***********************/
+function focusNextInput(current){
+  const inputs = Array.from(document.querySelectorAll('#listaPrincipal input[type="number"], #listaIlha input[type="number"]'));
+  const idx = inputs.indexOf(current);
+  if(idx === -1) return;
+  // procurar próximo input disponível (mesmo se vazio)
+  for(let i=idx+1;i<inputs.length;i++){
+    const next = inputs[i];
+    if(next){ next.focus(); next.select(); return; }
+  }
+  // se não houver próximo, nada (poderíamos voltar pro primeiro)
+}
+
+/***********************  Toggle Linhas Vazias ***********************/
+let ocultando = false;
+function applyHideState(){
+  const rows = $$('#listaPrincipal .item, #listaIlha .item');
+  if(!ocultando){ rows.forEach(r=> r.classList.remove('hidden-empty')); return; }
+  rows.forEach(r=>{
+    const v = r.querySelector('input').value.trim();
+    if(v==='' || Number(v)<=0) r.classList.add('hidden-empty'); else r.classList.remove('hidden-empty');
+  });
+}
+function alternarLinhas(){
+  ocultando = !ocultando; applyHideState();
+  const b = $('#btn-linhas'); b.textContent = ocultando ? 'Mostrar Linhas Vazias' : 'Ocultar Linhas Vazias';
+}
+
+/***********************  Reset ***********************/
+function resetarTudo(){
+  $$('#listaPrincipal input, #listaIlha input').forEach(i=> i.value='');
+  // Remover também os itens customizados
+  $$('.custom-item').forEach(item => item.remove());
+  ocultando = false; applyHideState();
+  $('#btn-linhas').textContent = 'Ocultar Linhas Vazias';
+  $('#dataPedido').value = ''; // Deixa vazio em vez de data atual
+  $('#observacoes').value = '';
+  atualizarContagem();
+  showBottomNotice('Tudo limpo');
+}
+
+/***********************  Contagem preenchidos ***********************/
+function atualizarContagem(){
+  const n = coletarSeção('#listaPrincipal').length + coletarSeção('#listaIlha').length;
+}
+
+/***********************  Copiar (inclui observações) ***********************/
+function copiarTudo(){
+  const p = coletarSeção('#listaPrincipal');
+  const i = coletarSeção('#listaIlha');
+  const customItems = coletarCustomItems();
+  const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
+  if(p.length===0 && i.length===0 && customItems.length===0 && !obs){ showBottomNotice('Nada para copiar'); return; }
+  let txt = '';
+  const ddmm = getDisplayDateFull();
+  if (ddmm) {
+    txt += `PEDIDO PÃO TOTAL ${ddmm}\n`;
+  } else {
+    txt += `PEDIDO PÃO TOTAL\n`;
+  }
+  txt += 'PRODUTOS\n';
+  p.forEach(({prod,qtd})=> txt += `${getPrintName(prod)} * ${qtd}\n`);
+  customItems.forEach(({prod,qtd, lista})=> {
+    if (lista === 'listaPrincipal') {
+      txt += `${prod.toUpperCase()} * ${qtd}\n`;
+    }
+  });
+  if(i.length>0 || customItems.some(item => item.lista === 'listaIlha')){
+    txt += '\nILHA PÃO TOTAL\n';
+    i.forEach(({prod,qtd})=> txt += `${getPrintName(prod)} * ${qtd}\n`);
+    customItems.forEach(({prod,qtd, lista})=> {
+      if (lista === 'listaIlha') {
+        txt += `${prod.toUpperCase()} * ${qtd}\n`;
+      }
+    });
+  }
+  if(obs){ txt += `\nOBSERVAÇÕES:\n${obs}\n`; }
+  navigator.clipboard.writeText(txt).then(()=> showBottomNotice('Copiado!')).catch(()=> showBottomNotice('Falha ao copiar'));
+}
+
+/***********************  Adicionar itens customizados ***********************/
+function adicionarItem(listaId) {
+  const lista = document.getElementById(listaId);
+  const novoItem = document.createElement('div');
+  novoItem.className = 'custom-item';
+  
+  const nomeInput = document.createElement('input');
+  nomeInput.type = 'text';
+  nomeInput.placeholder = 'Nome do produto';
+  nomeInput.dataset.lista = listaId;
+  
+  const qtdInput = document.createElement('input');
+  qtdInput.type = 'number';
+  qtdInput.min = '0';
+  qtdInput.step = '1';
+  qtdInput.placeholder = '';
+  qtdInput.style.textAlign = 'center'; // Centralizar também nos campos customizados
+  
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'remove-btn';
+  removeBtn.textContent = '✕';
+  removeBtn.title = 'Remover item';
+  removeBtn.addEventListener('click', () => {
+    novoItem.remove();
+  });
+  
+  novoItem.appendChild(nomeInput);
+  novoItem.appendChild(qtdInput);
+  novoItem.appendChild(removeBtn);
+  
+  // Inserir antes do botão de adicionar
+  const addBtn = lista.nextElementSibling;
+  lista.parentNode.insertBefore(novoItem, addBtn);
+  
+  // Focar no campo de nome
+  setTimeout(() => {
+    nomeInput.focus();
+  }, 10);
+}
+
+// Coletar itens customizados
+function coletarCustomItems() {
+  const customItems = [];
+  $$('.custom-item').forEach(item => {
+    const nomeInput = item.querySelector('input[type="text"]');
+    const qtdInput = item.querySelector('input[type="number"]');
+    const nome = nomeInput.value.trim();
+    const qtd = qtdInput.value.trim();
+    const lista = nomeInput.dataset.lista;
+    
+    if (nome !== '' && qtd !== '' && Number(qtd) > 0) {
+      customItems.push({prod: nome, qtd: Number(qtd), lista: lista});
+    }
+  });
+  return customItems;
+}
+
+/***********************  TXT (inclui observações) ***********************/
+function salvarTXT(e){ if(e) e.preventDefault();
+  const p = coletarSeção('#listaPrincipal');
+  const i = coletarSeção('#listaIlha');
+  const customItems = coletarCustomItems();
+  const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
+  if(p.length===0 && i.length===0 && customItems.length===0 && !obs){ showBottomNotice('Nada para salvar'); return; }
+  const ddmm = getDisplayDateFull();
+  let txt = '';
+  if (ddmm) {
+    txt += `PEDIDO PÃO TOTAL ${ddmm}\n`;
+  } else {
+    txt += `PEDIDO PÃO TOTAL\n`;
+  }
+  txt += `PRODUTOS;QUANTIDADE (PCT)\n`;
+  p.forEach(({prod,qtd})=> txt += `${getPrintName(prod)};${qtd}\n`);
+  customItems.forEach(({prod,qtd, lista})=> {
+    if (lista === 'listaPrincipal') {
+      txt += `${prod.toUpperCase()};${qtd}\n`;
+    }
+  });
+  if(i.length>0 || customItems.some(item => item.lista === 'listaIlha')){
+    txt += `\nILHA PÃO TOTAL;QUANTIDADE (PCT)\n`;
+    i.forEach(({prod,qtd})=> txt += `${getPrintName(prod)};${qtd}\n`);
+    customItems.forEach(({prod,qtd, lista})=> {
+      if (lista === 'listaIlha') {
+        txt += `${prod.toUpperCase()};${qtd}\n`;
+      }
+    });
+  }
+  if(obs){ txt += `\nOBSERVAÇÕES:\n${obs}\n`; }
+  const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  const fileDate = ddmm ? sanitizeDateForFile(ddmm) : 'sem-data';
+  a.download = `PEDIDO_PAO_TOTAL_${fileDate}.txt`; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=> URL.revokeObjectURL(a.href), 1000);
+  showBottomNotice('TXT gerado');
+}
+
+/***********************  PDF / Impressão — AGORA COM DUAS TABELAS SEPARADAS ***********************/
+function gerarPDF({abrirEmNovaAba=false, baixarNome}){
+  const p = coletarSeção('#listaPrincipal');
+  const i = coletarSeção('#listaIlha');
+  const customItems = coletarCustomItems();
+  const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
+  if(p.length===0 && i.length===0 && customItems.length===0 && !obs){ showBottomNotice('Nada para imprimir'); return; }
+
+  const ddmm = getDisplayDateForPrint(); // Usa data atual se estiver vazio
+  const titulo = `PEDIDO PÃO TOTAL ${ddmm}`;
+
+  const bodyP = p.map(({prod,qtd})=> [getPrintName(prod), String(qtd)]);
+  // Adicionar itens customizados da lista principal
+  customItems.filter(item => item.lista === 'listaPrincipal').forEach(({prod,qtd}) => {
+    bodyP.push([prod.toUpperCase(), String(qtd)]);
+  });
+  
+  const bodyI = i.map(({prod,qtd})=> [getPrintName(prod), String(qtd)]);
+  // Adicionar itens customizados da lista ilha
+  customItems.filter(item => item.lista === 'listaIlha').forEach(({prod,qtd}) => {
+    bodyI.push([prod.toUpperCase(), String(qtd)]);
+  });
+
+  let fontSize = 10;
+  let minFont = 6;
+
+  let doc, fits = false;
+  let margin = 36;
+  
+  // Ajuste das larguras das colunas
+  const pageW = 595; // Largura A4 em pontos
+  const availableWidth = pageW - margin * 2;
+  const numericColWidth = 130;
+  const productColWidth = availableWidth - numericColWidth;
+
+  while(!fits && fontSize >= minFont){
+    const { jsPDF } = window.jspdf;
+    doc = new jsPDF({unit:'pt', format:'a4'});
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+
+    // Título
+    doc.setFont('helvetica','bold'); 
+    doc.setFontSize(14);
+    doc.text(titulo, margin, 36);
+    
+    let startY = 60; // Posição inicial para a primeira tabela
+
+    // PRIMEIRA TABELA - PRODUTOS
+    if(bodyP.length > 0) {
+      const tableDataP = [];
+      tableDataP.push(["PRODUTOS", "QUANTIDADE (PCT)"]);
+      bodyP.forEach(([prod, qtd]) => tableDataP.push([prod, qtd]));
+
+      doc.autoTable({
+        startY: startY,
+        head: [tableDataP[0]],
+        body: tableDataP.slice(1),
+        theme: 'grid',
+        margin: {left: margin, right: margin},
+        tableWidth: pageW - margin*2,
+        styles: { 
+          font: 'helvetica', 
+          fontSize: fontSize, 
+          cellPadding: 3, 
+          lineColor: [0,0,0], 
+          lineWidth: 1.2, 
+          textColor: [0,0,0], 
+          overflow: 'linebreak',
+          minCellHeight: 12,
+          fillColor: [255,255,255]
+        },
+        headStyles: { 
+          fillColor: [255,255,255],
+          textColor: [0,0,0], 
+          fontStyle: 'bold' 
+        },
+        columnStyles: { 
+          0: { cellWidth: productColWidth },
+          1: { cellWidth: numericColWidth }
+        },
+        didParseCell: function(data) {
+          // Remover negrito dos biscoitos
+          if (data.row.index > 0 && data.cell.text[0]) {
+            const texto = data.cell.text[0].toLowerCase();
+            if (texto.includes('biscoito') || texto.includes('biscoitinho')) {
+              data.cell.styles.fontStyle = 'normal';
+            }
+          }
+        }
+      });
+
+      startY = doc.lastAutoTable.finalY + 20; // Espaço após a primeira tabela
+    }
+
+    // SEGUNDA TABELA - ILHA PÃO TOTAL
+    if(bodyI.length > 0) {
+      const tableDataI = [];
+      tableDataI.push(["ILHA PÃO TOTAL", "QUANTIDADE (PCT)"]);
+      bodyI.forEach(([prod, qtd]) => tableDataI.push([prod, qtd]));
+
+      doc.autoTable({
+        startY: startY,
+        head: [tableDataI[0]],
+        body: tableDataI.slice(1),
+        theme: 'grid',
+        margin: {left: margin, right: margin},
+        tableWidth: pageW - margin*2,
+        styles: { 
+          font: 'helvetica', 
+          fontSize: fontSize, 
+          cellPadding: 3, 
+          lineColor: [0,0,0], 
+          lineWidth: 1.2, 
+          textColor: [0,0,0], 
+          overflow: 'linebreak',
+          minCellHeight: 12,
+          fillColor: [255,255,255]
+        },
+        headStyles: { 
+          fillColor: [255,255,255],
+          textColor: [0,0,0], 
+          fontStyle: 'bold' 
+        },
+        columnStyles: { 
+          0: { cellWidth: productColWidth },
+          1: { cellWidth: numericColWidth }
+        },
+        didParseCell: function(data) {
+          // Remover negrito dos biscoitos
+          if (data.row.index > 0 && data.cell.text[0]) {
+            const texto = data.cell.text[0].toLowerCase();
+            if (texto.includes('biscoito') || texto.includes('biscoitinho')) {
+              data.cell.styles.fontStyle = 'normal';
+            }
+          }
+        }
+      });
+
+      startY = doc.lastAutoTable.finalY + 20; // Espaço após a segunda tabela
+    }
+
+    // Observações
+    if(obs){
+      const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY : startY;
+      const obsStartY = finalY + 20;
+      const includeTitle = document.getElementById('printObsTitle') ? document.getElementById('printObsTitle').checked : true;
+      doc.setFont('helvetica','bold'); doc.setFontSize(fontSize);
+      
+      if(includeTitle){ 
+        doc.text('OBSERVAÇÕES:', margin, obsStartY); 
+      }
+      doc.setFont('helvetica','normal'); doc.setFontSize(fontSize);
+      const maxWidth = pageW - margin*2;
+      const splitObs = doc.splitTextToSize(obs, maxWidth);
+      const textY = obsStartY + (includeTitle ? fontSize + 4 : 0);
+      doc.text(splitObs, margin, textY);
+    }
+
+    const pages = doc.internal.getNumberOfPages();
+    const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY : 0;
+
+    // checar se tudo coube em uma página
+    if(pages === 1 && finalY <= (pageH - 24)){
+      fits = true;
+      break;
+    }
+
+    fontSize -= 1;
+    if(margin > 24) margin -= 2;
+  }
+
+  const arquivo = baixarNome || `PEDIDO_PAO_TOTAL_${sanitizeDateForFile(ddmm) || 'sem-data'}.pdf`;
+  if(abrirEmNovaAba){
+    const blob = doc.output('blob'); const url = URL.createObjectURL(blob);
+    const win = window.open('', '_blank');
+    if(!win){ doc.save(arquivo); showBottomNotice('PDF baixado'); return; }
+    try { win.location.href = url; } catch(e){
+      try { win.document.open(); win.document.write(`<!doctype html><html><head><title>PDF</title></head><body style="margin:0"><embed src="${url}" type="application/pdf" width="100%" height="100%"/></body></html>`); win.document.close(); } catch(err){ doc.save(arquivo); }
+    }
+    setTimeout(()=> URL.revokeObjectURL(url), 60000);
+  } else { doc.save(arquivo); }
+}
+
+function salvarPDF(e){ if(e) e.preventDefault();
+  const p = coletarSeção('#listaPrincipal');
+  const i = coletarSeção('#listaIlha');
+  const customItems = coletarCustomItems();
+  const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
+  if(p.length===0 && i.length===0 && customItems.length===0 && !obs){ showBottomNotice('Nada para salvar'); return; }
+  gerarPDF({abrirEmNovaAba:false});
+  showBottomNotice('PDF gerado');
+}
+
+function imprimirDireto(){
+  const p = coletarSeção('#listaPrincipal');
+  const i = coletarSeção('#listaIlha');
+  const customItems = coletarCustomItems();
+  const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
+  if(p.length===0 && i.length===0 && customItems.length===0 && !obs){ showBottomNotice('Nada para imprimir'); return; }
+  gerarPDF({abrirEmNovaAba:true});
+}
+
+/***********************  Excel (SheetJS) (inclui observações) ***********************/
+function salvarExcel(e){ if(e) e.preventDefault();
+  const p = coletarSeção('#listaPrincipal');
+  const i = coletarSeção('#listaIlha');
+  const customItems = coletarCustomItems();
+  const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
+  if(p.length===0 && i.length===0 && customItems.length===0 && !obs){ showBottomNotice('Nada para salvar'); return; }
+  const ddmm = getDisplayDateFull();
+  const linhas = [];
+  
+  // Título centralizado como no Excel - uma célula mesclada
+  if (ddmm) {
+    linhas.push(["PEDIDO PÃO TOTAL " + ddmm, "", ""]);
+  } else {
+    linhas.push(["PEDIDO PÃO TOTAL", "", ""]);
+  }
+  linhas.push(["PRODUTOS", "QUANTIDADE (PCT)", ""]);
+  p.forEach(({prod,qtd})=> linhas.push([getPrintName(prod), String(qtd), ""]));
+  customItems.forEach(({prod,qtd, lista})=> {
+    if (lista === 'listaPrincipal') {
+      linhas.push([prod.toUpperCase(), String(qtd), ""]);
+    }
+  });
+  if(i.length>0 || customItems.some(item => item.lista === 'listaIlha')){ 
+    linhas.push(["", "", ""]); 
+    linhas.push(["ILHA PÃO TOTAL", "QUANTIDADE (PCT)", ""]); 
+    i.forEach(({prod,qtd})=> linhas.push([getPrintName(prod), String(qtd), ""])); 
+    customItems.forEach(({prod,qtd, lista})=> {
+      if (lista === 'listaIlha') {
+        linhas.push([prod.toUpperCase(), String(qtd), ""]);
+      }
+    });
+  }
+  if(obs){ 
+    linhas.push(["", "", ""]); 
+    linhas.push(["OBSERVAÇÕES", "", ""]); 
+    const obsLines = obs.split(/\r?\n/); 
+    obsLines.forEach(l=> linhas.push([l, "", ""])); 
+  }
+  
+  const ws = XLSX.utils.aoa_to_sheet(linhas);
+  
+  // Mesclar células para o título (linha 0, colunas 0-2)
+  if(!ws['!merges']) ws['!merges'] = [];
+  ws['!merges'].push({ s:{r:0,c:0}, e:{r:0,c:2} });
+  
+  // Centralizar o título
+  if(!ws.A1.s) ws.A1.s = {};
+  ws.A1.s.alignment = { horizontal: "center" };
+  ws.A1.s.font = { bold: true, sz: 14 };
+  
+  // Ajustar largura das colunas - PRODUTOS ocupa mais espaço
+  ws['!cols'] = [ {wch:50}, {wch:15}, {wch:5} ]; // PRODUTOS: 50, QUANTIDADE: 15
+  const wb = XLSX.utils.book_new(); 
+  XLSX.utils.book_append_sheet(wb, ws, 'PEDIDO');
+  
+  const fileDate = ddmm ? sanitizeDateForFile(ddmm) : 'sem-data';
+  XLSX.writeFile(wb, `PEDIDO_PAO_TOTAL_${fileDate}.xlsx`);
+  showBottomNotice('Excel gerado');
+}
+
+/***********************  Menus (mesmo do seu template) ***********************/
+function toggleMenu(id){
+  document.querySelectorAll('.menu-dropdown-content').forEach(el=>{ if(el.id!==id){ el.style.display='none'; el.style.opacity=0; el.setAttribute('aria-hidden','true'); } });
+  const el = document.getElementById(id); if(!el) return;
+  if(el.style.display==='block'){ el.style.opacity=0; setTimeout(()=>{ el.style.display='none'; el.setAttribute('aria-hidden','true'); },180); }
+  else { el.style.display='block'; el.style.opacity=0; el.setAttribute('aria-hidden','false'); setTimeout(()=> el.style.opacity=1, 10); }
+}
+function toggleSubmenu(headerEl){ const submenu = headerEl.nextElementSibling; if(!submenu) return; const chev = headerEl.querySelector('.chev'); if(submenu.style.display==='block'){ submenu.style.display='none'; if(chev) chev.textContent='▸'; } else { submenu.style.display='block'; if(chev) chev.textContent='▾'; } }
+
+document.addEventListener('click', (ev)=>{ if(!ev.target.closest('.menu-dropdown')){ document.querySelectorAll('.menu-dropdown-content').forEach(el=>{ el.style.display='none'; el.style.opacity=0; el.setAttribute('aria-hidden','true'); }); } });
+
+function fecharPagina(){ try { window.close(); } catch(e){} }
+function voltarMenu(){ }
+function navegarProximo(){ }
+function abrirMac(e, nome){ if(e) e.preventDefault(); document.getElementById('titulo-principal').textContent = nome; toggleMenu('dropdown-menu'); }
+function abrirLocal(e, nome){ if(e) e.preventDefault(); toggleMenu('dropdown-menu'); }
+
+/***********************  Inicialização ***********************/
+function setChipLabels(){
+  const hoje = new Date(); const amanha = new Date(); amanha.setDate(hoje.getDate()+1);
+  const chHoje = document.getElementById('chipHoje'); const chAmanha = document.getElementById('chipAmanha');
+  if(chHoje) chHoje.textContent = `Hoje (${formatDDMM(hoje)})`;
+  if(chAmanha) chAmanha.textContent = `Amanhã (${formatDDMM(amanha)})`;
+}
+
+function init(){
+  montarListas();
+  // Não definir data inicial - campo fica vazio
+  $('#dataPedido').value = '';
+  setChipLabels();
+
+  const $data = $('#dataPedido');
+  $data.addEventListener('blur', ()=>{ 
+    const d = parseDateInput($data.value.trim()); 
+    $data.value = d ? formatDDMMYYYY(d) : ''; 
+  });
+
+  $('#chipHoje').addEventListener('click', ()=> setDateTo(new Date()));
+  $('#chipAmanha').addEventListener('click', ()=>{ const d=new Date(); d.setDate(d.getDate()+1); setDateTo(d); });
+
+  const printBtn = document.getElementById('btn-print'); if(printBtn){ printBtn.addEventListener('click', (ev)=>{ ev.preventDefault(); imprimirDireto(); }); }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

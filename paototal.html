@@ -209,9 +209,23 @@
     color: #495057;
   }
 
+  /* Estilo para itens com seletor de peso */
+  .item-with-selector { 
+    grid-template-columns: 1fr 120px 70px; 
+  }
+  .weight-selector {
+    width: 100%;
+    padding: 4px 6px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 12px;
+    font-family: var(--screen-font);
+  }
+
   /* Impressão: forçar bordas e linhas em preto e fonte consistente */
   @media print {
-    header, .menu-dropdown-content, #middle-controls, .mac-links, #copy-notice, .add-item-btn, .remove-btn { display:none !important; }
+    header, .menu-dropdown-content, #middle-controls, .mac-links, #copy-notice, .add-item-btn, .remove-btn, .weight-selector { display:none !important; }
     .top-center { display:block !important; }
     .container { gap:0; padding:0; max-width: none; grid-template-columns: minmax(200px,0.45fr) 0 minmax(200px,0.55fr); }
     .column { box-shadow:none; border: var(--print-border) solid #000 !important; min-width:40%; }
@@ -434,7 +448,8 @@ const PRODUTOS_ILHA = [
 /***********************  Mapa de nomes para impressão/exportação ***********************/
 const PRINT_NAME_MAP = {
   "Biscoitinho de doce grande 10 unidades": "BISCOITINHO DE DOCE GRANDE",
-  "Biscoitinho doce frito 1kg": "BISCOITINHO DE DOCE 7KG",
+  "Biscoitinho doce frito 1kg": "BISCOITINHO DE DOCE 1KG",
+  "Biscoitinho doce frito 7kg": "BISCOITINHO DE DOCE 7KG",
   "Biscoito chipa 7kg": "BISCOITO CHIPA",
   "Biscoito de queijo 7kg": "BISCOITO DE QUEIJO",
   "Biscoito três queijos 7kg": "BISCOITO TRÊS QUEIJOS",
@@ -457,7 +472,8 @@ const PRINT_NAME_MAP = {
   "Enroladinho de presunto pequeno 1kg": "ENROLADINHO DE PRESUNTO PEQUENO",
   "Enroladinho de salsicha grande 10 unidades": "ENROLADINHO DE SALSICHA GRANDE",
   "Mandi 7kg": "MANDI",
-  "Meia lua 1kg com 10 unidades": "MEIA LUA 7KG",
+  "Meia lua 1kg com 10 unidades": "MEIA LUA 1KG",
+  "Meia lua 7kg": "MEIA LUA 7KG",
   "Mini carioca 7kg": "MINI CARIOCA",
   "Mini pão francês 06hrs 7kg": "MINI PÃO FRANCÊS 06HRS",
   "Palitão de provolone 1kg com 10 unidades	": "PALITÃO DE PROVOLONE 1KG",
@@ -478,7 +494,16 @@ const PRINT_NAME_MAP = {
   "Rosca caseira PCT com 10 unidades": "ROSCA CASEIRA",
   "Tortinha de frango, abacaxi e passas 10 unidades": "TORTINHA DE FRANGO, ABACAXI E PASSAS"
 };
-function getPrintName(prod){ return PRINT_NAME_MAP[prod] || prod.toUpperCase(); }
+
+// Produtos que terão seletor de peso (apenas na lista principal)
+const PRODUCTS_WITH_WEIGHT_SELECTOR = [
+  "Biscoitinho doce frito 1kg",
+  "Meia lua 1kg com 10 unidades"
+];
+
+function getPrintName(prod){ 
+  return PRINT_NAME_MAP[prod] || prod.toUpperCase(); 
+}
 
 /***********************  Helpers UI ***********************/
 const $ = (sel) => document.querySelector(sel);
@@ -493,16 +518,32 @@ function showBottomNotice(message = 'Copiado!', duration = 2000) {
 }
 
 /***********************  Monta listas ***********************/
-function makeItem(nome){
+function makeItem(nome, listaId){
   const wrap = document.createElement('div');
-  wrap.className = 'item';
+  
+  // Verificar se este produto precisa de um seletor de peso (apenas na lista principal)
+  if (listaId === 'listaPrincipal' && PRODUCTS_WITH_WEIGHT_SELECTOR.includes(nome)) {
+    wrap.className = 'item item-with-selector';
+  } else {
+    wrap.className = 'item';
+  }
 
   const labelWrap = document.createElement('div');
   labelWrap.className = 'label-wrap';
 
   const label = document.createElement('span');
   label.className = 'label';
-  label.textContent = nome;
+  
+  // Para produtos com seletor, mostrar apenas o nome base (apenas na lista principal)
+  if (listaId === 'listaPrincipal' && PRODUCTS_WITH_WEIGHT_SELECTOR.includes(nome)) {
+    if (nome === "Biscoitinho doce frito 1kg") {
+      label.textContent = "Biscoitinho doce frito";
+    } else if (nome === "Meia lua 1kg com 10 unidades") {
+      label.textContent = "Meia lua";
+    }
+  } else {
+    label.textContent = nome;
+  }
 
   const ell = document.createElement('button');
   ell.type = 'button';
@@ -541,14 +582,35 @@ function makeItem(nome){
 
   wrap.appendChild(labelWrap); 
   wrap.appendChild(input);
+  
+  // Adicionar seletor de peso para produtos específicos (apenas na lista principal)
+  if (listaId === 'listaPrincipal' && PRODUCTS_WITH_WEIGHT_SELECTOR.includes(nome)) {
+    const selector = document.createElement('select');
+    selector.className = 'weight-selector';
+    
+    if (nome === "Biscoitinho doce frito 1kg") {
+      selector.innerHTML = `
+        <option value="1kg">1kg</option>
+        <option value="7kg">7kg</option>
+      `;
+    } else if (nome === "Meia lua 1kg com 10 unidades") {
+      selector.innerHTML = `
+        <option value="1kg com 10 unidades">1kg</option>
+        <option value="7kg">7kg</option>
+      `;
+    }
+    
+    wrap.appendChild(selector);
+  }
+
   return wrap;
 }
 
 function montarListas(){
   const p = $('#listaPrincipal'); const i = $('#listaIlha');
   p.innerHTML = ''; i.innerHTML = '';
-  PRODUTOS_PRINCIPAL.forEach(n=> p.appendChild(makeItem(n)));
-  PRODUTOS_ILHA.forEach(n=> i.appendChild(makeItem(n)));
+  PRODUTOS_PRINCIPAL.forEach(n=> p.appendChild(makeItem(n, 'listaPrincipal')));
+  PRODUTOS_ILHA.forEach(n=> i.appendChild(makeItem(n, 'listaIlha')));
   // adicionar checagem de "..." após inserir na DOM
   setTimeout(checkTruncations, 30);
 }
@@ -601,7 +663,19 @@ function coletarSeção(rootSel){
   const rows = $$(rootSel + ' .item');
   const out = [];
   rows.forEach(r=>{
-    const nome = r.querySelector('.label').textContent.trim();
+    let nome = '';
+    const label = r.querySelector('.label');
+    
+    // Para produtos com seletor de peso, construir o nome com base na seleção
+    if (r.classList.contains('item-with-selector')) {
+      const selector = r.querySelector('.weight-selector');
+      const baseName = label.textContent.trim();
+      const selectedWeight = selector ? selector.value : '';
+      nome = baseName + ' ' + selectedWeight;
+    } else {
+      nome = label.textContent.trim();
+    }
+    
     const val = r.querySelector('input').value.trim();
     if(val!=='' && Number(val)>0){ out.push({prod:nome, qtd:Number(val)}); }
   });

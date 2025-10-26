@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Visualizador ODS</title>
+<title>Visualizador de Planilhas (.ods, .xlsx) — V3</title>
 
 <!-- SheetJS: lê .ods/.xlsx no navegador -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -17,6 +17,9 @@
     --cinza:#f7fbff;
     --borda:#e5e7eb;
     --texto:#111;
+    --sel-bg: #e6f0ff;
+    --warn-bg: #fff4e5;
+    --warn-border: #ffd8a8;
   }
   *{ box-sizing:border-box; }
   html,body{ height:100% }
@@ -44,16 +47,18 @@
     background:none; border:none; color:#fff;
     font-size:18px; cursor:pointer;
     padding:6px 8px; border-radius:6px; user-select:none;
+    width:32px; height:32px; display:flex; align-items:center; justify-content:center;
   }
-  .icon-btn:hover{ background:rgba(255,255,255,.08) }
+  .icon-btn img{ width:20px; height:20px; filter:brightness(0) invert(1); }
 
   /* dropdowns */
   .menu-dropdown{ position:relative; }
+  .menu-dropdown.left .menu-dropdown-content{ left:0; right:auto; }
   .menu-dropdown-content{
     display:none; position:absolute; top:calc(100% + 6px);
-    right:0; background:#fff; color:#111; border-radius:6px;
+    right:0; left:auto; background:#fff; color:#111; border-radius:6px;
     box-shadow:0 6px 18px rgba(0,0,0,.15);
-    min-width:190px; overflow:auto; z-index:1200; padding:6px 0;
+    min-width:220px; overflow:auto; z-index:1200; padding:6px 0;
   }
   .menu-dropdown-content a{
     display:block; padding:8px 12px; color:#111; text-decoration:none;
@@ -80,7 +85,7 @@
     background:var(--cinza); color:#0b305a;
     cursor:pointer; user-select:none;
     transition:.15s ease;
-    min-height:180px;
+    min-height:160px;
   }
   .dropzone .title{ font-weight:700; margin-bottom:6px; font-size:14px; }
   .dropzone .hint{ font-size:12px; opacity:.8; }
@@ -89,9 +94,22 @@
 
   /* ===== viewer ===== */
   #viewer{ display:none; }
+  .file-info{
+    margin:20px 0 10px 0; padding:10px 0; border-bottom:1px solid var(--borda);
+  }
+  .file-info span{ font-size:12px; opacity:.85; }
+  .file-info strong{ font-size:13px; }
+
   .actions-top{
     display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:10px 0;
+    justify-content:space-between;
   }
+  .left-actions{ display:flex; gap:8px; align-items:center; }
+  .right-actions{ 
+    display:flex; flex-direction:column; align-items:flex-end; gap:6px; 
+    margin-top:10px;
+  }
+
   .tabs{
     display:flex; gap:6px; flex-wrap:wrap; margin:10px 0 10px;
   }
@@ -124,7 +142,9 @@
   .btn{
     border:1px solid var(--borda); background:#fff; cursor:pointer;
     padding:8px 12px; border-radius:6px; font-family:monospace; font-size:12px;
+    transition:all 0.2s ease;
   }
+  .btn:hover{ transform:translateY(-1px); box-shadow:0 2px 4px rgba(0,0,0,0.1); }
   .btn-primaria{ background:#e8f2ff; border-color:#cfe2ff; color:#0b305a; }
   .btn-perigo{ background:var(--vermelho); color:#fff; border:none; }
 
@@ -136,28 +156,129 @@
     display: none; z-index: 2000; font-size:12px;
   }
 
+  /* painel de substituições - novo visual com caixinhas */
+  .subst-panel{ min-width:520px; }
+  .subst-header{ padding:8px 12px; border-bottom:1px solid #eee; background:#fafafa; font-weight:700; }
+  .subst-toolbar{ 
+    display:flex; flex-direction:column; gap:8px; margin:8px 0; flex-wrap:wrap;
+    padding:12px; background:#f8f9fa; border-radius:8px; border:1px solid var(--borda);
+  }
+  .subst-toolbar .subst-sets{ min-width:180px; }
+  .subst-toolbar .btn, .subst-toolbar .add-mapping-btn{ white-space:nowrap; font-family:monospace; font-size:12px; }
+  .subst-sets{ padding:6px 8px; border-radius:6px; border:1px solid #eee; background:#fff; font-family:monospace; font-size:12px; }
+
+  .subst-main{ display:flex; gap:12px; padding:10px; }
+  .subst-left{ flex:1; }
+  .subst-right{ display:none; }
+
+  /* mapping list (caixinhas) */
+  .subst-list{ display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+  .map-row{ display:flex; gap:8px; align-items:center; }
+  .map-key, .map-val{ flex:1; padding:8px 10px; border-radius:8px; border:1px solid #e6e6e6; font-family:monospace; font-size:13px; background:#fff; }
+  .map-key{ max-width:220px; }
+  .map-arrow{ width:36px; height:28px; display:flex; align-items:center; justify-content:center; }
+  .map-del{ background:none; border:none; padding:6px; cursor:pointer; font-size:14px; border-radius:6px; font-family:monospace; }
+  .map-del:hover{ background:#ffecec; }
+  
+  /* Botão de adicionar - NOVO ESTILO (igual ao do pedido) */
+  .add-mapping-btn { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 6px; 
+    margin-top: 8px; 
+    padding: 8px 12px; 
+    background: #f7fbff; 
+    border: 1px dashed #b8d4ff; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-size: 13px; 
+    color: #007BFF; 
+    font-family: monospace;
+    transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .add-mapping-btn:hover { 
+    background: #eef6ff; 
+    border-color: #007BFF;
+    border-style: solid;
+  }
+
+  .preview-btn{ display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; border:1px solid var(--borda); background:#fff; cursor:pointer; }
+  .preview-count{ margin-top:8px; font-size:13px; font-weight:700; color:#111; }
+
+  /* seleção de células */
+  td.cell-selected{ background:var(--sel-bg) !important; outline:2px solid rgba(0,123,255,0.12); }
+
+  /* linha separadora */
+  .separator{
+    margin:15px 0; border-top:1px solid var(--borda); padding-top:15px;
+  }
+  .separator-title{
+    font-weight:700; margin-bottom:10px; font-size:13px; color:#333;
+  }
+
+  /* botões horizontais */
+  .horizontal-buttons{
+    display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+  }
+
+  /* Botão ver mais */
+  .show-more-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 6px 10px;
+    background: #f8f9fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    color: #6b7280;
+    font-family: monospace;
+    transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .show-more-btn:hover {
+    background: #e5e7eb;
+    border-color: #d1d5db;
+  }
+
   /* ===== impressão ===== */
   @media print{
-    /* esconde controles */
     header, .menu-dropdown-content, #uploader, #copy-notice, .viewer-footer .btn { display:none !important; }
-
-    /* evita segunda página: altura natural e nada de overflow “preso” */
     html, body { background:#fff; height:auto !important; overflow:visible !important; }
-
-    /* não deixar padding/margens empurrarem conteúdo */
     .wrap{ padding:0; max-width:none; page-break-after:avoid; break-after:avoid-page; }
     .titulo-nav{ margin:0 0 6px 0; }
-
     .sheet{ padding:0; }
     .sheets{ border:none; }
-
-    /* tipografia na impressão */
     .sheet table{ font-size:10px; page-break-inside:auto; }
     .sheet tr, .sheet td, .sheet th{ page-break-inside:avoid; break-inside:avoid; }
-
-    /* tamanho da página e margens internas (não remove cabeç./rodapés do navegador) */
     @page{ size:A4 portrait; margin:10mm; }
   }
+
+  /* subst inline warning */
+  .subst-warning{ display:none; padding:8px 10px; border-radius:6px; background:var(--warn-bg); border:1px solid var(--warn-border); color:#7a4e00; font-size:13px; margin-top:8px; }
+  .subst-inline{ display:none; margin-top:8px; gap:8px; align-items:center; }
+  .subst-inline input{ padding:6px 8px; border-radius:6px; border:1px solid #ddd; font-family:monospace; font-size:12px; }
+
+  /* modal para salvar como */
+  .modal-overlay{
+    position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5);
+    display:none; align-items:center; justify-content:center; z-index:3000;
+  }
+  .modal-content{
+    background:#fff; padding:20px; border-radius:8px; min-width:300px; max-width:500px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.2);
+  }
+  .modal-header{ font-weight:700; margin-bottom:15px; font-family:monospace; }
+  .modal-body{ margin-bottom:15px; }
+  .modal-footer{ display:flex; gap:8px; justify-content:flex-end; }
+
 </style>
 </head>
 <body>
@@ -165,36 +286,108 @@
 <header>
   <!-- ESQUERDA -->
   <div class="menu-left">
-    <div class="menu-dropdown">
-      <button class="icon-btn" title="Menu (☰)" onclick="toggleMenu('dropdown-menu')">☰</button>
+    <div class="menu-dropdown left">
+      <button class="icon-btn" title="Menu (☰)" onclick="toggleMenu('dropdown-menu')">
+        <img src="icones/menu-hamburger.png" alt="Menu">
+      </button>
       <div class="menu-dropdown-content" id="dropdown-menu">
         <a href="#" onclick="showToast('Página 1 (em breve)');return false;">Página 1 (em breve)</a>
         <a href="#" onclick="showToast('Página 2 (em breve)');return false;">Página 2 (em breve)</a>
         <a href="#" onclick="showToast('Página 3 (em breve)');return false;">Página 3 (em breve)</a>
       </div>
     </div>
-    <button class="icon-btn" title="Fechar (❌)" onclick="fecharPagina()">❌</button>
-    <button class="icon-btn" title="Menu inicial (🏠)" onclick="voltarMenu()">🏠</button>
+    <button class="icon-btn" title="Fechar (❌)" onclick="fecharPagina()">
+      <img src="icones/fechar.png" alt="Fechar">
+    </button>
+    <button class="icon-btn" title="Menu inicial (🏠)" onclick="voltarMenu()">
+      <img src="icones/home.png" alt="Início">
+    </button>
   </div>
 
   <!-- DIREITA -->
   <div class="menu-right">
     <div class="menu-dropdown">
-      <button class="icon-btn" id="btn-salvar" title="Salvar (💾)" onclick="toggleMenu('dropdown-save')">💾</button>
+      <button class="icon-btn" id="btn-salvar" title="Salvar (💾)" onclick="toggleMenu('dropdown-save')">
+        <img src="icones/salvar.png" alt="Salvar">
+      </button>
       <div class="menu-dropdown-content" id="dropdown-save" aria-labelledby="btn-salvar">
         <a href="#" onclick="exportarXLSX();fecharTodosMenus();return false;">Salvar como XLSX</a>
         <a href="#" onclick="exportarCSVAtivo();fecharTodosMenus();return false;">Salvar CSV (aba ativa)</a>
         <a href="#" onclick="exportarJSON();fecharTodosMenus();return false;">Salvar como JSON</a>
       </div>
     </div>
-    <button class="icon-btn" id="btn-print" title="Imprimir (🖨️)" onclick="imprimirAtual()">🖨️</button>
-    <button class="icon-btn" id="btn-copy" title="Copiar (📋)" onclick="copiarTabelaAtiva()">📋</button>
+
+    <button class="icon-btn" id="btn-print" title="Imprimir (🖨️)" onclick="imprimirAtual()">
+      <img src="icones/imprimir.png" alt="Imprimir">
+    </button>
+    <button class="icon-btn" id="btn-copy" title="Copiar (📋)" onclick="copiarTabelaAtiva()">
+      <img src="icones/copiar.png" alt="Copiar">
+    </button>
+
+    <!-- Substituições: abre painel com dicionário editável, aplicar / restaurar -->
+    <div class="menu-dropdown">
+      <button class="icon-btn" id="btn-subst" title="Substituições (abrir painel)" onclick="toggleSubstMenu(event)">
+        <img src="icones/substituicoes.png" alt="Substituições">
+      </button>
+
+      <!-- pequeno menu mostrado quando NÃO há arquivo carregado -->
+      <div class="menu-dropdown-content" id="dropdown-subst-short" aria-labelledby="btn-subst" style="min-width:180px; display:none;">
+        <a href="#" onclick="openAnotherFile(); fecharTodosMenus(); return false;">Carregar planilha</a>
+        <a href="#" onclick="showToast('Substituições: carregue uma planilha primeiro'); fecharTodosMenus(); return false;">Como usar</a>
+      </div>
+
+      <!-- painel completo (aberto apenas quando há arquivo) -->
+      <div class="menu-dropdown-content" id="dropdown-subst" aria-labelledby="btn-subst" style="min-width:520px;padding:0;">
+        <div class="subst-panel" style="padding:0; min-width:520px;">
+          <div class="subst-header">Painel de Substituições</div>
+          <div style="padding:10px;">
+            <div style="display:flex;gap:12px;align-items:flex-start;justify-content:space-between;">
+              <div class="subst-left">
+                <div class="subst-toolbar">
+                  <select id="subst-sets" class="subst-sets"></select>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn" id="btn-new" onclick="showNewModal()">Novo</button>
+                    <button class="btn" id="btn-save-as" onclick="showSaveAsModal()">Salvar como...</button>
+                    <button class="btn" id="btn-delete-set" onclick="deleteCurrentSet()">Excluir</button>
+                  </div>
+                </div>
+
+                <!-- aviso inline (não pop-up) -->
+                <div id="subst-warning" class="subst-warning" role="status" aria-live="polite"></div>
+
+                <!-- agora usamos caixinhas (linhas) ao invés de textarea -->
+                <div class="subst-list" id="subst-list" aria-live="polite"></div>
+
+                <!-- Botão de adicionar (aparece apenas se não for o conjunto Padrão) -->
+                <button class="add-mapping-btn" id="btn-add-mapping" title="Adicionar mapeamento">Adicionar</button>
+
+                <div class="separator">
+                  <div class="separator-title">Predefinições</div>
+                  <div class="horizontal-buttons">
+                    <button class="btn btn-primaria" id="btn-apply-subst" onclick="applySubstitutionsFromUI()">Aplicar substituições</button>
+                    <button class="btn" id="btn-reset-subst" onclick="resetSubstToDefault()">Resetar conjunto padrão</button>
+                    <button class="btn" id="btn-sort-subst" title="Ordenar A–Z (1ª coluna)" onclick="toggleSortSheetAtiva()">Ordenar A–Z (1ª coluna)</button>
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="subst-right">
+                <!-- Esta seção foi removida conforme solicitado -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
   </div>
 </header>
 
 <!-- Título -->
 <div class="titulo-nav">
-  <h1 id="titulo">Visualizador de Planilhas (.ods)</h1>
+  <h1 id="titulo">Visualizador de Planilhas (.ods, .xlsx)</h1>
 </div>
 
 <div class="wrap">
@@ -202,15 +395,25 @@
   <section id="uploader" aria-label="Carregar planilha">
     <input id="file-input" type="file" accept=".ods,.xlsx,.xls,.csv" />
     <label class="dropzone" id="dropzone" for="file-input">
-      <div class="title">Arraste e solte seu arquivo .ods aqui</div>
+      <div class="title">Arraste e solte seu arquivo .ods / .xlsx aqui</div>
       <div class="hint">ou clique nesta área para selecionar do computador</div>
     </label>
   </section>
 
   <!-- ===== Viewer ===== -->
   <section id="viewer" aria-label="Visualização da planilha">
+    <!-- Informações do arquivo movidas para baixo -->
+    <div class="file-info">
+      <span>Arquivo: <strong id="nome-arquivo">—</strong></span>
+    </div>
+
     <div class="actions-top">
-      <span style="font-size:12px;opacity:.75;">Arquivo: <strong id="nome-arquivo">—</strong></span>
+      <div class="left-actions">
+        <button class="btn" id="btn-open-other" onclick="openAnotherFile()" title="Abrir outro arquivo">Abrir outro arquivo</button>
+      </div>
+      <div class="right-actions" id="viewer-controls-right">
+        <div id="right-selection" style="font-size:12px;color:#333;">Selecionadas: <strong id="selection-count">0</strong></div>
+      </div>
     </div>
 
     <div class="tabs" id="tabs"></div>
@@ -219,21 +422,47 @@
 
     <div class="viewer-footer">
       <div class="status" id="status">Pronto.</div>
-      <div style="display:flex; gap:8px; align-items:center;">
-        <!-- O botão Ordenar A–Z será injetado aqui automaticamente após o arquivo carregar -->
-        <button class="btn" onclick="exportarCSVAtivo()" title="Salvar CSV da aba atual">Salvar CSV (aba ativa)</button>
-        <button class="btn" onclick="exportarXLSX()" title="Salvar arquivo completo em XLSX">Salvar XLSX</button>
-        <button class="btn" onclick="exportarJSON()" title="Salvar todas as abas em JSON">Salvar JSON</button>
-        <button class="btn btn-primaria" id="btn-outro" onclick="resetViewer()" title="Carregar outro arquivo">Fazer com outro arquivo</button>
+      <div id="viewer-footer-actions" style="display:flex;gap:8px;align-items:center;">
+        <!-- mantemos apenas status / pequenos controles aqui; exportação no menu salvar -->
       </div>
     </div>
   </section>
+</div>
+
+<!-- Modal para Novo -->
+<div class="modal-overlay" id="newModal">
+  <div class="modal-content">
+    <div class="modal-header">Novo Conjunto</div>
+    <div class="modal-body">
+      <input type="text" id="newName" placeholder="Nome do conjunto" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-family:monospace;" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="confirmNew()">Confirmar</button>
+      <button class="btn" onclick="closeNewModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Salvar Como -->
+<div class="modal-overlay" id="saveAsModal">
+  <div class="modal-content">
+    <div class="modal-header">Salvar conjunto como</div>
+    <div class="modal-body">
+      <input type="text" id="saveAsName" placeholder="Nome do conjunto" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-family:monospace;" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="confirmSaveAs()">Confirmar</button>
+      <button class="btn" onclick="closeSaveAsModal()">Cancelar</button>
+    </div>
+  </div>
 </div>
 
 <div id="copy-notice">Copiado!</div>
 
 <script>
 /* ========= helpers visuais / toasts ========= */
+let previousStatus = 'Pronto.'; // Para armazenar o status anterior à seleção
+
 function showToast(msg){
   const el = document.getElementById('copy-notice');
   el.textContent = msg;
@@ -266,6 +495,19 @@ let activeSheetName = null;   // aba ativa
 let originalSheetsAOA = {};    // snapshot AOA por aba (para restaurar)
 let sortedSheets = new Set();  // abas atualmente ordenadas
 
+// substituições - agora armazenamos conjuntos como { nome: [ {k,v}, ... ] }
+let substitutionDict = {};              // mapa internalizado (chave normalizada -> valor)
+let substitutionAppliedSheets = new Set(); // quais abas já receberam substituições
+const SUBST_LS_KEY = 'viewer_substitutions_v3';
+
+// seleção de células
+let isSelecting = false;
+let selectStart = null;
+let selectedCells = new Set();
+
+// Controle de exibição das listas
+let expandedSets = {};
+
 /* ========= elementos ========= */
 const uploader = document.getElementById('uploader');
 const viewer   = document.getElementById('viewer');
@@ -274,6 +516,8 @@ const fileInput= document.getElementById('file-input');
 const tabs     = document.getElementById('tabs');
 const sheets   = document.getElementById('sheets');
 const statusEl = document.getElementById('status');
+const selCountEl = document.getElementById('selection-count');
+const viewerControlsRight = document.getElementById('viewer-controls-right');
 
 /* ========= drag & drop / seleção ========= */
 dropzone.addEventListener('dragover', (e)=>{ e.preventDefault(); dropzone.classList.add('dragover'); });
@@ -291,9 +535,10 @@ fileInput.addEventListener('change', (e)=>{
 /* ========= processamento ========= */
 function processFile(file){
   statusEl.textContent = 'Lendo arquivo...';
-  // reseta estados de ordenação ao abrir novo arquivo
+  previousStatus = 'Lendo arquivo...';
   originalSheetsAOA = {};
   sortedSheets = new Set();
+  substitutionAppliedSheets = new Set();
   currentFileName = file.name;
   document.getElementById('titulo').textContent = `Visualizador de Planilhas — ${currentFileName}`;
   document.getElementById('nome-arquivo').textContent = currentFileName;
@@ -308,13 +553,19 @@ function processFile(file){
       uploader.style.display = 'none';
       viewer.style.display   = 'block';
       statusEl.textContent   = `Carregado: ${file.name} (${wb.SheetNames.length} aba${wb.SheetNames.length>1?'s':''})`;
+      previousStatus = statusEl.textContent;
     }catch(err){
       console.error(err);
       statusEl.textContent = 'Erro ao ler o arquivo.';
+      previousStatus = statusEl.textContent;
       showToast('Não consegui abrir esse arquivo.');
     }
   };
-  reader.onerror = function(){ statusEl.textContent = 'Falha na leitura do arquivo.'; showToast('Falha na leitura do arquivo.'); };
+  reader.onerror = function(){ 
+    statusEl.textContent = 'Falha na leitura do arquivo.'; 
+    previousStatus = statusEl.textContent;
+    showToast('Falha na leitura do arquivo.'); 
+  };
   reader.readAsArrayBuffer(file);
 }
 
@@ -332,7 +583,6 @@ function renderWorkbook(wb){
     tabs.appendChild(btn);
 
     const ws = wb.Sheets[name];
-    // snapshot da matriz original (AOA) para restaurar depois
     const __aoa = XLSX.utils.sheet_to_json(ws, { header:1 });
     originalSheetsAOA[name] = __aoa.map(r => Array.isArray(r) ? r.slice() : []);
     const html = XLSX.utils.sheet_to_html(ws, { id:`sheet-${idx}`, header:'', footer:'' });
@@ -342,12 +592,12 @@ function renderWorkbook(wb){
     pane.dataset.name = name;
     pane.innerHTML = html; // a <table> vem pronta
     sheets.appendChild(pane);
+
+    // depois de inserir, vincula interação na tabela
+    bindTableInteractions(pane);
   });
 
   setActiveSheet(wb.SheetNames[0]);
-
-  // 👉 injeta o botão de ordenação somente após o arquivo ser processado
-  injectSortButton();
 }
 
 function setActiveSheet(name){
@@ -358,7 +608,9 @@ function setActiveSheet(name){
   document.querySelectorAll('.sheet').forEach(p=>{
     p.classList.toggle('active', p.dataset.name === name);
   });
+  clearSelection();
   updateSortButtonLabel();
+  updateSubstUIState();
 }
 
 /* ========= exportações ========= */
@@ -421,72 +673,70 @@ function resetViewer(){
   tabs.innerHTML = '';
   sheets.innerHTML = '';
   currentWB = null; activeSheetName = null;
-  originalSheetsAOA = {}; sortedSheets = new Set();
+  originalSheetsAOA = {}; sortedSheets = new Set(); substitutionAppliedSheets = new Set();
   document.getElementById('nome-arquivo').textContent = '—';
-  document.getElementById('titulo').textContent = 'Visualizador de Planilhas (.ods)';
+  document.getElementById('titulo').textContent = 'Visualizador de Planilhas (.ods, .xlsx)';
   statusEl.textContent = 'Pronto.';
+  previousStatus = 'Pronto.';
   try{ fileInput.value = ''; }catch(e){}
-  const btnSort = document.getElementById('btn-sort-az');
-  if(btnSort) btnSort.remove(); // remove o botão ao voltar
   viewer.style.display = 'none';
   uploader.style.display = 'block';
 }
 
-/* ========= acessibilidade/UX ========= */
-document.addEventListener('keydown', (e)=>{
-  if(e.key === 'Escape'){ fecharTodosMenus(); }
-});
-
-/* ========= ORDENAR A–Z (injetado só após carregar) ========= */
-function injectSortButton(){
-  if(document.getElementById('btn-sort-az')) return; // não duplica
-  const container = document.querySelector('.viewer-footer > div:last-of-type');
-  if(!container) return;
-  const b = document.createElement('button');
-  b.className = 'btn';
-  b.id = 'btn-sort-az';
-  b.title = 'Ordenar linhas da aba atual (A→Z) pela 1ª coluna';
-  b.textContent = 'Ordenar A–Z (1ª coluna)';
-  b.addEventListener('click', toggleSortSheetAtiva);
-  const btnOutro = document.getElementById('btn-outro');
-  container.insertBefore(b, btnOutro || null);
-  updateSortButtonLabel();
+function openAnotherFile(){
+  try{ fileInput.value = ''; }catch(e){}
+  fileInput.click();
 }
 
+/* ========= acessibilidade/UX ========= */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape'){ 
+    fecharTodosMenus(); 
+    clearSelection(); // ESC agora limpa a seleção
+  }
+});
+
+// Permitir deseleção ao clicar fora da planilha
+document.addEventListener('mousedown', (e)=>{
+  if(!e.target.closest('.sheet') && !e.target.closest('.menu-dropdown-content')) {
+    clearSelection();
+  }
+});
+
+/* ========= ORDENAR A–Z (moved to substituições) ========= */
 function updateSortButtonLabel(){
-  const b = document.getElementById('btn-sort-az');
-  if(!b){ return; }
+  const b1 = document.getElementById('btn-sort-az');
+  const b2 = document.getElementById('btn-sort-subst');
   const sorted = sortedSheets.has(activeSheetName);
-  b.textContent = sorted ? 'Restaurar ordem original' : 'Ordenar A–Z (1ª coluna)';
-  b.title = sorted ? 'Voltar à ordem original da aba atual' : 'Ordenar linhas da aba atual (A→Z) pela 1ª coluna';
+  const text = sorted ? 'Restaurar ordem A–Z (1ª coluna)' : 'Ordenar A–Z (1ª coluna)';
+  const title = sorted ? 'Voltar à ordem A–Z (1ª coluna) da aba atual' : 'Ordenar linhas da aba atual (A→Z) pela 1ª coluna';
+  if(b1){ b1.textContent = text; b1.title = title; }
+  if(b2){ b2.textContent = text; b2.title = title; }
 }
 
 function toggleSortSheetAtiva(){
   if(!currentWB || !activeSheetName){ showToast('Nenhuma aba ativa.'); return; }
 
-  // garante snapshot da aba ativa
-  if(!originalSheetsAOA[activeSheetName]){
-    const ws0 = currentWB.Sheets[activeSheetName];
-    const aoa0 = XLSX.utils.sheet_to_json(ws0, { header:1 });
-    originalSheetsAOA[activeSheetName] = aoa0.map(r => Array.isArray(r) ? r.slice() : []);
-  }
-
+  // Usa a planilha atual (com substituições aplicadas) como base
+  const ws0 = currentWB.Sheets[activeSheetName];
+  const aoa0 = XLSX.utils.sheet_to_json(ws0, { header:1 });
+  
   const isSorted = sortedSheets.has(activeSheetName);
 
   let novoWS;
   if(isSorted){
-    // RESTAURAR
+    // Se já está ordenado, restaura do original
     const base = originalSheetsAOA[activeSheetName].map(r => r.slice());
     novoWS = XLSX.utils.aoa_to_sheet(base);
     sortedSheets.delete(activeSheetName);
-    statusEl.textContent = `Ordem original restaurada na aba "${activeSheetName}"`;
+    statusEl.textContent = `Ordem restaurada A–Z na aba "${activeSheetName}"`;
+    previousStatus = statusEl.textContent;
     showToast('Ordem original restaurada.');
   }else{
-    // ORDENAR A–Z pela 1ª coluna, preservando cabeçalho
-    const base = originalSheetsAOA[activeSheetName];
-    if(base.length <= 1){ showToast('Nada para ordenar.'); return; }
-    const header = base[0].slice();
-    const linhas = base.slice(1).map(r => r.slice());
+    // Ordena a planilha atual
+    if(aoa0.length <= 1){ showToast('Nada para ordenar.'); return; }
+    const header = aoa0[0].slice();
+    const linhas = aoa0.slice(1).map(r => r.slice());
 
     const collator = new Intl.Collator('pt', { sensitivity:'base', numeric:true });
     const norm = v => (v ?? '').toString().trim();
@@ -502,18 +752,579 @@ function toggleSortSheetAtiva(){
     novoWS = XLSX.utils.aoa_to_sheet(novaMatriz);
     sortedSheets.add(activeSheetName);
     statusEl.textContent = `Ordenado A–Z por 1ª coluna na aba "${activeSheetName}"`;
+    previousStatus = statusEl.textContent;
     showToast('Ordenado com sucesso!');
   }
 
-  // aplica na planilha e re-renderiza a aba ativa
   currentWB.Sheets[activeSheetName] = novoWS;
   const idx = currentWB.SheetNames.indexOf(activeSheetName);
   const html = XLSX.utils.sheet_to_html(novoWS, { id:`sheet-${idx}`, header:'', footer:'' });
   const pane = document.querySelector(`.sheet[data-name="${CSS.escape(activeSheetName)}"]`);
-  if(pane) pane.innerHTML = html;
+  if(pane) {
+    pane.innerHTML = html;
+    bindTableInteractions(pane);
+  }
 
   updateSortButtonLabel();
 }
+
+/* ========= SUBSTITUIÇÕES (UI sem popups) ========= */
+function normalizeKey(s){ return (s||'').toString().replace(/\s+/g,' ').trim().toUpperCase(); }
+
+// backward-compat parser (não é usado pela UI principal, mas útil se migrarmos dados antigos)
+function parseMappingFromText(text){
+  const dict = {};
+  const lines = text.split(/\r?\n/);
+  lines.forEach(line=>{
+    let t = line.trim();
+    if(!t) return;
+    if(t.startsWith('#')) return;
+    const parts = t.split(/\s*(?:⇢|=>|=|->|\t)\s*/);
+    const left = (parts[0] || '').trim();
+    const right = (parts.slice(1).join(' = ') || '').trim();
+    if(!left) return;
+    dict[normalizeKey(left)] = right;
+  });
+  return dict;
+}
+
+/* armazenamento e gerenciamento de conjuntos (localStorage v3 estrutura: { name: [ {k,v}, ... ] }) */
+function loadSubstSets(){
+  try{
+    const raw = localStorage.getItem(SUBST_LS_KEY);
+    if(!raw) {
+      // cria set padrão vazio + 'Supermercado Josildo' com as trocas atualizadas
+      const sets = {
+        'Padrão': [],
+        'Supermercado Josildo': [
+          {k:'BISC.PARA FRITAR 1KG', v:'Biscoitinho de doce 1 kg'},
+          {k:'BOLO FUBA CREMOSO', v:'Bolo cremoso de fubá 1 unidade'},
+          {k:'BOLO PAMONHA', v:'Bolo cremoso de milho 1 unidade'},
+          {k:'CHIPA PACOTE 7 KG', v:'Biscoito chipa 7kg'},
+          {k:'COXINHA GRANDE UND.', v:'Coxinha de frango grande 10 unidades'},
+          {k:'CROISSANT FRANGO', v:'Croissant de frango 7kg'},
+          {k:'EMPADA FGO UND', v:'Empada de frango grande 10 unidades'},
+          {k:'ENROLADO PRES.MUSSARELA GDE', v:'Enroladinho presunto mussarela grande 10 unidades'},
+          {k:'ENROLADO SALSICHA GDE', v:'Enroladinho de salsicha grande 10 unidades'},
+          {k:'PAO 6 HORAS', v:'Pão francês 06h 7kg'},
+          {k:'PAO 12 HORAS', v:'Pão francês 12h 7kg'},
+          {k:'PAO 18 HORAS', v:'Pão francês 18h 7kg'},
+          {k:'PAO CARIOCA  5KG', v:'Carioca 7kg'},
+          {k:'PAO DE BATATA 5KG', v:'Pão de batata 7kg'},
+          {k:'PAO DE MILHO 5KG', v:'Pão de milho 7kg'},
+          {k:'PAO FRANCES  BOLINHA 6HS', v:'Panhoca 06h 7kg'},
+          {k:'PAO INTEGRAL PACT. 6 HORAS', v:'Pão francês integral 06h 7kg'},
+          {k:'PAO ROSCOVADO', v:'Roscovado comum 1 unidade'},
+          {k:'PASTEL FRANGO UND', v:'Pastel assado de frango grande 10 unidades'},
+          {k:'QUIBE REDONDO', v:'Quibe grande 10 unidades'},
+          {k:'ROSCA  REDONDA CREME', v:'Rosca creme e coco redonda 5 unidades'},
+          {k:'ROSCA COMPRIDA CREME', v:'Rosca creme e coco comprida 5 unidades'},
+          {k:'ROSCA COMPRIDA FRUTAS', v:'Rosca frutas cristalizadas comprida 5 unidades'},
+          {k:'ROSCA REDONDA FRUTAS', v:'Rosca frutas cristalizadas redonda 5 unidades'},
+          {k:'TORTA CATUPIRY UND.', v:'Empadão de frango com catupiry 10 unidades'}
+        ]
+      };
+      saveSubstSets(sets);
+      return sets;
+    }
+    const parsed = JSON.parse(raw);
+    // backward-compat: if values are strings (old format), convert to array of {k,v}
+    const out = {};
+    Object.keys(parsed).forEach(name=>{
+      const val = parsed[name];
+      if(typeof val === 'string'){
+        const dict = parseMappingFromText(val);
+        out[name] = Object.keys(dict).map(k=>({k:k, v:dict[k]}));
+      }else if(Array.isArray(val)){
+        out[name] = val.map(item=>({k:item.k||'', v:item.v||''}));
+      }else if(typeof val === 'object'){
+        // if it was stored as map {key: value}, convert
+        out[name] = Object.keys(val).map(k=>({k:k, v:val[k]}));
+      }else{
+        out[name] = [];
+      }
+    });
+    return out;
+  }catch(e){ console.warn(e); return null; }
+}
+function saveSubstSets(obj){
+  try{ localStorage.setItem(SUBST_LS_KEY, JSON.stringify(obj)); }catch(e){ console.warn(e); }
+}
+
+function populateSubstSetsUI(){
+  const select = document.getElementById('subst-sets');
+  select.innerHTML = '';
+  let sets = loadSubstSets();
+  if(!sets){
+    // cria set padrão vazio + 'Supermercado Josildo' com as trocas que o usuário mencionou
+    sets = {
+      'Padrão': [],
+      'Supermercado Josildo': [
+        {k:'BISC.PARA FRITAR 1KG', v:'Biscoitinho de doce 1 kg'},
+        {k:'BOLO FUBA CREMOSO', v:'Bolo cremoso de fubá 1 unidade'},
+        {k:'BOLO PAMONHA', v:'Bolo cremoso de milho 1 unidade'},
+        {k:'CHIPA PACOTE 7 KG', v:'Biscoito chipa 7kg'},
+        {k:'COXINHA GRANDE UND.', v:'Coxinha de frango grande 10 unidades'},
+        {k:'CROISSANT FRANGO', v:'Croissant de frango 7kg'},
+        {k:'EMPADA FGO UND', v:'Empada de frango grande 10 unidades'},
+        {k:'ENROLADO PRES.MUSSARELA GDE', v:'Enroladinho presunto mussarela grande 10 unidades'},
+        {k:'ENROLADO SALSICHA GDE', v:'Enroladinho de salsicha grande 10 unidades'},
+        {k:'PAO 6 HORAS', v:'Pão francês 06h 7kg'},
+        {k:'PAO 12 HORAS', v:'Pão francês 12h 7kg'},
+        {k:'PAO 18 HORAS', v:'Pão francês 18h 7kg'},
+        {k:'PAO CARIOCA  5KG', v:'Carioca 7kg'},
+        {k:'PAO DE BATATA 5KG', v:'Pão de batata 7kg'},
+        {k:'PAO DE MILHO 5KG', v:'Pão de milho 7kg'},
+        {k:'PAO FRANCES  BOLINHA 6HS', v:'Panhoca 06h 7kg'},
+        {k:'PAO INTEGRAL PACT. 6 HORAS', v:'Pão francês integral 06h 7kg'},
+        {k:'PAO ROSCOVADO', v:'Roscovado comum 1 unidade'},
+        {k:'PASTEL FRANGO UND', v:'Pastel assado de frango grande 10 unidades'},
+        {k:'QUIBE REDONDO', v:'Quibe grande 10 unidades'},
+        {k:'ROSCA  REDONDA CREME', v:'Rosca creme e coco redonda 5 unidades'},
+        {k:'ROSCA COMPRIDA CREME', v:'Rosca creme e coco comprida 5 unidades'},
+        {k:'ROSCA COMPRIDA FRUTAS', v:'Rosca frutas cristalizadas comprida 5 unidades'},
+        {k:'ROSCA REDONDA FRUTAS', v:'Rosca frutas cristalizadas redonda 5 unidades'},
+        {k:'TORTA CATUPIRY UND.', v:'Empadão de frango com catupiry 10 unidades'}
+      ]
+    };
+    saveSubstSets(sets);
+  }
+  Object.keys(sets).forEach(name=>{
+    const opt = document.createElement('option'); opt.value = name; opt.textContent = name; select.appendChild(opt);
+  });
+  // Removida a opção "+ Novo" conforme solicitado
+
+  // listener que trata seleção de conjuntos
+  select.onchange = function(){
+    const val = select.value;
+    renderMappingSet(val);
+    updateAddButtonVisibility();
+  };
+}
+
+function renderMappingSet(name){
+  const sets = loadSubstSets() || {};
+  const arr = sets[name] || [];
+  const list = document.getElementById('subst-list');
+  list.innerHTML = '';
+
+  // Inicializa o estado expandido se não existir
+  if (expandedSets[name] === undefined) {
+    expandedSets[name] = false;
+  }
+
+  // Determina quantos itens mostrar
+  const maxInitial = 5;
+  const showAll = expandedSets[name];
+  const itemsToShow = showAll ? arr : arr.slice(0, maxInitial);
+
+  // Renderiza os itens
+  itemsToShow.forEach(item => addMappingRow(item.k || '', item.v || ''));
+
+  // Adiciona o botão "Ver mais" se houver mais de 5 itens e não estiver expandido
+  if (arr.length > maxInitial && !showAll) {
+    const moreRow = document.createElement('div');
+    moreRow.className = 'map-row';
+    moreRow.style.justifyContent = 'center';
+    const moreBtn = document.createElement('button');
+    moreBtn.className = 'show-more-btn';
+    moreBtn.textContent = `Ver mais (${arr.length - maxInitial} itens)`;
+    moreBtn.addEventListener('click', () => {
+      expandedSets[name] = true;
+      renderMappingSet(name);
+    });
+    moreRow.appendChild(moreBtn);
+    list.appendChild(moreRow);
+  }
+
+  updateSubstUIState();
+  updateAddButtonVisibility();
+}
+
+function updateAddButtonVisibility() {
+  const select = document.getElementById('subst-sets');
+  const currentSet = select.value;
+  const addBtn = document.getElementById('btn-add-mapping');
+  
+  if (currentSet === 'Padrão') {
+    addBtn.style.display = 'none';
+  } else {
+    addBtn.style.display = 'flex';
+  }
+}
+
+/* Modal para Novo */
+function showNewModal(){
+  const modal = document.getElementById('newModal');
+  const input = document.getElementById('newName');
+  input.value = 'Novo conjunto';
+  modal.style.display = 'flex';
+  input.focus();
+}
+
+function closeNewModal(){
+  document.getElementById('newModal').style.display = 'none';
+}
+
+function confirmNew(){
+  const name = document.getElementById('newName').value.trim();
+  if(!name){ showInlineWarning('Digite um nome válido.'); return; }
+  if(name === 'Padrão'){ showInlineWarning('Não é permitido gravar no conjunto "Padrão". Escolha outro nome.'); return; }
+  const sets = loadSubstSets() || {};
+  if(sets[name]){ showInlineWarning('Já existe um conjunto com esse nome. Escolha outro.'); return; }
+  
+  sets[name] = [];
+  saveSubstSets(sets);
+  populateSubstSetsUI();
+  document.getElementById('subst-sets').value = name;
+  renderMappingSet(name);
+  closeNewModal();
+  showToast('Conjunto criado.');
+  updateAddButtonVisibility();
+}
+
+function showInlineWarning(msg){
+  const w = document.getElementById('subst-warning');
+  w.textContent = msg; w.style.display = 'block';
+}
+
+function showSaveAsModal(){
+  const modal = document.getElementById('saveAsModal');
+  const input = document.getElementById('saveAsName');
+  const select = document.getElementById('subst-sets');
+  const current = select.value || '';
+  input.value = current ? current + ' - cópia' : 'Novo conjunto';
+  modal.style.display = 'flex';
+  input.focus();
+}
+
+function closeSaveAsModal(){
+  document.getElementById('saveAsModal').style.display = 'none';
+}
+
+function confirmSaveAs(){
+  const name = document.getElementById('saveAsName').value.trim();
+  if(!name){ showInlineWarning('Digite um nome válido.'); return; }
+  if(name === 'Padrão'){ showInlineWarning('Não é permitido gravar no conjunto "Padrão". Escolha outro nome.'); return; }
+  const sets = loadSubstSets() || {};
+  if(sets[name]){ showInlineWarning('Já existe um conjunto com esse nome. Escolha outro.'); return; }
+  
+  sets[name] = getMappingsFromUI();
+  saveSubstSets(sets);
+  populateSubstSetsUI();
+  document.getElementById('subst-sets').value = name;
+  renderMappingSet(name);
+  closeSaveAsModal();
+  showToast('Conjunto salvo como ' + name);
+  updateAddButtonVisibility();
+}
+
+function deleteCurrentSet(){
+  const select = document.getElementById('subst-sets');
+  const name = select.value;
+  if(!name) return;
+  if(name === 'Padrão'){ showInlineWarning('O conjunto "Padrão" não pode ser excluído.'); return; }
+  if(!confirm('Excluir o conjunto "' + name + '" ?')) return;
+  const sets = loadSubstSets() || {};
+  delete sets[name];
+  saveSubstSets(sets);
+  populateSubstSetsUI();
+  document.getElementById('subst-sets').value = Object.keys(loadSubstSets() || {})[0] || '';
+  renderMappingSet(document.getElementById('subst-sets').value);
+  showToast('Conjunto excluído.');
+  updateAddButtonVisibility();
+}
+
+function resetSubstToDefault(){
+  // Apenas muda para o conjunto Padrão sem restaurar a planilha
+  const sets = loadSubstSets() || {};
+  if(sets['Padrão']) {
+    document.getElementById('subst-sets').value = 'Padrão';
+    renderMappingSet('Padrão');
+  } else {
+    document.getElementById('subst-list').innerHTML = '';
+  }
+  showToast('Conjunto padrão selecionado.');
+  updateAddButtonVisibility();
+}
+
+function getMappingsFromUI(){
+  const rows = Array.from(document.querySelectorAll('.subst-list .map-row'));
+  const out = [];
+  rows.forEach(row=>{
+    const k = (row.querySelector('.map-key')?.value || '').toString().trim();
+    const v = (row.querySelector('.map-val')?.value || '').toString().trim();
+    if(k) out.push({k:k, v:v});
+  });
+  return out;
+}
+
+function addMappingRow(key, val){
+  const list = document.getElementById('subst-list');
+  const row = document.createElement('div'); row.className = 'map-row';
+  const inputK = document.createElement('input'); inputK.className = 'map-key'; inputK.value = key || '';
+  const arrow = document.createElement('div'); arrow.className = 'map-arrow';
+  arrow.innerHTML = `<svg width="20" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 12h14" stroke="#666" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 5l6 7-6 7" stroke="#666" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const inputV = document.createElement('input'); inputV.className = 'map-val'; inputV.value = val || '';
+  const del = document.createElement('button'); del.className = 'map-del'; del.title='Remover mapeamento'; del.innerHTML = '✕';
+  del.addEventListener('click', (e)=>{ 
+    e.stopPropagation(); 
+    row.remove(); 
+    // Atualizar o conjunto salvo
+    const select = document.getElementById('subst-sets');
+    const currentSetName = select.value;
+    const sets = loadSubstSets() || {};
+    const currentSet = sets[currentSetName] || [];
+    
+    // Encontrar o índice do item a ser removido
+    const rows = Array.from(list.querySelectorAll('.map-row'));
+    const index = rows.indexOf(row);
+    if (index > -1) {
+      currentSet.splice(index, 1);
+      saveSubstSets(sets);
+      renderMappingSet(currentSetName);
+    }
+    
+    updateSubstUIState(); 
+    showToast('Mapeamento removido.'); 
+  });
+  row.appendChild(inputK); row.appendChild(arrow); row.appendChild(inputV); row.appendChild(del);
+  list.appendChild(row);
+  inputK.focus();
+}
+
+function applySubstitutionsFromUI(){
+  if(!currentWB){ showToast('Nenhum arquivo carregado.'); return; }
+  const mappings = getMappingsFromUI();
+  substitutionDict = {};
+  mappings.forEach(m=>{ substitutionDict[normalizeKey(m.k)] = m.v; });
+  // Apply only to active sheet by default (UI atualmente aplica aba ativa)
+  applySubstitutions({ allSheets: false });
+}
+
+function applySubstitutions({ allSheets = false } = {}){
+  if(!currentWB){ showToast('Nenhum arquivo carregado.'); return; }
+  let totalReplacements = 0;
+  const targetSheets = allSheets ? currentWB.SheetNames.slice() : (activeSheetName ? [activeSheetName] : []);
+  targetSheets.forEach(name=>{
+    const ws = currentWB.Sheets[name];
+    if(!ws) return;
+    const aoa = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
+    let replaced = 0;
+    for(let r=0;r<aoa.length;r++){
+      for(let c=0;c<aoa[r].length;c++){
+        const cell = aoa[r][c];
+        if(cell === null || cell === undefined) continue;
+        const norm = normalizeKey(cell.toString());
+        if(Object.prototype.hasOwnProperty.call(substitutionDict, norm)){
+          aoa[r][c] = substitutionDict[norm];
+          replaced++;
+        }
+      }
+    }
+    if(replaced>0){
+      const novoWS = XLSX.utils.aoa_to_sheet(aoa);
+      currentWB.Sheets[name] = novoWS;
+      const idx = currentWB.SheetNames.indexOf(name);
+      const html = XLSX.utils.sheet_to_html(novoWS, { id:`sheet-${idx}`, header:'', footer:'' });
+      const pane = document.querySelector(`.sheet[data-name="${CSS.escape(name)}"]`);
+      if(pane) { pane.innerHTML = html; bindTableInteractions(pane); }
+      substitutionAppliedSheets.add(name);
+      totalReplacements += replaced;
+    }
+  });
+  updateSubstUIState();
+  statusEl.textContent = `Substituições aplicadas (${totalReplacements} trocas).`;
+  previousStatus = statusEl.textContent;
+  showToast(`${totalReplacements} substituição(ões) aplicadas.`);
+}
+
+function restoreOriginalsFromUI(){
+  // restaura apenas aba ativa (mantive a opção simples conforme UI atual)
+  restoreOriginals({ allSheets: false });
+}
+
+function restoreOriginals({ allSheets = false } = {}){
+  if(!currentWB){ showToast('Nenhum arquivo carregado.'); return; }
+  const targetSheets = allSheets ? currentWB.SheetNames.slice() : (activeSheetName ? [activeSheetName] : []);
+  let restoredCount = 0;
+  targetSheets.forEach(name=>{
+    const orig = originalSheetsAOA[name];
+    if(!orig) return;
+    const novoWS = XLSX.utils.aoa_to_sheet(orig.map(r=>Array.isArray(r)?r.slice():[]));
+    currentWB.Sheets[name] = novoWS;
+    const idx = currentWB.SheetNames.indexOf(name);
+    const html = XLSX.utils.sheet_to_html(novoWS, { id:`sheet-${idx}`, header:'', footer:'' });
+    const pane = document.querySelector(`.sheet[data-name="${CSS.escape(name)}"]`);
+    if(pane) { pane.innerHTML = html; bindTableInteractions(pane); }
+    substitutionAppliedSheets.delete(name);
+    sortedSheets.delete(name);
+    restoredCount++;
+  });
+  updateSubstUIState();
+  statusEl.textContent = `Restauradas ${restoredCount} aba(s) ao original.`;
+  previousStatus = statusEl.textContent;
+  showToast('Conteúdo original restaurado.');
+}
+
+function updateSubstUIState(){
+  const btn = document.getElementById('btn-subst');
+  if(!btn) return;
+  const applied = activeSheetName && substitutionAppliedSheets.has(activeSheetName);
+  btn.title = applied ? 'Substituições aplicadas (abrir painel)' : 'Substituições (abrir painel)';
+}
+
+/* carrega conjuntos salvos e inicializa a UI */
+(function initSubstDict(){
+  try{
+    populateSubstSetsUI();
+    const select = document.getElementById('subst-sets');
+    select.value = Object.keys(loadSubstSets() || {})[0] || '';
+    renderMappingSet(select.value);
+    // substitute: attach stopPropagation for interaction inside panel to avoid accidental fechamento
+    const dropdownSubst = document.getElementById('dropdown-subst');
+    if(dropdownSubst) dropdownSubst.addEventListener('click', (e)=>{ e.stopPropagation(); });
+    // ensure some buttons inside panel don't propagate clicks to document (avoid fechar menus)
+    ['btn-add-mapping','btn-new','btn-save-as','btn-delete-set','btn-apply-subst','btn-reset-subst','btn-sort-subst'].forEach(id=>{
+      const el = document.getElementById(id); if(el) el.addEventListener('click', (e)=> e.stopPropagation());
+    });
+    // make add mapping button add row without inline onclick (we also keep the inline but ensure it doesn't close the menu)
+    const addBtn = document.getElementById('btn-add-mapping'); 
+    if(addBtn) addBtn.addEventListener('click', ()=> {
+      const select = document.getElementById('subst-sets');
+      const currentSetName = select.value;
+      if (currentSetName === 'Padrão') return; // Não adicionar ao Padrão
+
+      const sets = loadSubstSets() || {};
+      const currentSet = sets[currentSetName] || [];
+      currentSet.push({k: '', v: ''});
+      saveSubstSets(sets);
+      renderMappingSet(currentSetName);
+    });
+    
+    updateAddButtonVisibility();
+
+    // substitutionDict vazio até o usuário aplicar
+    substitutionDict = {};
+  }catch(e){ console.warn('Não foi possível inicializar painel de substituições', e); }
+})();
+
+/* ========= final helpers ========= */
+updateSubstUIState();
+
+/* ========= SELEÇÃO DE CÉLULAS (simples) ========= */
+function bindTableInteractions(pane){
+  const table = pane.querySelector('table');
+  if(!table) return;
+  const tb = table.tBodies[0];
+  if(!tb) return;
+  Array.from(tb.rows).forEach((row, rIdx)=>{
+    Array.from(row.cells).forEach((td, cIdx)=>{
+      td.dataset.r = rIdx;
+      td.dataset.c = cIdx;
+      td.style.userSelect = 'none';
+      td.addEventListener('mousedown', cell_mouse_down);
+      td.addEventListener('mouseenter', cell_mouse_enter);
+      td.addEventListener('mouseup', cell_mouse_up);
+    });
+  });
+}
+
+function cell_mouse_down(e){
+  if(e.button !== 0) return;
+  isSelecting = true;
+  const td = e.currentTarget;
+  selectStart = { r: Number(td.dataset.r), c: Number(td.dataset.c) };
+  if(!e.ctrlKey && !e.metaKey){ clearSelection(); }
+  toggleCellSelection(td);
+}
+function cell_mouse_enter(e){
+  if(!isSelecting) return;
+  const td = e.currentTarget;
+  if(selectStart){
+    const r2 = Number(td.dataset.r); const c2 = Number(td.dataset.c);
+    selectRange(selectStart.r, selectStart.c, r2, c2);
+  }
+}
+function cell_mouse_up(e){
+  isSelecting = false; selectStart = null;
+}
+
+function cellKey(k){ return `${k.r}|${k.c}`; }
+
+function selectRange(r1,c1,r2,c2){
+  clearSelection();
+  const rmin = Math.min(r1,r2); const rmax = Math.max(r1,r2);
+  const cmin = Math.min(c1,c2); const cmax = Math.max(c1,c2);
+  const activePane = document.querySelector('.sheet.active');
+  if(!activePane) return;
+  const table = activePane.querySelector('table'); if(!table) return;
+  const tb = table.tBodies[0]; if(!tb) return;
+  for(let r=rmin;r<=rmax;r++){
+    const row = tb.rows[r]; if(!row) continue;
+    for(let c=cmin;c<=cmax;c++){
+      const cell = row.cells[c]; if(!cell) continue;
+      cell.classList.add('cell-selected');
+      selectedCells.add(`${r}|${c}`);
+    }
+  }
+  updateSelectionCount();
+}
+
+function toggleCellSelection(td){
+  const key = `${td.dataset.r}|${td.dataset.c}`;
+  if(selectedCells.has(key)){
+    selectedCells.delete(key); td.classList.remove('cell-selected');
+  }else{
+    selectedCells.add(key); td.classList.add('cell-selected');
+  }
+  updateSelectionCount();
+}
+
+function clearSelection(){
+  const activePane = document.querySelector('.sheet.active');
+  if(activePane){
+    activePane.querySelectorAll('td.cell-selected').forEach(td=>td.classList.remove('cell-selected'));
+  }
+  selectedCells.clear();
+  updateSelectionCount();
+}
+
+function updateSelectionCount(){
+  const activePane = document.querySelector('.sheet.active');
+  if(!activePane){ selCountEl.textContent = '0'; statusEl.textContent = previousStatus; return; }
+  const selected = Array.from(activePane.querySelectorAll('td.cell-selected'));
+  // contar apenas células não vazias (com texto visível)
+  const nonEmptySelected = selected.filter(td => (td.textContent || '').toString().trim() !== '');
+  selCountEl.textContent = nonEmptySelected.length.toString();
+  const rightSel = document.getElementById('right-selection');
+  if(nonEmptySelected.length>0) {
+    statusEl.textContent = `${nonEmptySelected.length} célula(s) selecionada(s)`;
+  } else {
+    statusEl.textContent = previousStatus;
+  }
+}
+
+/* ========= substituições - botão condicional (abre painel somente se arquivo carregado) ========= */
+function toggleSubstMenu(e){
+  // if there is no workbook loaded, show short menu (like salvar/copiar)
+  if(!currentWB){
+    toggleMenu('dropdown-subst-short');
+    return;
+  }
+  toggleMenu('dropdown-subst');
+}
+
+/* ========= pequenas utilidades visuais para o painel ========= */
+function showSubstInlineMessage(msg, timeout=4000){
+  const el = document.getElementById('subst-warning');
+  el.textContent = msg; el.style.display = 'block';
+  clearTimeout(showSubstInlineMessage._t);
+  showSubstInlineMessage._t = setTimeout(()=>{ el.style.display='none'; }, timeout);
+}
+
+/* ========= finalização ========= */
+// ready
 </script>
 </body>
 </html>

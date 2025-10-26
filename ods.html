@@ -174,7 +174,6 @@
   }
   .subst-toolbar{ 
     display:flex; 
-    flex-direction: column;
     gap:12px;
     margin:8px 0; 
     flex-wrap:wrap;
@@ -182,22 +181,15 @@
     background:#f8f9fa; 
     border-radius:8px; 
     border:1px solid var(--borda);
-  }
-  .subst-toolbar-top {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .subst-toolbar-bottom {
-    display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
   }
   .subst-toolbar-left {
     display: flex;
     gap: 8px;
     align-items: center;
+    flex-wrap: wrap;
+    flex: 1;
   }
   .subst-toolbar-right {
     display: flex;
@@ -205,7 +197,7 @@
     align-items: center;
   }
   .subst-toolbar .subst-sets{ 
-    width: 100%;
+    min-width: 180px;
     padding:6px 8px; 
     border-radius:6px; 
     border:1px solid #eee; 
@@ -261,11 +253,12 @@
     font-family:monospace; 
     font-size:13px; 
     background:#fff; 
+    cursor: text;
   }
   .map-key:disabled, .map-val:disabled {
     background: #f8f9fa;
     color: #6b7280;
-    cursor: not-allowed;
+    cursor: default;
   }
   .map-key{ max-width:220px; }
   .map-arrow{ width:36px; height:28px; display:flex; align-items:center; justify-content:center; }
@@ -470,23 +463,18 @@
             <div style="display:flex;gap:12px;align-items:flex-start;justify-content:space-between;">
               <div class="subst-left">
                 <div class="subst-toolbar">
-                  <div class="subst-toolbar-top">
+                  <div class="subst-toolbar-left">
                     <select id="subst-sets" class="subst-sets"></select>
-                    <div class="subst-toolbar-left">
-                      <button class="btn" id="btn-new" onclick="showNewModal()">Novo</button>
-                      <button class="btn" id="btn-save-as" onclick="showSaveAsModal()">Salvar como...</button>
-                      <button class="btn" id="btn-delete-set" onclick="showDeleteModal()">Excluir</button>
-                    </div>
+                    <button class="btn" id="btn-new" onclick="showNewModal()">Novo</button>
+                    <button class="btn" id="btn-save-as" onclick="showSaveAsModal()">Salvar como...</button>
+                    <button class="btn" id="btn-delete-set" onclick="showDeleteModal()">Excluir</button>
                   </div>
-                  <div class="subst-toolbar-bottom">
-                    <div></div> <!-- Espaço vazio para alinhar o botão de editar à direita -->
-                    <div class="subst-toolbar-right">
-                      <button class="edit-mode-btn" id="btn-edit-set" title="Editar conjunto">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M12 3.99997H6C4.89543 3.99997 4 4.8954 4 5.99997V18C4 19.1045 4.89543 20 6 20H18C19.1046 20 20 19.1045 20 18V12M18.4142 8.41417L19.5 7.32842C20.281 6.54737 20.281 5.28104 19.5 4.5C18.7189 3.71895 17.4526 3.71895 16.6715 4.50001L15.5858 5.58575M18.4142 8.41417L12.3779 14.4505C12.0987 14.7297 11.7431 14.9201 11.356 14.9975L8.41422 15.5858L9.00257 12.6441C9.08001 12.2569 9.27032 11.9013 9.54951 11.6221L15.5858 5.58575M18.4142 8.41417L15.5858 5.58575" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                      </button>
-                    </div>
+                  <div class="subst-toolbar-right">
+                    <button class="edit-mode-btn" id="btn-edit-set" title="Editar conjunto">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 3.99997H6C4.89543 3.99997 4 4.8954 4 5.99997V18C4 19.1045 4.89543 20 6 20H18C19.1046 20 20 19.1045 20 18V12M18.4142 8.41417L19.5 7.32842C20.281 6.54737 20.281 5.28104 19.5 4.5C18.7189 3.71895 17.4526 3.71895 16.6715 4.50001L15.5858 5.58575M18.4142 8.41417L12.3779 14.4505C12.0987 14.7297 11.7431 14.9201 11.356 14.9975L8.41422 15.5858L9.00257 12.6441C9.08001 12.2569 9.27032 11.9013 9.54951 11.6221L15.5858 5.58575M18.4142 8.41417L15.5858 5.58575" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
                   </div>
                 </div>
 
@@ -616,43 +604,14 @@
 <div id="copy-notice">Copiado!</div>
 
 <script>
-// O JavaScript permanece exatamente o mesmo da versão anterior
-/* ========= helpers visuais / toasts ========= */
-let previousStatus = 'Pronto.'; // Para armazenar o status anterior à seleção
-
-function showToast(msg){
-  const el = document.getElementById('copy-notice');
-  el.textContent = msg;
-  el.style.display = 'block';
-  clearTimeout(showToast._t);
-  showToast._t = setTimeout(()=>{ el.style.display='none'; }, 1700);
-}
-function toggleMenu(id){
-  document.querySelectorAll('.menu-dropdown-content').forEach(el=>{
-    if(el.id !== id){ el.style.display='none'; el.style.opacity=0; }
-  });
-  const el = document.getElementById(id);
-  if(!el) return;
-  if(el.style.display==='block'){ el.style.opacity=0; setTimeout(()=>el.style.display='none',180); }
-  else{ el.style.display='block'; el.style.opacity=0; setTimeout(()=>el.style.opacity=1,10); }
-}
-function fecharTodosMenus(){
-  document.querySelectorAll('.menu-dropdown-content').forEach(el=>{ el.style.display='none'; el.style.opacity=0; });
-}
-document.addEventListener('click',(ev)=>{
-  if(!ev.target.closest('.menu-dropdown')) fecharTodosMenus();
-});
-function fecharPagina(){ if(confirm('Fechar a página? (pode não funcionar em todos navegadores)')){ try{ window.close(); }catch(e){} } }
-function voltarMenu(){ showToast('Voltar ao menu (configure o redirecionamento).'); }
-
-/* ========= estado ========= */
+// ========= VARIÁVEIS GLOBAIS =========
 let currentWB = null;         // workbook carregado
 let currentFileName = null;   // nome do arquivo
 let activeSheetName = null;   // aba ativa
 let originalSheetsAOA = {};    // snapshot AOA por aba (para restaurar)
 let sortedSheets = new Set();  // abas atualmente ordenadas
 
-// substituições - agora armazenamos conjuntos como { nome: [ {k,v}, ... ] }
+// substituições
 let substitutionDict = {};              // mapa internalizado (chave normalizada -> valor)
 let substitutionAppliedSheets = new Set(); // quais abas já receberam substituições
 const SUBST_LS_KEY = 'viewer_substitutions_v3';
@@ -667,33 +626,50 @@ let expandedSets = {};
 
 // Modo de edição
 let isEditMode = false;
+let previousStatus = 'Pronto.'; // Para armazenar o status anterior à seleção
 
-/* ========= elementos ========= */
+// ========= ELEMENTOS DOM =========
 const uploader = document.getElementById('uploader');
-const viewer   = document.getElementById('viewer');
+const viewer = document.getElementById('viewer');
 const dropzone = document.getElementById('dropzone');
-const fileInput= document.getElementById('file-input');
-const tabs     = document.getElementById('tabs');
-const sheets   = document.getElementById('sheets');
+const fileInput = document.getElementById('file-input');
+const tabs = document.getElementById('tabs');
+const sheets = document.getElementById('sheets');
 const statusEl = document.getElementById('status');
 const selCountEl = document.getElementById('selection-count');
-const viewerControlsRight = document.getElementById('viewer-controls-right');
 
-/* ========= drag & drop / seleção ========= */
-dropzone.addEventListener('dragover', (e)=>{ e.preventDefault(); dropzone.classList.add('dragover'); });
-dropzone.addEventListener('dragleave', ()=> dropzone.classList.remove('dragover'));
-dropzone.addEventListener('drop', (e)=>{
-  e.preventDefault(); dropzone.classList.remove('dragover');
-  const f = e.dataTransfer.files && e.dataTransfer.files[0];
-  if(f) processFile(f);
-});
-fileInput.addEventListener('change', (e)=>{
-  const f = e.target.files && e.target.files[0];
-  if(f) processFile(f);
+// ========= FUNÇÕES DE UTILIDADE =========
+function showToast(msg) {
+  const el = document.getElementById('copy-notice');
+  el.textContent = msg;
+  el.style.display = 'block';
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => { el.style.display = 'none'; }, 1700);
+}
+
+function toggleMenu(id) {
+  document.querySelectorAll('.menu-dropdown-content').forEach(el => {
+    if (el.id !== id) { el.style.display = 'none'; el.style.opacity = 0; }
+  });
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (el.style.display === 'block') { el.style.opacity = 0; setTimeout(() => el.style.display = 'none', 180); }
+  else { el.style.display = 'block'; el.style.opacity = 0; setTimeout(() => el.style.opacity = 1, 10); }
+}
+
+function fecharTodosMenus() {
+  document.querySelectorAll('.menu-dropdown-content').forEach(el => { el.style.display = 'none'; el.style.opacity = 0; });
+}
+
+document.addEventListener('click', (ev) => {
+  if (!ev.target.closest('.menu-dropdown')) fecharTodosMenus();
 });
 
-/* ========= processamento ========= */
-function processFile(file){
+function fecharPagina() { if (confirm('Fechar a página? (pode não funcionar em todos navegadores)')) { try { window.close(); } catch (e) { } } }
+function voltarMenu() { showToast('Voltar ao menu (configure o redirecionamento).'); }
+
+// ========= PROCESSAMENTO DE ARQUIVOS =========
+function processFile(file) {
   statusEl.textContent = 'Lendo arquivo...';
   previousStatus = 'Lendo arquivo...';
   originalSheetsAOA = {};
@@ -704,99 +680,101 @@ function processFile(file){
   document.getElementById('nome-arquivo').textContent = currentFileName;
 
   const reader = new FileReader();
-  reader.onload = function(evt){
-    try{
+  reader.onload = function (evt) {
+    try {
       const data = new Uint8Array(evt.target.result);
-      const wb = XLSX.read(data, { type:'array' }); // suporta .ods/.xlsx
+      const wb = XLSX.read(data, { type: 'array' });
       currentWB = wb;
       renderWorkbook(wb);
       uploader.style.display = 'none';
-      viewer.style.display   = 'block';
-      statusEl.textContent   = `Carregado: ${file.name} (${wb.SheetNames.length} aba${wb.SheetNames.length>1?'s':''})`;
+      viewer.style.display = 'block';
+      statusEl.textContent = `Carregado: ${file.name} (${wb.SheetNames.length} aba${wb.SheetNames.length > 1 ? 's' : ''})`;
       previousStatus = statusEl.textContent;
-    }catch(err){
+    } catch (err) {
       console.error(err);
       statusEl.textContent = 'Erro ao ler o arquivo.';
       previousStatus = statusEl.textContent;
       showToast('Não consegui abrir esse arquivo.');
     }
   };
-  reader.onerror = function(){ 
-    statusEl.textContent = 'Falha na leitura do arquivo.'; 
+  reader.onerror = function () {
+    statusEl.textContent = 'Falha na leitura do arquivo.';
     previousStatus = statusEl.textContent;
-    showToast('Falha na leitura do arquivo.'); 
+    showToast('Falha na leitura do arquivo.');
   };
   reader.readAsArrayBuffer(file);
 }
 
-function renderWorkbook(wb){
+function renderWorkbook(wb) {
   tabs.innerHTML = '';
   sheets.innerHTML = '';
   sheets.style.display = 'block';
-  tabs.style.display   = 'flex';
+  tabs.style.display = 'flex';
 
-  wb.SheetNames.forEach((name, idx)=>{
+  wb.SheetNames.forEach((name, idx) => {
     const btn = document.createElement('button');
     btn.className = 'tab-btn';
-    btn.textContent = name || `Aba ${idx+1}`;
-    btn.addEventListener('click', ()=> setActiveSheet(name));
+    btn.textContent = name || `Aba ${idx + 1}`;
+    btn.addEventListener('click', () => setActiveSheet(name));
     tabs.appendChild(btn);
 
     const ws = wb.Sheets[name];
-    const __aoa = XLSX.utils.sheet_to_json(ws, { header:1 });
+    const __aoa = XLSX.utils.sheet_to_json(ws, { header: 1 });
     originalSheetsAOA[name] = __aoa.map(r => Array.isArray(r) ? r.slice() : []);
-    const html = XLSX.utils.sheet_to_html(ws, { id:`sheet-${idx}`, header:'', footer:'' });
+    const html = XLSX.utils.sheet_to_html(ws, { id: `sheet-${idx}`, header: '', footer: '' });
 
     const pane = document.createElement('div');
     pane.className = 'sheet';
     pane.dataset.name = name;
-    pane.innerHTML = html; // a <table> vem pronta
+    pane.innerHTML = html;
     sheets.appendChild(pane);
 
-    // depois de inserir, vincula interação na tabela
     bindTableInteractions(pane);
   });
 
   setActiveSheet(wb.SheetNames[0]);
 }
 
-function setActiveSheet(name){
+function setActiveSheet(name) {
   activeSheetName = name;
-  document.querySelectorAll('.tab-btn').forEach(btn=>{
+  document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.toggle('active', btn.textContent === name);
   });
-  document.querySelectorAll('.sheet').forEach(p=>{
+  document.querySelectorAll('.sheet').forEach(p => {
     p.classList.toggle('active', p.dataset.name === name);
   });
   clearSelection();
   updateSubstUIState();
 }
 
-/* ========= exportações ========= */
-function exportarXLSX(){
-  if(!currentWB){ showToast('Nada para salvar.'); return; }
+// ========= EXPORTAÇÃO =========
+function exportarXLSX() {
+  if (!currentWB) { showToast('Nada para salvar.'); return; }
   const nome = (currentFileName || 'planilha') + '.xlsx';
   XLSX.writeFile(currentWB, nome);
   showToast('Baixando XLSX…');
 }
-function exportarCSVAtivo(){
-  if(!currentWB || !activeSheetName){ showToast('Nenhuma aba ativa.'); return; }
+
+function exportarCSVAtivo() {
+  if (!currentWB || !activeSheetName) { showToast('Nenhuma aba ativa.'); return; }
   const ws = currentWB.Sheets[activeSheetName];
   const csv = XLSX.utils.sheet_to_csv(ws);
-  downloadText(csv, sanitizeFileName(activeSheetName)+'.csv', 'text/csv;charset=utf-8;');
+  downloadText(csv, sanitizeFileName(activeSheetName) + '.csv', 'text/csv;charset=utf-8;');
   showToast('CSV gerado.');
 }
-function exportarJSON(){
-  if(!currentWB){ showToast('Nada para salvar.'); return; }
+
+function exportarJSON() {
+  if (!currentWB) { showToast('Nada para salvar.'); return; }
   const out = {};
-  currentWB.SheetNames.forEach(name=>{
+  currentWB.SheetNames.forEach(name => {
     const ws = currentWB.Sheets[name];
-    out[name] = XLSX.utils.sheet_to_json(ws, { defval:null });
+    out[name] = XLSX.utils.sheet_to_json(ws, { defval: null });
   });
-  downloadText(JSON.stringify(out,null,2), (currentFileName||'planilha')+'.json', 'application/json;charset=utf-8;');
+  downloadText(JSON.stringify(out, null, 2), (currentFileName || 'planilha') + '.json', 'application/json;charset=utf-8;');
   showToast('JSON gerado.');
 }
-function downloadText(content, filename, type){
+
+function downloadText(content, filename, type) {
   const blob = new Blob([content], { type });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -805,31 +783,29 @@ function downloadText(content, filename, type){
   a.click();
   a.remove();
 }
-function sanitizeFileName(s){ return (s||'').toString().replace(/[\\/:*?"<>|]+/g,'_').trim() || 'aba'; }
 
-/* ========= copiar ========= */
-function copiarTabelaAtiva(){
-  if(!activeSheetName || !currentWB){ showToast('Nada para copiar.'); return; }
-  
-  // Se há células selecionadas, copia apenas a seleção
+function sanitizeFileName(s) { return (s || '').toString().replace(/[\\/:*?"<>|]+/g, '_').trim() || 'aba'; }
+
+// ========= COPIAR =========
+function copiarTabelaAtiva() {
+  if (!activeSheetName || !currentWB) { showToast('Nada para copiar.'); return; }
+
   if (selectedCells.size > 0) {
     copiarSelecao();
   } else {
-    // Caso contrário, copia a tabela inteira
     const ws = currentWB.Sheets[activeSheetName];
-    const tsv = XLSX.utils.sheet_to_csv(ws, { FS:"\t" });
-    navigator.clipboard.writeText(tsv).then(()=>showToast('Copiado!')).catch(()=>showToast('Não foi possível copiar.'));
+    const tsv = XLSX.utils.sheet_to_csv(ws, { FS: "\t" });
+    navigator.clipboard.writeText(tsv).then(() => showToast('Copiado!')).catch(() => showToast('Não foi possível copiar.'));
   }
 }
 
 function copiarSelecao() {
   const activePane = document.querySelector('.sheet.active');
   if (!activePane) return;
-  
+
   const table = activePane.querySelector('table');
   if (!table) return;
-  
-  // Encontrar os limites da seleção
+
   let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
   selectedCells.forEach(cellKey => {
     const [r, c] = cellKey.split('|').map(Number);
@@ -838,8 +814,7 @@ function copiarSelecao() {
     if (c < minC) minC = c;
     if (c > maxC) maxC = c;
   });
-  
-  // Criar uma matriz para a seleção
+
   const data = [];
   for (let r = minR; r <= maxR; r++) {
     const row = [];
@@ -850,10 +825,9 @@ function copiarSelecao() {
     }
     data.push(row);
   }
-  
-  // Converter para TSV
+
   const tsv = data.map(row => row.join('\t')).join('\n');
-  
+
   navigator.clipboard.writeText(tsv).then(() => {
     showToast('Seleção copiada!');
   }).catch(() => {
@@ -861,20 +835,21 @@ function copiarSelecao() {
   });
 }
 
-/* ========= imprimir ========= */
-function hasConteudoImprimivel(){
-  if(!currentWB) return false;
+// ========= IMPRIMIR =========
+function hasConteudoImprimivel() {
+  if (!currentWB) return false;
   const ativa = document.querySelector('.sheet.active table');
-  if(!ativa) return false;
+  if (!ativa) return false;
   return ativa.querySelector('td,th') !== null;
 }
-function imprimirAtual(){
-  if(!hasConteudoImprimivel()){ showToast('Nada para imprimir.'); return; }
+
+function imprimirAtual() {
+  if (!hasConteudoImprimivel()) { showToast('Nada para imprimir.'); return; }
   window.print();
 }
 
-/* ========= reset (fazer com outro) ========= */
-function resetViewer(){
+// ========= RESET =========
+function resetViewer() {
   tabs.innerHTML = '';
   sheets.innerHTML = '';
   currentWB = null; activeSheetName = null;
@@ -883,64 +858,60 @@ function resetViewer(){
   document.getElementById('titulo').textContent = 'Visualizador de Planilhas (.ods, .xlsx)';
   statusEl.textContent = 'Pronto.';
   previousStatus = 'Pronto.';
-  try{ fileInput.value = ''; }catch(e){}
+  try { fileInput.value = ''; } catch (e) { }
   viewer.style.display = 'none';
   uploader.style.display = 'block';
 }
 
-function openAnotherFile(){
-  try{ fileInput.value = ''; }catch(e){}
+function openAnotherFile() {
+  try { fileInput.value = ''; } catch (e) { }
   fileInput.click();
 }
 
-/* ========= acessibilidade/UX ========= */
-document.addEventListener('keydown', (e)=>{
-  if(e.key === 'Escape'){ 
-    fecharTodosMenus(); 
-    clearSelection(); // ESC agora limpa a seleção
-  }
-});
-
-// Permitir deseleção ao clicar fora da planilha
-document.addEventListener('mousedown', (e)=>{
-  if(!e.target.closest('.sheet') && !e.target.closest('.menu-dropdown-content')) {
+// ========= ACESSIBILIDADE/UX =========
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    fecharTodosMenus();
     clearSelection();
   }
 });
 
-/* ========= ORDENAR A–Z (1ª coluna) ========= */
-function toggleSortSheetAtiva(){
-  if(!currentWB || !activeSheetName){ showToast('Nenhuma aba ativa.'); return; }
+document.addEventListener('mousedown', (e) => {
+  if (!e.target.closest('.sheet') && !e.target.closest('.menu-dropdown-content')) {
+    clearSelection();
+  }
+});
 
-  // Usa a planilha atual (com substituições aplicadas) como base
+// ========= ORDENAR A–Z (1ª coluna) =========
+function toggleSortSheetAtiva() {
+  if (!currentWB || !activeSheetName) { showToast('Nenhuma aba ativa.'); return; }
+
   const ws0 = currentWB.Sheets[activeSheetName];
-  const aoa0 = XLSX.utils.sheet_to_json(ws0, { header:1 });
-  
+  const aoa0 = XLSX.utils.sheet_to_json(ws0, { header: 1 });
+
   const isSorted = sortedSheets.has(activeSheetName);
 
   let novoWS;
-  if(isSorted){
-    // Se já está ordenado, restaura do original
+  if (isSorted) {
     const base = originalSheetsAOA[activeSheetName].map(r => r.slice());
     novoWS = XLSX.utils.aoa_to_sheet(base);
     sortedSheets.delete(activeSheetName);
     statusEl.textContent = `Ordem restaurada A–Z na aba "${activeSheetName}"`;
     previousStatus = statusEl.textContent;
     showToast('Ordem original restaurada.');
-  }else{
-    // Ordena a planilha atual
-    if(aoa0.length <= 1){ showToast('Nada para ordenar.'); return; }
+  } else {
+    if (aoa0.length <= 1) { showToast('Nada para ordenar.'); return; }
     const header = aoa0[0].slice();
     const linhas = aoa0.slice(1).map(r => r.slice());
 
-    const collator = new Intl.Collator('pt', { sensitivity:'base', numeric:true });
+    const collator = new Intl.Collator('pt', { sensitivity: 'base', numeric: true });
     const norm = v => (v ?? '').toString().trim();
-    linhas.sort((a,b)=>{
+    linhas.sort((a, b) => {
       const A = norm(a[0]);
       const B = norm(b[0]);
-      if(!A && !B) return 0;
-      if(!A) return 1;
-      if(!B) return -1;
+      if (!A && !B) return 0;
+      if (!A) return 1;
+      if (!B) return -1;
       return collator.compare(A, B);
     });
     const novaMatriz = [header, ...linhas];
@@ -953,168 +924,157 @@ function toggleSortSheetAtiva(){
 
   currentWB.Sheets[activeSheetName] = novoWS;
   const idx = currentWB.SheetNames.indexOf(activeSheetName);
-  const html = XLSX.utils.sheet_to_html(novoWS, { id:`sheet-${idx}`, header:'', footer:'' });
+  const html = XLSX.utils.sheet_to_html(novoWS, { id: `sheet-${idx}`, header: '', footer: '' });
   const pane = document.querySelector(`.sheet[data-name="${CSS.escape(activeSheetName)}"]`);
-  if(pane) {
+  if (pane) {
     pane.innerHTML = html;
     bindTableInteractions(pane);
   }
 }
 
-/* ========= SUBSTITUIÇÕES (UI sem popups) ========= */
-function normalizeKey(s){ return (s||'').toString().replace(/\s+/g,' ').trim().toUpperCase(); }
+// ========= SUBSTITUIÇÕES =========
+function normalizeKey(s) { return (s || '').toString().replace(/\s+/g, ' ').trim().toUpperCase(); }
 
-// backward-compat parser (não é usado pela UI principal, mas útil se migrarmos dados antigos)
-function parseMappingFromText(text){
-  const dict = {};
-  const lines = text.split(/\r?\n/);
-  lines.forEach(line=>{
-    let t = line.trim();
-    if(!t) return;
-    if(t.startsWith('#')) return;
-    const parts = t.split(/\s*(?:⇢|=>|=|->|\t)\s*/);
-    const left = (parts[0] || '').trim();
-    const right = (parts.slice(1).join(' = ') || '').trim();
-    if(!left) return;
-    dict[normalizeKey(left)] = right;
-  });
-  return dict;
-}
-
-/* armazenamento e gerenciamento de conjuntos (localStorage v3 estrutura: { name: [ {k,v}, ... ] }) */
-function loadSubstSets(){
-  try{
+function loadSubstSets() {
+  try {
     const raw = localStorage.getItem(SUBST_LS_KEY);
-    if(!raw) {
-      // cria set padrão vazio + 'Supermercado Josildo' com as trocas atualizadas
+    if (!raw) {
       const sets = {
         'Padrão': [],
         'Supermercado Josildo': [
-          {k:'BISC.PARA FRITAR 1KG', v:'Biscoitinho de doce 1 kg'},
-          {k:'BOLO FUBA CREMOSO', v:'Bolo cremoso de fubá 1 unidade'},
-          {k:'BOLO PAMONHA', v:'Bolo cremoso de milho 1 unidade'},
-          {k:'CHIPA PACOTE 7 KG', v:'Biscoito chipa 7kg'},
-          {k:'COXINHA GRANDE UND.', v:'Coxinha de frango grande 10 unidades'},
-          {k:'CROISSANT FRANGO', v:'Croissant de frango 7kg'},
-          {k:'EMPADA FGO UND', v:'Empada de frango grande 10 unidades'},
-          {k:'ENROLADO PRES.MUSSARELA GDE', v:'Enroladinho presunto mussarela grande 10 unidades'},
-          {k:'ENROLADO SALSICHA GDE', v:'Enroladinho de salsicha grande 10 unidades'},
-          {k:'PAO 6 HORAS', v:'Pão francês 06h 7kg'},
-          {k:'PAO 12 HORAS', v:'Pão francês 12h 7kg'},
-          {k:'PAO 18 HORAS', v:'Pão francês 18h 7kg'},
-          {k:'PAO CARIOCA  5KG', v:'Carioca 7kg'},
-          {k:'PAO DE BATATA 5KG', v:'Pão de batata 7kg'},
-          {k:'PAO DE MILHO 5KG', v:'Pão de milho 7kg'},
-          {k:'PAO FRANCES  BOLINHA 6HS', v:'Panhoca 06h 7kg'},
-          {k:'PAO INTEGRAL PACT. 6 HORAS', v:'Pão francês integral 06h 7kg'},
-          {k:'PAO ROSCOVADO', v:'Roscovado comum 1 unidade'},
-          {k:'PASTEL FRANGO UND', v:'Pastel assado de frango grande 10 unidades'},
-          {k:'QUIBE REDONDO', v:'Quibe grande 10 unidades'},
-          {k:'ROSCA  REDONDA CREME', v:'Rosca creme e coco redonda 5 unidades'},
-          {k:'ROSCA COMPRIDA CREME', v:'Rosca creme e coco comprida 5 unidades'},
-          {k:'ROSCA COMPRIDA FRUTAS', v:'Rosca frutas cristalizadas comprida 5 unidades'},
-          {k:'ROSCA REDONDA FRUTAS', v:'Rosca frutas cristalizadas redonda 5 unidades'},
-          {k:'TORTA CATUPIRY UND.', v:'Empadão de frango com catupiry 10 unidades'}
+          { k: 'BISC.PARA FRITAR 1KG', v: 'Biscoitinho de doce 1 kg' },
+          { k: 'BOLO FUBA CREMOSO', v: 'Bolo cremoso de fubá 1 unidade' },
+          { k: 'BOLO PAMONHA', v: 'Bolo cremoso de milho 1 unidade' },
+          { k: 'CHIPA PACOTE 7 KG', v: 'Biscoito chipa 7kg' },
+          { k: 'COXINHA GRANDE UND.', v: 'Coxinha de frango grande 10 unidades' },
+          { k: 'CROISSANT FRANGO', v: 'Croissant de frango 7kg' },
+          { k: 'EMPADA FGO UND', v: 'Empada de frango grande 10 unidades' },
+          { k: 'ENROLADO PRES.MUSSARELA GDE', v: 'Enroladinho presunto mussarela grande 10 unidades' },
+          { k: 'ENROLADO SALSICHA GDE', v: 'Enroladinho de salsicha grande 10 unidades' },
+          { k: 'PAO 6 HORAS', v: 'Pão francês 06h 7kg' },
+          { k: 'PAO 12 HORAS', v: 'Pão francês 12h 7kg' },
+          { k: 'PAO 18 HORAS', v: 'Pão francês 18h 7kg' },
+          { k: 'PAO CARIOCA  5KG', v: 'Carioca 7kg' },
+          { k: 'PAO DE BATATA 5KG', v: 'Pão de batata 7kg' },
+          { k: 'PAO DE MILHO 5KG', v: 'Pão de milho 7kg' },
+          { k: 'PAO FRANCES  BOLINHA 6HS', v: 'Panhoca 06h 7kg' },
+          { k: 'PAO INTEGRAL PACT. 6 HORAS', v: 'Pão francês integral 06h 7kg' },
+          { k: 'PAO ROSCOVADO', v: 'Roscovado comum 1 unidade' },
+          { k: 'PASTEL FRANGO UND', v: 'Pastel assado de frango grande 10 unidades' },
+          { k: 'QUIBE REDONDO', v: 'Quibe grande 10 unidades' },
+          { k: 'ROSCA  REDONDA CREME', v: 'Rosca creme e coco redonda 5 unidades' },
+          { k: 'ROSCA COMPRIDA CREME', v: 'Rosca creme e coco comprida 5 unidades' },
+          { k: 'ROSCA COMPRIDA FRUTAS', v: 'Rosca frutas cristalizadas comprida 5 unidades' },
+          { k: 'ROSCA REDONDA FRUTAS', v: 'Rosca frutas cristalizadas redonda 5 unidades' },
+          { k: 'TORTA CATUPIRY UND.', v: 'Empadão de frango com catupiry 10 unidades' }
         ]
       };
       saveSubstSets(sets);
       return sets;
     }
     const parsed = JSON.parse(raw);
-    // backward-compat: if values are strings (old format), convert to array of {k,v}
     const out = {};
-    Object.keys(parsed).forEach(name=>{
+    Object.keys(parsed).forEach(name => {
       const val = parsed[name];
-      if(typeof val === 'string'){
+      if (typeof val === 'string') {
         const dict = parseMappingFromText(val);
-        out[name] = Object.keys(dict).map(k=>({k:k, v:dict[k]}));
-      }else if(Array.isArray(val)){
-        out[name] = val.map(item=>({k:item.k||'', v:item.v||''}));
-      }else if(typeof val === 'object'){
-        // if it was stored as map {key: value}, convert
-        out[name] = Object.keys(val).map(k=>({k:k, v:val[k]}));
-      }else{
+        out[name] = Object.keys(dict).map(k => ({ k: k, v: dict[k] }));
+      } else if (Array.isArray(val)) {
+        out[name] = val.map(item => ({ k: item.k || '', v: item.v || '' }));
+      } else if (typeof val === 'object') {
+        out[name] = Object.keys(val).map(k => ({ k: k, v: val[k] }));
+      } else {
         out[name] = [];
       }
     });
     return out;
-  }catch(e){ console.warn(e); return null; }
-}
-function saveSubstSets(obj){
-  try{ localStorage.setItem(SUBST_LS_KEY, JSON.stringify(obj)); }catch(e){ console.warn(e); }
+  } catch (e) { console.warn(e); return null; }
 }
 
-function populateSubstSetsUI(){
+function parseMappingFromText(text) {
+  const dict = {};
+  const lines = text.split(/\r?\n/);
+  lines.forEach(line => {
+    let t = line.trim();
+    if (!t) return;
+    if (t.startsWith('#')) return;
+    const parts = t.split(/\s*(?:⇢|=>|=|->|\t)\s*/);
+    const left = (parts[0] || '').trim();
+    const right = (parts.slice(1).join(' = ') || '').trim();
+    if (!left) return;
+    dict[normalizeKey(left)] = right;
+  });
+  return dict;
+}
+
+function saveSubstSets(obj) {
+  try { localStorage.setItem(SUBST_LS_KEY, JSON.stringify(obj)); } catch (e) { console.warn(e); }
+}
+
+function populateSubstSetsUI() {
   const select = document.getElementById('subst-sets');
   select.innerHTML = '';
   let sets = loadSubstSets();
-  if(!sets){
-    // cria set padrão vazio + 'Supermercado Josildo' com as trocas que o usuário mencionou
+  if (!sets) {
     sets = {
       'Padrão': [],
       'Supermercado Josildo': [
-        {k:'BISC.PARA FRITAR 1KG', v:'Biscoitinho de doce 1 kg'},
-        {k:'BOLO FUBA CREMOSO', v:'Bolo cremoso de fubá 1 unidade'},
-        {k:'BOLO PAMONHA', v:'Bolo cremoso de milho 1 unidade'},
-        {k:'CHIPA PACOTE 7 KG', v:'Biscoito chipa 7kg'},
-        {k:'COXINHA GRANDE UND.', v:'Coxinha de frango grande 10 unidades'},
-        {k:'CROISSANT FRANGO', v:'Croissant de frango 7kg'},
-        {k:'EMPADA FGO UND', v:'Empada de frango grande 10 unidades'},
-        {k:'ENROLADO PRES.MUSSARELA GDE', v:'Enroladinho presunto mussarela grande 10 unidades'},
-        {k:'ENROLADO SALSICHA GDE', v:'Enroladinho de salsicha grande 10 unidades'},
-        {k:'PAO 6 HORAS', v:'Pão francês 06h 7kg'},
-        {k:'PAO 12 HORAS', v:'Pão francês 12h 7kg'},
-        {k:'PAO 18 HORAS', v:'Pão francês 18h 7kg'},
-        {k:'PAO CARIOCA  5KG', v:'Carioca 7kg'},
-        {k:'PAO DE BATATA 5KG', v:'Pão de batata 7kg'},
-        {k:'PAO DE MILHO 5KG', v:'Pão de milho 7kg'},
-        {k:'PAO FRANCES  BOLINHA 6HS', v:'Panhoca 06h 7kg'},
-        {k:'PAO INTEGRAL PACT. 6 HORAS', v:'Pão francês integral 06h 7kg'},
-        {k:'PAO ROSCOVADO', v:'Roscovado comum 1 unidade'},
-        {k:'PASTEL FRANGO UND', v:'Pastel assado de frango grande 10 unidades'},
-        {k:'QUIBE REDONDO', v:'Quibe grande 10 unidades'},
-        {k:'ROSCA  REDONDA CREME', v:'Rosca creme e coco redonda 5 unidades'},
-        {k:'ROSCA COMPRIDA CREME', v:'Rosca creme e coco comprida 5 unidades'},
-        {k:'ROSCA COMPRIDA FRUTAS', v:'Rosca frutas cristalizadas comprida 5 unidades'},
-        {k:'ROSCA REDONDA FRUTAS', v:'Rosca frutas cristalizadas redonda 5 unidades'},
-        {k:'TORTA CATUPIRY UND.', v:'Empadão de frango com catupiry 10 unidades'}
+        { k: 'BISC.PARA FRITAR 1KG', v: 'Biscoitinho de doce 1 kg' },
+        { k: 'BOLO FUBA CREMOSO', v: 'Bolo cremoso de fubá 1 unidade' },
+        { k: 'BOLO PAMONHA', v: 'Bolo cremoso de milho 1 unidade' },
+        { k: 'CHIPA PACOTE 7 KG', v: 'Biscoito chipa 7kg' },
+        { k: 'COXINHA GRANDE UND.', v: 'Coxinha de frango grande 10 unidades' },
+        { k: 'CROISSANT FRANGO', v: 'Croissant de frango 7kg' },
+        { k: 'EMPADA FGO UND', v: 'Empada de frango grande 10 unidades' },
+        { k: 'ENROLADO PRES.MUSSARELA GDE', v: 'Enroladinho presunto mussarela grande 10 unidades' },
+        { k: 'ENROLADO SALSICHA GDE', v: 'Enroladinho de salsicha grande 10 unidades' },
+        { k: 'PAO 6 HORAS', v: 'Pão francês 06h 7kg' },
+        { k: 'PAO 12 HORAS', v: 'Pão francês 12h 7kg' },
+        { k: 'PAO 18 HORAS', v: 'Pão francês 18h 7kg' },
+        { k: 'PAO CARIOCA  5KG', v: 'Carioca 7kg' },
+        { k: 'PAO DE BATATA 5KG', v: 'Pão de batata 7kg' },
+        { k: 'PAO DE MILHO 5KG', v: 'Pão de milho 7kg' },
+        { k: 'PAO FRANCES  BOLINHA 6HS', v: 'Panhoca 06h 7kg' },
+        { k: 'PAO INTEGRAL PACT. 6 HORAS', v: 'Pão francês integral 06h 7kg' },
+        { k: 'PAO ROSCOVADO', v: 'Roscovado comum 1 unidade' },
+        { k: 'PASTEL FRANGO UND', v: 'Pastel assado de frango grande 10 unidades' },
+        { k: 'QUIBE REDONDO', v: 'Quibe grande 10 unidades' },
+        { k: 'ROSCA  REDONDA CREME', v: 'Rosca creme e coco redonda 5 unidades' },
+        { k: 'ROSCA COMPRIDA CREME', v: 'Rosca creme e coco comprida 5 unidades' },
+        { k: 'ROSCA COMPRIDA FRUTAS', v: 'Rosca frutas cristalizadas comprida 5 unidades' },
+        { k: 'ROSCA REDONDA FRUTAS', v: 'Rosca frutas cristalizadas redonda 5 unidades' },
+        { k: 'TORTA CATUPIRY UND.', v: 'Empadão de frango com catupiry 10 unidades' }
       ]
     };
     saveSubstSets(sets);
   }
-  Object.keys(sets).forEach(name=>{
+  Object.keys(sets).forEach(name => {
     const opt = document.createElement('option'); opt.value = name; opt.textContent = name; select.appendChild(opt);
   });
-  // Removida a opção "+ Novo" conforme solicitado
 
-  // listener que trata seleção de conjuntos
-  select.onchange = function(){
+  select.onchange = function () {
     const val = select.value;
     renderMappingSet(val);
     updateEditButtonVisibility();
   };
 }
 
-function renderMappingSet(name){
+function renderMappingSet(name) {
   const sets = loadSubstSets() || {};
   const arr = sets[name] || [];
   const list = document.getElementById('subst-list');
   list.innerHTML = '';
 
-  // Inicializa o estado expandido se não existir
   if (expandedSets[name] === undefined) {
     expandedSets[name] = false;
   }
 
-  // Determina quantos itens mostrar
   const maxInitial = 5;
   const showAll = expandedSets[name];
   const itemsToShow = showAll ? arr : arr.slice(0, maxInitial);
 
-  // Renderiza os itens
   itemsToShow.forEach(item => addMappingRow(item.k || '', item.v || ''));
 
-  // Adiciona o botão "Ver mais" se houver mais de 5 itens e não estiver expandido
   if (arr.length > maxInitial && !showAll) {
     const moreRow = document.createElement('div');
     moreRow.className = 'map-row';
@@ -1129,7 +1089,6 @@ function renderMappingSet(name){
     moreRow.appendChild(moreBtn);
     list.appendChild(moreRow);
   }
-  // Adiciona o botão "Ver menos" se estiver expandido
   else if (showAll && arr.length > maxInitial) {
     const lessRow = document.createElement('div');
     lessRow.className = 'map-row';
@@ -1155,7 +1114,7 @@ function updateEditButtonVisibility() {
   const currentSet = select.value;
   const editBtn = document.getElementById('btn-edit-set');
   const addBtn = document.getElementById('btn-add-mapping');
-  
+
   if (currentSet === 'Padrão') {
     editBtn.style.display = 'none';
     addBtn.style.display = 'none';
@@ -1173,7 +1132,7 @@ function toggleEditMode() {
   isEditMode = !isEditMode;
   const editBtn = document.getElementById('btn-edit-set');
   const addBtn = document.getElementById('btn-add-mapping');
-  
+
   if (isEditMode) {
     editBtn.innerHTML = 'Salvar';
     editBtn.title = 'Salvar edições';
@@ -1184,10 +1143,9 @@ function toggleEditMode() {
     </svg>`;
     editBtn.title = 'Editar conjunto';
     addBtn.style.display = 'none';
-    // Salvar as alterações ao sair do modo de edição
     saveCurrentSet();
   }
-  
+
   updateReadonlyMode();
   updateEditButtonVisibility();
 }
@@ -1195,7 +1153,7 @@ function toggleEditMode() {
 function updateReadonlyMode() {
   const list = document.getElementById('subst-list');
   const inputs = list.querySelectorAll('.map-key, .map-val');
-  
+
   if (isEditMode) {
     list.classList.remove('readonly-mode');
     inputs.forEach(input => {
@@ -1209,8 +1167,8 @@ function updateReadonlyMode() {
   }
 }
 
-/* Modal para Novo */
-function showNewModal(){
+// ========= MODAIS =========
+function showNewModal() {
   const modal = document.getElementById('newModal');
   const input = document.getElementById('newName');
   input.value = 'Novo conjunto';
@@ -1218,17 +1176,17 @@ function showNewModal(){
   input.focus();
 }
 
-function closeNewModal(){
+function closeNewModal() {
   document.getElementById('newModal').style.display = 'none';
 }
 
-function confirmNew(){
+function confirmNew() {
   const name = document.getElementById('newName').value.trim();
-  if(!name){ showInlineWarning('Digite um nome válido.'); return; }
-  if(name === 'Padrão'){ showInlineWarning('Não é permitido gravar no conjunto "Padrão". Escolha outro nome.'); return; }
+  if (!name) { showInlineWarning('Digite um nome válido.'); return; }
+  if (name === 'Padrão') { showInlineWarning('Não é permitido gravar no conjunto "Padrão". Escolha outro nome.'); return; }
   const sets = loadSubstSets() || {};
-  if(sets[name]){ showInlineWarning('Já existe um conjunto com esse nome. Escolha outro.'); return; }
-  
+  if (sets[name]) { showInlineWarning('Já existe um conjunto com esse nome. Escolha outro.'); return; }
+
   sets[name] = [];
   saveSubstSets(sets);
   populateSubstSetsUI();
@@ -1236,17 +1194,16 @@ function confirmNew(){
   renderMappingSet(name);
   closeNewModal();
   showToast('Conjunto criado.');
-  // Entrar automaticamente no modo de edição para novos conjuntos
   isEditMode = true;
   toggleEditMode();
 }
 
-function showInlineWarning(msg){
+function showInlineWarning(msg) {
   const w = document.getElementById('subst-warning');
   w.textContent = msg; w.style.display = 'block';
 }
 
-function showSaveAsModal(){
+function showSaveAsModal() {
   const modal = document.getElementById('saveAsModal');
   const input = document.getElementById('saveAsName');
   const select = document.getElementById('subst-sets');
@@ -1256,17 +1213,17 @@ function showSaveAsModal(){
   input.focus();
 }
 
-function closeSaveAsModal(){
+function closeSaveAsModal() {
   document.getElementById('saveAsModal').style.display = 'none';
 }
 
-function confirmSaveAs(){
+function confirmSaveAs() {
   const name = document.getElementById('saveAsName').value.trim();
-  if(!name){ showInlineWarning('Digite um nome válido.'); return; }
-  if(name === 'Padrão'){ showInlineWarning('Não é permitido gravar no conjunto "Padrão". Escolha outro nome.'); return; }
+  if (!name) { showInlineWarning('Digite um nome válido.'); return; }
+  if (name === 'Padrão') { showInlineWarning('Não é permitido gravar no conjunto "Padrão". Escolha outro nome.'); return; }
   const sets = loadSubstSets() || {};
-  if(sets[name]){ showInlineWarning('Já existe um conjunto com esse nome. Escolha outro.'); return; }
-  
+  if (sets[name]) { showInlineWarning('Já existe um conjunto com esse nome. Escolha outro.'); return; }
+
   sets[name] = getMappingsFromUI();
   saveSubstSets(sets);
   populateSubstSetsUI();
@@ -1277,23 +1234,23 @@ function confirmSaveAs(){
   updateEditButtonVisibility();
 }
 
-function showDeleteModal(){
+function showDeleteModal() {
   const select = document.getElementById('subst-sets');
   const name = select.value;
-  if(!name) return;
-  if(name === 'Padrão'){ showInlineWarning('O conjunto "Padrão" não pode ser excluído.'); return; }
-  
+  if (!name) return;
+  if (name === 'Padrão') { showInlineWarning('O conjunto "Padrão" não pode ser excluído.'); return; }
+
   const modal = document.getElementById('deleteModal');
   const span = document.getElementById('delete-set-name');
   span.textContent = name;
   modal.style.display = 'flex';
 }
 
-function closeDeleteModal(){
+function closeDeleteModal() {
   document.getElementById('deleteModal').style.display = 'none';
 }
 
-function confirmDelete(){
+function confirmDelete() {
   const select = document.getElementById('subst-sets');
   const name = select.value;
   const sets = loadSubstSets() || {};
@@ -1307,24 +1264,23 @@ function confirmDelete(){
   closeDeleteModal();
 }
 
-function restoreOriginalsFromUI(){
-  // restaura apenas aba ativa (mantive a opção simples conforme UI atual)
+function restoreOriginalsFromUI() {
   restoreOriginals({ allSheets: false });
 }
 
-function restoreOriginals({ allSheets = false } = {}){
-  if(!currentWB){ showToast('Nenhum arquivo carregado.'); return; }
+function restoreOriginals({ allSheets = false } = {}) {
+  if (!currentWB) { showToast('Nenhum arquivo carregado.'); return; }
   const targetSheets = allSheets ? currentWB.SheetNames.slice() : (activeSheetName ? [activeSheetName] : []);
   let restoredCount = 0;
-  targetSheets.forEach(name=>{
+  targetSheets.forEach(name => {
     const orig = originalSheetsAOA[name];
-    if(!orig) return;
-    const novoWS = XLSX.utils.aoa_to_sheet(orig.map(r=>Array.isArray(r)?r.slice():[]));
+    if (!orig) return;
+    const novoWS = XLSX.utils.aoa_to_sheet(orig.map(r => Array.isArray(r) ? r.slice() : []));
     currentWB.Sheets[name] = novoWS;
     const idx = currentWB.SheetNames.indexOf(name);
-    const html = XLSX.utils.sheet_to_html(novoWS, { id:`sheet-${idx}`, header:'', footer:'' });
+    const html = XLSX.utils.sheet_to_html(novoWS, { id: `sheet-${idx}`, header: '', footer: '' });
     const pane = document.querySelector(`.sheet[data-name="${CSS.escape(name)}"]`);
-    if(pane) { pane.innerHTML = html; bindTableInteractions(pane); }
+    if (pane) { pane.innerHTML = html; bindTableInteractions(pane); }
     substitutionAppliedSheets.delete(name);
     sortedSheets.delete(name);
     restoredCount++;
@@ -1335,35 +1291,33 @@ function restoreOriginals({ allSheets = false } = {}){
   showToast('Conteúdo original restaurado.');
 }
 
-function getMappingsFromUI(){
+function getMappingsFromUI() {
   const rows = Array.from(document.querySelectorAll('.subst-list .map-row'));
   const out = [];
-  rows.forEach(row=>{
+  rows.forEach(row => {
     const k = (row.querySelector('.map-key')?.value || '').toString().trim();
     const v = (row.querySelector('.map-val')?.value || '').toString().trim();
-    if(k) out.push({k:k, v:v});
+    if (k) out.push({ k: k, v: v });
   });
   return out;
 }
 
-function addMappingRow(key, val){
+function addMappingRow(key, val) {
   const list = document.getElementById('subst-list');
   const row = document.createElement('div'); row.className = 'map-row';
   const inputK = document.createElement('input'); inputK.className = 'map-key'; inputK.value = key || '';
   const arrow = document.createElement('div'); arrow.className = 'map-arrow';
   arrow.innerHTML = `<svg width="20" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 12h14" stroke="#666" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 5l6 7-6 7" stroke="#666" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const inputV = document.createElement('input'); inputV.className = 'map-val'; inputV.value = val || '';
-  const del = document.createElement('button'); del.className = 'map-del'; del.title='Remover mapeamento'; del.innerHTML = '✕';
-  del.addEventListener('click', (e)=>{ 
-    e.stopPropagation(); 
-    row.remove(); 
-    // Atualizar o conjunto salvo
+  const del = document.createElement('button'); del.className = 'map-del'; del.title = 'Remover mapeamento'; del.innerHTML = '✕';
+  del.addEventListener('click', (e) => {
+    e.stopPropagation();
+    row.remove();
     const select = document.getElementById('subst-sets');
     const currentSetName = select.value;
     const sets = loadSubstSets() || {};
     const currentSet = sets[currentSetName] || [];
-    
-    // Encontrar o índice do item a ser removido
+
     const rows = Array.from(list.querySelectorAll('.map-row'));
     const index = rows.indexOf(row);
     if (index > -1) {
@@ -1371,14 +1325,13 @@ function addMappingRow(key, val){
       saveSubstSets(sets);
       renderMappingSet(currentSetName);
     }
-    
-    updateSubstUIState(); 
-    showToast('Mapeamento removido.'); 
+
+    updateSubstUIState();
+    showToast('Mapeamento removido.');
   });
   row.appendChild(inputK); row.appendChild(arrow); row.appendChild(inputV); row.appendChild(del);
   list.appendChild(row);
 
-  // Aplicar o estado de edição aos novos inputs
   if (!isEditMode) {
     inputK.disabled = true;
     inputV.disabled = true;
@@ -1396,45 +1349,44 @@ function saveCurrentSet() {
   saveSubstSets(sets);
 }
 
-function applySubstitutionsFromUI(){
-  if(!currentWB){ showToast('Nenhum arquivo carregado.'); return; }
+function applySubstitutionsFromUI() {
+  if (!currentWB) { showToast('Nenhum arquivo carregado.'); return; }
   const select = document.getElementById('subst-sets');
   const currentSetName = select.value;
   const sets = loadSubstSets() || {};
   const mappings = sets[currentSetName] || [];
   substitutionDict = {};
-  mappings.forEach(m=>{ substitutionDict[normalizeKey(m.k)] = m.v; });
-  // Apply only to active sheet by default (UI atualmente aplica aba ativa)
+  mappings.forEach(m => { substitutionDict[normalizeKey(m.k)] = m.v; });
   applySubstitutions({ allSheets: false });
 }
 
-function applySubstitutions({ allSheets = false } = {}){
-  if(!currentWB){ showToast('Nenhum arquivo carregado.'); return; }
+function applySubstitutions({ allSheets = false } = {}) {
+  if (!currentWB) { showToast('Nenhum arquivo carregado.'); return; }
   let totalReplacements = 0;
   const targetSheets = allSheets ? currentWB.SheetNames.slice() : (activeSheetName ? [activeSheetName] : []);
-  targetSheets.forEach(name=>{
+  targetSheets.forEach(name => {
     const ws = currentWB.Sheets[name];
-    if(!ws) return;
-    const aoa = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
+    if (!ws) return;
+    const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
     let replaced = 0;
-    for(let r=0;r<aoa.length;r++){
-      for(let c=0;c<aoa[r].length;c++){
+    for (let r = 0; r < aoa.length; r++) {
+      for (let c = 0; c < aoa[r].length; c++) {
         const cell = aoa[r][c];
-        if(cell === null || cell === undefined) continue;
+        if (cell === null || cell === undefined) continue;
         const norm = normalizeKey(cell.toString());
-        if(Object.prototype.hasOwnProperty.call(substitutionDict, norm)){
+        if (Object.prototype.hasOwnProperty.call(substitutionDict, norm)) {
           aoa[r][c] = substitutionDict[norm];
           replaced++;
         }
       }
     }
-    if(replaced>0){
+    if (replaced > 0) {
       const novoWS = XLSX.utils.aoa_to_sheet(aoa);
       currentWB.Sheets[name] = novoWS;
       const idx = currentWB.SheetNames.indexOf(name);
-      const html = XLSX.utils.sheet_to_html(novoWS, { id:`sheet-${idx}`, header:'', footer:'' });
+      const html = XLSX.utils.sheet_to_html(novoWS, { id: `sheet-${idx}`, header: '', footer: '' });
       const pane = document.querySelector(`.sheet[data-name="${CSS.escape(name)}"]`);
-      if(pane) { pane.innerHTML = html; bindTableInteractions(pane); }
+      if (pane) { pane.innerHTML = html; bindTableInteractions(pane); }
       substitutionAppliedSheets.add(name);
       totalReplacements += replaced;
     }
@@ -1445,66 +1397,21 @@ function applySubstitutions({ allSheets = false } = {}){
   showToast(`${totalReplacements} substituição(ões) aplicadas.`);
 }
 
-function updateSubstUIState(){
+function updateSubstUIState() {
   const btn = document.getElementById('btn-subst');
-  if(!btn) return;
+  if (!btn) return;
   const applied = activeSheetName && substitutionAppliedSheets.has(activeSheetName);
   btn.title = applied ? 'Substituições aplicadas (abrir painel)' : 'Substituições (abrir painel)';
 }
 
-/* carrega conjuntos salvos e inicializa a UI */
-(function initSubstDict(){
-  try{
-    populateSubstSetsUI();
-    const select = document.getElementById('subst-sets');
-    select.value = Object.keys(loadSubstSets() || {})[0] || '';
-    renderMappingSet(select.value);
-    // substitute: attach stopPropagation for interaction inside panel to avoid accidental fechamento
-    const dropdownSubst = document.getElementById('dropdown-subst');
-    if(dropdownSubst) dropdownSubst.addEventListener('click', (e)=>{ e.stopPropagation(); });
-    // ensure some buttons inside panel don't propagate clicks to document (avoid fechar menus)
-    ['btn-add-mapping','btn-new','btn-save-as','btn-delete-set','btn-apply-subst','btn-restore-original','btn-sort-subst', 'btn-edit-set'].forEach(id=>{
-      const el = document.getElementById(id); if(el) el.addEventListener('click', (e)=> e.stopPropagation());
-    });
-    // make add mapping button add row without inline onclick (we also keep the inline but ensure it doesn't close the menu)
-    const addBtn = document.getElementById('btn-add-mapping'); 
-    if(addBtn) addBtn.addEventListener('click', ()=> {
-      const select = document.getElementById('subst-sets');
-      const currentSetName = select.value;
-      if (currentSetName === 'Padrão') return; // Não adicionar ao Padrão
-
-      const sets = loadSubstSets() || {};
-      const currentSet = sets[currentSetName] || [];
-      currentSet.push({k: '', v: ''});
-      saveSubstSets(sets);
-      renderMappingSet(currentSetName);
-    });
-    
-    // Botão de editar
-    const editBtn = document.getElementById('btn-edit-set');
-    if (editBtn) {
-      editBtn.addEventListener('click', toggleEditMode);
-    }
-    
-    updateEditButtonVisibility();
-    updateReadonlyMode();
-
-    // substitutionDict vazio até o usuário aplicar
-    substitutionDict = {};
-  }catch(e){ console.warn('Não foi possível inicializar painel de substituições', e); }
-})();
-
-/* ========= final helpers ========= */
-updateSubstUIState();
-
-/* ========= SELEÇÃO DE CÉLULAS (simples) ========= */
-function bindTableInteractions(pane){
+// ========= SELEÇÃO DE CÉLULAS =========
+function bindTableInteractions(pane) {
   const table = pane.querySelector('table');
-  if(!table) return;
+  if (!table) return;
   const tb = table.tBodies[0];
-  if(!tb) return;
-  Array.from(tb.rows).forEach((row, rIdx)=>{
-    Array.from(row.cells).forEach((td, cIdx)=>{
+  if (!tb) return;
+  Array.from(tb.rows).forEach((row, rIdx) => {
+    Array.from(row.cells).forEach((td, cIdx) => {
       td.dataset.r = rIdx;
       td.dataset.c = cIdx;
       td.style.userSelect = 'none';
@@ -1515,40 +1422,42 @@ function bindTableInteractions(pane){
   });
 }
 
-function cell_mouse_down(e){
-  if(e.button !== 0) return;
+function cell_mouse_down(e) {
+  if (e.button !== 0) return;
   isSelecting = true;
   const td = e.currentTarget;
   selectStart = { r: Number(td.dataset.r), c: Number(td.dataset.c) };
-  if(!e.ctrlKey && !e.metaKey){ clearSelection(); }
+  if (!e.ctrlKey && !e.metaKey) { clearSelection(); }
   toggleCellSelection(td);
 }
-function cell_mouse_enter(e){
-  if(!isSelecting) return;
+
+function cell_mouse_enter(e) {
+  if (!isSelecting) return;
   const td = e.currentTarget;
-  if(selectStart){
+  if (selectStart) {
     const r2 = Number(td.dataset.r); const c2 = Number(td.dataset.c);
     selectRange(selectStart.r, selectStart.c, r2, c2);
   }
 }
-function cell_mouse_up(e){
+
+function cell_mouse_up(e) {
   isSelecting = false; selectStart = null;
 }
 
-function cellKey(k){ return `${k.r}|${k.c}`; }
+function cellKey(k) { return `${k.r}|${k.c}`; }
 
-function selectRange(r1,c1,r2,c2){
+function selectRange(r1, c1, r2, c2) {
   clearSelection();
-  const rmin = Math.min(r1,r2); const rmax = Math.max(r1,r2);
-  const cmin = Math.min(c1,c2); const cmax = Math.max(c1,c2);
+  const rmin = Math.min(r1, r2); const rmax = Math.max(r1, r2);
+  const cmin = Math.min(c1, c2); const cmax = Math.max(c1, c2);
   const activePane = document.querySelector('.sheet.active');
-  if(!activePane) return;
-  const table = activePane.querySelector('table'); if(!table) return;
-  const tb = table.tBodies[0]; if(!tb) return;
-  for(let r=rmin;r<=rmax;r++){
-    const row = tb.rows[r]; if(!row) continue;
-    for(let c=cmin;c<=cmax;c++){
-      const cell = row.cells[c]; if(!cell) continue;
+  if (!activePane) return;
+  const table = activePane.querySelector('table'); if (!table) return;
+  const tb = table.tBodies[0]; if (!tb) return;
+  for (let r = rmin; r <= rmax; r++) {
+    const row = tb.rows[r]; if (!row) continue;
+    for (let c = cmin; c <= cmax; c++) {
+      const cell = row.cells[c]; if (!cell) continue;
       cell.classList.add('cell-selected');
       selectedCells.add(`${r}|${c}`);
     }
@@ -1556,57 +1465,50 @@ function selectRange(r1,c1,r2,c2){
   updateSelectionCount();
 }
 
-function toggleCellSelection(td){
+function toggleCellSelection(td) {
   const key = `${td.dataset.r}|${td.dataset.c}`;
-  if(selectedCells.has(key)){
+  if (selectedCells.has(key)) {
     selectedCells.delete(key); td.classList.remove('cell-selected');
-  }else{
+  } else {
     selectedCells.add(key); td.classList.add('cell-selected');
   }
   updateSelectionCount();
 }
 
-function clearSelection(){
+function clearSelection() {
   const activePane = document.querySelector('.sheet.active');
-  if(activePane){
-    activePane.querySelectorAll('td.cell-selected').forEach(td=>td.classList.remove('cell-selected'));
+  if (activePane) {
+    activePane.querySelectorAll('td.cell-selected').forEach(td => td.classList.remove('cell-selected'));
   }
   selectedCells.clear();
   updateSelectionCount();
 }
 
-function updateSelectionCount(){
+function updateSelectionCount() {
   const activePane = document.querySelector('.sheet.active');
-  if(!activePane){ selCountEl.textContent = '0'; statusEl.textContent = previousStatus; return; }
+  if (!activePane) { selCountEl.textContent = '0'; statusEl.textContent = previousStatus; return; }
   const selected = Array.from(activePane.querySelectorAll('td.cell-selected'));
-  // contar apenas células não vazias (com texto visível)
   const nonEmptySelected = selected.filter(td => (td.textContent || '').toString().trim() !== '');
   selCountEl.textContent = nonEmptySelected.length.toString();
   const rightSel = document.getElementById('right-selection');
-  if(nonEmptySelected.length>0) {
+  if (nonEmptySelected.length > 0) {
     statusEl.textContent = `${nonEmptySelected.length} célula(s) selecionada(s)`;
   } else {
     statusEl.textContent = previousStatus;
   }
 }
 
-/* ========= substituições - botão condicional (abre painel somente se arquivo carregado) ========= */
-function toggleSubstMenu(e){
-  // if there is no workbook loaded, show short menu (like salvar/copiar)
-  if(!currentWB){
-    // Mostrar aviso quando não há arquivo
+// ========= TOGGLE SUBSTITUIÇÕES =========
+function toggleSubstMenu(e) {
+  if (!currentWB) {
     const noFileWarning = document.getElementById('no-file-warning');
     noFileWarning.style.display = 'block';
-    
-    // Esconder outros elementos
     document.getElementById('subst-list').style.display = 'none';
     document.getElementById('btn-add-mapping').style.display = 'none';
     document.querySelector('.separator').style.display = 'none';
-    
     toggleMenu('dropdown-subst');
     return;
   } else {
-    // Esconder aviso quando há arquivo
     document.getElementById('no-file-warning').style.display = 'none';
     document.getElementById('subst-list').style.display = 'flex';
     document.querySelector('.separator').style.display = 'block';
@@ -1614,16 +1516,57 @@ function toggleSubstMenu(e){
   toggleMenu('dropdown-subst');
 }
 
-/* ========= pequenas utilidades visuais para o painel ========= */
-function showSubstInlineMessage(msg, timeout=4000){
-  const el = document.getElementById('subst-warning');
-  el.textContent = msg; el.style.display = 'block';
-  clearTimeout(showSubstInlineMessage._t);
-  showSubstInlineMessage._t = setTimeout(()=>{ el.style.display='none'; }, timeout);
-}
+// ========= INICIALIZAÇÃO =========
+(function initSubstDict() {
+  try {
+    populateSubstSetsUI();
+    const select = document.getElementById('subst-sets');
+    select.value = Object.keys(loadSubstSets() || {})[0] || '';
+    renderMappingSet(select.value);
+    const dropdownSubst = document.getElementById('dropdown-subst');
+    if (dropdownSubst) dropdownSubst.addEventListener('click', (e) => { e.stopPropagation(); });
+    ['btn-add-mapping', 'btn-new', 'btn-save-as', 'btn-delete-set', 'btn-apply-subst', 'btn-restore-original', 'btn-sort-subst', 'btn-edit-set'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.addEventListener('click', (e) => e.stopPropagation());
+    });
+    const addBtn = document.getElementById('btn-add-mapping');
+    if (addBtn) addBtn.addEventListener('click', () => {
+      const select = document.getElementById('subst-sets');
+      const currentSetName = select.value;
+      if (currentSetName === 'Padrão') return;
 
-/* ========= finalização ========= */
-// ready
+      const sets = loadSubstSets() || {};
+      const currentSet = sets[currentSetName] || [];
+      currentSet.push({ k: '', v: '' });
+      saveSubstSets(sets);
+      renderMappingSet(currentSetName);
+    });
+
+    const editBtn = document.getElementById('btn-edit-set');
+    if (editBtn) {
+      editBtn.addEventListener('click', toggleEditMode);
+    }
+
+    updateEditButtonVisibility();
+    updateReadonlyMode();
+
+    substitutionDict = {};
+  } catch (e) { console.warn('Não foi possível inicializar painel de substituições', e); }
+})();
+
+// ========= EVENTOS DE DRAG & DROP =========
+dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+dropzone.addEventListener('drop', (e) => {
+  e.preventDefault(); dropzone.classList.remove('dragover');
+  const f = e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f) processFile(f);
+});
+fileInput.addEventListener('change', (e) => {
+  const f = e.target.files && e.target.files[0];
+  if (f) processFile(f);
+});
+
+updateSubstUIState();
 </script>
 </body>
 </html>

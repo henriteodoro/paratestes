@@ -111,6 +111,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    margin-bottom: 20px;
   }
 
   .subtopicos-lista a {
@@ -136,12 +137,52 @@
     height: 16px;
   }
 
-  .conteudo-subtopico {
-    margin-top: 20px;
+  /* Estilos para o conteúdo carregado dos arquivos externos */
+  .conteudo-carregado {
     animation: fadeIn 0.3s ease;
   }
 
-  /* Estilos do conteúdo dos fornecedores */
+  .conteudo-carregado h2 {
+    color: var(--ink-strong);
+    margin: 24px 0 12px 0;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .conteudo-carregado h2:first-child {
+    margin-top: 0;
+  }
+
+  .conteudo-carregado h2::before {
+    content: "•";
+    color: var(--azul);
+    font-size: 24px;
+  }
+
+  .conteudo-carregado h3 {
+    color: var(--ink-strong);
+    margin: 20px 0 8px 0;
+    font-size: 16px;
+    padding-left: 16px;
+  }
+
+  .conteudo-carregado p {
+    margin: 8px 0;
+    padding-left: 16px;
+    line-height: 1.5;
+  }
+
+  .conteudo-carregado ul {
+    margin: 8px 0;
+    padding-left: 32px;
+  }
+
+  .conteudo-carregado li {
+    margin: 6px 0;
+  }
+
   .destaque {
     background: #f0f7ff;
     padding: 12px 16px;
@@ -188,26 +229,6 @@
     flex-shrink: 0;
   }
 
-  .conteudo-subtopico h3 {
-    color: var(--ink-strong);
-    margin: 20px 0 12px 0;
-    font-size: 16px;
-  }
-
-  .conteudo-subtopico p {
-    margin: 8px 0;
-    line-height: 1.5;
-  }
-
-  .conteudo-subtopico ul {
-    margin: 8px 0;
-    padding-left: 20px;
-  }
-
-  .conteudo-subtopico li {
-    margin: 6px 0;
-  }
-
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -217,6 +238,19 @@
     text-align: center;
     padding: 40px 20px;
     color: var(--muted);
+  }
+
+  .erro {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+
+  .erro svg {
+    width: 48px;
+    height: 48px;
+    opacity: 0.5;
+    margin-bottom: 16px;
   }
 
   @media (max-width: 768px) {
@@ -283,14 +317,14 @@
 
   <div class="anotacoes-container">
     <div class="topicos-sidebar">
-      <div class="topico-item" data-topico="fechamento-caixas">
+      <div class="topico-item" data-arquivo="fechamento-caixas.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
         </svg>
         Fechamento Caixas
       </div>
       
-      <div class="topico-item ativo" data-topico="fornecedores">
+      <div class="topico-item ativo" data-arquivo="fornecedores.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
           <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
@@ -298,21 +332,21 @@
         Fornecedores
       </div>
       
-      <div class="topico-item" data-topico="geral">
+      <div class="topico-item" data-arquivo="geral.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
         </svg>
         Geral
       </div>
       
-      <div class="topico-item" data-topico="informacoes-uteis-clientes">
+      <div class="topico-item" data-arquivo="clientes.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
         </svg>
         Informações Úteis Clientes
       </div>
       
-      <div class="topico-item" data-topico="lancamentos-pedidos">
+      <div class="topico-item" data-arquivo="lancamento-pedidos.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
         </svg>
@@ -329,7 +363,7 @@
           </svg>
           Fornecedores
         </h2>
-        <p id="topico-descricao">Informações sobre fornecedores e pagamentos</p>
+        <p id="topico-descricao">Carregando informações...</p>
       </div>
 
       <div id="conteudo-dinamico">
@@ -340,321 +374,201 @@
 </div>
 
 <script>
-// Dados dos tópicos
-const topicos = {
-  'fechamento-caixas': {
-    titulo: 'Fechamento Caixas',
-    descricao: 'Procedimentos e informações sobre fechamento de caixas',
-    subtopicos: [
-      { nome: 'Procedimento Padrão', id: 'procedimento-padrao' },
-      { nome: 'Problemas Comuns', id: 'problemas-comuns' },
-      { nome: 'Dicas Rápidas', id: 'dicas-rapidas' }
-    ]
-  },
-  'fornecedores': {
-    titulo: 'Fornecedores',
-    descricao: 'Informações sobre fornecedores e pagamentos',
-    subtopicos: [
-      { nome: 'Dia de Recebimentos', id: 'dia-recebimentos' },
-      { nome: 'Sanú (Queijo)', id: 'sanu-queijo' },
-      { nome: 'Tarick (Queijo)', id: 'tarick-queijo' },
-      { nome: 'João Vittor (Queijo)', id: 'joao-vittor-queijo' },
-      { nome: 'Alemão (Queijo)', id: 'alemao-queijo' },
-      { nome: 'Paulo (Requeijão e Mussarela)', id: 'paulo-requeijao-mussarela' },
-      { nome: 'Marcoplast', id: 'marcoplast' },
-      { nome: 'Célio (Pagamentos e PIX)', id: 'celio-pagamentos-pix' },
-      { nome: 'Marciel (Pagamentos e PIX)', id: 'marciel-pagamentos-pix' }
-    ]
-  },
-  'geral': {
-    titulo: 'Geral',
-    descricao: 'Anotações gerais e informações diversas',
-    subtopicos: [
-      { nome: 'Lembretes Importantes', id: 'lembretes-importantes' },
-      { nome: 'Procedimentos Gerais', id: 'procedimentos-gerais' }
-    ]
-  },
-  'informacoes-uteis-clientes': {
-    titulo: 'Informações Úteis Clientes',
-    descricao: 'Dados e informações relevantes para clientes',
-    subtopicos: [
-      { nome: 'Contatos', id: 'contatos' },
-      { nome: 'Horários', id: 'horarios' }
-    ]
-  },
-  'lancamentos-pedidos': {
-    titulo: 'Lançamentos Pedidos',
-    descricao: 'Procedimentos para lançamento de pedidos',
-    subtopicos: [
-      { nome: 'Sistema', id: 'sistema' },
-      { nome: 'Validações', id: 'validacoes' }
-    ]
+class GerenciadorAnotacoes {
+  constructor() {
+    this.topicoAtual = null;
+    this.cache = new Map();
   }
-};
 
-// Conteúdo dos subtópicos
-const conteudos = {
-  // Conteúdo para Fechamento Caixas
-  'procedimento-padrao': `
-    <h3>Procedimento Padrão de Fechamento</h3>
-    <p><strong>Horário de fechamento:</strong> 18:00 todos os dias</p>
-    <h4>Passo a passo:</h4>
-    <ol>
-      <li>Conferir totais de vendas no sistema</li>
-      <li>Contar dinheiro físico separando por cédulas</li>
-      <li>Conferir cartões (débito/crédito)</li>
-      <li>Preencher planilha de fechamento</li>
-      <li>Depositar valor em conta específica</li>
-      <li>Registrar comprovante no sistema</li>
-    </ol>
-    <div class="destaque">
-      <strong>Importante:</strong> Nunca deixar dinheiro no caixa overnight.
-    </div>
-  `,
-  'problemas-comuns': `
-    <h3>Problemas Comuns no Fechamento</h3>
-    <h4>Divergência de valores:</h4>
-    <ul>
-      <li>Verificar se todas as vendas foram registradas</li>
-      <li>Conferir trocos fornecidos durante o dia</li>
-      <li>Checar possíveis duplicações no sistema</li>
-    </ul>
-    <h4>Problemas técnicos:</h4>
-    <ul>
-      <li>Sistema lento: reiniciar computador</li>
-      <li>Impressora não funciona: verificar conexões</li>
-      <li>Internet caiu: usar backup offline</li>
-    </ul>
-    <p><strong>Contato suporte:</strong> (31) 99999-9999</p>
-  `,
-  'dicas-rapidas': `
-    <h3>Dicas Rápidas</h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 16px">
-      <div style="background:#f7fbff;padding:16px;border-radius:10px;border:1px solid var(--borda)">
-        <h4 style="margin-top:0">✓ Organização</h4>
-        <p>Separar cédulas por valor antes de contar</p>
-      </div>
-      <div style="background:#f7fbff;padding:16px;border-radius:10px;border:1px solid var(--borda)">
-        <h4 style="margin-top:0">✓ Agilidade</h4>
-        <p>Usar calculadora para somas rápidas</p>
-      </div>
-      <div style="background:#f7fbff;padding:16px;border-radius:10px;border:1px solid var(--borda)">
-        <h4 style="margin-top:0">✓ Precisão</h4>
-        <p>Conferir valores 2x antes de fechar</p>
-      </div>
-    </div>
-  `,
-
-  // Conteúdo para Fornecedores (baseado no HTML fornecido)
-  'dia-recebimentos': `
-    <h3>Dia de Recebimentos</h3>
-    <p>Dia de recebimentos de notinhas para fornecedores da cidade geralmente são na quarta feira e quinta feira</p>
-  `,
-  'sanu-queijo': `
-    <h3>Sanú (Queijo)</h3>
-    <p>Sanú vem geralmente na segunda. Para saber se é com nota ou sem:</p>
-    <div class="passo-a-passo">
-      <div class="passo">
-        <div class="passo-num">1</div>
-        <div>Vá no sistema web em Núcleo → Gestão de Materiais → Gestão de Estoque → Movimentos → Consultas → Consultar Saldo do Estoque</div>
-      </div>
-      <div class="passo">
-        <div class="passo-num">2</div>
-        <div>Na parte do produto, clique na lupa e procure <strong>Queijo Meia Cura (Cód 11060006)</strong></div>
-      </div>
-      <div class="passo">
-        <div class="passo-num">3</div>
-        <div>Clique no lápis (editar)</div>
-      </div>
-      <div class="passo">
-        <div class="passo-num">4</div>
-        <div>Na parte de cima tem o modo: quando tem uma estrela é fiscal (com nota) e quando tem duas estrelas é gerencial (sem nota)</div>
-      </div>
-      <div class="passo">
-        <div class="passo-num">5</div>
-        <div>Olhe qual que está com menos na parte de pronta entrega</div>
-      </div>
-    </div>
-    <div class="destaque">
-      <strong>Observação:</strong> Quando é com nota ele multiplica o peso por dois valores e depois faz a diferença.
-    </div>
-  `,
-  'tarick-queijo': `
-    <h3>Tarick (Queijo)</h3>
-    <p>Tarick agora tá fazendo duas entregas na semana, na terça e na quinta.</p>
-    <div class="info-box">
-      <strong>Nota Fiscal:</strong> Ele geralmente faz nota fiscal, só uma vez no mês que ele entrega sem nota.
-    </div>
-    <p><strong>Processo:</strong></p>
-    <ul>
-      <li>Ele manda a nota na segunda</li>
-      <li>Peço o Barão para fazer o PIX</li>
-      <li>Envio o comprovante pra ele</li>
-      <li>No dia que ele faz a entrega e traz a notinha:</li>
-      <ul>
-        <li>Pego o valor total dos pesos e multiplico</li>
-        <li>Subtraio com o valor da nota</li>
-        <li>Pago a diferença</li>
-      </ul>
-    </ul>
-    <div class="destaque">
-      <strong>Caso a nota tenha sido maior:</strong> Se o valor da nota for maior do que o valor total dos pesos, ele me devolve em dinheiro a diferença.
-    </div>
-  `,
-  'joao-vittor-queijo': `
-    <h3>João Vittor (Queijo)</h3>
-    <p>João Vittor faz viagens pra buscar queijo no meio da semana.</p>
-    <ul>
-      <li>Ele pega R$ 15.000,00 toda quinta</li>
-      <li>Traz a notinha na quinta também</li>
-      <li>Quando ele traz a notinha:</li>
-      <ul>
-        <li>Pego e multiplico por 30</li>
-        <li>Se o valor der acima de R$ 15.000,00 → passo pra ele a diferença que ele pagou no dinheiro</li>
-        <li>Caso tenha ido menos de R$ 15.000,00 → desconto depois quando for entregar o dinheiro pra ele na parte da tarde</li>
-      </ul>
-    </ul>
-  `,
-  'alemao-queijo': `
-    <h3>Alemão (Queijo)</h3>
-    <p>Alemão traz e é só multiplicar o valor do peso por 30 e entregar ele o dinheiro</p>
-  `,
-  'paulo-requeijao-mussarela': `
-    <h3>Paulo (Requeijão e Mussarela)</h3>
-    <p>Paulo traz geralmente duas notinhas, uma de requeijão e uma de mussarela.</p>
-    <div class="destaque">
-      <strong>Importante:</strong> Antes eu pergunto se é nota fiscal.
-    </div>
-  `,
-  'marcoplast': `
-    <h3>Marcoplast</h3>
-    <p>Da Marcoplast geralmente eles sempre passam pra receber 1 vez por mês.</p>
-    <ul>
-      <li>O moço vem pra receber</li>
-      <li>Eles mandam o arquivo no email pra gente imprimir e pagar</li>
-      <li>É um arquivo na horizontal que tem um valor escrito mais embaixo</li>
-    </ul>
-  `,
-  'celio-pagamentos-pix': `
-    <h3>Célio (Pagamentos e PIX)</h3>
-    <p>Do Célio toda semana, ele e os ajudantes dele recebem toda semana.</p>
-    <ul>
-      <li>Ele manda o valor, a gente separa e passa pra ele</li>
-      <li>Como as vezes alguns clientes fazem PIX pro Célio, precisa descontar dele</li>
-    </ul>
-    <div class="passo-a-passo">
-      <strong>Processo dos PIX:</strong>
-      <div class="passo">
-        <div class="passo-num">1</div>
-        <div>Sempre que tem PIX eu imprimo</div>
-      </div>
-      <div class="passo">
-        <div class="passo-num">2</div>
-        <div>Deixo numa pasta escrita "Pagamentos Célio" na diretoria</div>
-      </div>
-      <div class="passo">
-        <div class="passo-num">3</div>
-        <div>Uso para descontar dele</div>
-      </div>
-    </div>
-    <div class="info-box">
-      <strong>Observação:</strong> Algumas vezes pode vir o moço da doação também, ai nós pagamos aqui mesmo e a gente cobra a mais dele esse valor.
-    </div>
-  `,
-  'marciel-pagamentos-pix': `
-    <h3>Marciel (Pagamentos e PIX)</h3>
-    <p>Do Marciel pessoal também faz PIX pra ele.</p>
-    <div class="passo-a-passo">
-      <strong>Processo similar ao Célio:</strong>
-      <div class="passo">
-        <div class="passo-num">1</div>
-        <div>Imprimo os comprovantes de PIX</div>
-      </div>
-      <div class="passo">
-        <div class="passo-num">2</div>
-        <div>Deixo guardado numa pasta na diretoria chamada "Pagamentos Marciel"</div>
-      </div>
-    </div>
-    <div class="destaque">
-      <strong>Acertos:</strong> Acertos com ele geralmente é o Barão.
-    </div>
-  `,
-
-  // Conteúdo para os outros tópicos (exemplo)
-  'lembretes-importantes': `<p>Conteúdo para lembretes importantes...</p>`,
-  'procedimentos-gerais': `<p>Conteúdo para procedimentos gerais...</p>`,
-  'contatos': `<p>Conteúdo para contatos...</p>`,
-  'horarios': `<p>Conteúdo para horários...</p>`,
-  'sistema': `<p>Conteúdo para sistema...</p>`,
-  'validacoes': `<p>Conteúdo para validações...</p>`
-};
-
-function carregarTopico(topicoId) {
-  const topico = topicos[topicoId];
-  if (!topico) return;
-
-  // Atualizar header
-  document.getElementById('topico-titulo').innerHTML = `
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      ${document.querySelector(`[data-topico="${topicoId}"] svg`).innerHTML}
-    </svg>
-    ${topico.titulo}
-  `;
-  document.getElementById('topico-descricao').textContent = topico.descricao;
-
-  // Criar lista de subtópicos
-  const subtopicosHtml = topico.subtopicos.map(sub => `
-    <a href="#" data-subid="${sub.id}">
+  async carregarTopico(arquivo) {
+    this.topicoAtual = arquivo;
+    
+    // Atualizar UI
+    const item = document.querySelector(`[data-arquivo="${arquivo}"]`);
+    const nomeTopico = item.textContent.trim();
+    
+    document.getElementById('topico-titulo').innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+        ${item.querySelector('svg').innerHTML}
       </svg>
-      ${sub.nome}
-    </a>
-  `).join('');
+      ${nomeTopico}
+    `;
+    
+    document.getElementById('topico-descricao').textContent = 'Carregando...';
+    document.getElementById('conteudo-dinamico').innerHTML = '<div class="loading">Carregando...</div>';
 
-  document.getElementById('conteudo-dinamico').innerHTML = `
-    <div class="subtopicos-lista">
-      ${subtopicosHtml}
-    </div>
-    <div id="conteudo-subtopico" class="conteudo-subtopico" style="display:none"></div>
-  `;
+    try {
+      // Verificar cache
+      if (this.cache.has(arquivo)) {
+        this.processarConteudo(this.cache.get(arquivo), arquivo);
+        return;
+      }
 
-  // Adicionar eventos aos subtópicos
-  document.querySelectorAll('[data-subid]').forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const subId = link.getAttribute('data-subid');
-      carregarSubtopico(subId);
+      // Carregar arquivo
+      const response = await fetch(arquivo);
+      if (!response.ok) throw new Error('Arquivo não encontrado');
+      
+      const html = await response.text();
+      
+      // Armazenar no cache
+      this.cache.set(arquivo, html);
+      
+      // Processar conteúdo
+      this.processarConteudo(html, arquivo);
+      
+    } catch (error) {
+      console.error('Erro ao carregar arquivo:', error);
+      this.mostrarErro(arquivo);
+    }
+  }
+
+  processarConteudo(html, arquivo) {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    
+    // Extrair título do h1
+    const tituloPrincipal = tempDiv.querySelector('h1')?.textContent || 
+                           document.querySelector(`[data-arquivo="${arquivo}"]`).textContent.trim();
+    
+    // Extrair subtópicos (h2)
+    const subtopicos = Array.from(tempDiv.querySelectorAll('h2'));
+    
+    if (subtopicos.length > 0) {
+      this.criarInterfaceComSubtopicos(subtopicos, tempDiv, tituloPrincipal);
+    } else {
+      this.mostrarConteudoDireto(tempDiv, tituloPrincipal);
+    }
+  }
+
+  criarInterfaceComSubtopicos(subtopicos, tempDiv, tituloPrincipal) {
+    // Criar menu de subtópicos
+    const menuSubtopicos = subtopicos.map((h2, index) => {
+      const texto = h2.textContent.replace('*', '').trim();
+      const id = this.criarId(texto);
+      
+      return `
+        <a href="#" data-subtopico="${id}" data-index="${index}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+          </svg>
+          ${texto}
+        </a>
+      `;
+    }).join('');
+
+    document.getElementById('conteudo-dinamico').innerHTML = `
+      <div class="subtopicos-lista">
+        ${menuSubtopicos}
+      </div>
+      <div id="conteudo-subtopico" class="conteudo-carregado" style="display:none"></div>
+    `;
+
+    document.getElementById('topico-descricao').textContent = 
+      `${subtopicos.length} subtópicos disponíveis`;
+
+    // Adicionar eventos
+    this.adicionarEventosSubtopicos(subtopicos, tempDiv);
+
+    // Mostrar primeiro subtópico
+    if (subtopicos.length > 0) {
+      this.mostrarSubtopico(subtopicos[0], tempDiv, 0);
+    }
+  }
+
+  mostrarConteudoDireto(tempDiv, tituloPrincipal) {
+    // Remover h1 se existir (já está no header)
+    const h1 = tempDiv.querySelector('h1');
+    if (h1) h1.remove();
+    
+    document.getElementById('conteudo-dinamico').innerHTML = 
+      '<div class="conteudo-carregado">' + tempDiv.querySelector('.container').innerHTML + '</div>';
+    
+    document.getElementById('topico-descricao').textContent = 'Conteúdo completo';
+  }
+
+  adicionarEventosSubtopicos(subtopicos, tempDiv) {
+    document.querySelectorAll('[data-subtopico]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const index = parseInt(link.getAttribute('data-index'));
+        this.mostrarSubtopico(subtopicos[index], tempDiv, index);
+      });
+    });
+  }
+
+  mostrarSubtopico(h2, tempDiv, index) {
+    const container = document.getElementById('conteudo-subtopico');
+    let conteudo = '';
+    
+    // Encontrar conteúdo entre este h2 e o próximo
+    let elementoAtual = h2.nextElementSibling;
+    
+    while (elementoAtual && elementoAtual.tagName !== 'H2') {
+      conteudo += elementoAtual.outerHTML;
+      elementoAtual = elementoAtual.nextElementSibling;
+    }
+    
+    container.innerHTML = conteudo;
+    container.style.display = 'block';
+
+    // Atualar link ativo
+    document.querySelectorAll('[data-subtopico]').forEach(l => {
+      l.style.fontWeight = 'normal';
+      l.style.background = 'transparent';
+    });
+    
+    const linkAtivo = document.querySelector(`[data-index="${index}"]`);
+    linkAtivo.style.fontWeight = '600';
+    linkAtivo.style.background = '#f3f8ff';
+  }
+
+  criarId(texto) {
+    return texto.toLowerCase()
+      .replace(/\s+/g, '-')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
+
+  mostrarErro(arquivo) {
+    document.getElementById('conteudo-dinamico').innerHTML = `
+      <div class="erro">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p>Arquivo não encontrado: ${arquivo}</p>
+        <p style="font-size: 13px; margin-top: 8px;">Crie o arquivo na mesma pasta para ver o conteúdo.</p>
+      </div>
+    `;
+    
+    document.getElementById('topico-descricao').textContent = 'Arquivo não encontrado';
+  }
+}
+
+// Inicialização
+document.addEventListener('DOMContentLoaded', function() {
+  const gerenciador = new GerenciadorAnotacoes();
+
+  // Event listeners para tópicos
+  document.querySelectorAll('.topico-item').forEach(item => {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('.topico-item').forEach(i => i.classList.remove('ativo'));
+      this.classList.add('ativo');
+      
+      const arquivo = this.getAttribute('data-arquivo');
+      gerenciador.carregarTopico(arquivo);
     });
   });
 
-  // Carregar primeiro subtópico
-  if (topico.subtopicos.length > 0) {
-    carregarSubtopico(topico.subtopicos[0].id);
-  }
-}
+  // Carregar fornecedores por padrão
+  gerenciador.carregarTopico('fornecedores.html');
 
-function carregarSubtopico(subId) {
-  const conteudo = conteudos[subId] || `<p>Conteúdo em desenvolvimento...</p>`;
-  const container = document.getElementById('conteudo-subtopico');
-  
-  container.innerHTML = conteudo;
-  container.style.display = 'block';
-}
-
-// Event listeners
-document.querySelectorAll('.topico-item').forEach(item => {
-  item.addEventListener('click', function() {
-    document.querySelectorAll('.topico-item').forEach(i => i.classList.remove('ativo'));
-    this.classList.add('ativo');
-    
-    const topicoId = this.getAttribute('data-topico');
-    carregarTopico(topicoId);
+  // Sistema de busca simples
+  const searchInput = document.querySelector('.search input');
+  searchInput.addEventListener('input', function(e) {
+    // Busca será implementada posteriormente
+    console.log('Buscar:', e.target.value);
   });
 });
-
-// Carregar primeiro tópico
-carregarTopico('fornecedores');
 </script>
 </body>
 </html>

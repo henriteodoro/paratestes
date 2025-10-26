@@ -16,38 +16,33 @@
     --borda-ativa:#cfe0ff;
     --ink:#0b3b6b;
     --ink-strong:#0b4fa0;
-    --ok:#16a34a;
     --warn:#f59e0b;
-    --glass: rgba(255,255,255,0.92);
-    --shadow: 0 10px 30px rgba(11,78,167,.06);
   }
-  html,body{height:100%;margin:0}
   body{
     font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     background: linear-gradient(180deg, var(--fundo), #f3f7ff);
     min-height:100vh;
-    color:#111; -webkit-font-smoothing:antialiased; padding:18px;
+    margin:0;
+    padding:18px;
+    color:#111;
   }
   .wrap{max-width:1120px;margin:0 auto}
   h1{margin:0 0 8px 0;font-size:22px;color:var(--accent)}
   p.lead{margin:4px 0 16px 0;color:var(--muted);font-size:13px}
 
-  /* Layout principal das anotações */
   .anotacoes-container {
     display: grid;
     grid-template-columns: 280px 1fr;
     gap: 20px;
     margin-top: 20px;
-    min-height: 600px;
   }
 
-  /* Tópicos (sidebar esquerda) */
   .topicos-sidebar {
     background: var(--card);
     border: 1px solid var(--borda);
     border-radius: 14px;
     padding: 16px;
-    box-shadow: var(--shadow);
+    box-shadow: 0 10px 30px rgba(11,78,167,.06);
     height: fit-content;
     position: sticky;
     top: 20px;
@@ -56,7 +51,6 @@
   .topico-item {
     padding: 12px 14px;
     border-radius: 10px;
-    border: 1px solid transparent;
     cursor: pointer;
     margin-bottom: 8px;
     transition: all 0.2s ease;
@@ -66,38 +60,30 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    border: 1px solid transparent;
   }
 
   .topico-item:hover {
     background: #f3f8ff;
     border-color: var(--borda-ativa);
-    transform: translateX(4px);
   }
 
   .topico-item.ativo {
-    background: linear-gradient(135deg, var(--azul), var(--accent));
+    background: var(--azul);
     color: white;
-    border-color: var(--accent);
-    box-shadow: 0 4px 12px rgba(11,78,167,.15);
   }
 
-  .topico-item .icon {
+  .topico-item svg {
     width: 18px;
     height: 18px;
-    opacity: 0.8;
   }
 
-  .topico-item.ativo .icon {
-    opacity: 1;
-  }
-
-  /* Área de conteúdo */
   .conteudo-area {
     background: var(--card);
     border: 1px solid var(--borda);
     border-radius: 14px;
     padding: 20px;
-    box-shadow: var(--shadow);
+    box-shadow: 0 10px 30px rgba(11,78,167,.06);
     min-height: 400px;
   }
 
@@ -116,16 +102,9 @@
     gap: 10px;
   }
 
-  .conteudo-body {
-    line-height: 1.6;
-  }
-
-  /* Subtopicos */
-  .subtopicos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 12px;
-    margin-top: 16px;
+  .conteudo-header h2 svg {
+    width: 20px;
+    height: 20px;
   }
 
   .subtopicos-lista {
@@ -150,19 +129,83 @@
   .subtopicos-lista a:hover {
     background: #f3f8ff;
     border-color: var(--borda-ativa);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(11,78,167,.08);
   }
 
-  .subtopicos-lista .icon {
+  .subtopicos-lista svg {
     width: 16px;
     height: 16px;
-    opacity: 0.7;
   }
 
-  /* Conteúdo carregado */
-  .conteudo-carregado {
+  .conteudo-subtopico {
+    margin-top: 20px;
     animation: fadeIn 0.3s ease;
+  }
+
+  /* Estilos do conteúdo dos fornecedores */
+  .destaque {
+    background: #f0f7ff;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid var(--azul);
+    margin: 12px 0;
+  }
+
+  .info-box {
+    background: #fff7f0;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid var(--warn);
+    margin: 12px 0;
+    font-size: 14px;
+  }
+
+  .passo-a-passo {
+    background: #f7fff0;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--borda);
+    margin: 16px 0;
+  }
+
+  .passo {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 8px 0;
+  }
+
+  .passo-num {
+    background: var(--azul);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+
+  .conteudo-subtopico h3 {
+    color: var(--ink-strong);
+    margin: 20px 0 12px 0;
+    font-size: 16px;
+  }
+
+  .conteudo-subtopico p {
+    margin: 8px 0;
+    line-height: 1.5;
+  }
+
+  .conteudo-subtopico ul {
+    margin: 8px 0;
+    padding-left: 20px;
+  }
+
+  .conteudo-subtopico li {
+    margin: 6px 0;
   }
 
   @keyframes fadeIn {
@@ -170,358 +213,448 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* Estados vazios */
-  .estado-vazio {
+  .loading {
     text-align: center;
     padding: 40px 20px;
     color: var(--muted);
   }
 
-  .estado-vazio .icon {
-    width: 48px;
-    height: 48px;
-    opacity: 0.5;
-    margin-bottom: 16px;
-  }
-
-  /* Responsivo */
   @media (max-width: 768px) {
     .anotacoes-container {
       grid-template-columns: 1fr;
     }
-    
     .topicos-sidebar {
       position: static;
-      margin-bottom: 0;
     }
   }
 
-  /* Toolbar (mantido do original) */
-  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--card);border:1px solid var(--borda);border-radius:12px;padding:12px;box-shadow:var(--shadow);position:sticky;top:14px;z-index:60}
-  .search{position:relative;flex:1 1 320px}
-  .search input{width:100%;padding:12px 40px 12px 40px;border:1px solid var(--borda);border-radius:12px;background:#fbfdff;color:var(--ink);font-size:15px}
-  .search input:focus{outline:2px solid rgba(11,78,167,.12);box-shadow:0 6px 20px rgba(11,78,167,.06)}
-  .search .icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.8}
-  .search .clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:transparent;cursor:pointer;opacity:.6;font-size:14px}
+  .toolbar{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+    background:var(--card);
+    border:1px solid var(--borda);
+    border-radius:12px;
+    padding:12px;
+    box-shadow: 0 10px 30px rgba(11,78,167,.06);
+    position:sticky;
+    top:14px;
+    z-index:60
+  }
+  .search{
+    position:relative;
+    flex:1 1 320px
+  }
+  .search input{
+    width:100%;
+    padding:12px 40px 12px 40px;
+    border:1px solid var(--borda);
+    border-radius:12px;
+    background:#fbfdff;
+    color:var(--ink);
+    font-size:15px
+  }
+  .search svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+  }
 </style>
 </head>
 <body>
-<div class="wrap" role="main">
+<div class="wrap">
   <header>
     <h1>Anotações</h1>
     <p class="lead">Sistema organizado de anotações por tópicos e subtópicos</p>
   </header>
 
-  <div class="toolbar" role="region" aria-label="Barra de busca">
-    <div class="search" role="search">
-      <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input id="q" type="search" placeholder="Buscar nas anotações…" aria-label="Buscar nas anotações" autocomplete="off" />
-      <button class="clear" id="btn-clear" title="Limpar busca" aria-label="Limpar busca">✕</button>
+  <div class="toolbar">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="search" placeholder="Buscar nas anotações…" />
     </div>
   </div>
 
   <div class="anotacoes-container">
-    <!-- Sidebar com tópicos -->
     <div class="topicos-sidebar">
-      <div class="topico-item ativo" data-topico="fechamento-caixas">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <div class="topico-item" data-topico="fechamento-caixas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
         </svg>
         Fechamento Caixas
       </div>
       
-      <div class="topico-item" data-topico="fornecedores">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      <div class="topico-item ativo" data-topico="fornecedores">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
         </svg>
         Fornecedores
       </div>
       
       <div class="topico-item" data-topico="geral">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
         </svg>
         Geral
       </div>
       
       <div class="topico-item" data-topico="informacoes-uteis-clientes">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
         </svg>
         Informações Úteis Clientes
       </div>
       
       <div class="topico-item" data-topico="lancamentos-pedidos">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
         </svg>
         Lançamentos Pedidos
       </div>
     </div>
 
-    <!-- Área de conteúdo -->
     <div class="conteudo-area">
       <div class="conteudo-header">
         <h2 id="topico-titulo">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
-          Fechamento Caixas
+          Fornecedores
         </h2>
-        <p style="margin:8px 0 0 0;color:var(--muted);font-size:13px;">
-          Procedimentos e informações sobre fechamento de caixas
-        </p>
+        <p id="topico-descricao">Informações sobre fornecedores e pagamentos</p>
       </div>
 
-      <div class="conteudo-body" id="conteudo-dinamico">
-        <!-- Conteúdo será carregado aqui via JavaScript -->
-        <div class="subtopicos-grid">
-          <div class="subtopicos-lista">
-            <a href="#" data-subtopico="procedimento-padrao">
-              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
-              </svg>
-              Procedimento Padrão
-            </a>
-            <a href="#" data-subtopico="problemas-comuns">
-              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-              </svg>
-              Problemas Comuns
-            </a>
-            <a href="#" data-subtopico="dicas-rapidas">
-              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-              </svg>
-              Dicas Rápidas
-            </a>
-          </div>
-        </div>
-
-        <div id="conteudo-subtopico" class="conteudo-carregado" style="margin-top:20px; display:none;">
-          <!-- Conteúdo do subtópico será carregado aqui -->
-        </div>
+      <div id="conteudo-dinamico">
+        <div class="loading">Carregando...</div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-// Dados das anotações (em um projeto real, isso viria de arquivos separados)
-const anotacoesData = {
+// Dados dos tópicos
+const topicos = {
   'fechamento-caixas': {
     titulo: 'Fechamento Caixas',
     descricao: 'Procedimentos e informações sobre fechamento de caixas',
-    subtopicos: {
-      'procedimento-padrao': `
-        <h3>Procedimento Padrão de Fechamento</h3>
-        <p><strong>Horário de fechamento:</strong> 18:00 todos os dias</p>
-        
-        <h4>Passo a passo:</h4>
-        <ol>
-          <li>Conferir totais de vendas no sistema</li>
-          <li>Contar dinheiro físico separando por cédulas</li>
-          <li>Conferir cartões (débito/crédito)</li>
-          <li>Preencher planilha de fechamento</li>
-          <li>Depositar valor em conta específica</li>
-          <li>Registrar comprovante no sistema</li>
-        </ol>
-        
-        <div style="background:#f0f7ff;padding:12px;border-radius:8px;margin-top:12px;border-left:4px solid var(--azul)">
-          <strong>Importante:</strong> Nunca deixar dinheiro no caixa overnight.
-        </div>
-      `,
-      'problemas-comuns': `
-        <h3>Problemas Comuns no Fechamento</h3>
-        
-        <h4>Divergência de valores:</h4>
-        <ul>
-          <li>Verificar se todas as vendas foram registradas</li>
-          <li>Conferir trocos fornecidos durante o dia</li>
-          <li>Checar possíveis duplicações no sistema</li>
-        </ul>
-        
-        <h4>Problemas técnicos:</h4>
-        <ul>
-          <li>Sistema lento: reiniciar computador</li>
-          <li>Impressora não funciona: verificar conexões</li>
-          <li>Internet caiu: usar backup offline</li>
-        </ul>
-        
-        <p><strong>Contato suporte:</strong> (31) 99999-9999</p>
-      `,
-      'dicas-rapidas': `
-        <h3>Dicas Rápidas</h3>
-        
-        <div class="subtopicos-grid" style="margin-top:16px">
-          <div style="background:#f7fbff;padding:16px;border-radius:10px;border:1px solid var(--borda)">
-            <h4 style="margin-top:0">✓ Organização</h4>
-            <p>Separar cédulas por valor antes de contar</p>
-          </div>
-          
-          <div style="background:#f7fbff;padding:16px;border-radius:10px;border:1px solid var(--borda)">
-            <h4 style="margin-top:0">✓ Agilidade</h4>
-            <p>Usar calculadora para somas rápidas</p>
-          </div>
-          
-          <div style="background:#f7fbff;padding:16px;border-radius:10px;border:1px solid var(--borda)">
-            <h4 style="margin-top:0">✓ Precisão</h4>
-            <p>Conferir valores 2x antes de fechar</p>
-          </div>
-        </div>
-      `
-    }
+    subtopicos: [
+      { nome: 'Procedimento Padrão', id: 'procedimento-padrao' },
+      { nome: 'Problemas Comuns', id: 'problemas-comuns' },
+      { nome: 'Dicas Rápidas', id: 'dicas-rapidas' }
+    ]
   },
   'fornecedores': {
     titulo: 'Fornecedores',
-    descricao: 'Informações sobre fornecedores e contatos',
-    subtopicos: {
-      'contatos-principais': `<p>Conteúdo sobre contatos principais dos fornecedores...</p>`,
-      'prazos-entrega': `<p>Informações sobre prazos de entrega...</p>`
-    }
+    descricao: 'Informações sobre fornecedores e pagamentos',
+    subtopicos: [
+      { nome: 'Dia de Recebimentos', id: 'dia-recebimentos' },
+      { nome: 'Sanú (Queijo)', id: 'sanu-queijo' },
+      { nome: 'Tarick (Queijo)', id: 'tarick-queijo' },
+      { nome: 'João Vittor (Queijo)', id: 'joao-vittor-queijo' },
+      { nome: 'Alemão (Queijo)', id: 'alemao-queijo' },
+      { nome: 'Paulo (Requeijão e Mussarela)', id: 'paulo-requeijao-mussarela' },
+      { nome: 'Marcoplast', id: 'marcoplast' },
+      { nome: 'Célio (Pagamentos e PIX)', id: 'celio-pagamentos-pix' },
+      { nome: 'Marciel (Pagamentos e PIX)', id: 'marciel-pagamentos-pix' }
+    ]
   },
   'geral': {
     titulo: 'Geral',
     descricao: 'Anotações gerais e informações diversas',
-    subtopicos: {
-      'lembretes': `<p>Lembretes importantes...</p>`,
-      'procedimentos': `<p>Procedimentos gerais...</p>`
-    }
+    subtopicos: [
+      { nome: 'Lembretes Importantes', id: 'lembretes-importantes' },
+      { nome: 'Procedimentos Gerais', id: 'procedimentos-gerais' }
+    ]
   },
   'informacoes-uteis-clientes': {
     titulo: 'Informações Úteis Clientes',
     descricao: 'Dados e informações relevantes para clientes',
-    subtopicos: {
-      'contatos': `<p>Contatos úteis para clientes...</p>`,
-      'horarios': `<p>Horários de funcionamento...</p>`
-    }
+    subtopicos: [
+      { nome: 'Contatos', id: 'contatos' },
+      { nome: 'Horários', id: 'horarios' }
+    ]
   },
   'lancamentos-pedidos': {
     titulo: 'Lançamentos Pedidos',
     descricao: 'Procedimentos para lançamento de pedidos',
-    subtopicos: {
-      'sistema': `<p>Como usar o sistema de pedidos...</p>`,
-      'validacoes': `<p>Validações necessárias...</p>`
-    }
+    subtopicos: [
+      { nome: 'Sistema', id: 'sistema' },
+      { nome: 'Validações', id: 'validacoes' }
+    ]
   }
 };
 
-// Sistema de carregamento de conteúdo
+// Conteúdo dos subtópicos
+const conteudos = {
+  // Conteúdo para Fechamento Caixas
+  'procedimento-padrao': `
+    <h3>Procedimento Padrão de Fechamento</h3>
+    <p><strong>Horário de fechamento:</strong> 18:00 todos os dias</p>
+    <h4>Passo a passo:</h4>
+    <ol>
+      <li>Conferir totais de vendas no sistema</li>
+      <li>Contar dinheiro físico separando por cédulas</li>
+      <li>Conferir cartões (débito/crédito)</li>
+      <li>Preencher planilha de fechamento</li>
+      <li>Depositar valor em conta específica</li>
+      <li>Registrar comprovante no sistema</li>
+    </ol>
+    <div class="destaque">
+      <strong>Importante:</strong> Nunca deixar dinheiro no caixa overnight.
+    </div>
+  `,
+  'problemas-comuns': `
+    <h3>Problemas Comuns no Fechamento</h3>
+    <h4>Divergência de valores:</h4>
+    <ul>
+      <li>Verificar se todas as vendas foram registradas</li>
+      <li>Conferir trocos fornecidos durante o dia</li>
+      <li>Checar possíveis duplicações no sistema</li>
+    </ul>
+    <h4>Problemas técnicos:</h4>
+    <ul>
+      <li>Sistema lento: reiniciar computador</li>
+      <li>Impressora não funciona: verificar conexões</li>
+      <li>Internet caiu: usar backup offline</li>
+    </ul>
+    <p><strong>Contato suporte:</strong> (31) 99999-9999</p>
+  `,
+  'dicas-rapidas': `
+    <h3>Dicas Rápidas</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 16px">
+      <div style="background:#f7fbff;padding:16px;border-radius:10px;border:1px solid var(--borda)">
+        <h4 style="margin-top:0">✓ Organização</h4>
+        <p>Separar cédulas por valor antes de contar</p>
+      </div>
+      <div style="background:#f7fbff;padding:16px;border-radius:10px;border:1px solid var(--borda)">
+        <h4 style="margin-top:0">✓ Agilidade</h4>
+        <p>Usar calculadora para somas rápidas</p>
+      </div>
+      <div style="background:#f7fbff;padding:16px;border-radius:10px;border:1px solid var(--borda)">
+        <h4 style="margin-top:0">✓ Precisão</h4>
+        <p>Conferir valores 2x antes de fechar</p>
+      </div>
+    </div>
+  `,
+
+  // Conteúdo para Fornecedores (baseado no HTML fornecido)
+  'dia-recebimentos': `
+    <h3>Dia de Recebimentos</h3>
+    <p>Dia de recebimentos de notinhas para fornecedores da cidade geralmente são na quarta feira e quinta feira</p>
+  `,
+  'sanu-queijo': `
+    <h3>Sanú (Queijo)</h3>
+    <p>Sanú vem geralmente na segunda. Para saber se é com nota ou sem:</p>
+    <div class="passo-a-passo">
+      <div class="passo">
+        <div class="passo-num">1</div>
+        <div>Vá no sistema web em Núcleo → Gestão de Materiais → Gestão de Estoque → Movimentos → Consultas → Consultar Saldo do Estoque</div>
+      </div>
+      <div class="passo">
+        <div class="passo-num">2</div>
+        <div>Na parte do produto, clique na lupa e procure <strong>Queijo Meia Cura (Cód 11060006)</strong></div>
+      </div>
+      <div class="passo">
+        <div class="passo-num">3</div>
+        <div>Clique no lápis (editar)</div>
+      </div>
+      <div class="passo">
+        <div class="passo-num">4</div>
+        <div>Na parte de cima tem o modo: quando tem uma estrela é fiscal (com nota) e quando tem duas estrelas é gerencial (sem nota)</div>
+      </div>
+      <div class="passo">
+        <div class="passo-num">5</div>
+        <div>Olhe qual que está com menos na parte de pronta entrega</div>
+      </div>
+    </div>
+    <div class="destaque">
+      <strong>Observação:</strong> Quando é com nota ele multiplica o peso por dois valores e depois faz a diferença.
+    </div>
+  `,
+  'tarick-queijo': `
+    <h3>Tarick (Queijo)</h3>
+    <p>Tarick agora tá fazendo duas entregas na semana, na terça e na quinta.</p>
+    <div class="info-box">
+      <strong>Nota Fiscal:</strong> Ele geralmente faz nota fiscal, só uma vez no mês que ele entrega sem nota.
+    </div>
+    <p><strong>Processo:</strong></p>
+    <ul>
+      <li>Ele manda a nota na segunda</li>
+      <li>Peço o Barão para fazer o PIX</li>
+      <li>Envio o comprovante pra ele</li>
+      <li>No dia que ele faz a entrega e traz a notinha:</li>
+      <ul>
+        <li>Pego o valor total dos pesos e multiplico</li>
+        <li>Subtraio com o valor da nota</li>
+        <li>Pago a diferença</li>
+      </ul>
+    </ul>
+    <div class="destaque">
+      <strong>Caso a nota tenha sido maior:</strong> Se o valor da nota for maior do que o valor total dos pesos, ele me devolve em dinheiro a diferença.
+    </div>
+  `,
+  'joao-vittor-queijo': `
+    <h3>João Vittor (Queijo)</h3>
+    <p>João Vittor faz viagens pra buscar queijo no meio da semana.</p>
+    <ul>
+      <li>Ele pega R$ 15.000,00 toda quinta</li>
+      <li>Traz a notinha na quinta também</li>
+      <li>Quando ele traz a notinha:</li>
+      <ul>
+        <li>Pego e multiplico por 30</li>
+        <li>Se o valor der acima de R$ 15.000,00 → passo pra ele a diferença que ele pagou no dinheiro</li>
+        <li>Caso tenha ido menos de R$ 15.000,00 → desconto depois quando for entregar o dinheiro pra ele na parte da tarde</li>
+      </ul>
+    </ul>
+  `,
+  'alemao-queijo': `
+    <h3>Alemão (Queijo)</h3>
+    <p>Alemão traz e é só multiplicar o valor do peso por 30 e entregar ele o dinheiro</p>
+  `,
+  'paulo-requeijao-mussarela': `
+    <h3>Paulo (Requeijão e Mussarela)</h3>
+    <p>Paulo traz geralmente duas notinhas, uma de requeijão e uma de mussarela.</p>
+    <div class="destaque">
+      <strong>Importante:</strong> Antes eu pergunto se é nota fiscal.
+    </div>
+  `,
+  'marcoplast': `
+    <h3>Marcoplast</h3>
+    <p>Da Marcoplast geralmente eles sempre passam pra receber 1 vez por mês.</p>
+    <ul>
+      <li>O moço vem pra receber</li>
+      <li>Eles mandam o arquivo no email pra gente imprimir e pagar</li>
+      <li>É um arquivo na horizontal que tem um valor escrito mais embaixo</li>
+    </ul>
+  `,
+  'celio-pagamentos-pix': `
+    <h3>Célio (Pagamentos e PIX)</h3>
+    <p>Do Célio toda semana, ele e os ajudantes dele recebem toda semana.</p>
+    <ul>
+      <li>Ele manda o valor, a gente separa e passa pra ele</li>
+      <li>Como as vezes alguns clientes fazem PIX pro Célio, precisa descontar dele</li>
+    </ul>
+    <div class="passo-a-passo">
+      <strong>Processo dos PIX:</strong>
+      <div class="passo">
+        <div class="passo-num">1</div>
+        <div>Sempre que tem PIX eu imprimo</div>
+      </div>
+      <div class="passo">
+        <div class="passo-num">2</div>
+        <div>Deixo numa pasta escrita "Pagamentos Célio" na diretoria</div>
+      </div>
+      <div class="passo">
+        <div class="passo-num">3</div>
+        <div>Uso para descontar dele</div>
+      </div>
+    </div>
+    <div class="info-box">
+      <strong>Observação:</strong> Algumas vezes pode vir o moço da doação também, ai nós pagamos aqui mesmo e a gente cobra a mais dele esse valor.
+    </div>
+  `,
+  'marciel-pagamentos-pix': `
+    <h3>Marciel (Pagamentos e PIX)</h3>
+    <p>Do Marciel pessoal também faz PIX pra ele.</p>
+    <div class="passo-a-passo">
+      <strong>Processo similar ao Célio:</strong>
+      <div class="passo">
+        <div class="passo-num">1</div>
+        <div>Imprimo os comprovantes de PIX</div>
+      </div>
+      <div class="passo">
+        <div class="passo-num">2</div>
+        <div>Deixo guardado numa pasta na diretoria chamada "Pagamentos Marciel"</div>
+      </div>
+    </div>
+    <div class="destaque">
+      <strong>Acertos:</strong> Acertos com ele geralmente é o Barão.
+    </div>
+  `,
+
+  // Conteúdo para os outros tópicos (exemplo)
+  'lembretes-importantes': `<p>Conteúdo para lembretes importantes...</p>`,
+  'procedimentos-gerais': `<p>Conteúdo para procedimentos gerais...</p>`,
+  'contatos': `<p>Conteúdo para contatos...</p>`,
+  'horarios': `<p>Conteúdo para horários...</p>`,
+  'sistema': `<p>Conteúdo para sistema...</p>`,
+  'validacoes': `<p>Conteúdo para validações...</p>`
+};
+
 function carregarTopico(topicoId) {
-  const topico = anotacoesData[topicoId];
+  const topico = topicos[topicoId];
   if (!topico) return;
 
   // Atualizar header
   document.getElementById('topico-titulo').innerHTML = `
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       ${document.querySelector(`[data-topico="${topicoId}"] svg`).innerHTML}
     </svg>
     ${topico.titulo}
   `;
-  
-  document.querySelector('.conteudo-header p').textContent = topico.descricao;
+  document.getElementById('topico-descricao').textContent = topico.descricao;
 
-  // Gerar lista de subtópicos
-  const subtopicosHtml = Object.keys(topico.subtopicos).map(subId => {
-    const subtopicoElement = document.querySelector(`[data-subtopico="${subId}"]`);
-    const icon = subtopicoElement ? subtopicoElement.querySelector('svg').outerHTML : '';
-    const text = subtopicoElement ? subtopicoElement.textContent : subId;
-    
-    return `
-      <a href="#" data-subtopico="${subId}">
-        ${icon}
-        ${text}
-      </a>
-    `;
-  }).join('');
+  // Criar lista de subtópicos
+  const subtopicosHtml = topico.subtopicos.map(sub => `
+    <a href="#" data-subid="${sub.id}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+      </svg>
+      ${sub.nome}
+    </a>
+  `).join('');
 
-  // Atualizar conteúdo
   document.getElementById('conteudo-dinamico').innerHTML = `
-    <div class="subtopicos-grid">
-      <div class="subtopicos-lista">
-        ${subtopicosHtml}
-      </div>
+    <div class="subtopicos-lista">
+      ${subtopicosHtml}
     </div>
-    <div id="conteudo-subtopico" class="conteudo-carregado" style="margin-top:20px; display:none;"></div>
+    <div id="conteudo-subtopico" class="conteudo-subtopico" style="display:none"></div>
   `;
 
-  // Re-aplicar event listeners aos novos subtópicos
-  aplicarEventListenersSubtopicos();
-  
-  // Esconder conteúdo de subtópico anterior
-  document.getElementById('conteudo-subtopico').style.display = 'none';
-}
+  // Adicionar eventos aos subtópicos
+  document.querySelectorAll('[data-subid]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const subId = link.getAttribute('data-subid');
+      carregarSubtopico(subId);
+    });
+  });
 
-function carregarSubtopico(topicoId, subtopicoId) {
-  const conteudo = anotacoesData[topicoId]?.subtopicos[subtopicoId];
-  const container = document.getElementById('conteudo-subtopico');
-  
-  if (conteudo) {
-    container.innerHTML = conteudo;
-    container.style.display = 'block';
-    
-    // Scroll suave para o conteúdo
-    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Carregar primeiro subtópico
+  if (topico.subtopicos.length > 0) {
+    carregarSubtopico(topico.subtopicos[0].id);
   }
 }
 
-function aplicarEventListenersTopicos() {
-  document.querySelectorAll('.topico-item').forEach(item => {
-    item.addEventListener('click', function() {
-      // Remover classe ativo de todos
-      document.querySelectorAll('.topico-item').forEach(i => i.classList.remove('ativo'));
-      // Adicionar classe ativo ao clicado
-      this.classList.add('ativo');
-      
-      const topicoId = this.getAttribute('data-topico');
-      carregarTopico(topicoId);
-    });
-  });
-}
-
-function aplicarEventListenersSubtopicos() {
-  document.querySelectorAll('[data-subtopico]').forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      const subtopicoId = this.getAttribute('data-subtopico');
-      const topicoAtivo = document.querySelector('.topico-item.ativo').getAttribute('data-topico');
-      
-      carregarSubtopico(topicoAtivo, subtopicoId);
-    });
-  });
-}
-
-// Sistema de busca
-function configurarBusca() {
-  const searchInput = document.getElementById('q');
-  const clearBtn = document.getElementById('btn-clear');
-
-  searchInput.addEventListener('input', function(e) {
-    const termo = e.target.value.toLowerCase();
-    
-    if (termo.length > 2) {
-      // Aqui você implementaria a busca real nas anotações
-      console.log('Buscando por:', termo);
-      // Por enquanto, apenas um placeholder
-    }
-  });
-
-  clearBtn.addEventListener('click', function() {
-    searchInput.value = '';
-    searchInput.focus();
-  });
-}
-
-// Inicialização
-document.addEventListener('DOMContentLoaded', function() {
-  aplicarEventListenersTopicos();
-  aplicarEventListenersSubtopicos();
-  configurarBusca();
+function carregarSubtopico(subId) {
+  const conteudo = conteudos[subId] || `<p>Conteúdo em desenvolvimento...</p>`;
+  const container = document.getElementById('conteudo-subtopico');
   
-  // Carregar primeiro tópico por padrão
-  carregarTopico('fechamento-caixas');
+  container.innerHTML = conteudo;
+  container.style.display = 'block';
+}
+
+// Event listeners
+document.querySelectorAll('.topico-item').forEach(item => {
+  item.addEventListener('click', function() {
+    document.querySelectorAll('.topico-item').forEach(i => i.classList.remove('ativo'));
+    this.classList.add('ativo');
+    
+    const topicoId = this.getAttribute('data-topico');
+    carregarTopico(topicoId);
+  });
 });
+
+// Carregar primeiro tópico
+carregarTopico('fornecedores');
 </script>
 </body>
 </html>

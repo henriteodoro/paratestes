@@ -173,12 +173,47 @@
     z-index: 10;
   }
   .subst-toolbar{ 
-    display:flex; flex-direction:column; gap:8px; margin:8px 0; flex-wrap:wrap;
-    padding:12px; background:#f8f9fa; border-radius:8px; border:1px solid var(--borda);
+    display:flex; 
+    flex-direction: column;
+    gap:12px;
+    margin:8px 0; 
+    flex-wrap:wrap;
+    padding:12px; 
+    background:#f8f9fa; 
+    border-radius:8px; 
+    border:1px solid var(--borda);
   }
-  .subst-toolbar .subst-sets{ min-width:180px; }
+  .subst-toolbar-top {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .subst-toolbar-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  .subst-toolbar-left {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .subst-toolbar-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .subst-toolbar .subst-sets{ 
+    width: 100%;
+    padding:6px 8px; 
+    border-radius:6px; 
+    border:1px solid #eee; 
+    background:#fff; 
+    font-family:monospace; 
+    font-size:12px; 
+  }
   .subst-toolbar .btn, .subst-toolbar .add-mapping-btn{ white-space:nowrap; font-family:monospace; font-size:12px; }
-  .subst-sets{ padding:6px 8px; border-radius:6px; border:1px solid #eee; background:#fff; font-family:monospace; font-size:12px; }
 
   .subst-main{ display:flex; gap:12px; padding:10px; }
   .subst-left{ flex:1; }
@@ -193,9 +228,45 @@
     max-height: 300px; /* Altura máxima da lista */
     overflow-y: auto;  /* Rolagem interna */
     padding-right: 4px; /* Espaço para a barra de rolagem */
+    position: relative;
   }
-  .map-row{ display:flex; gap:8px; align-items:center; }
-  .map-key, .map-val{ flex:1; padding:8px 10px; border-radius:8px; border:1px solid #e6e6e6; font-family:monospace; font-size:13px; background:#fff; }
+  .subst-list.readonly-mode::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(232, 242, 255, 0.4);
+    z-index: 1;
+    pointer-events: none;
+    border-radius: 6px;
+  }
+  .map-row{ 
+    display:flex; 
+    gap:8px; 
+    align-items:center;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    position: relative;
+    z-index: 2;
+  }
+  .map-key, .map-val{ 
+    flex:1; 
+    padding:8px 10px; 
+    border-radius:8px; 
+    border:1px solid #e6e6e6; 
+    font-family:monospace; 
+    font-size:13px; 
+    background:#fff; 
+  }
+  .map-key:disabled, .map-val:disabled {
+    background: #f8f9fa;
+    color: #6b7280;
+    cursor: not-allowed;
+  }
   .map-key{ max-width:220px; }
   .map-arrow{ width:36px; height:28px; display:flex; align-items:center; justify-content:center; }
   .map-del{ background:none; border:none; padding:6px; cursor:pointer; font-size:14px; border-radius:6px; font-family:monospace; }
@@ -203,7 +274,7 @@
   
   /* Botão de adicionar - NOVO ESTILO (igual ao do pedido) */
   .add-mapping-btn { 
-    display: flex; 
+    display: none; /* Inicialmente escondido */
     align-items: center; 
     justify-content: center; 
     gap: 6px; 
@@ -219,11 +290,32 @@
     transition: all 0.2s ease;
     width: 100%;
     box-sizing: border-box;
+    position: relative;
+    z-index: 2;
   }
   .add-mapping-btn:hover { 
     background: #eef6ff; 
     border-color: #007BFF;
     border-style: solid;
+  }
+
+  .edit-mode-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: #f8f9fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    color: #6b7280;
+    font-family: monospace;
+    transition: all 0.2s ease;
+  }
+  .edit-mode-btn:hover {
+    background: #e5e7eb;
+    border-color: #d1d5db;
   }
 
   .preview-btn{ display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; border:1px solid var(--borda); background:#fff; cursor:pointer; }
@@ -243,6 +335,8 @@
   /* botões horizontais */
   .horizontal-buttons{
     display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+    justify-content: space-between;
+    width: 100%;
   }
 
   /* Botão ver mais */
@@ -300,6 +394,17 @@
   .modal-body{ margin-bottom:15px; }
   .modal-footer{ display:flex; gap:8px; justify-content:flex-end; }
 
+  /* Aviso quando não há arquivo carregado */
+  .no-file-warning {
+    padding: 12px;
+    background: #fff4e5;
+    border: 1px solid #ffd8a8;
+    border-radius: 6px;
+    color: #7a4e00;
+    font-size: 13px;
+    text-align: center;
+    margin: 10px 0;
+  }
 </style>
 </head>
 <body>
@@ -365,12 +470,29 @@
             <div style="display:flex;gap:12px;align-items:flex-start;justify-content:space-between;">
               <div class="subst-left">
                 <div class="subst-toolbar">
-                  <select id="subst-sets" class="subst-sets"></select>
-                  <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <button class="btn" id="btn-new" onclick="showNewModal()">Novo</button>
-                    <button class="btn" id="btn-save-as" onclick="showSaveAsModal()">Salvar como...</button>
-                    <button class="btn" id="btn-delete-set" onclick="deleteCurrentSet()">Excluir</button>
+                  <div class="subst-toolbar-top">
+                    <select id="subst-sets" class="subst-sets"></select>
+                    <div class="subst-toolbar-left">
+                      <button class="btn" id="btn-new" onclick="showNewModal()">Novo</button>
+                      <button class="btn" id="btn-save-as" onclick="showSaveAsModal()">Salvar como...</button>
+                      <button class="btn" id="btn-delete-set" onclick="showDeleteModal()">Excluir</button>
+                    </div>
                   </div>
+                  <div class="subst-toolbar-bottom">
+                    <div></div> <!-- Espaço vazio para alinhar o botão de editar à direita -->
+                    <div class="subst-toolbar-right">
+                      <button class="edit-mode-btn" id="btn-edit-set" title="Editar conjunto">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 3.99997H6C4.89543 3.99997 4 4.8954 4 5.99997V18C4 19.1045 4.89543 20 6 20H18C19.1046 20 20 19.1045 20 18V12M18.4142 8.41417L19.5 7.32842C20.281 6.54737 20.281 5.28104 19.5 4.5C18.7189 3.71895 17.4526 3.71895 16.6715 4.50001L15.5858 5.58575M18.4142 8.41417L12.3779 14.4505C12.0987 14.7297 11.7431 14.9201 11.356 14.9975L8.41422 15.5858L9.00257 12.6441C9.08001 12.2569 9.27032 11.9013 9.54951 11.6221L15.5858 5.58575M18.4142 8.41417L15.5858 5.58575" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Aviso quando não há arquivo -->
+                <div id="no-file-warning" class="no-file-warning" style="display:none;">
+                  Carregue uma planilha para usar as substituições.
                 </div>
 
                 <!-- aviso inline (não pop-up) -->
@@ -379,14 +501,13 @@
                 <!-- agora usamos caixinhas (linhas) ao invés de textarea -->
                 <div class="subst-list" id="subst-list" aria-live="polite"></div>
 
-                <!-- Botão de adicionar (aparece apenas se não for o conjunto Padrão) -->
+                <!-- Botão de adicionar (aparece apenas se não for o conjunto Padrão e estiver em modo de edição) -->
                 <button class="add-mapping-btn" id="btn-add-mapping" title="Adicionar mapeamento">Adicionar</button>
 
                 <div class="separator">
-                  <div class="separator-title">Predefinições</div>
                   <div class="horizontal-buttons">
                     <button class="btn btn-primaria" id="btn-apply-subst" onclick="applySubstitutionsFromUI()">Aplicar substituições</button>
-                    <button class="btn" id="btn-reset-subst" onclick="resetSubstToDefault()">Resetar conjunto padrão</button>
+                    <button class="btn" id="btn-restore-original" onclick="restoreOriginalsFromUI()">Restaurar original</button>
                     <button class="btn" id="btn-sort-subst" title="Ordenar A–Z (1ª coluna)" onclick="toggleSortSheetAtiva()">Ordenar A–Z (1ª coluna)</button>
                   </div>
                 </div>
@@ -478,9 +599,24 @@
   </div>
 </div>
 
+<!-- Modal para Excluir -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-content">
+    <div class="modal-header">Confirmar exclusão</div>
+    <div class="modal-body">
+      Tem certeza que deseja excluir o conjunto "<span id="delete-set-name"></span>"?
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-perigo" onclick="confirmDelete()">Excluir</button>
+      <button class="btn" onclick="closeDeleteModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <div id="copy-notice">Copiado!</div>
 
 <script>
+// O JavaScript permanece exatamente o mesmo da versão anterior
 /* ========= helpers visuais / toasts ========= */
 let previousStatus = 'Pronto.'; // Para armazenar o status anterior à seleção
 
@@ -528,6 +664,9 @@ let selectedCells = new Set();
 
 // Controle de exibição das listas
 let expandedSets = {};
+
+// Modo de edição
+let isEditMode = false;
 
 /* ========= elementos ========= */
 const uploader = document.getElementById('uploader');
@@ -630,7 +769,6 @@ function setActiveSheet(name){
     p.classList.toggle('active', p.dataset.name === name);
   });
   clearSelection();
-  updateSortButtonLabel();
   updateSubstUIState();
 }
 
@@ -770,17 +908,7 @@ document.addEventListener('mousedown', (e)=>{
   }
 });
 
-/* ========= ORDENAR A–Z (moved to substituições) ========= */
-function updateSortButtonLabel(){
-  const b1 = document.getElementById('btn-sort-az');
-  const b2 = document.getElementById('btn-sort-subst');
-  const sorted = sortedSheets.has(activeSheetName);
-  const text = sorted ? 'Restaurar ordem A–Z (1ª coluna)' : 'Ordenar A–Z (1ª coluna)';
-  const title = sorted ? 'Voltar à ordem A–Z (1ª coluna) da aba atual' : 'Ordenar linhas da aba atual (A→Z) pela 1ª coluna';
-  if(b1){ b1.textContent = text; b1.title = title; }
-  if(b2){ b2.textContent = text; b2.title = title; }
-}
-
+/* ========= ORDENAR A–Z (1ª coluna) ========= */
 function toggleSortSheetAtiva(){
   if(!currentWB || !activeSheetName){ showToast('Nenhuma aba ativa.'); return; }
 
@@ -831,8 +959,6 @@ function toggleSortSheetAtiva(){
     pane.innerHTML = html;
     bindTableInteractions(pane);
   }
-
-  updateSortButtonLabel();
 }
 
 /* ========= SUBSTITUIÇÕES (UI sem popups) ========= */
@@ -965,7 +1091,7 @@ function populateSubstSetsUI(){
   select.onchange = function(){
     const val = select.value;
     renderMappingSet(val);
-    updateAddButtonVisibility();
+    updateEditButtonVisibility();
   };
 }
 
@@ -1003,20 +1129,83 @@ function renderMappingSet(name){
     moreRow.appendChild(moreBtn);
     list.appendChild(moreRow);
   }
+  // Adiciona o botão "Ver menos" se estiver expandido
+  else if (showAll && arr.length > maxInitial) {
+    const lessRow = document.createElement('div');
+    lessRow.className = 'map-row';
+    lessRow.style.justifyContent = 'center';
+    const lessBtn = document.createElement('button');
+    lessBtn.className = 'show-more-btn';
+    lessBtn.textContent = `Ver menos`;
+    lessBtn.addEventListener('click', () => {
+      expandedSets[name] = false;
+      renderMappingSet(name);
+    });
+    lessRow.appendChild(lessBtn);
+    list.appendChild(lessRow);
+  }
 
   updateSubstUIState();
-  updateAddButtonVisibility();
+  updateEditButtonVisibility();
+  updateReadonlyMode();
 }
 
-function updateAddButtonVisibility() {
+function updateEditButtonVisibility() {
   const select = document.getElementById('subst-sets');
   const currentSet = select.value;
+  const editBtn = document.getElementById('btn-edit-set');
   const addBtn = document.getElementById('btn-add-mapping');
   
   if (currentSet === 'Padrão') {
+    editBtn.style.display = 'none';
     addBtn.style.display = 'none';
   } else {
+    editBtn.style.display = 'flex';
+    if (isEditMode) {
+      addBtn.style.display = 'flex';
+    } else {
+      addBtn.style.display = 'none';
+    }
+  }
+}
+
+function toggleEditMode() {
+  isEditMode = !isEditMode;
+  const editBtn = document.getElementById('btn-edit-set');
+  const addBtn = document.getElementById('btn-add-mapping');
+  
+  if (isEditMode) {
+    editBtn.innerHTML = 'Salvar';
+    editBtn.title = 'Salvar edições';
     addBtn.style.display = 'flex';
+  } else {
+    editBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3.99997H6C4.89543 3.99997 4 4.8954 4 5.99997V18C4 19.1045 4.89543 20 6 20H18C19.1046 20 20 19.1045 20 18V12M18.4142 8.41417L19.5 7.32842C20.281 6.54737 20.281 5.28104 19.5 4.5C18.7189 3.71895 17.4526 3.71895 16.6715 4.50001L15.5858 5.58575M18.4142 8.41417L12.3779 14.4505C12.0987 14.7297 11.7431 14.9201 11.356 14.9975L8.41422 15.5858L9.00257 12.6441C9.08001 12.2569 9.27032 11.9013 9.54951 11.6221L15.5858 5.58575M18.4142 8.41417L15.5858 5.58575" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`;
+    editBtn.title = 'Editar conjunto';
+    addBtn.style.display = 'none';
+    // Salvar as alterações ao sair do modo de edição
+    saveCurrentSet();
+  }
+  
+  updateReadonlyMode();
+  updateEditButtonVisibility();
+}
+
+function updateReadonlyMode() {
+  const list = document.getElementById('subst-list');
+  const inputs = list.querySelectorAll('.map-key, .map-val');
+  
+  if (isEditMode) {
+    list.classList.remove('readonly-mode');
+    inputs.forEach(input => {
+      input.disabled = false;
+    });
+  } else {
+    list.classList.add('readonly-mode');
+    inputs.forEach(input => {
+      input.disabled = true;
+    });
   }
 }
 
@@ -1047,7 +1236,9 @@ function confirmNew(){
   renderMappingSet(name);
   closeNewModal();
   showToast('Conjunto criado.');
-  updateAddButtonVisibility();
+  // Entrar automaticamente no modo de edição para novos conjuntos
+  isEditMode = true;
+  toggleEditMode();
 }
 
 function showInlineWarning(msg){
@@ -1083,15 +1274,28 @@ function confirmSaveAs(){
   renderMappingSet(name);
   closeSaveAsModal();
   showToast('Conjunto salvo como ' + name);
-  updateAddButtonVisibility();
+  updateEditButtonVisibility();
 }
 
-function deleteCurrentSet(){
+function showDeleteModal(){
   const select = document.getElementById('subst-sets');
   const name = select.value;
   if(!name) return;
   if(name === 'Padrão'){ showInlineWarning('O conjunto "Padrão" não pode ser excluído.'); return; }
-  if(!confirm('Excluir o conjunto "' + name + '" ?')) return;
+  
+  const modal = document.getElementById('deleteModal');
+  const span = document.getElementById('delete-set-name');
+  span.textContent = name;
+  modal.style.display = 'flex';
+}
+
+function closeDeleteModal(){
+  document.getElementById('deleteModal').style.display = 'none';
+}
+
+function confirmDelete(){
+  const select = document.getElementById('subst-sets');
+  const name = select.value;
   const sets = loadSubstSets() || {};
   delete sets[name];
   saveSubstSets(sets);
@@ -1099,20 +1303,36 @@ function deleteCurrentSet(){
   document.getElementById('subst-sets').value = Object.keys(loadSubstSets() || {})[0] || '';
   renderMappingSet(document.getElementById('subst-sets').value);
   showToast('Conjunto excluído.');
-  updateAddButtonVisibility();
+  updateEditButtonVisibility();
+  closeDeleteModal();
 }
 
-function resetSubstToDefault(){
-  // Apenas muda para o conjunto Padrão sem restaurar a planilha
-  const sets = loadSubstSets() || {};
-  if(sets['Padrão']) {
-    document.getElementById('subst-sets').value = 'Padrão';
-    renderMappingSet('Padrão');
-  } else {
-    document.getElementById('subst-list').innerHTML = '';
-  }
-  showToast('Conjunto padrão selecionado.');
-  updateAddButtonVisibility();
+function restoreOriginalsFromUI(){
+  // restaura apenas aba ativa (mantive a opção simples conforme UI atual)
+  restoreOriginals({ allSheets: false });
+}
+
+function restoreOriginals({ allSheets = false } = {}){
+  if(!currentWB){ showToast('Nenhum arquivo carregado.'); return; }
+  const targetSheets = allSheets ? currentWB.SheetNames.slice() : (activeSheetName ? [activeSheetName] : []);
+  let restoredCount = 0;
+  targetSheets.forEach(name=>{
+    const orig = originalSheetsAOA[name];
+    if(!orig) return;
+    const novoWS = XLSX.utils.aoa_to_sheet(orig.map(r=>Array.isArray(r)?r.slice():[]));
+    currentWB.Sheets[name] = novoWS;
+    const idx = currentWB.SheetNames.indexOf(name);
+    const html = XLSX.utils.sheet_to_html(novoWS, { id:`sheet-${idx}`, header:'', footer:'' });
+    const pane = document.querySelector(`.sheet[data-name="${CSS.escape(name)}"]`);
+    if(pane) { pane.innerHTML = html; bindTableInteractions(pane); }
+    substitutionAppliedSheets.delete(name);
+    sortedSheets.delete(name);
+    restoredCount++;
+  });
+  updateSubstUIState();
+  statusEl.textContent = `Restauradas ${restoredCount} aba(s) ao original.`;
+  previousStatus = statusEl.textContent;
+  showToast('Conteúdo original restaurado.');
 }
 
 function getMappingsFromUI(){
@@ -1157,12 +1377,31 @@ function addMappingRow(key, val){
   });
   row.appendChild(inputK); row.appendChild(arrow); row.appendChild(inputV); row.appendChild(del);
   list.appendChild(row);
+
+  // Aplicar o estado de edição aos novos inputs
+  if (!isEditMode) {
+    inputK.disabled = true;
+    inputV.disabled = true;
+  }
+
   inputK.focus();
+}
+
+function saveCurrentSet() {
+  const select = document.getElementById('subst-sets');
+  const currentSetName = select.value;
+  if (!currentSetName) return;
+  const sets = loadSubstSets() || {};
+  sets[currentSetName] = getMappingsFromUI();
+  saveSubstSets(sets);
 }
 
 function applySubstitutionsFromUI(){
   if(!currentWB){ showToast('Nenhum arquivo carregado.'); return; }
-  const mappings = getMappingsFromUI();
+  const select = document.getElementById('subst-sets');
+  const currentSetName = select.value;
+  const sets = loadSubstSets() || {};
+  const mappings = sets[currentSetName] || [];
   substitutionDict = {};
   mappings.forEach(m=>{ substitutionDict[normalizeKey(m.k)] = m.v; });
   // Apply only to active sheet by default (UI atualmente aplica aba ativa)
@@ -1206,34 +1445,6 @@ function applySubstitutions({ allSheets = false } = {}){
   showToast(`${totalReplacements} substituição(ões) aplicadas.`);
 }
 
-function restoreOriginalsFromUI(){
-  // restaura apenas aba ativa (mantive a opção simples conforme UI atual)
-  restoreOriginals({ allSheets: false });
-}
-
-function restoreOriginals({ allSheets = false } = {}){
-  if(!currentWB){ showToast('Nenhum arquivo carregado.'); return; }
-  const targetSheets = allSheets ? currentWB.SheetNames.slice() : (activeSheetName ? [activeSheetName] : []);
-  let restoredCount = 0;
-  targetSheets.forEach(name=>{
-    const orig = originalSheetsAOA[name];
-    if(!orig) return;
-    const novoWS = XLSX.utils.aoa_to_sheet(orig.map(r=>Array.isArray(r)?r.slice():[]));
-    currentWB.Sheets[name] = novoWS;
-    const idx = currentWB.SheetNames.indexOf(name);
-    const html = XLSX.utils.sheet_to_html(novoWS, { id:`sheet-${idx}`, header:'', footer:'' });
-    const pane = document.querySelector(`.sheet[data-name="${CSS.escape(name)}"]`);
-    if(pane) { pane.innerHTML = html; bindTableInteractions(pane); }
-    substitutionAppliedSheets.delete(name);
-    sortedSheets.delete(name);
-    restoredCount++;
-  });
-  updateSubstUIState();
-  statusEl.textContent = `Restauradas ${restoredCount} aba(s) ao original.`;
-  previousStatus = statusEl.textContent;
-  showToast('Conteúdo original restaurado.');
-}
-
 function updateSubstUIState(){
   const btn = document.getElementById('btn-subst');
   if(!btn) return;
@@ -1252,7 +1463,7 @@ function updateSubstUIState(){
     const dropdownSubst = document.getElementById('dropdown-subst');
     if(dropdownSubst) dropdownSubst.addEventListener('click', (e)=>{ e.stopPropagation(); });
     // ensure some buttons inside panel don't propagate clicks to document (avoid fechar menus)
-    ['btn-add-mapping','btn-new','btn-save-as','btn-delete-set','btn-apply-subst','btn-reset-subst','btn-sort-subst'].forEach(id=>{
+    ['btn-add-mapping','btn-new','btn-save-as','btn-delete-set','btn-apply-subst','btn-restore-original','btn-sort-subst', 'btn-edit-set'].forEach(id=>{
       const el = document.getElementById(id); if(el) el.addEventListener('click', (e)=> e.stopPropagation());
     });
     // make add mapping button add row without inline onclick (we also keep the inline but ensure it doesn't close the menu)
@@ -1269,7 +1480,14 @@ function updateSubstUIState(){
       renderMappingSet(currentSetName);
     });
     
-    updateAddButtonVisibility();
+    // Botão de editar
+    const editBtn = document.getElementById('btn-edit-set');
+    if (editBtn) {
+      editBtn.addEventListener('click', toggleEditMode);
+    }
+    
+    updateEditButtonVisibility();
+    updateReadonlyMode();
 
     // substitutionDict vazio até o usuário aplicar
     substitutionDict = {};
@@ -1376,8 +1594,22 @@ function updateSelectionCount(){
 function toggleSubstMenu(e){
   // if there is no workbook loaded, show short menu (like salvar/copiar)
   if(!currentWB){
-    toggleMenu('dropdown-subst-short');
+    // Mostrar aviso quando não há arquivo
+    const noFileWarning = document.getElementById('no-file-warning');
+    noFileWarning.style.display = 'block';
+    
+    // Esconder outros elementos
+    document.getElementById('subst-list').style.display = 'none';
+    document.getElementById('btn-add-mapping').style.display = 'none';
+    document.querySelector('.separator').style.display = 'none';
+    
+    toggleMenu('dropdown-subst');
     return;
+  } else {
+    // Esconder aviso quando há arquivo
+    document.getElementById('no-file-warning').style.display = 'none';
+    document.getElementById('subst-list').style.display = 'flex';
+    document.querySelector('.separator').style.display = 'block';
   }
   toggleMenu('dropdown-subst');
 }

@@ -157,8 +157,21 @@
   }
 
   /* painel de substituições - novo visual com caixinhas */
-  .subst-panel{ min-width:520px; }
-  .subst-header{ padding:8px 12px; border-bottom:1px solid #eee; background:#fafafa; font-weight:700; }
+  .subst-panel{ 
+    min-width:520px; 
+    max-height: 80vh; /* Altura máxima do painel */
+    overflow-y: auto; /* Rolagem interna */
+  }
+  .subst-header{ 
+    padding:8px 12px; 
+    border-bottom:1px solid #eee; 
+    background:#fafafa; 
+    font-weight:700; 
+    position: sticky;
+    top: 0;
+    background: #fafafa;
+    z-index: 10;
+  }
   .subst-toolbar{ 
     display:flex; flex-direction:column; gap:8px; margin:8px 0; flex-wrap:wrap;
     padding:12px; background:#f8f9fa; border-radius:8px; border:1px solid var(--borda);
@@ -171,8 +184,16 @@
   .subst-left{ flex:1; }
   .subst-right{ display:none; }
 
-  /* mapping list (caixinhas) */
-  .subst-list{ display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+  /* mapping list (caixinhas) COM ROLAGEM INTERNA */
+  .subst-list{ 
+    display:flex; 
+    flex-direction:column; 
+    gap:8px; 
+    margin-top:12px; 
+    max-height: 300px; /* Altura máxima da lista */
+    overflow-y: auto;  /* Rolagem interna */
+    padding-right: 4px; /* Espaço para a barra de rolagem */
+  }
   .map-row{ display:flex; gap:8px; align-items:center; }
   .map-key, .map-val{ flex:1; padding:8px 10px; border-radius:8px; border:1px solid #e6e6e6; font-family:monospace; font-size:13px; background:#fff; }
   .map-key{ max-width:220px; }
@@ -337,7 +358,7 @@
       </div>
 
       <!-- painel completo (aberto apenas quando há arquivo) -->
-      <div class="menu-dropdown-content" id="dropdown-subst" aria-labelledby="btn-subst" style="min-width:520px;padding:0;">
+      <div class="menu-dropdown-content" id="dropdown-subst" aria-labelledby="btn-subst" style="min-width:520px;padding:0; max-height: 80vh; overflow-y: auto;">
         <div class="subst-panel" style="padding:0; min-width:520px;">
           <div class="subst-header">Painel de Substituições</div>
           <div style="padding:10px;">
@@ -651,9 +672,55 @@ function sanitizeFileName(s){ return (s||'').toString().replace(/[\\/:*?"<>|]+/g
 /* ========= copiar ========= */
 function copiarTabelaAtiva(){
   if(!activeSheetName || !currentWB){ showToast('Nada para copiar.'); return; }
-  const ws = currentWB.Sheets[activeSheetName];
-  const tsv = XLSX.utils.sheet_to_csv(ws, { FS:"\t" });
-  navigator.clipboard.writeText(tsv).then(()=>showToast('Copiado!')).catch(()=>showToast('Não foi possível copiar.'));
+  
+  // Se há células selecionadas, copia apenas a seleção
+  if (selectedCells.size > 0) {
+    copiarSelecao();
+  } else {
+    // Caso contrário, copia a tabela inteira
+    const ws = currentWB.Sheets[activeSheetName];
+    const tsv = XLSX.utils.sheet_to_csv(ws, { FS:"\t" });
+    navigator.clipboard.writeText(tsv).then(()=>showToast('Copiado!')).catch(()=>showToast('Não foi possível copiar.'));
+  }
+}
+
+function copiarSelecao() {
+  const activePane = document.querySelector('.sheet.active');
+  if (!activePane) return;
+  
+  const table = activePane.querySelector('table');
+  if (!table) return;
+  
+  // Encontrar os limites da seleção
+  let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
+  selectedCells.forEach(cellKey => {
+    const [r, c] = cellKey.split('|').map(Number);
+    if (r < minR) minR = r;
+    if (r > maxR) maxR = r;
+    if (c < minC) minC = c;
+    if (c > maxC) maxC = c;
+  });
+  
+  // Criar uma matriz para a seleção
+  const data = [];
+  for (let r = minR; r <= maxR; r++) {
+    const row = [];
+    for (let c = minC; c <= maxC; c++) {
+      const cell = table.rows[r]?.cells[c];
+      const text = cell ? cell.textContent : '';
+      row.push(text);
+    }
+    data.push(row);
+  }
+  
+  // Converter para TSV
+  const tsv = data.map(row => row.join('\t')).join('\n');
+  
+  navigator.clipboard.writeText(tsv).then(() => {
+    showToast('Seleção copiada!');
+  }).catch(() => {
+    showToast('Não foi possível copiar a seleção.');
+  });
 }
 
 /* ========= imprimir ========= */

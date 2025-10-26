@@ -174,6 +174,7 @@
   }
   .subst-toolbar{ 
     display:flex; 
+    flex-direction: column;
     gap:12px;
     margin:8px 0; 
     flex-wrap:wrap;
@@ -181,15 +182,25 @@
     background:#f8f9fa; 
     border-radius:8px; 
     border:1px solid var(--borda);
+  }
+  .subst-toolbar-top {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+  .subst-toolbar-bottom {
+    display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
   }
   .subst-toolbar-left {
     display: flex;
     gap: 8px;
     align-items: center;
     flex-wrap: wrap;
-    flex: 1;
   }
   .subst-toolbar-right {
     display: flex;
@@ -398,6 +409,37 @@
     text-align: center;
     margin: 10px 0;
   }
+
+  /* Botões de ação - alinhamento correto */
+  .action-buttons-top {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
+    width: 100%;
+  }
+
+  .action-buttons-bottom {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    flex-wrap: nowrap;
+  }
+
+  .action-buttons-bottom .btn {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .btn-sort-compact {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 </style>
 </head>
 <body>
@@ -463,18 +505,18 @@
             <div style="display:flex;gap:12px;align-items:flex-start;justify-content:space-between;">
               <div class="subst-left">
                 <div class="subst-toolbar">
-                  <div class="subst-toolbar-left">
+                  <div class="subst-toolbar-top">
                     <select id="subst-sets" class="subst-sets"></select>
-                    <button class="btn" id="btn-new" onclick="showNewModal()">Novo</button>
-                    <button class="btn" id="btn-save-as" onclick="showSaveAsModal()">Salvar como...</button>
-                    <button class="btn" id="btn-delete-set" onclick="showDeleteModal()">Excluir</button>
-                  </div>
-                  <div class="subst-toolbar-right">
                     <button class="edit-mode-btn" id="btn-edit-set" title="Editar conjunto">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 3.99997H6C4.89543 3.99997 4 4.8954 4 5.99997V18C4 19.1045 4.89543 20 6 20H18C19.1046 20 20 19.1045 20 18V12M18.4142 8.41417L19.5 7.32842C20.281 6.54737 20.281 5.28104 19.5 4.5C18.7189 3.71895 17.4526 3.71895 16.6715 4.50001L15.5858 5.58575M18.4142 8.41417L12.3779 14.4505C12.0987 14.7297 11.7431 14.9201 11.356 14.9975L8.41422 15.5858L9.00257 12.6441C9.08001 12.2569 9.27032 11.9013 9.54951 11.6221L15.5858 5.58575M18.4142 8.41417L15.5858 5.58575" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     </button>
+                  </div>
+                  <div class="action-buttons-top">
+                    <button class="btn" id="btn-new" onclick="showNewModal()">Novo</button>
+                    <button class="btn" id="btn-save-as" onclick="showSaveAsModal()">Salvar como...</button>
+                    <button class="btn" id="btn-delete-set" onclick="showDeleteModal()">Excluir</button>
                   </div>
                 </div>
 
@@ -493,10 +535,10 @@
                 <button class="add-mapping-btn" id="btn-add-mapping" title="Adicionar mapeamento">Adicionar</button>
 
                 <div class="separator">
-                  <div class="horizontal-buttons">
+                  <div class="action-buttons-bottom">
                     <button class="btn btn-primaria" id="btn-apply-subst" onclick="applySubstitutionsFromUI()">Aplicar substituições</button>
                     <button class="btn" id="btn-restore-original" onclick="restoreOriginalsFromUI()">Restaurar original</button>
-                    <button class="btn" id="btn-sort-subst" title="Ordenar A–Z (1ª coluna)" onclick="toggleSortSheetAtiva()">Ordenar A–Z (1ª coluna)</button>
+                    <button class="btn" id="btn-sort-subst" title="Ordenar A–Z (1ª coluna)" onclick="toggleSortSheetAtiva()">Ordenar A–Z</button>
                   </div>
                 </div>
 

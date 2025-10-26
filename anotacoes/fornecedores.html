@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fornecedores - Anotações</title>
+<style>
+  :root{
+    --azul:#007BFF;
+    --accent:#0b5ed7;
+    --fundo:#f7fbff;
+    --card:#ffffff;
+    --muted:#6b7280;
+    --borda:#e6eefc;
+    --borda-ativa:#cfe0ff;
+    --ink:#0b3b6b;
+    --ink-strong:#0b4fa0;
+  }
+  body{
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: var(--fundo);
+    margin: 0;
+    padding: 20px;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--card);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(11,78,167,.06);
+    border: 1px solid var(--borda);
+  }
+  h1 {
+    color: var(--accent);
+    margin-bottom: 8px;
+    font-size: 22px;
+    border-bottom: 2px solid var(--borda);
+    padding-bottom: 12px;
+  }
+  h2 {
+    color: var(--ink-strong);
+    margin: 24px 0 12px 0;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  h2::before {
+    content: "•";
+    color: var(--azul);
+    font-size: 24px;
+  }
+  h3 {
+    color: var(--ink-strong);
+    margin: 20px 0 8px 0;
+    font-size: 16px;
+    padding-left: 16px;
+  }
+  p {
+    margin: 8px 0;
+    padding-left: 16px;
+  }
+  ul {
+    margin: 8px 0;
+    padding-left: 32px;
+  }
+  li {
+    margin: 6px 0;
+  }
+  .destaque {
+    background: #f0f7ff;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid var(--azul);
+    margin: 12px 0;
+  }
+  .info-box {
+    background: #fff7f0;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid var(--warn, #f59e0b);
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .passo-a-passo {
+    background: #f7fff0;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--borda);
+    margin: 16px 0;
+  }
+  .passo {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 8px 0;
+  }
+  .passo-num {
+    background: var(--azul);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Fornecedores</h1>
+
+  <h2>Dia de Recebimentos</h2>
+  <p>Dia de recebimentos de notinhas para fornecedores da cidade geralmente são na quarta feira e quinta feira</p>
+
+  <h2>Sanú (queijo)</h2>
+  <p>Sanú vem geralmente na segunda. Para saber se é com nota ou sem:</p>
+  
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Vá no sistema web em Núcleo → Gestão de Materiais → Gestão de Estoque → Movimentos → Consultas → Consultar Saldo do Estoque</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Na parte do produto, clique na lupa e procure <strong>Queijo Meia Cura (Cód 11060006)</strong></div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Clique no lápis (editar)</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Na parte de cima tem o modo: quando tem uma estrela é fiscal (com nota) e quando tem duas estrelas é gerencial (sem nota)</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">5</div>
+      <div>Olhe qual que está com menos na parte de pronta entrega</div>
+    </div>
+  </div>
+  
+  <div class="destaque">
+    <strong>Observação:</strong> Quando é com nota ele multiplica o peso por dois valores e depois faz a diferença.
+  </div>
+
+  <h2>Tarick (queijo)</h2>
+  <p>Tarick agora tá fazendo duas entregas na semana, na terça e na quinta.</p>
+  
+  <div class="info-box">
+    <strong>Nota Fiscal:</strong> Ele geralmente faz nota fiscal, só uma vez no mês que ele entrega sem nota.
+  </div>
+  
+  <p><strong>Processo:</strong></p>
+  <ul>
+    <li>Ele manda a nota na segunda</li>
+    <li>Peço o Barão para fazer o PIX</li>
+    <li>Envio o comprovante pra ele</li>
+    <li>No dia que ele faz a entrega e traz a notinha:</li>
+    <ul>
+      <li>Pego o valor total dos pesos e multiplico</li>
+      <li>Subtraio com o valor da nota</li>
+      <li>Pago a diferença</li>
+    </ul>
+  </ul>
+  
+  <div class="destaque">
+    <strong>Caso a nota tenha sido maior:</strong> Se o valor da nota for maior do que o valor total dos pesos, ele me devolve em dinheiro a diferença.
+  </div>
+
+  <h2>João Vittor (queijo)</h2>
+  <p>João Vittor faz viagens pra buscar queijo no meio da semana.</p>
+  
+  <ul>
+    <li>Ele pega R$ 15.000,00 toda quinta</li>
+    <li>Traz a notinha na quinta também</li>
+    <li>Quando ele traz a notinha:</li>
+    <ul>
+      <li>Pego e multiplico por 30</li>
+      <li>Se o valor der acima de R$ 15.000,00 → passo pra ele a diferença que ele pagou no dinheiro</li>
+      <li>Caso tenha ido menos de R$ 15.000,00 → desconto depois quando for entregar o dinheiro pra ele na parte da tarde</li>
+    </ul>
+  </ul>
+
+  <h2>Alemão (queijo)</h2>
+  <p>Alemão traz e é só multiplicar o valor do peso por 30 e entregar ele o dinheiro</p>
+
+  <h2>Paulo (requeijão e mussarela)</h2>
+  <p>Paulo traz geralmente duas notinhas, uma de requeijão e uma de mussarela.</p>
+  <div class="destaque">
+    <strong>Importante:</strong> Antes eu pergunto se é nota fiscal.
+  </div>
+
+  <h2>Marcoplast</h2>
+  <p>Da Marcoplast geralmente eles sempre passam pra receber 1 vez por mês.</p>
+  
+  <ul>
+    <li>O moço vem pra receber</li>
+    <li>Eles mandam o arquivo no email pra gente imprimir e pagar</li>
+    <li>É um arquivo na horizontal que tem um valor escrito mais embaixo</li>
+  </ul>
+
+  <h2>Célio (pagamentos e pix)</h2>
+  <p>Do Célio toda semana, ele e os ajudantes dele recebem toda semana.</p>
+  
+  <ul>
+    <li>Ele manda o valor, a gente separa e passa pra ele</li>
+    <li>Como as vezes alguns clientes fazem PIX pro Célio, precisa descontar dele</li>
+  </ul>
+  
+  <div class="passo-a-passo">
+    <strong>Processo dos PIX:</strong>
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Sempre que tem PIX eu imprimo</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Deixo numa pasta escrita "Pagamentos Célio" na diretoria</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Uso para descontar dele</div>
+    </div>
+  </div>
+  
+  <div class="info-box">
+    <strong>Observação:</strong> Algumas vezes pode vir o moço da doação também, ai nós pagamos aqui mesmo e a gente cobra a mais dele esse valor.
+  </div>
+
+  <h2>Marciel (pagamentos e pix)</h2>
+  <p>Do Marciel pessoal também faz PIX pra ele.</p>
+  
+  <div class="passo-a-passo">
+    <strong>Processo similar ao Célio:</strong>
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Imprimo os comprovantes de PIX</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Deixo guardado numa pasta na diretoria chamada "Pagamentos Marciel"</div>
+    </div>
+  </div>
+  
+  <div class="destaque">
+    <strong>Acertos:</strong> Acertos com ele geralmente é o Barão.
+  </div>
+
+</div>
+</body>
+</html>

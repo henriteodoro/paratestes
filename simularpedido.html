@@ -16,6 +16,9 @@
     --azul-escuro: #0056b3;
     --amarelo: #FFD700;
     --vermelho: #b22222;
+    --verde: #28a745;
+    --laranja: #FF8C00;
+    --roxo: #8A2BE2;
     --bg: #ffffff;
     --muted: #666;
   }
@@ -54,8 +57,16 @@
     cursor: pointer;
     padding: 6px 8px;
     border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .icon-btn:hover { background: rgba(255,255,255,0.08); }
+  .icon-btn img {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1); /* torna as imagens brancas */
+  }
 
   /* dropdowns */
   .menu-dropdown { position: relative; }
@@ -100,7 +111,7 @@
   .submenu { display:none; padding-left: 6px; padding-bottom:6px; }
   .submenu a { padding-left: 18px; font-weight:500; }
 
-  /* ===== título com setas ===== */
+  /* ===== título com setas e seletor de preço ===== */
   .titulo-nav {
     display:flex;
     justify-content:center;
@@ -158,31 +169,263 @@
     min-width: 760px;
   }
   thead th{position:sticky;top:0;background:#f8fafc;text-align:left;font-weight:700;color:#0b1225;border-bottom:1px solid #e6eef8;padding:12px}
-  tbody td{padding:10px 12px;border-bottom:1px solid #f1f5f9}
+  
+  /* Classes para diferentes alturas de linha */
+  .linha-padrao td { padding: 10px 12px; }
+  .linha-compacta td { padding: 6px 12px; }
+  .linha-minima td { padding: 4px 12px; }
+  
+  tbody td{border-bottom:1px solid #f1f5f9}
   tfoot td{padding:14px 12px;font-weight:700;background:#f8fafc;border-top:1px solid #e6eef8}
   .col-prod{width:48%}
   .col-preco{width:16%}
   .col-qtd{width:16%}
   .col-total{width:20%}
 
-  input.qty{width:100%;max-width:86px;padding:8px;border-radius:8px;border:1px solid #e6eef8}
+  /* CAMPO DE QUANTIDADE ATUALIZADO - SEM PLACEHOLDER */
+  input.qty{
+    width:100%;
+    max-width:86px;
+    padding:8px;
+    border-radius:6px;
+    border:1px solid #ddd;
+    text-align:center; /* CENTRALIZADO */
+    font-family: monospace; /* MESMA FONTE DO SITE */
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+  input.qty:focus { 
+    outline:none; 
+    border-color:var(--azul-escuro); 
+    box-shadow:0 0 0 3px rgba(0,123,255,.12); 
+  }
   .row-total{font-variant-numeric:tabular-nums}
 
-  #middle-controls{display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;min-width:170px}
-  #middle-controls button{width:170px;padding:10px 12px;font-size:14px;border-radius:6px;border:none;cursor:pointer}
+  /* ===== MIDDLE CONTROLS ATUALIZADO ===== */
+  #middle-controls {
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    align-items:center;
+    justify-content:flex-start;
+    min-width:170px;
+    max-width: 200px;
+  }
+  
+  #middle-controls button {
+    width:170px;
+    padding:10px 12px;
+    font-size:14px;
+    border-radius:6px;
+    border:none;
+    cursor:pointer;
+    font-family: monospace;
+    text-align: center;
+  }
+  
   .btn-amarelo{background:var(--amarelo);color:#000}
   .btn-vermelho{background:var(--vermelho);color:#fff}
   .btn-azul{background:var(--azul);color:#fff}
+  .btn-verde{background:var(--verde);color:#fff}
+  .btn-laranja{background:var(--laranja);color:#fff}
+  .btn-roxo{background:var(--roxo);color:#fff}
+  
+  /* Divisória */
+  .divisoria {
+    width: 100%;
+    height: 1px;
+    background: #e0e0e0;
+    margin: 10px 0;
+  }
+  
+  /* Seletor de preço estilizado como botão - AGORA VERDE */
+  .seletor-preco {
+    width:170px;
+    padding:10px 12px;
+    font-size:14px;
+    border-radius:6px;
+    border:none;
+    cursor:pointer;
+    font-family: monospace;
+    text-align: center;
+    background: var(--verde);
+    color: #fff;
+  }
+  
+  /* Botão de seções - NOVA COR (AMARELO) E ESTILO PARA FILTRO ATIVO */
+  .btn-secoes {
+    width:170px;
+    padding:10px 12px;
+    font-size:14px;
+    border-radius:6px;
+    border:none;
+    cursor:pointer;
+    font-family: monospace;
+    text-align: center;
+    background: var(--amarelo);
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-secoes.com-filtro {
+    background: var(--laranja);
+    color: #fff;
+    box-shadow: 0 0 0 2px var(--laranja);
+  }
+  
+  /* Dropdown de seções */
+  .secoes-dropdown {
+    display: none;
+    position: absolute;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    padding: 8px;
+    z-index: 1000;
+    margin-top: 5px;
+    width: 170px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .filtros-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+  
+  .filtro-secao {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .filtro-secao:hover {
+    background: #e9ecef;
+  }
+  
+  .filtro-secao.ativo {
+    background: var(--azul);
+    color: white;
+  }
+  
+  /* Checkbox mais arredondado */
+  .filtro-checkbox {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    accent-color: var(--azul);
+  }
+  
+  .filtro-label {
+    font-size: 13px;
+    flex: 1;
+  }
 
   #contador-linhas{ text-align:center; margin: 12px 0 24px; font-weight:700; }
 
-  .mac-links{margin: 0 14px 30px;display:grid;grid-template-columns: repeat(4, 1fr);gap: 10px;align-items:stretch}
-  .mac-links a{display:block;padding:8px 10px;background:#f7fbff;border:1px solid #e6f0ff;color:var(--azul);text-decoration:none;border-radius:6px;text-align:center;font-family:monospace}
-
   #copy-notice{position: fixed;right: 18px;bottom: 18px;background: rgba(0,0,0,0.78);color: white;padding: 8px 12px;border-radius: 6px;display: none;z-index: 2000;font-family: monospace;font-size: 13px}
 
-  @media (max-width:900px){.container{gap:20px;padding:10px}.mac-links{grid-template-columns: repeat(2,1fr)}#middle-controls{order:2}}
-  @media (max-width:520px){.container{flex-direction:column;align-items:center}.mac-links{grid-template-columns:repeat(1,1fr)}#middle-controls{flex-direction:row;gap:8px}#middle-controls button{width:120px}}
+  /* Campo flutuante para soma total - FONTE MELHORADA */
+  #floating-total {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--azul);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: normal; /* Removido o negrito */
+    transition: opacity 0.3s;
+    line-height: 1.4;
+  }
+  
+  #floating-total.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  #floating-total-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* Espaço vazio no final da página */
+  .espaco-final {
+    height: 60px;
+    width: 100%;
+  }
+
+  @media (max-width:900px){.container{gap:20px;padding:10px}#middle-controls{order:2}}
+  @media (max-width:520px){.container{flex-direction:column;align-items:center}#middle-controls{flex-direction:row;gap:8px;max-width:100%}#middle-controls button, #middle-controls select{width:140px}}
+
+  /* ===== ESTILOS DE IMPRESSÃO ===== */
+  @media print {
+    header, #middle-controls, #contador-linhas, #copy-notice, #floating-total, .espaco-final { 
+      display: none !important; 
+    }
+    html, body { 
+      background: #fff !important; 
+      height: auto !important; 
+      overflow: visible !important; 
+      font-size: 12px !important;
+    }
+    .container { 
+      padding: 0 !important; 
+      max-width: none !important; 
+      page-break-after: avoid; 
+      break-after: avoid-page;
+      justify-content: flex-start !important;
+    }
+    .titulo-nav { 
+      margin: 0 0 6px 0 !important; 
+      text-align: center !important;
+    }
+    .titulo-nav h1 {
+      font-size: 16px !important;
+    }
+    .table-wrap { 
+      border: none !important; 
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      max-width: none !important;
+      width: 100 !important;
+    }
+    table { 
+      font-size: 10px !important; 
+      page-break-inside: auto !important;
+      min-width: auto !important;
+    }
+    tr, td, th { 
+      page-break-inside: avoid !important; 
+      break-inside: avoid !important;
+    }
+    thead th {
+      position: static !important;
+      background: #f8f8f8 !important;
+    }
+    tfoot td {
+      background: #f8f8f8 !important;
+    }
+    @page { 
+      size: A4 portrait; 
+      margin: 10mm; 
+    }
+  }
 </style>
 </head>
 <body>
@@ -190,7 +433,9 @@
 <header>
   <div class="menu-left">
     <div class="menu-dropdown">
-      <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')">☰</button>
+      <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')">
+        <img src="icones/menu-hamburger.png" alt="Menu">
+      </button>
 
       <div class="menu-dropdown-content" id="dropdown-menu" role="menu" aria-hidden="true">
         <div class="dropdown-section">
@@ -208,13 +453,19 @@
       </div>
     </div>
 
-    <button class="icon-btn" id="btn-close" title="Fechar" onclick="fecharPagina()">❌</button>
-    <button class="icon-btn" id="btn-home" title="Menu inicial" onclick="voltarMenu()">🏠</button>
+    <button class="icon-btn" id="btn-close" title="Fechar" onclick="fecharPagina()">
+      <img src="icones/fechar.png" alt="Fechar">
+    </button>
+    <button class="icon-btn" id="btn-home" title="Menu inicial" onclick="voltarMenu()">
+      <img src="icones/home.png" alt="Início">
+    </button>
   </div>
 
   <div class="menu-right">
     <div class="menu-dropdown">
-      <button class="icon-btn" id="btn-salvar" title="Salvar" onclick="toggleMenu('dropdown-save')">💾</button>
+      <button class="icon-btn" id="btn-salvar" title="Salvar" onclick="toggleMenu('dropdown-save')">
+        <img src="icones/salvar.png" alt="Salvar">
+      </button>
       <div class="menu-dropdown-content" id="dropdown-save" aria-labelledby="btn-salvar">
         <a href="#" onclick="salvarComoTXT(event)" title="Salvar como TXT">Salvar como TXT</a>
         <a href="#" onclick="salvarComoPDF(event)" title="Salvar como PDF">Salvar como PDF</a>
@@ -222,15 +473,18 @@
       </div>
     </div>
 
-    <button class="icon-btn" id="btn-print" title="Imprimir">🖨️</button>
-    <button class="icon-btn" id="btn-copy" title="Copiar" onclick="copiarTabela()">📋</button>
+    <button class="icon-btn" id="btn-print" title="Imprimir">
+      <img src="icones/imprimir.png" alt="Imprimir">
+    </button>
+    <button class="icon-btn" id="btn-copy" title="Copiar" onclick="copiarTabela()">
+      <img src="icones/copiar.png" alt="Copiar">
+    </button>
+    <!-- Botão de repetir removido conforme solicitado -->
   </div>
 </header>
 
 <div class="titulo-nav" role="navigation" aria-label="Navegação MAC">
-  <span style="width:28px;display:inline-block"></span>
   <h1 id="titulo-principal">MAC Bairro São Geraldo - Cód. 77</h1>
-  <a href="#" class="arrow" id="arrow-right" title="Próximo MAC" onclick="navegarProximo()">→</a>
 </div>
 
 <div class="container">
@@ -257,110 +511,187 @@
   </div>
 
   <div id="middle-controls" aria-hidden="false">
+    <!-- Primeiros botões: Remover Linhas Vazias, Resetar Tudo, Salvar em Excel -->
     <button id="btn-hide" class="btn-amarelo" onclick="toggleVazias()">Remover Linhas Vazias</button>
     <button id="btn-reset" class="btn-vermelho" onclick="resetarTudo()">Resetar Tudo</button>
     <button id="btn-export" class="btn-azul" onclick="salvarComoExcel()">Salvar em Excel</button>
+    
+    <!-- Divisória -->
+    <div class="divisoria"></div>
+    
+    <!-- Segundo grupo: Seletor de preço, Altura da linha, Seções, Limpar Filtros -->
+    <!-- BOTÃO DE PREÇO ATUALIZADO - AGORA VERDE -->
+    <button class="seletor-preco" onclick="alternarTipoPreco()" id="btn-tipo-preco">Preço: Atacado</button>
+    
+    <button class="btn-roxo" onclick="alternarAlturaLinha()" id="btn-altura">Altura: Padrão</button>
+    
+    <!-- Botão de seções com dropdown - NOVA COR E INDICADOR DE FILTRO -->
+    <div style="position: relative;">
+      <button class="btn-secoes" id="btn-secoes" onclick="toggleSecoesDropdown()">
+        <span>Seções</span>
+      </button>
+      <div class="secoes-dropdown" id="secoes-dropdown">
+        <div class="filtros-container">
+          <div class="filtro-secao" data-secao="paes-de-sal" onclick="toggleSecao('paes-de-sal')">
+            <input type="checkbox" class="filtro-checkbox">
+            <span class="filtro-label">Pães de Sal</span>
+          </div>
+          <div class="filtro-secao" data-secao="paes-de-doce" onclick="toggleSecao('paes-de-doce')">
+            <input type="checkbox" class="filtro-checkbox">
+            <span class="filtro-label">Pães de Doce</span>
+          </div>
+          <div class="filtro-secao" data-secao="paes-de-queijo" onclick="toggleSecao('paes-de-queijo')">
+            <input type="checkbox" class="filtro-checkbox">
+            <span class="filtro-label">Pães de Queijo</span>
+          </div>
+          <div class="filtro-secao" data-secao="quitandas" onclick="toggleSecao('quitandas')">
+            <input type="checkbox" class="filtro-checkbox">
+            <span class="filtro-label">Quitandas</span>
+          </div>
+          <div class="filtro-secao" data-secao="paes-especiais" onclick="toggleSecao('paes-especiais')">
+            <input type="checkbox" class="filtro-checkbox">
+            <span class="filtro-label">Pães Especiais</span>
+          </div>
+          <div class="filtro-secao" data-secao="bolos" onclick="toggleSecao('bolos')">
+            <input type="checkbox" class="filtro-checkbox">
+            <span class="filtro-label">Bolos</span>
+          </div>
+          <div class="filtro-secao" data-secao="salgados-pequenos" onclick="toggleSecao('salgados-pequenos')">
+            <input type="checkbox" class="filtro-checkbox">
+            <span class="filtro-label">Salgados Pequenos</span>
+          </div>
+          <div class="filtro-secao" data-secao="salgados-grandes" onclick="toggleSecao('salgados-grandes')">
+            <input type="checkbox" class="filtro-checkbox">
+            <span class="filtro-label">Salgados Grandes</span>
+          </div>
+          <div class="filtro-secao" data-secao="complementos" onclick="toggleSecao('complementos')">
+            <input type="checkbox" class="filtro-checkbox">
+            <span class="filtro-label">Complementos</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <button class="btn-azul" onclick="limparFiltrosSecoes()">Limpar Filtros</button>
   </div>
 </div>
 
 <div id="contador-linhas">Linhas preenchidas: 0</div>
 
-<div class="mac-links" role="navigation" aria-label="Outros MACs">
-  <a href="#" onclick="abrirMac(event,'MAC Bairro Planalto - Cód. 78')">MAC 78 - Bairro Planalto</a>
-  <a href="#" onclick="abrirMac(event,'MAC Roumeu Duarte - Cód. 79')">MAC 79 - Romeu Duarte</a>
-  <a href="#" onclick="abrirMac(event,'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC 80 - Rua São Geraldo / Centro 2</a>
-  <a href="#" onclick="abrirMac(event,'MAC Matriz - Cód. 277')">MAC 277 - Matriz</a>
-  <a href="#" onclick="abrirMac(event,'MAC Concesso - Cód. 853')">MAC 853 - Concesso</a>
-  <a href="#" onclick="abrirMac(event,'MAC Jardim do Lago - Cód. 1249')">MAC 1249 - Jardim do Lago</a>
-  <a href="#" onclick="abrirMac(event,'MAC Araújos - Cód. 989')">MAC 989 - Araújos</a>
-</div>
+<!-- Espaço vazio no final da página -->
+<div class="espaco-final"></div>
 
 <div id="copy-notice">Copiado!</div>
 
+<!-- Campo flutuante para soma total - FONTE MELHORADA -->
+<div id="floating-total" class="hidden">
+  <div id="floating-total-content">
+    <div>Total: <span id="floating-grand-total">R$ 0,00</span></div>
+    <div>Linhas: <span id="floating-line-count">0</span></div>
+  </div>
+</div>
+
 <script>
 /* ==========================
-   Lista de produtos (sua lista completa)
+   Lista de produtos atualizada com três tipos de preço e seções
    ========================== */
 const produtos = [
-  {nome: 'Baguete 06h 7kg', preco: 50.68},
-  {nome: 'Baguete 12h 7kg', preco: 58.68},
-  {nome: 'Biscoitinho de doce 1 kg', preco: 17.84},
-  {nome: 'Biscoitinho de doce grande 1kg com 10 unidades', preco: 18.94},
-  {nome: 'Biscoito chipa 1kg', preco: 20.40},
-  {nome: 'Biscoito chipa 7kg', preco: 139.30},
-  {nome: 'Biscoito de queijo 1kg', preco: 20.62},
-  {nome: 'Biscoito de queijo 7kg', preco: 135.17},
-  {nome: 'Biscoito três queijos 1kg', preco: 20.95},
-  {nome: 'Biscoito três queijos 7kg', preco: 141.12},
-  {nome: 'Bolinha de carne pequeno 1kg', preco: 21.78},
-  {nome: 'Bolo cremoso de fubá 1 unidade', preco: 8.25},
-  {nome: 'Bolo cremoso de milho 1 unidade', preco: 8.92},
-  {nome: 'Broa de fubá grande com 10 unidades', preco: 13.70},
-  {nome: 'Broinha de fubá doce 1kg', preco: 16.92},
-  {nome: 'Broinha de fubá doce 7kg', preco: 111.44},
-  {nome: 'Broinha de sal e queijo 1kg', preco: 16.92},
-  {nome: 'Broinha de sal e queijo 7kg', preco: 111.44},
-  {nome: 'Broinha temperada com bacon 1kg', preco: 20.50},
-  {nome: 'Broinha temperada com bacon 7KG', preco: 136.50},
-  {nome: 'Canudinho de queijo 7kg', preco: 157.50},
-  {nome: 'Canudinho Romeu e Julieta 7kg', preco: 157.50},
-  {nome: 'Caracol 7kg', preco: 71.12},
-  {nome: 'Carioca 7kg', preco: 60.97},
-  {nome: 'Coco ralado fino seco', preco: 19.00}, 
-  {nome: 'Coxinha de frango grande 10 unidades', preco: 23.90},
-  {nome: 'Coxinha de frango pequeno 1kg', preco: 19.06},
-  {nome: 'Creme de confeiteiro preparado 1kg', preco: 9.62},
-  {nome: 'Croissant de frango 7kg', preco: 189.49},
-  {nome: 'Croissant de presunto 7kg', preco: 189.49},
-  {nome: 'Empada de frango grande 10 unidades', preco: 30.80},
-  {nome: 'Empadão de frango com catupiry 10 unidades', preco: 41.00},
-  {nome: 'Empadinha de frango pequeno 1kg', preco: 28.83},
-  {nome: 'Enroladinho de salsicha grande 10 unidades', preco: 23.00},
-  {nome: 'Enroladinho presunto mussarela grande 10 unidades', preco: 28.90},
-  {nome: 'Enroladinho presunto mussarela pequeno  1kg', preco: 19.06},
-  {nome: 'Inseticida de citronela', preco: 19.25},
-  {nome: 'Mandi 7kg', preco: 60.97},
-  {nome: 'Meia lua 1kg com 10 unidades', preco: 18.80},
-  {nome: 'Mini carioca 7kg', preco: 60.97},
-  {nome: 'Mini pão francês 06h 7kg', preco: 47.74},
-  {nome: 'Mini pão francês 12h 7kg', preco: 47.74},
-  {nome: 'Mini roscovado 1 unidade', preco: 2.84},
-  {nome: 'Mistura biscoito sequilho 4,5kg', preco: 69.21},
-  {nome: 'Mistura de bolo de chocolate 4kg', preco: 55.40},
-  {nome: 'Mistura de bolo de farinha 4kg', preco: 44.48},
-  {nome: 'Palitão de provolone 1kg com 10 unidades', preco: 18.80},
-  {nome: 'Panhoca 06h 7kg', preco: 50.68},
-  {nome: 'Panhoca 12h 7kg', preco: 50.68},
-  {nome: 'Pão de batata 7kg', preco: 71.05},
-  {nome: 'Pão de milho 7kg', preco: 71.05},
-  {nome: 'Pão de queijo com frango grande 1kg', preco: 32.30},
-  {nome: 'Pão de queijo com frango pequeno 1kg', preco: 23.65},
-  {nome: 'Pão de queijo com frango pequeno 7kg', preco: 157.85},
-  {nome: 'Pão de queijo tradicional grande 1kg', preco: 17.20},
-  {nome: 'Pão de queijo tradicional pequeno 1kg', preco: 16.92},
-  {nome: 'Pão de queijo tradicional pequeno 7kg', preco: 111.44},
-  {nome: 'Pão francês 04h 7kg', preco: 47.74},
-  {nome: 'Pão francês 06h 7kg', preco: 47.74},
-  {nome: 'Pão francês 12h 7kg', preco: 47.74},
-  {nome: 'Pão francês 18h 7kg', preco: 47.74},
-  {nome: 'Par de luvas', preco: 31.99},
-  {nome: 'Pastel assado de frango grande 10 unidades', preco: 29.90},
-  {nome: 'Pastel português de carne grande 10 unidades', preco: 27.00},
-  {nome: 'Pastelzinho catupiry pequeno 1kg', preco: 19.06},
-  {nome: 'Quibe com catupiry pequeno 1KG', preco: 21.75},
-  {nome: 'Quibe grande 10 unidades', preco: 31.60},
-  {nome: 'Rosca caseira 10 unidades', preco: 33.60},
-  {nome: 'Rosca creme e coco comprida 5 unidades', preco: 26.35},
-  {nome: 'Rosca creme e coco redonda 5 unidades', preco: 26.35},
-  {nome: 'Rosca frutas cristalizadas comprida 5 unidades', preco: 26.35},
-  {nome: 'Rosca frutas cristalizadas redonda 5 unidades', preco: 26.35},
-  {nome: 'Roscovado comum 1 unidade', preco: 4.94},
-  {nome: 'Sonho 3kg', preco: 32.07},
-  {nome: 'Tortinha de frango, abacaxi e passas 10 unidades', preco: 41.00},
-  {nome: 'Trança 3kg com 10 unidades', preco: 33.60},
-  {nome: 'Trancinha 3kg', preco: 29.67},
-  {nome: 'Trancinha redonda 3kg', preco: 29.67},
-  {nome: 'Unta forma carlo 5 litros', preco: 130.95}
+  // Pães de Sal
+  {nome: 'Baguete 06h 7kg', precoAtacado: 50.68, precoVarejo: 55.75, precoSt: 52.21, secao: 'paes-de-sal'},
+  {nome: 'Baguete 12h 7kg', precoAtacado: 58.68, precoVarejo: 64.55, precoSt: 60.44, secao: 'paes-de-sal'},
+  {nome: 'Mini pão francês 06h 7kg', precoAtacado: 47.74, precoVarejo: 52.51, precoSt: 49.17, secao: 'paes-de-sal'},
+  {nome: 'Mini pão francês 12h 7kg', precoAtacado: 47.74, precoVarejo: 52.51, precoSt: 49.17, secao: 'paes-de-sal'},
+  {nome: 'Panhoca 06h 7kg', precoAtacado: 50.68, precoVarejo: 55.75, precoSt: 52.21, secao: 'paes-de-sal'},
+  {nome: 'Panhoca 12h 7kg', precoAtacado: 50.68, precoVarejo: 55.75, precoSt: 52.21, secao: 'paes-de-sal'},
+  {nome: 'Pão francês 04h 7kg', precoAtacado: 47.74, precoVarejo: 52.51, precoSt: 49.17, secao: 'paes-de-sal'},
+  {nome: 'Pão francês 06h 7kg', precoAtacado: 47.74, precoVarejo: 52.51, precoSt: 49.17, secao: 'paes-de-sal'},
+  {nome: 'Pão francês 12h 7kg', precoAtacado: 47.74, precoVarejo: 52.51, precoSt: 49.17, secao: 'paes-de-sal'},
+  {nome: 'Pão francês 18h 7kg', precoAtacado: 47.74, precoVarejo: 52.51, precoSt: 49.17, secao: 'paes-de-sal'},
+
+  // Pães de Doce
+  {nome: 'Caracol 7kg', precoAtacado: 71.12, precoVarejo: 78.23, precoSt: 73.25, secao: 'paes-de-doce'},
+  {nome: 'Carioca 7kg', precoAtacado: 60.97, precoVarejo: 67.07, precoSt: 62.80, secao: 'paes-de-doce'},
+  {nome: 'Mandi 7kg', precoAtacado: 60.97, precoVarejo: 67.07, precoSt: 62.80, secao: 'paes-de-doce'},
+  {nome: 'Mini carioca 7kg', precoAtacado: 60.97, precoVarejo: 67.07, precoSt: 62.80, secao: 'paes-de-doce'},
+  {nome: 'Mini roscovado 1 unidade', precoAtacado: 2.84, precoVarejo: 3.12, precoSt: 2.93, secao: 'paes-de-doce'},
+  {nome: 'Roscovado comum 1 unidade', precoAtacado: 4.94, precoVarejo: 5.43, precoSt: 5.09, secao: 'paes-de-doce'},
+  {nome: 'Trança 3kg com 10 unidades', precoAtacado: 33.60, precoVarejo: 36.96, precoSt: 34.61, secao: 'paes-de-doce'},
+  {nome: 'Trancinha 3kg', precoAtacado: 29.67, precoVarejo: 32.64, precoSt: 30.56, secao: 'paes-de-doce'},
+  {nome: 'Trancinha redonda 3kg', precoAtacado: 29.67, precoVarejo: 32.64, precoSt: 30.56, secao: 'paes-de-doce'},
+
+  // Pães de Queijo
+  {nome: 'Meia lua 1kg com 10 unidades', precoAtacado: 18.80, precoVarejo: 20.68, precoSt: 19.36, secao: 'paes-de-queijo'},
+  {nome: 'Palitão de provolone 1kg com 10 unidades', precoAtacado: 18.80, precoVarejo: 20.68, precoSt: 19.36, secao: 'paes-de-queijo'},
+  {nome: 'Pão de queijo com frango grande 1kg', precoAtacado: 32.30, precoVarejo: 35.53, precoSt: 33.27, secao: 'paes-de-queijo'},
+  {nome: 'Pão de queijo com frango pequeno 1kg', precoAtacado: 23.65, precoVarejo: 26.02, precoSt: 24.36, secao: 'paes-de-queijo'},
+  {nome: 'Pão de queijo com frango pequeno 7kg', precoAtacado: 157.85, precoVarejo: 173.64, precoSt: 162.59, secao: 'paes-de-queijo'},
+  {nome: 'Pão de queijo tradicional grande 1kg', precoAtacado: 17.20, precoVarejo: 18.92, precoSt: 17.72, secao: 'paes-de-queijo'},
+  {nome: 'Pão de queijo tradicional pequeno 1kg', precoAtacado: 16.92, precoVarejo: 18.61, precoSt: 17.43, secao: 'paes-de-queijo'},
+  {nome: 'Pão de queijo tradicional pequeno 7kg', precoAtacado: 111.44, precoVarejo: 122.58, precoSt: 114.78, secao: 'paes-de-queijo'},
+
+  // Quitandas
+  {nome: 'Biscoitinho de doce 1 kg', precoAtacado: 17.84, precoVarejo: 19.62, precoSt: 18.37, secao: 'quitandas'},
+  {nome: 'Biscoitinho de doce grande 1kg com 10 unidades', precoAtacado: 18.94, precoVarejo: 20.83, precoSt: '*', secao: 'quitandas'},
+  {nome: 'Biscoito chipa 1kg', precoAtacado: 20.40, precoVarejo: 22.44, precoSt: 21.01, secao: 'quitandas'},
+  {nome: 'Biscoito chipa 7kg', precoAtacado: 139.30, precoVarejo: 153.23, precoSt: 143.48, secao: 'quitandas'},
+  {nome: 'Biscoito de queijo 1kg', precoAtacado: 20.62, precoVarejo: 22.68, precoSt: 21.24, secao: 'quitandas'},
+  {nome: 'Biscoito de queijo 7kg', precoAtacado: 135.17, precoVarejo: 148.69, precoSt: 139.22, secao: 'quitandas'},
+  {nome: 'Biscoito três queijos 1kg', precoAtacado: 20.95, precoVarejo: 23.05, precoSt: 21.58, secao: 'quitandas'},
+  {nome: 'Biscoito três queijos 7kg', precoAtacado: 141.12, precoVarejo: 155.23, precoSt: 145.35, secao: 'quitandas'},
+  {nome: 'Broa de fubá grande com 10 unidades', precoAtacado: 13.70, precoVarejo: 15.07, precoSt: 14.11, secao: 'quitandas'},
+  {nome: 'Broinha de fubá doce 1kg', precoAtacado: 16.92, precoVarejo: 18.61, precoSt: 17.43, secao: 'quitandas'},
+  {nome: 'Broinha de fubá doce 7kg', precoAtacado: 111.44, precoVarejo: 122.58, precoSt: 114.78, secao: 'quitandas'},
+  {nome: 'Broinha de sal e queijo 1kg', precoAtacado: 16.92, precoVarejo: 18.61, precoSt: 17.43, secao: 'quitandas'},
+  {nome: 'Broinha de sal e queijo 7kg', precoAtacado: 111.44, precoVarejo: 122.58, precoSt: 114.78, secao: 'quitandas'},
+  {nome: 'Broinha temperada com bacon 1kg', precoAtacado: 20.50, precoVarejo: 22.55, precoSt: 21.12, secao: 'quitandas'},
+  {nome: 'Broinha temperada com bacon 7KG', precoAtacado: 136.50, precoVarejo: 150.15, precoSt: 140.60, secao: 'quitandas'},
+  {nome: 'Mistura biscoito sequilho 4,5kg', precoAtacado: 69.21, precoVarejo: 76.13, precoSt: 71.29, secao: 'quitandas'},
+
+  // Pães Especiais
+  {nome: 'Canudinho de queijo 7kg', precoAtacado: 157.50, precoVarejo: 173.25, precoSt: 162.23, secao: 'paes-especiais'},
+  {nome: 'Canudinho Romeu e Julieta 7kg', precoAtacado: 157.50, precoVarejo: 173.25, precoSt: 162.23, secao: 'paes-especiais'},
+  {nome: 'Croissant de frango 7kg', precoAtacado: 189.49, precoVarejo: 208.44, precoSt: 195.17, secao: 'paes-especiais'},
+  {nome: 'Croissant de presunto 7kg', precoAtacado: 189.49, precoVarejo: 208.44, precoSt: 195.17, secao: 'paes-especiais'},
+  {nome: 'Pão de batata 7kg', precoAtacado: 71.05, precoVarejo: 78.16, precoSt: 73.18, secao: 'paes-especiais'},
+  {nome: 'Pão de milho 7kg', precoAtacado: 71.05, precoVarejo: 78.16, precoSt: 73.18, secao: 'paes-especiais'},
+  {nome: 'Rosca caseira 10 unidades', precoAtacado: 33.60, precoVarejo: 36.96, precoSt: 34.61, secao: 'paes-especiais'},
+  {nome: 'Rosca creme e coco comprida 5 unidades', precoAtacado: 26.35, precoVarejo: 28.99, precoSt: 27.14, secao: 'paes-especiais'},
+  {nome: 'Rosca creme e coco redonda 5 unidades', precoAtacado: 26.35, precoVarejo: 28.99, precoSt: 27.14, secao: 'paes-especiais'},
+  {nome: 'Rosca frutas cristalizadas comprida 5 unidades', precoAtacado: 26.35, precoVarejo: 28.99, precoSt: 27.14, secao: 'paes-especiais'},
+  {nome: 'Rosca frutas cristalizadas redonda 5 unidades', precoAtacado: 26.35, precoVarejo: 28.99, precoSt: 27.14, secao: 'paes-especiais'},
+  {nome: 'Sonho 3kg', precoAtacado: 32.07, precoVarejo: 35.28, precoSt: 33.03, secao: 'paes-especiais'},
+
+  // Bolos
+  {nome: 'Bolo cremoso de fubá 1 unidade', precoAtacado: 8.25, precoVarejo: 9.08, precoSt: 8.50, secao: 'bolos'},
+  {nome: 'Bolo cremoso de milho 1 unidade', precoAtacado: 8.92, precoVarejo: 9.81, precoSt: 9.19, secao: 'bolos'},
+  {nome: 'Mistura de bolo de chocolate 4kg', precoAtacado: 55.40, precoVarejo: 60.94, precoSt: 57.06, secao: 'bolos'},
+  {nome: 'Mistura de bolo de farinha 4kg', precoAtacado: 44.48, precoVarejo: 48.93, precoSt: 45.81, secao: 'bolos'},
+
+  // Salgados Pequenos
+  {nome: 'Bolinha de carne pequeno 1kg', precoAtacado: 21.78, precoVarejo: 23.96, precoSt: 22.43, secao: 'salgados-pequenos'},
+  {nome: 'Coxinha de frango pequeno 1kg', precoAtacado: 19.06, precoVarejo: 20.97, precoSt: 19.63, secao: 'salgados-pequenos'},
+  {nome: 'Empadinha de frango pequeno 1kg', precoAtacado: 28.83, precoVarejo: 31.71, precoSt: 29.70, secao: 'salgados-pequenos'},
+  {nome: 'Enroladinho presunto mussarela pequeno  1kg', precoAtacado: 19.06, precoVarejo: 20.97, precoSt: 19.63, secao: 'salgados-pequenos'},
+  {nome: 'Pastelzinho catupiry pequeno 1kg', precoAtacado: 19.06, precoVarejo: 20.97, precoSt: 19.63, secao: 'salgados-pequenos'},
+  {nome: 'Quibe com catupiry pequeno 1KG', precoAtacado: 21.75, precoVarejo: 23.93, precoSt: 22.40, secao: 'salgados-pequenos'},
+
+  // Salgados Grandes
+  {nome: 'Coxinha de frango grande 10 unidades', precoAtacado: 23.90, precoVarejo: 26.29, precoSt: 24.62, secao: 'salgados-grandes'},
+  {nome: 'Empada de frango grande 10 unidades', precoAtacado: 30.80, precoVarejo: 33.88, precoSt: 31.72, secao: 'salgados-grandes'},
+  {nome: 'Empadão de frango com catupiry 10 unidades', precoAtacado: 41.00, precoVarejo: 45.10, precoSt: 42.23, secao: 'salgados-grandes'},
+  {nome: 'Enroladinho presunto mussarela grande 10 unidades', precoAtacado: 28.90, precoVarejo: 31.79, precoSt: 29.77, secao: 'salgados-grandes'},
+  {nome: 'Enroladinho de salsicha grande 10 unidades', precoAtacado: 23.00, precoVarejo: 25.30, precoSt: 23.69, secao: 'salgados-grandes'},
+  {nome: 'Pastel assado de frango grande 10 unidades', precoAtacado: 29.90, precoVarejo: 32.89, precoSt: 30.80, secao: 'salgados-grandes'},
+  {nome: 'Pastel português de carne grande 10 unidades', precoAtacado: 27.00, precoVarejo: 29.70, precoSt: 27.81, secao: 'salgados-grandes'},
+  {nome: 'Quibe grande 10 unidades', precoAtacado: 31.60, precoVarejo: 34.76, precoSt: 32.55, secao: 'salgados-grandes'},
+  {nome: 'Tortinha de frango, abacaxi e passas 10 unidades', precoAtacado: 41.00, precoVarejo: 45.10, precoSt: 42.23, secao: 'salgados-grandes'},
+
+  // Complementos
+  {nome: 'Coco ralado fino seco', precoAtacado: 19.00, precoVarejo: 20.90, precoSt: '*', secao: 'complementos'},
+  {nome: 'Creme de confeiteiro preparado 1kg', precoAtacado: 9.62, precoVarejo: 10.58, precoSt: 9.91, secao: 'complementos'},
+  {nome: 'Inseticida de citronela', precoAtacado: 19.25, precoVarejo: 21.18, precoSt: '*', secao: 'complementos'},
+  {nome: 'Unta forma carlo 5 litros', precoAtacado: 130.95, precoVarejo: 144.05, precoSt: '*', secao: 'complementos'},
+  {nome: 'Par de luvas', precoAtacado: 31.99, precoVarejo: 35.19, precoSt: '*', secao: 'complementos'}
 ];
 
 /* ===== utilidades ===== */
@@ -370,20 +701,90 @@ const grandTotalEl = document.getElementById('grandTotal');
 const contadorEl = document.getElementById('contador-linhas');
 let hideEmpty = false;
 let hiddenRows = [];
+let tipoPrecoAtual = 'atacado'; // Valor padrão
+let secoesAtivas = new Set(); // Para armazenar as seções ativas
+let modoAlturaLinha = 'padrao'; // 'padrao', 'compacta', 'minima'
+
+// FUNÇÃO ALTERADA: Agora alterna entre os tipos de preço ciclicamente
+function alternarTipoPreco() {
+  const tipos = ['atacado', 'varejo', 'st'];
+  const currentIndex = tipos.indexOf(tipoPrecoAtual);
+  tipoPrecoAtual = tipos[(currentIndex + 1) % tipos.length];
+  
+  // Atualiza o texto do botão
+  const btn = document.getElementById('btn-tipo-preco');
+  btn.textContent = `Preço: ${tipoPrecoAtual.charAt(0).toUpperCase() + tipoPrecoAtual.slice(1)}`;
+  
+  // Atualiza os preços na tabela
+  atualizarTodosPrecos();
+}
+
+// FUNÇÃO NOVA: Atualizar indicador de filtro nas seções
+function atualizarIndicadorFiltro() {
+  const btnSecoes = document.getElementById('btn-secoes');
+  if (secoesAtivas.size > 0) {
+    btnSecoes.classList.add('com-filtro');
+    btnSecoes.innerHTML = `<span>Seções (${secoesAtivas.size})</span>`;
+  } else {
+    btnSecoes.classList.remove('com-filtro');
+    btnSecoes.innerHTML = `<span>Seções</span>`;
+  }
+}
 
 function renderTable(){
   const frag = document.createDocumentFragment();
-  produtos.forEach((p, i) => {
+  
+  // Filtrar produtos pelas seções ativas
+  let produtosParaRenderizar = produtos;
+  if (secoesAtivas.size > 0) {
+    produtosParaRenderizar = produtos.filter(p => secoesAtivas.has(p.secao));
+  }
+  
+  produtosParaRenderizar.forEach((p, i) => {
     const tr = document.createElement('tr');
+    
+    // Aplicar classe de altura conforme o modo atual
+    if (modoAlturaLinha === 'compacta') {
+      tr.className = 'linha-compacta';
+    } else if (modoAlturaLinha === 'minima') {
+      tr.className = 'linha-minima';
+    } else {
+      tr.className = 'linha-padrao';
+    }
+    
     // nome
     const tdNome = document.createElement('td'); tdNome.className='col-prod'; tdNome.textContent = p.nome;
-    // preco
-    const tdPreco = document.createElement('td'); tdPreco.className='col-preco'; tdPreco.textContent = BRL.format(p.preco); tdPreco.dataset.preco = String(p.preco);
-    // quantidade
+    // preco - agora depende do tipo selecionado
+    const tdPreco = document.createElement('td'); tdPreco.className='col-preco'; 
+    tdPreco.textContent = BRL.format(p.precoAtacado); 
+    tdPreco.dataset.precoAtacado = String(p.precoAtacado);
+    tdPreco.dataset.precoVarejo = String(p.precoVarejo);
+    tdPreco.dataset.precoSt = String(p.precoSt);
+    // quantidade - SEM PLACEHOLDER
     const tdQtd = document.createElement('td'); tdQtd.className='col-qtd';
-    const input = document.createElement('input'); input.type='number'; input.className='qty'; input.min='0'; input.step='1'; input.placeholder='0';
+    const input = document.createElement('input'); input.type='number'; input.className='qty'; input.min='0'; input.step='1';
     input.addEventListener('input', () => { updateRow(tr); if(hideEmpty) applyHide(); });
     input.addEventListener('focus', ()=>input.select());
+    
+    // Adicionar evento para navegação com Enter
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const nextRow = tr.nextElementSibling;
+        if (nextRow) {
+          const nextInput = nextRow.querySelector('input.qty');
+          if (nextInput) nextInput.focus();
+        } else {
+          // Vai para a primeira linha
+          const firstRow = tbody.querySelector('tr:first-child');
+          if (firstRow) {
+            const firstInput = firstRow.querySelector('input.qty');
+            if (firstInput) firstInput.focus();
+          }
+        }
+      }
+    });
+    
     tdQtd.appendChild(input);
     // total
     const tdTotal = document.createElement('td'); tdTotal.className='col-total row-total'; tdTotal.textContent = BRL.format(0);
@@ -391,7 +792,56 @@ function renderTable(){
     tr.appendChild(tdNome); tr.appendChild(tdPreco); tr.appendChild(tdQtd); tr.appendChild(tdTotal);
     frag.appendChild(tr);
   });
+  tbody.innerHTML = ''; // Limpar antes de adicionar
   tbody.appendChild(frag);
+  updateGrand();
+}
+
+function alternarAlturaLinha() {
+  const btn = document.getElementById('btn-altura');
+  
+  if (modoAlturaLinha === 'padrao') {
+    modoAlturaLinha = 'compacta';
+    btn.textContent = 'Altura: Compacta';
+  } else if (modoAlturaLinha === 'compacta') {
+    modoAlturaLinha = 'minima';
+    btn.textContent = 'Altura: Mínima';
+  } else {
+    modoAlturaLinha = 'padrao';
+    btn.textContent = 'Altura: Padrão';
+  }
+  
+  // Reaplicar as classes de altura a todas as linhas
+  const linhas = tbody.querySelectorAll('tr');
+  linhas.forEach(linha => {
+    if (modoAlturaLinha === 'compacta') {
+      linha.className = 'linha-compacta';
+    } else if (modoAlturaLinha === 'minima') {
+      linha.className = 'linha-minima';
+    } else {
+      linha.className = 'linha-padrao';
+    }
+  });
+}
+
+function atualizarTodosPrecos() {
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const tdPreco = tr.querySelector('td.col-preco');
+    const preco = tdPreco.dataset[`preco${tipoPrecoAtual.charAt(0).toUpperCase() + tipoPrecoAtual.slice(1)}`];
+    
+    // Se for ST e o preço for *, exibir asterisco
+    if (tipoPrecoAtual === 'st' && preco === '*') {
+      tdPreco.textContent = '*';
+    } else {
+      tdPreco.textContent = BRL.format(parseFloat(preco));
+    }
+    
+    // Atualizar o total da linha se houver quantidade
+    const inputQtd = tr.querySelector('input.qty');
+    if (inputQtd.value && inputQtd.value !== '0') {
+      updateRow(tr);
+    }
+  });
   updateGrand();
 }
 
@@ -404,30 +854,55 @@ function parseQty(val){
 }
 
 function updateRow(tr){
-  const preco = parseFloat(tr.querySelector('td.col-preco').dataset.preco);
-  const qtd = parseQty(tr.querySelector('input.qty').value);
-  const total = preco * qtd;
+  const tdPreco = tr.querySelector('td.col-preco');
+  const precoStr = tdPreco.dataset[`preco${tipoPrecoAtual.charAt(0).toUpperCase() + tipoPrecoAtual.slice(1)}`];
+  
+  let total = 0;
+  
+  // Se for ST e o preço for *, não calcular total
+  if (!(tipoPrecoAtual === 'st' && precoStr === '*')) {
+    const preco = parseFloat(precoStr);
+    const qtd = parseQty(tr.querySelector('input.qty').value);
+    total = preco * qtd;
+  }
+  
   tr.querySelector('td.row-total').textContent = BRL.format(total);
   updateGrand();
 }
 
 function updateGrand(){
-  let sum = 0; let filled = 0;
+  let sum = 0; 
+  let filled = 0;
+  
   tbody.querySelectorAll('tr').forEach(tr => {
-    const preco = parseFloat(tr.querySelector('td.col-preco').dataset.preco);
+    const tdPreco = tr.querySelector('td.col-preco');
+    const precoStr = tdPreco.dataset[`preco${tipoPrecoAtual.charAt(0).toUpperCase() + tipoPrecoAtual.slice(1)}`];
     const qtd = parseQty(tr.querySelector('input.qty').value);
-    sum += preco * qtd;
+    
+    // Se for ST e o preço for *, não somar
+    if (!(tipoPrecoAtual === 'st' && precoStr === '*')) {
+      const preco = parseFloat(precoStr);
+      sum += preco * qtd;
+    }
+    
     if(qtd > 0) filled++;
   });
+  
   grandTotalEl.textContent = BRL.format(sum);
   contadorEl.textContent = `Linhas preenchidas: ${filled}`;
+  
+  // Atualizar o campo flutuante
+  updateFloatingTotal(sum, filled);
 }
 
 function applyHide(){
   hiddenRows = [];
   tbody.querySelectorAll('tr').forEach(tr => {
     const qtd = parseQty(tr.querySelector('input.qty').value);
-    if(hideEmpty && qtd === 0){ tr.style.display = 'none'; hiddenRows.push(tr); }
+    if(hideEmpty && qtd === 0){ 
+      tr.style.display = 'none'; 
+      hiddenRows.push(tr); 
+    }
     else tr.style.display = '';
   });
   updateGrand();
@@ -445,21 +920,140 @@ function resetarTudo(){
     tr.style.display = '';
     tr.querySelector('td.row-total').textContent = BRL.format(0);
   });
-  hideEmpty = false; document.getElementById('btn-hide').textContent = 'Remover Linhas Vazias';
+  hideEmpty = false; 
+  document.getElementById('btn-hide').textContent = 'Remover Linhas Vazias';
   updateGrand();
 }
 
 /* =========================
+   Filtros por seções
+   ========================= */
+function toggleSecao(secao) {
+  if (secoesAtivas.has(secao)) {
+    secoesAtivas.delete(secao);
+  } else {
+    secoesAtivas.add(secao);
+  }
+  
+  // Atualizar estado visual dos checkboxes
+  const elemento = document.querySelector(`.filtro-secao[data-secao="${secao}"]`);
+  const checkbox = elemento.querySelector('.filtro-checkbox');
+  checkbox.checked = secoesAtivas.has(secao);
+  
+  // Atualizar estado visual dos itens
+  if (secoesAtivas.has(secao)) {
+    elemento.classList.add('ativo');
+  } else {
+    elemento.classList.remove('ativo');
+  }
+  
+  // Atualizar indicador de filtro
+  atualizarIndicadorFiltro();
+  
+  // Re-renderizar a tabela com os filtros aplicados
+  renderTable();
+}
+
+function limparFiltrosSecoes() {
+  secoesAtivas.clear();
+  
+  // Atualizar estado visual dos checkboxes
+  const checkboxes = document.querySelectorAll('.filtro-checkbox');
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = false;
+  });
+  
+  // Atualizar estado visual dos itens
+  const elementos = document.querySelectorAll('.filtro-secao');
+  elementos.forEach(elemento => {
+    elemento.classList.remove('ativo');
+  });
+  
+  // Atualizar indicador de filtro
+  atualizarIndicadorFiltro();
+  
+  // Re-renderizar a tabela sem filtros
+  renderTable();
+}
+
+function toggleSecoesDropdown() {
+  const dropdown = document.getElementById('secoes-dropdown');
+  if (dropdown.style.display === 'block') {
+    dropdown.style.display = 'none';
+  } else {
+    dropdown.style.display = 'block';
+  }
+}
+
+// Fechar dropdown de seções ao clicar fora
+document.addEventListener('click', function(event) {
+  const dropdown = document.getElementById('secoes-dropdown');
+  const btnSecoes = document.querySelector('.btn-secoes');
+  
+  if (!btnSecoes.contains(event.target) && !dropdown.contains(event.target)) {
+    dropdown.style.display = 'none';
+  }
+});
+
+/* =========================
+   Campo flutuante para soma total
+   ========================= */
+function updateFloatingTotal(total, filled) {
+  const floatingTotal = document.getElementById('floating-total');
+  const floatingGrandTotal = document.getElementById('floating-grand-total');
+  const floatingLineCount = document.getElementById('floating-line-count');
+  
+  floatingGrandTotal.textContent = BRL.format(total);
+  floatingLineCount.textContent = filled;
+  
+  // Verificar se o rodapé está visível
+  const tfoot = document.querySelector('tfoot');
+  const tfootRect = tfoot.getBoundingClientRect();
+  const isTfootVisible = tfootRect.top < window.innerHeight && tfootRect.bottom >= 0;
+  
+  if (isTfootVisible) {
+    floatingTotal.classList.add('hidden');
+  } else {
+    floatingTotal.classList.remove('hidden');
+  }
+}
+
+// Verificar visibilidade do rodapé ao rolar
+window.addEventListener('scroll', function() {
+  updateGrand();
+});
+
+/* =========================
    Export / copiar / imprimir
    ========================= */
+
+// FUNÇÃO ATUALIZADA: Agora inclui o valor total ao copiar
 function copiarTabela(){
   const lines = [];
+  let total = 0;
+  
   tbody.querySelectorAll('tr').forEach(tr => {
     const nome = tr.querySelector('td.col-prod').textContent;
     const qtd = tr.querySelector('input.qty').value.trim();
-    if(qtd !== '') lines.push(`${nome}: ${qtd}`);
+    const valorTotal = tr.querySelector('td.row-total').textContent;
+    
+    if(qtd !== '') {
+      lines.push(`${nome}: ${qtd} - ${valorTotal}`);
+      
+      // Calcular o total para verificação
+      const valor = parseFloat(valorTotal.replace('R$', '').replace('.', '').replace(',', '.').trim()) || 0;
+      total += valor;
+    }
   });
-  if(lines.length === 0){ showBottomNotice('Nada para copiar', 1600); return; }
+  
+  if(lines.length === 0){ 
+    showBottomNotice('Nada para copiar', 1600); 
+    return; 
+  }
+  
+  // Adicionar linha com o total
+  lines.push(`TOTAL: ${grandTotalEl.textContent}`);
+  
   const texto = lines.join('\n');
   navigator.clipboard.writeText(texto).then(()=> showBottomNotice('Copiado!', 1400)).catch(()=>{ showBottomNotice('Falha ao copiar', 1600); });
 }
@@ -469,11 +1063,27 @@ function salvarComoTXT(e){ if(e) e.preventDefault();
   tbody.querySelectorAll('tr').forEach(tr => {
     const nome = tr.querySelector('td.col-prod').textContent;
     const qtd = tr.querySelector('input.qty').value.trim();
-    if(qtd !== '') lines.push(`${nome}: ${qtd}`);
+    const valorTotal = tr.querySelector('td.row-total').textContent;
+    
+    if(qtd !== '') lines.push(`${nome}: ${qtd} - ${valorTotal}`);
   });
-  if(lines.length === 0){ showBottomNotice('Nenhum item preenchido para salvar', 1600); return; }
+  
+  if(lines.length === 0){ 
+    showBottomNotice('Nenhum item preenchido para salvar', 1600); 
+    return; 
+  }
+  
+  // Adicionar linha com o total
+  lines.push(`TOTAL: ${grandTotalEl.textContent}`);
+  
   baixarArquivo(lines.join('\n'), 'pedido.txt', 'text/plain');
   showBottomNotice('Arquivo TXT salvo', 1400);
+}
+
+// FUNÇÃO ATUALIZADA: Impressão igual ao segundo código
+function imprimirDireto(){
+  // Apenas chamar a função de impressão do navegador
+  window.print();
 }
 
 function salvarComoPDF(e){ if(e) e.preventDefault();
@@ -481,37 +1091,73 @@ function salvarComoPDF(e){ if(e) e.preventDefault();
   tbody.querySelectorAll('tr').forEach(tr => {
     const nome = tr.querySelector('td.col-prod').textContent;
     const qtd = tr.querySelector('input.qty').value.trim();
-    if(qtd !== '') linhas.push({nome,qtd});
+    const valorTotal = tr.querySelector('td.row-total').textContent;
+    
+    if(qtd !== '') linhas.push({nome, qtd, valorTotal});
   });
-  if(linhas.length === 0){ showBottomNotice('Nenhum item preenchido para salvar em PDF', 1600); return; }
+  
+  if(linhas.length === 0){ 
+    showBottomNotice('Nenhum item preenchido para salvar em PDF', 1600); 
+    return; 
+  }
 
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-  doc.setFont('courier'); doc.setFontSize(11);
-  const margin = 40; let y = 40;
+  doc.setFont('courier'); 
+  doc.setFontSize(11);
+  
+  const margin = 40; 
+  let y = 40;
+  
+  // Título
   doc.text(document.getElementById('titulo-principal').textContent, margin, y);
   y += 18;
-  linhas.forEach(({nome,qtd})=>{
-    doc.text(nome, margin, y, { maxWidth: 420 });
-    doc.text(String(qtd), margin + 420, y);
+  
+  // Tipo de preço
+  doc.text(`Tipo de preço: ${tipoPrecoAtual.charAt(0).toUpperCase() + tipoPrecoAtual.slice(1)}`, margin, y);
+  y += 18;
+  
+  // Linhas dos produtos
+  linhas.forEach(({nome, qtd, valorTotal}) => {
+    // Verificar se precisa de nova página
+    if(y > doc.internal.pageSize.getHeight() - 60){ 
+      doc.addPage(); 
+      y = 40; 
+    }
+    
+    doc.text(nome, margin, y, { maxWidth: 300 });
+    doc.text(String(qtd), margin + 320, y);
+    doc.text(valorTotal, margin + 380, y);
     y += 14;
-    if(y > doc.internal.pageSize.getHeight() - 60){ doc.addPage(); y = 40; }
   });
-  y += 8; doc.text(`Linhas preenchidas: ${linhas.length}`, margin, y);
+  
+  // Total
+  y += 8; 
+  if(y > doc.internal.pageSize.getHeight() - 30){ 
+    doc.addPage(); 
+    y = 40; 
+  }
+  doc.text(`Total: ${grandTotalEl.textContent}`, margin, y);
+  y += 14;
+  doc.text(`Linhas preenchidas: ${linhas.length}`, margin, y);
 
-  // abrir em nova aba (evita popup blockers se chamado por clique)
+  // Abrir em nova aba
   try{
     const newWin = window.open('', '_blank');
-    if(!newWin){ doc.save('pedido.pdf'); showBottomNotice('PDF baixado',1400); return; }
+    if(!newWin){ 
+      doc.save('pedido.pdf'); 
+      showBottomNotice('PDF baixado',1400); 
+      return; 
+    }
     const pdfBlob = doc.output('blob');
     const url = URL.createObjectURL(pdfBlob);
     newWin.location.href = url;
     setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} }, 60000);
-  }catch(err){ console.error(err); doc.save('pedido.pdf'); showBottomNotice('PDF baixado',1400); }
-}
-
-function salvarComoExcel(e){ if(e) e.preventDefault();
-  salvarComoExcel(); // chama função principal abaixo
+  }catch(err){ 
+    console.error(err); 
+    doc.save('pedido.pdf'); 
+    showBottomNotice('PDF baixado',1400); 
+  }
 }
 
 function salvarComoExcel(){
@@ -519,17 +1165,50 @@ function salvarComoExcel(){
   let soma = 0;
   tbody.querySelectorAll('tr').forEach(tr => {
     const nome = tr.querySelector('td.col-prod').textContent;
-    const preco = parseFloat(tr.querySelector('td.col-preco').dataset.preco);
+    const tdPreco = tr.querySelector('td.col-preco');
+    const precoStr = tdPreco.dataset[`preco${tipoPrecoAtual.charAt(0).toUpperCase() + tipoPrecoAtual.slice(1)}`];
     const qtd = parseQty(tr.querySelector('input.qty').value);
-    const total = preco * qtd;
-    if(qtd > 0){ rows.push([nome, preco, qtd, total]); soma += total; }
+    
+    let preco = 0;
+    let total = 0;
+    
+    // Se for ST e o preço for *, usar 0
+    if (tipoPrecoAtual === 'st' && precoStr === '*') {
+      preco = 0;
+      total = 0;
+    } else {
+      preco = parseFloat(precoStr);
+      total = preco * qtd;
+    }
+    
+    if(qtd > 0){ 
+      rows.push([nome, preco, qtd, total]); 
+      soma += total; 
+    }
   });
+  
   if(rows.length === 1){ showBottomNotice('Nenhum item preenchido para exportar Excel', 1600); return; }
   rows.push(['','', 'TOTAL', soma]);
   const ws = XLSX.utils.aoa_to_sheet(rows);
+  
+  // Formatar colunas B e D como moeda
+  const range = XLSX.utils.decode_range(ws['!ref']);
+  for (let R = range.s.r + 1; R <= range.e.r; R++) {
+    // Coluna B (VALOR PCT)
+    if (ws[XLSX.utils.encode_cell({r: R, c: 1})]) {
+      ws[XLSX.utils.encode_cell({r: R, c: 1})].z = '"R$"#,##0.00';
+    }
+    // Coluna D (VALOR TOTAL)
+    if (ws[XLSX.utils.encode_cell({r: R, c: 3})]) {
+      ws[XLSX.utils.encode_cell({r: R, c: 3})].z = '"R$"#,##0.00';
+    }
+  }
+  
   ws['!cols'] = [{wch:50},{wch:12},{wch:12},{wch:14}];
-  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Pedido');
-  const now = new Date(); const pad = n=>String(n).padStart(2,'0');
+  const wb = XLSX.utils.book_new(); 
+  XLSX.utils.book_append_sheet(wb, ws, 'Pedido');
+  const now = new Date(); 
+  const pad = n=>String(n).padStart(2,'0');
   const fname = `pedido_${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}.xlsx`;
   XLSX.writeFile(wb, fname);
   showBottomNotice('Excel salvo', 1400);
@@ -540,12 +1219,6 @@ function baixarArquivo(conteudo, nomeArquivo, tipo){
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nomeArquivo; document.body.appendChild(a); a.click(); a.remove();
 }
 
-/* ==================== imprimir direto (reaproveita salvarComoPDF) ==================== */
-function imprimirDireto(){
-  // apenas chamar salvarComoPDF que já abre em nova aba
-  salvarComoPDF();
-}
-
 /* ==================== toasts ==================== */
 function showBottomNotice(message = 'Copiado!', duration = 2000){
   const el = document.getElementById('copy-notice');
@@ -553,7 +1226,7 @@ function showBottomNotice(message = 'Copiado!', duration = 2000){
   el.textContent = message; el.style.display = 'block'; el._hideTimeout = setTimeout(()=>{ el.style.display = 'none'; el._hideTimeout = null; }, duration);
 }
 
-/* ==================== dropdown helpers (mantive) ==================== */
+/* ==================== dropdown helpers ==================== */
 function toggleMenu(id){
   document.querySelectorAll('.menu-dropdown-content').forEach(el => { if(el.id !== id){ el.style.display = 'none'; el.style.opacity = 0; el.setAttribute('aria-hidden','true'); }});
   const el = document.getElementById(id); if(!el) return; if(el.style.display === 'block'){ el.style.opacity = 0; setTimeout(()=>{ el.style.display = 'none'; el.setAttribute('aria-hidden','true'); }, 180); } else { el.style.display = 'block'; el.style.opacity = 0; el.setAttribute('aria-hidden','false'); setTimeout(()=> el.style.opacity = 1, 10); }
@@ -570,7 +1243,11 @@ function abrirMac(e, nome){ if(e) e.preventDefault(); document.getElementById('t
 function abrirLocal(e, nome){ if(e) e.preventDefault(); toggleMenu('dropdown-menu'); }
 
 /* ====== inicialização ====== */
+// Inicializar a tabela
 renderTable();
+
+// Inicializar o indicador de filtro
+atualizarIndicadorFiltro();
 
 // print button listener — evita onclick inline
 const printBtn = document.getElementById('btn-print');
@@ -579,4 +1256,3 @@ if(printBtn){ printBtn.addEventListener('click', (ev)=>{ ev.preventDefault(); if
 </script>
 </body>
 </html>
-

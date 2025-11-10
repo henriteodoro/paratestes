@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Informações - MACs & Guias</title>
+    <meta name="description" content="Sistema organizado para acesso rápido a informações, tabelas e ferramentas">
+    <style>
+        /* Mantenho todo o CSS anterior e adiciono apenas as melhorias de hover */
+
+        /* Efeito de hover aprimorado para itens de categoria */
+        .category-item {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--borda);
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 6px;
+            margin: 2px 0;
+            padding: 10px 12px;
+        }
+
+        .category-item:hover {
+            background-color: #f0f7ff;
+            transform: translateX(3px);
+            border-left: 3px solid var(--azul);
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+        }
+
+        /* Efeito mais suave para os cards de categoria */
+        .category-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--borda);
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .category-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(11, 78, 167, 0.1);
+            border-color: var(--borda-ativa);
+        }
+
+        /* Resto do CSS permanece igual */
+        :root {
+            --azul: #007BFF;
+            --accent: #0b5ed7;
+            --fundo: #f7fbff;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --borda: #e6eefc;
+            --borda-ativa: #cfe0ff;
+            --ink: #0b3b6b;
+            --ink-strong: #0b4fa0;
+            --ok: #16a34a;
+            --warn: #f59e0b;
+            --glass: rgba(255, 255, 255, 0.92);
+            --shadow: 0 10px 30px rgba(11, 78, 167, .06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background-color: var(--fundo);
+            color: var(--ink);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--azul), var(--accent));
+            color: white;
+            padding: 25px 0;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon svg {
+            width: 30px;
+            height: 30px;
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        /* Search Section */
+        .search-section {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            border: 1px solid var(--borda);
+        }
+
+        .search-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border: 1px solid var(--borda);
+            border-radius: 12px;
+            font-size: 16px;
+            background: var(--fundo);
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--azul);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+        }
+
+        .clear-search {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .preferences {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .pref-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .pref-item input {
+            accent-color: var(--azul);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--borda);
+            background: white;
+            color: var(--ink);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--fundo);
+            border-color: var(--borda-ativa);
+        }
+
+        .btn-primary {
+            background: var(--azul);
+            color: white;
+            border-color: var(--azul);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Quick Access */
+        .quick-access {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: var(--ink-strong);
+        }
+
+        .section-title h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .section-title .icon {
+            width: 24px;
+            height: 24px;
+            color: var(--azul);
+        }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .quick-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--borda);
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .quick-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(11, 78, 167, 0.12);
+            border-color: var(--borda-ativa);
+        }
+
+        .quick-card .icon {
+            width: 40px;
+            height: 40px;
+            background: var(--fundo);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--azul);
+        }
+
+        .quick-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ink-strong);
+        }
+
+        .quick-card p {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        /* Categories */
+        .categories {
+            margin-bottom: 30px;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .category-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--fundo);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--azul);
+        }
+
+        .category-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--ink-strong);
+        }
+
+        .category-count {
+            font-size: 14px;
+            color: var(--muted);
+            margin-top: 5px;
+        }
+
+        .category-items {
+            list-style: none;
+        }
+
+        .category-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-content {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 0; /* Permite que o texto seja truncado se necessário */
+        }
+
+        .item-text {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .item-badge {
+            background: var(--fundo);
+            color: var(--muted);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+
+        .item-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 8px;
+        }
+
+        .expandable {
+            cursor: pointer;
+            color: var(--azul);
+        }
+
+        .expanded-items {
+            display: none;
+        }
+
+        .expanded-items.active {
+            display: block;
+        }
+
+        .toggle-expand {
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .toggle-expand.active {
+            transform: rotate(180deg);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--borda);
+            height: fit-content;
+            position: sticky;
+            top: 30px;
+        }
+
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--ink-strong);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-title .icon {
+            width: 20px;
+            height: 20px;
+            color: var(--azul);
+        }
+
+        .favorites-list, .recent-list {
+            list-style: none;
+        }
+
+        .fav-item, .recent-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--borda);
+            cursor: pointer;
+        }
+
+        .fav-item:last-child, .recent-item:last-child {
+            border-bottom: none;
+        }
+
+        .fav-icon, .recent-icon {
+            width: 16px;
+            height: 16px;
+            color: var(--azul);
+        }
+
+        .fav-name, .recent-name {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .fav-actions, .recent-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-icon {
+            width: 16px;
+            height: 16px;
+            color: var(--muted);
+            cursor: pointer;
+        }
+
+        .action-icon:hover {
+            color: var(--azul);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: var(--fundo);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--azul);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--card);
+            border-top: 1px solid var(--borda);
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-link {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .footer-link:hover {
+            color: var(--azul);
+        }
+
+        .copyright {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .search-container {
+                flex-direction: column;
+            }
+            
+            .action-buttons {
+                margin-left: 0;
+                justify-content: flex-end;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+
+        /* Utilities */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--azul);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--ink-strong);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--muted);
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        /* Estrela de favoritos */
+        .favorite-star {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            color: var(--muted);
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        
+        .favorite-star:hover {
+            color: var(--warn);
+        }
+        
+        .favorite-star.active {
+            color: var(--warn);
+            fill: var(--warn);
+        }
+        
+        .quick-card .favorite-star {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+
+        /* Botão para expandir recentes */
+        .expand-recents {
+            width: 100%;
+            margin-top: 10px;
+            padding: 8px;
+            background: var(--fundo);
+            border: 1px solid var(--borda);
+            border-radius: 8px;
+            color: var(--azul);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .expand-recents:hover {
+            background: var(--borda-ativa);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                    <h1>Sistema de Informações</h1>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="search-section">
+            <div class="search-container">
+                <div class="search-box">
+                    <div class="search-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </div>
+                    <input type="text" id="search-input" placeholder="Buscar informações, tabelas, ferramentas...">
+                    <button class="clear-search" id="clear-search">✕</button>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn" id="clear-favorites">Limpar Favoritos</button>
+                    <button class="btn" id="clear-recent">Limpar Recentes</button>
+                </div>
+            </div>
+            <div class="preferences">
+                <label class="pref-item">
+                    <input type="checkbox" id="new-tab">
+                    <span>Abrir em nova aba</span>
+                </label>
+                <label class="pref-item">
+                    <input type="checkbox" id="show-favorites">
+                    <span>Mostrar apenas favoritos</span>
+                </label>
+            </div>
+        </section>
+
+        <div class="main-content">
+            <main>
+                <section class="quick-access">
+                    <div class="section-title">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                        </svg>
+                        <h2>Acesso Rápido</h2>
+                    </div>
+                    <div class="quick-grid">
+                        <div class="quick-card" data-action="list" data-id="tool-1">
+                            <div class="icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                                    <circle cx="4" cy="6" r="1"></circle>
+                                    <circle cx="4" cy="12" r="1"></circle>
+                                    <circle cx="4" cy="18" r="1"></circle>
+                                </svg>
+                            </div>
+                            <h3>Lista Ordenada</h3>
+                            <p>Criar e gerenciar listas organizadas</p>
+                            <svg class="favorite-star" data-id="tool-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                            </svg>
+                        </div>
+                        <div class="quick-card" data-action="file" data-id="tool-2">
+                            <div class="icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                </svg>
+                            </div>
+                            <h3>Abrir Arquivo</h3>
+                            <p>Visualizar planilhas e documentos</p>
+                            <svg class="favorite-star" data-id="tool-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                            </svg>
+                        </div>
+                        <div class="quick-card" data-action="order" data-id="tool-3">
+                            <div class="icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M6 6h15l-1.5 9H7.5L6 6z"></path>
+                                    <circle cx="9" cy="20" r="1.5"></circle>
+                                    <circle cx="18" cy="20" r="1.5"></circle>
+                                    <path d="M6 6 5 3H2"></path>
+                                </svg>
+                            </div>
+                            <h3>Simular Pedido</h3>
+                            <p>Monte pré-pedidos rapidamente</p>
+                            <svg class="favorite-star" data-id="tool-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                            </svg>
+                        </div>
+                        <div class="quick-card" data-action="notes" data-id="tool-notes">
+                            <div class="icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                </svg>
+                            </div>
+                            <h3>Anotações</h3>
+                            <p>Gerencie suas anotações pessoais</p>
+                            <svg class="favorite-star" data-id="tool-notes" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="categories">
+                    <div class="section-title">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        <h2>Categorias</h2>
+                    </div>
+                    <div class="category-grid">
+                        <div class="category-card" data-category="macs">
+                            <div class="category-header">
+                                <div class="category-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                                        <line x1="9" y1="21" x2="9" y2="9"></line>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="category-title">MACS</div>
+                                    <div class="category-count">8 locais</div>
+                                </div>
+                            </div>
+                            <ul class="category-items">
+                                <li class="category-item" data-id="mac-77">
+                                    <div class="item-content">
+                                        <span class="item-text">MAC Bairro São Geraldo</span>
+                                        <span class="item-badge">77</span>
+                                    </div>
+                                    <div class="item-actions">
+                                        <svg class="favorite-star" data-id="mac-77" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                        </svg>
+                                    </div>
+                                </li>
+                                <li class="category-item" data-id="mac-78">
+                                    <div class="item-content">
+                                        <span class="item-text">MAC Bairro Planalto</span>
+                                        <span class="item-badge">78</span>
+                                    </div>
+                                    <div class="item-actions">
+                                        <svg class="favorite-star" data-id="mac-78" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                        </svg>
+                                    </div>
+                                </li>
+                                <li class="category-item" data-id="mac-79">
+                                    <div class="item-content">
+                                        <span class="item-text">MAC Romeu Duarte</span>
+                                        <span class="item-badge">79</span>
+                                    </div>
+                                    <div class="item-actions">
+                                        <svg class="favorite-star" data-id="mac-79" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                        </svg>
+                                    </div>
+                                </li>
+                                <div class="expanded-items" id="macs-expanded">
+                                    <li class="category-item" data-id="mac-80">
+                                        <div class="item-content">
+                                            <span class="item-text">MAC Rua São Geraldo / Centro 2</span>
+                                            <span class="item-badge">80</span>
+                                        </div>
+                                        <div class="item-actions">
+                                            <svg class="favorite-star" data-id="mac-80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                            </svg>
+                                        </div>
+                                    </li>
+                                    <li class="category-item" data-id="mac-277">
+                                        <div class="item-content">
+                                            <span class="item-text">MAC Matriz</span>
+                                            <span class="item-badge">277</span>
+                                        </div>
+                                        <div class="item-actions">
+                                            <svg class="favorite-star" data-id="mac-277" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                            </svg>
+                                        </div>
+                                    </li>
+                                    <li class="category-item" data-id="mac-853">
+                                        <div class="item-content">
+                                            <span class="item-text">MAC Concesso</span>
+                                            <span class="item-badge">853</span>
+                                        </div>
+                                        <div class="item-actions">
+                                            <svg class="favorite-star" data-id="mac-853" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                            </svg>
+                                        </div>
+                                    </li>
+                                    <li class="category-item" data-id="mac-1249">
+                                        <div class="item-content">
+                                            <span class="item-text">MAC Jardim do Lago</span>
+                                            <span class="item-badge">1249</span>
+                                        </div>
+                                        <div class="item-actions">
+                                            <svg class="favorite-star" data-id="mac-1249" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                            </svg>
+                                        </div>
+                                    </li>
+                                    <li class="category-item" data-id="mac-989">
+                                        <div class="item-content">
+                                            <span class="item-text">MAC Araújos</span>
+                                            <span class="item-badge">989</span>
+                                        </div>
+                                        <div class="item-actions">
+                                            <svg class="favorite-star" data-id="mac-989" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                            </svg>
+                                        </div>
+                                    </li>
+                                </div>
+                                <li class="category-item expandable" id="expand-macs">Ver todos...</li>
+                            </ul>
+                        </div>
+                        <div class="category-card" data-category="sao-jose">
+                            <div class="category-header">
+                                <div class="category-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                        <path d="M2 17l10 5 10-5"></path>
+                                        <path d="M2 12l10 5 10-5"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="category-title">São José</div>
+                                    <div class="category-count">2 pedidos</div>
+                                </div>
+                            </div>
+                            <ul class="category-items">
+                                <li class="category-item" data-id="sao-jose-1">
+                                    <div class="item-content">
+                                        <span class="item-text">Pedido São José</span>
+                                    </div>
+                                    <div class="item-actions">
+                                        <svg class="favorite-star" data-id="sao-jose-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                        </svg>
+                                    </div>
+                                </li>
+                                <li class="category-item" data-id="sao-jose-2">
+                                    <div class="item-content">
+                                        <span class="item-text">Pedido Pão Total</span>
+                                    </div>
+                                    <div class="item-actions">
+                                        <svg class="favorite-star" data-id="sao-jose-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                        </svg>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="category-card" data-category="tabelas">
+                            <div class="category-header">
+                                <div class="category-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                                        <polyline points="10 9 9 9 8 9"></polyline>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="category-title">Tabelas</div>
+                                    <div class="category-count">3 documentos</div>
+                                </div>
+                            </div>
+                            <ul class="category-items">
+                                <li class="category-item" data-id="table-1">
+                                    <div class="item-content">
+                                        <span class="item-text">Tabela de Preços Geral</span>
+                                    </div>
+                                    <div class="item-actions">
+                                        <svg class="favorite-star" data-id="table-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                        </svg>
+                                    </div>
+                                </li>
+                                <li class="category-item" data-id="table-2">
+                                    <div class="item-content">
+                                        <span class="item-text">Tabela de Preços Empresa</span>
+                                    </div>
+                                    <div class="item-actions">
+                                        <svg class="favorite-star" data-id="table-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                        </svg>
+                                    </div>
+                                </li>
+                                <li class="category-item" data-id="table-3">
+                                    <div class="item-content">
+                                        <span class="item-text">Catálogo de Produtos</span>
+                                    </div>
+                                    <div class="item-actions">
+                                        <svg class="favorite-star" data-id="table-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                        </svg>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="category-card" data-category="ferramentas">
+                            <div class="category-header">
+                                <div class="category-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="category-title">Ferramentas</div>
+                                    <div class="category-count">3 utilitários</div>
+                                </div>
+                            </div>
+                            <ul class="category-items">
+                                <li class="category-item" data-id="tool-1">
+                                    <div class="item-content">
+                                        <span class="item-text">Lista Ordenada</span>
+                                    </div>
+                                    <div class="item-actions">
+                                        <svg class="favorite-star" data-id="tool-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                        </svg>
+                                    </div>
+                                </li>
+                                <li class="category-item" data-id="tool-2">
+                                    <div class="item-content">
+                                        <span class="item-text">Abrir Arquivo</span>
+                                    </div>
+                                    <div class="item-actions">
+                                        <svg class="favorite-star" data-id="tool-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                        </svg>
+                                    </div>
+                                </li>
+                                <li class="category-item" data-id="tool-3">
+                                    <div class="item-content">
+                                        <span class="item-text">Simular Pedido</span>
+                                    </div>
+                                    <div class="item-actions">
+                                        <svg class="favorite-star" data-id="tool-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                        </svg>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                        </svg>
+                        Favoritos
+                    </h3>
+                    <ul class="favorites-list" id="favorites-list">
+                        <!-- Itens de favoritos serão carregados aqui -->
+                    </ul>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        Acessados Recentemente
+                    </h3>
+                    <ul class="recent-list" id="recent-list">
+                        <!-- Itens recentes serão carregados aqui -->
+                    </ul>
+                    <button class="expand-recents" id="expand-recents">Ver todos</button>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="20" x2="12" y2="10"></line>
+                            <line x1="18" y1="20" x2="18" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="16"></line>
+                        </svg>
+                        Estatísticas
+                    </h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-items">0</div>
+                            <div class="stat-label">Itens</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-categories">4</div>
+                            <div class="stat-label">Categorias</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-favorites">0</div>
+                            <div class="stat-label">Favoritos</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-recent">0</div>
+                            <div class="stat-label">Recentes</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <!-- Removido o conteúdo do footer conforme solicitado -->
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal para Anotações -->
+    <div class="modal" id="notes-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Anotações</h3>
+                <button class="modal-close" id="close-notes">✕</button>
+            </div>
+            <div class="modal-body">
+                <p>Esta funcionalidade está em desenvolvimento.</p>
+                <p>Em breve você poderá criar e gerenciar suas anotações pessoais aqui.</p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn" id="close-notes-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados do sistema
+        const systemData = {
+            items: [
+                { id: 'mac-77', name: 'MAC Bairro São Geraldo', category: 'macs', url: 'mac77.html', favorite: false },
+                { id: 'mac-78', name: 'MAC Bairro Planalto', category: 'macs', url: 'mac78.html', favorite: false },
+                { id: 'mac-79', name: 'MAC Romeu Duarte', category: 'macs', url: 'mac79.html', favorite: false },
+                { id: 'mac-80', name: 'MAC Rua São Geraldo / Centro 2', category: 'macs', url: 'mac80.html', favorite: false },
+                { id: 'mac-277', name: 'MAC Matriz', category: 'macs', url: 'mac277.html', favorite: false },
+                { id: 'mac-853', name: 'MAC Concesso', category: 'macs', url: 'mac853.html', favorite: false },
+                { id: 'mac-1249', name: 'MAC Jardim do Lago', category: 'macs', url: 'mac1249.html', favorite: false },
+                { id: 'mac-989', name: 'MAC Araújos', category: 'macs', url: 'mac989.html', favorite: false },
+                { id: 'sao-jose-1', name: 'Pedido São José', category: 'sao-jose', url: 'saojose.html', favorite: false },
+                { id: 'sao-jose-2', name: 'Pedido Pão Total', category: 'sao-jose', url: 'paototal.html', favorite: false },
+                { id: 'table-1', name: 'Tabela de Preços Geral', category: 'tabelas', url: 'pdfs/Tabela 2025 Geral.pdf', favorite: false },
+                { id: 'table-2', name: 'Tabela de Preços Empresa', category: 'tabelas', url: 'pdfs/Tabela 2025 Empresa.pdf', favorite: false },
+                { id: 'table-3', name: 'Catálogo de Produtos', category: 'tabelas', url: 'https://github.com/henriteodoro/paratestes/releases/download/v1.0/Catalogo.Sao.Jose.2025.AT03.pdf', favorite: false },
+                { id: 'tool-1', name: 'Lista Ordenada', category: 'ferramentas', url: 'listaordenada.html', favorite: false },
+                { id: 'tool-2', name: 'Abrir Arquivo', category: 'ferramentas', url: 'ods.html', favorite: false },
+                { id: 'tool-3', name: 'Simular Pedido', category: 'ferramentas', url: 'simularpedido.html', favorite: false },
+                { id: 'tool-notes', name: 'Anotações', category: 'ferramentas', url: '#', favorite: false }
+            ],
+            recent: [],
+            favorites: [],
+            recentExpanded: false
+        };
+
+        // Funções básicas para interatividade
+        document.addEventListener('DOMContentLoaded', function() {
+            // Carregar dados do localStorage
+            loadData();
+            
+            // Inicializar a interface
+            updateFavoritesList();
+            updateRecentList();
+            updateStats();
+            updateFavoriteStars();
+            
+            // Busca
+            const searchInput = document.getElementById('search-input');
+            const clearButton = document.getElementById('clear-search');
+            
+            if (clearButton) {
+                clearButton.addEventListener('click', function() {
+                    searchInput.value = '';
+                    searchInput.focus();
+                    clearSearch();
+                });
+            }
+            
+            searchInput.addEventListener('input', function() {
+                performSearch(this.value);
+            });
+            
+            // Botões de ação
+            document.getElementById('clear-favorites').addEventListener('click', clearFavorites);
+            document.getElementById('clear-recent').addEventListener('click', clearRecent);
+            
+            // Expandir categorias
+            document.querySelectorAll('.expandable').forEach(expandable => {
+                expandable.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const category = this.id.replace('expand-', '');
+                    toggleCategoryExpansion(category);
+                });
+            });
+            
+            // Cards interativos
+            document.querySelectorAll('.quick-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const action = this.getAttribute('data-action');
+                    const itemId = this.getAttribute('data-id');
+                    if (itemId) {
+                        openItem(itemId);
+                    } else {
+                        handleQuickAction(action);
+                    }
+                });
+            });
+            
+            // Itens de categoria
+            document.querySelectorAll('.category-item').forEach(item => {
+                if (!item.classList.contains('expandable')) {
+                    item.addEventListener('click', function() {
+                        const itemId = this.getAttribute('data-id');
+                        if (itemId) {
+                            openItem(itemId);
+                        }
+                    });
+                }
+            });
+            
+            // Estrelas de favorito
+            document.querySelectorAll('.favorite-star').forEach(star => {
+                star.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const itemId = this.getAttribute('data-id');
+                    toggleFavorite(itemId);
+                });
+            });
+            
+            // Filtro de favoritos
+            document.getElementById('show-favorites').addEventListener('change', function() {
+                filterFavorites(this.checked);
+            });
+            
+            // Expansão de recentes
+            document.getElementById('expand-recents').addEventListener('click', function() {
+                toggleRecentExpansion();
+            });
+            
+            // Modal de anotações
+            document.getElementById('close-notes').addEventListener('click', closeNotesModal);
+            document.getElementById('close-notes-btn').addEventListener('click', closeNotesModal);
+        });
+        
+        // Carregar dados do localStorage
+        function loadData() {
+            const savedData = localStorage.getItem('systemData');
+            if (savedData) {
+                const parsedData = JSON.parse(savedData);
+                systemData.recent = parsedData.recent || [];
+                systemData.favorites = parsedData.favorites || [];
+                systemData.recentExpanded = parsedData.recentExpanded || false;
+                
+                // Atualizar favoritos nos dados principais
+                systemData.items.forEach(item => {
+                    if (systemData.favorites.includes(item.id)) {
+                        item.favorite = true;
+                    }
+                });
+            }
+        }
+        
+        // Salvar dados no localStorage
+        function saveData() {
+            localStorage.setItem('systemData', JSON.stringify({
+                recent: systemData.recent,
+                favorites: systemData.favorites,
+                recentExpanded: systemData.recentExpanded
+            }));
+        }
+        
+        // Buscar itens
+        function performSearch(query) {
+            const searchTerm = query.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                // Mostrar todos os itens se a busca estiver vazia
+                document.querySelectorAll('.category-item').forEach(item => {
+                    item.style.display = 'flex';
+                });
+                document.querySelectorAll('.quick-card').forEach(card => {
+                    card.style.display = 'flex';
+                });
+                return;
+            }
+            
+            // Filtrar itens que correspondem à busca
+            document.querySelectorAll('.category-item').forEach(item => {
+                const itemText = item.textContent.toLowerCase();
+                if (itemText.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            document.querySelectorAll('.quick-card').forEach(card => {
+                const cardText = card.textContent.toLowerCase();
+                if (cardText.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        // Limpar busca
+        function clearSearch() {
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.style.display = 'flex';
+            });
+            document.querySelectorAll('.quick-card').forEach(card => {
+                card.style.display = 'flex';
+            });
+        }
+        
+        // Expandir/contrair categoria
+        function toggleCategoryExpansion(category) {
+            const expandedItems = document.getElementById(`${category}-expanded`);
+            const expandable = document.getElementById(`expand-${category}`);
+            
+            if (expandedItems.classList.contains('active')) {
+                expandedItems.classList.remove('active');
+                expandable.textContent = 'Ver todos...';
+            } else {
+                expandedItems.classList.add('active');
+                expandable.textContent = 'Ver menos...';
+            }
+        }
+        
+        // Abrir item
+        function openItem(itemId) {
+            const item = systemData.items.find(i => i.id === itemId);
+            if (!item) return;
+            
+            // Adicionar aos recentes (se não estiver já)
+            if (!systemData.recent.includes(itemId)) {
+                systemData.recent.unshift(itemId);
+                // Manter apenas os 10 mais recentes
+                if (systemData.recent.length > 10) {
+                    systemData.recent.pop();
+                }
+                updateRecentList();
+                saveData();
+            }
+            
+            // Abrir o link
+            const openInNewTab = document.getElementById('new-tab').checked;
+            if (openInNewTab) {
+                window.open(item.url, '_blank');
+            } else {
+                window.location.href = item.url;
+            }
+            
+            // Atualizar estatísticas
+            updateStats();
+        }
+        
+        // Adicionar/remover favorito
+        function toggleFavorite(itemId) {
+            const item = systemData.items.find(i => i.id === itemId);
+            if (!item) return;
+            
+            const itemIndex = systemData.favorites.indexOf(itemId);
+            
+            if (itemIndex === -1) {
+                // Adicionar aos favoritos
+                systemData.favorites.push(itemId);
+                item.favorite = true;
+            } else {
+                // Remover dos favoritos
+                systemData.favorites.splice(itemIndex, 1);
+                item.favorite = false;
+            }
+            
+            updateFavoritesList();
+            updateFavoriteStars();
+            saveData();
+            updateStats();
+            
+            // Se o filtro de favoritos estiver ativo, atualizar a exibição
+            if (document.getElementById('show-favorites').checked) {
+                filterFavorites(true);
+            }
+        }
+        
+        // Atualizar estrelas de favoritos
+        function updateFavoriteStars() {
+            document.querySelectorAll('.favorite-star').forEach(star => {
+                const itemId = star.getAttribute('data-id');
+                const isFavorite = systemData.favorites.includes(itemId);
+                
+                if (isFavorite) {
+                    star.classList.add('active');
+                    star.style.fill = 'currentColor';
+                } else {
+                    star.classList.remove('active');
+                    star.style.fill = 'none';
+                }
+            });
+        }
+        
+        // Filtrar por favoritos
+        function filterFavorites(showOnlyFavorites) {
+            document.querySelectorAll('.category-item').forEach(item => {
+                const itemId = item.getAttribute('data-id');
+                if (!itemId) return; // Pular itens sem ID (como o "Ver todos...")
+                
+                const isFavorite = systemData.favorites.includes(itemId);
+                
+                if (showOnlyFavorites && !isFavorite) {
+                    item.style.display = 'none';
+                } else {
+                    item.style.display = 'flex';
+                }
+            });
+            
+            document.querySelectorAll('.quick-card').forEach(card => {
+                const itemId = card.getAttribute('data-id');
+                if (!itemId) return;
+                
+                const isFavorite = systemData.favorites.includes(itemId);
+                
+                if (showOnlyFavorites && !isFavorite) {
+                    card.style.display = 'none';
+                } else {
+                    card.style.display = 'flex';
+                }
+            });
+        }
+        
+        // Atualizar lista de favoritos
+        function updateFavoritesList() {
+            const favoritesList = document.getElementById('favorites-list');
+            favoritesList.innerHTML = '';
+            
+            systemData.favorites.forEach(favId => {
+                const item = systemData.items.find(i => i.id === favId);
+                if (!item) return;
+                
+                const favItem = document.createElement('li');
+                favItem.className = 'fav-item';
+                favItem.innerHTML = `
+                    <svg class="fav-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                    </svg>
+                    <span class="fav-name">${item.name}</span>
+                    <div class="fav-actions">
+                        <svg class="action-icon remove-favorite" data-id="${item.id}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </div>
+                `;
+                
+                favItem.addEventListener('click', function() {
+                    openItem(item.id);
+                });
+                
+                const removeBtn = favItem.querySelector('.remove-favorite');
+                removeBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleFavorite(item.id);
+                });
+                
+                favoritesList.appendChild(favItem);
+            });
+        }
+        
+        // Atualizar lista de recentes
+        function updateRecentList() {
+            const recentList = document.getElementById('recent-list');
+            recentList.innerHTML = '';
+            
+            let recents = [...systemData.recent];
+            
+            // Limitar a 5 itens se não estiver expandido
+            if (!systemData.recentExpanded && recents.length > 5) {
+                recents = recents.slice(0, 5);
+            }
+            
+            recents.forEach(recId => {
+                const item = systemData.items.find(i => i.id === recId);
+                if (!item) return;
+                
+                const recentItem = document.createElement('li');
+                recentItem.className = 'recent-item';
+                recentItem.innerHTML = `
+                    <svg class="recent-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span class="recent-name">${item.name}</span>
+                    <div class="recent-actions">
+                        <svg class="action-icon remove-recent" data-id="${item.id}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </div>
+                `;
+                
+                recentItem.addEventListener('click', function() {
+                    openItem(item.id);
+                });
+                
+                const removeBtn = recentItem.querySelector('.remove-recent');
+                removeBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    removeRecent(item.id);
+                });
+                
+                recentList.appendChild(recentItem);
+            });
+            
+            // Atualizar botão de expansão
+            const expandButton = document.getElementById('expand-recents');
+            if (systemData.recent.length > 5) {
+                expandButton.style.display = 'block';
+                expandButton.textContent = systemData.recentExpanded ? 'Ver menos' : 'Ver todos';
+            } else {
+                expandButton.style.display = 'none';
+            }
+        }
+        
+        // Alternar expansão de recentes
+        function toggleRecentExpansion() {
+            systemData.recentExpanded = !systemData.recentExpanded;
+            updateRecentList();
+            saveData();
+        }
+        
+        // Remover item dos recentes
+        function removeRecent(itemId) {
+            const index = systemData.recent.indexOf(itemId);
+            if (index !== -1) {
+                systemData.recent.splice(index, 1);
+                updateRecentList();
+                saveData();
+                updateStats();
+            }
+        }
+        
+        // Atualizar estatísticas
+        function updateStats() {
+            document.getElementById('total-items').textContent = systemData.items.length;
+            document.getElementById('total-favorites').textContent = systemData.favorites.length;
+            document.getElementById('total-recent').textContent = systemData.recent.length;
+        }
+        
+        // Limpar favoritos
+        function clearFavorites() {
+            if (confirm('Tem certeza que deseja limpar todos os favoritos?')) {
+                systemData.favorites = [];
+                systemData.items.forEach(item => {
+                    item.favorite = false;
+                });
+                updateFavoritesList();
+                updateFavoriteStars();
+                saveData();
+                updateStats();
+                
+                // Se o filtro de favoritos estiver ativo, atualizar a exibição
+                if (document.getElementById('show-favorites').checked) {
+                    filterFavorites(true);
+                }
+            }
+        }
+        
+        // Limpar recentes
+        function clearRecent() {
+            if (confirm('Tem certeza que deseja limpar a lista de itens recentes?')) {
+                systemData.recent = [];
+                systemData.recentExpanded = false;
+                updateRecentList();
+                saveData();
+                updateStats();
+            }
+        }
+        
+        // Ações rápidas
+        function handleQuickAction(action) {
+            switch(action) {
+                case 'list':
+                    openItem('tool-1');
+                    break;
+                case 'file':
+                    openItem('tool-2');
+                    break;
+                case 'order':
+                    openItem('tool-3');
+                    break;
+                case 'notes':
+                    openNotesModal();
+                    break;
+            }
+        }
+        
+        // Abrir modal de anotações
+        function openNotesModal() {
+            document.getElementById('notes-modal').classList.add('active');
+        }
+        
+        // Fechar modal de anotações
+        function closeNotesModal() {
+            document.getElementById('notes-modal').classList.remove('active');
+        }
+    </script>
+</body>
+</html>

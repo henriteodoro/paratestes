@@ -6,8 +6,8 @@
     <title>Sistema de Informações - MACs & Guias</title>
     <meta name="description" content="Sistema organizado para acesso rápido a informações, tabelas e ferramentas">
     <style>
-        /* Mantenho todo o CSS anterior e adiciono apenas as melhorias de hover */
-
+        /* CSS existente mantido e novas adições */
+        
         /* Efeito de hover aprimorado para itens de categoria */
         .category-item {
             padding: 8px 0;
@@ -260,6 +260,7 @@
             gap: 10px;
             margin-bottom: 20px;
             color: var(--ink-strong);
+            cursor: pointer;
         }
 
         .section-title h2 {
@@ -271,6 +272,15 @@
             width: 24px;
             height: 24px;
             color: var(--azul);
+        }
+
+        .toggle-section {
+            margin-left: auto;
+            transition: transform 0.3s;
+        }
+
+        .toggle-section.collapsed {
+            transform: rotate(-90deg);
         }
 
         .quick-grid {
@@ -339,6 +349,7 @@
             align-items: center;
             gap: 12px;
             margin-bottom: 15px;
+            cursor: pointer;
         }
 
         .category-icon {
@@ -708,6 +719,129 @@
         .expand-recents:hover {
             background: var(--borda-ativa);
         }
+
+        /* Nova classe para categoria favorita */
+        .category-favorite-star {
+            margin-left: auto;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            color: var(--muted);
+            transition: all 0.2s;
+        }
+
+        .category-favorite-star:hover {
+            color: var(--warn);
+        }
+
+        .category-favorite-star.active {
+            color: var(--warn);
+            fill: var(--warn);
+        }
+
+        /* Mensagem de nenhum resultado */
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        /* NOVA SEÇÃO: GUIAS */
+        .guides-section {
+            margin-bottom: 30px;
+        }
+
+        .guides-container {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--borda);
+        }
+
+        .guides-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .guide-group {
+            background: var(--fundo);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--borda);
+        }
+
+        .guide-group-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .guide-group-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--card);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--azul);
+        }
+
+        .guide-group-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ink-strong);
+        }
+
+        .guide-group-toggle {
+            margin-left: auto;
+            transition: transform 0.3s;
+        }
+
+        .guide-group-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .guide-items {
+            list-style: none;
+        }
+
+        .guide-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--borda);
+            color: var(--ink);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .guide-item:last-child {
+            border-bottom: none;
+        }
+
+        .guide-item-info {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .guide-item-badge {
+            background: var(--card);
+            color: var(--muted);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .guide-item-text {
+            flex: 1;
+        }
     </style>
 </head>
 <body>
@@ -763,13 +897,16 @@
         <div class="main-content">
             <main>
                 <section class="quick-access">
-                    <div class="section-title">
+                    <div class="section-title" id="toggle-quick-access">
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                         </svg>
                         <h2>Acesso Rápido</h2>
+                        <svg class="toggle-section" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
                     </div>
-                    <div class="quick-grid">
+                    <div class="quick-grid" id="quick-access-content">
                         <div class="quick-card" data-action="list" data-id="tool-1">
                             <div class="icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -789,12 +926,11 @@
                         </div>
                         <div class="quick-card" data-action="file" data-id="tool-2">
                             <div class="icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                    <polyline points="14 2 14 8 20 8"></polyline>
-                                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                <!-- Ícone atualizado para Abrir Arquivo -->
+                                <svg width="40" height="40" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg" fill="none">
+                                    <path d="M56 30c0-1.662 1.338-3 3-3h108c1.662 0 3 1.338 3 3v132c0 1.662-1.338 3-3 3H59c-1.662 0-3-1.338-3-3v-32m0-68V30" style="fill-opacity:.402658;stroke:currentColor;stroke-width:12;stroke-linecap:round;paint-order:stroke fill markers"/>
+                                    <rect width="68" height="68" x="-58.1" y="40.3" rx="3" style="fill:none;fill-opacity:.402658;stroke:currentColor;stroke-width:12;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers" transform="translate(80.1 21.7)"/>
+                                    <path d="M138.79 164.725V27.175M56.175 58.792H170M170 96H90.328M169 133.21H56.175M44.5 82l23 28m0-28-23 28" style="fill:none;stroke:currentColor;stroke-width:12;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"/>
                                 </svg>
                             </div>
                             <h3>Abrir Arquivo</h3>
@@ -838,7 +974,7 @@
                 </section>
 
                 <section class="categories">
-                    <div class="section-title">
+                    <div class="section-title" id="toggle-categories">
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="3" width="7" height="7"></rect>
                             <rect x="14" y="3" width="7" height="7"></rect>
@@ -846,8 +982,11 @@
                             <rect x="3" y="14" width="7" height="7"></rect>
                         </svg>
                         <h2>Categorias</h2>
+                        <svg class="toggle-section" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
                     </div>
-                    <div class="category-grid">
+                    <div class="category-grid" id="categories-content">
                         <div class="category-card" data-category="macs">
                             <div class="category-header">
                                 <div class="category-icon">
@@ -861,6 +1000,9 @@
                                     <div class="category-title">MACS</div>
                                     <div class="category-count">8 locais</div>
                                 </div>
+                                <svg class="category-favorite-star" data-category="macs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                </svg>
                             </div>
                             <ul class="category-items">
                                 <li class="category-item" data-id="mac-77">
@@ -969,6 +1111,9 @@
                                     <div class="category-title">São José</div>
                                     <div class="category-count">2 pedidos</div>
                                 </div>
+                                <svg class="category-favorite-star" data-category="sao-jose" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                </svg>
                             </div>
                             <ul class="category-items">
                                 <li class="category-item" data-id="sao-jose-1">
@@ -1008,6 +1153,9 @@
                                     <div class="category-title">Tabelas</div>
                                     <div class="category-count">3 documentos</div>
                                 </div>
+                                <svg class="category-favorite-star" data-category="tabelas" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                </svg>
                             </div>
                             <ul class="category-items">
                                 <li class="category-item" data-id="table-1">
@@ -1053,6 +1201,9 @@
                                     <div class="category-title">Ferramentas</div>
                                     <div class="category-count">3 utilitários</div>
                                 </div>
+                                <svg class="category-favorite-star" data-category="ferramentas" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                </svg>
                             </div>
                             <ul class="category-items">
                                 <li class="category-item" data-id="tool-1">
@@ -1086,6 +1237,272 @@
                                     </div>
                                 </li>
                             </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- NOVA SEÇÃO: GUIAS -->
+                <section class="guides-section">
+                    <div class="section-title" id="toggle-guides">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                        </svg>
+                        <h2>Guias</h2>
+                        <svg class="toggle-section" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="guides-container" id="guides-content">
+                        <div class="guides-grid">
+                            <!-- MACS -->
+                            <div class="guide-group">
+                                <div class="guide-group-header" data-group="macs">
+                                    <div class="guide-group-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                            <line x1="3" y1="9" x2="21" y2="9"></line>
+                                            <line x1="9" y1="21" x2="9" y2="9"></line>
+                                        </svg>
+                                    </div>
+                                    <div class="guide-group-title">MACS</div>
+                                    <svg class="guide-group-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </div>
+                                <ul class="guide-items">
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">77</span>
+                                            <span class="guide-item-text">MAC Bairro São Geraldo</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">78</span>
+                                            <span class="guide-item-text">MAC Bairro Planalto</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">79</span>
+                                            <span class="guide-item-text">MAC Romeu Duarte</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">80</span>
+                                            <span class="guide-item-text">MAC Rua São Geraldo / Centro 2</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">277</span>
+                                            <span class="guide-item-text">MAC Matriz</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">853</span>
+                                            <span class="guide-item-text">MAC Concesso</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">1249</span>
+                                            <span class="guide-item-text">MAC Jardim do Lago</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">989</span>
+                                            <span class="guide-item-text">MAC Araújos</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Somar -->
+                            <div class="guide-group">
+                                <div class="guide-group-header" data-group="somar">
+                                    <div class="guide-group-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                            <path d="M2 17l10 5 10-5"></path>
+                                            <path d="M2 12l10 5 10-5"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="guide-group-title">Somar</div>
+                                    <svg class="guide-group-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </div>
+                                <ul class="guide-items">
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">782</span>
+                                            <span class="guide-item-text">Rua Joaquim Nabuco Bairro Porto Velho</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">793</span>
+                                            <span class="guide-item-text">Kit do Adriano - Divinópolis</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">794</span>
+                                            <span class="guide-item-text">Kit 2 Irmãos - Divinópolis</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">795</span>
+                                            <span class="guide-item-text">Rua Bom Sucesso Bairro Nações</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">797</span>
+                                            <span class="guide-item-text">Av. Divíno Espírito Santo Bairro Sidil</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">796</span>
+                                            <span class="guide-item-text">Comércio de Alimentos Teixeira Rabelo - Carmo do Cajuru</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">1260</span>
+                                            <span class="guide-item-text">Perdigão</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Ester Amaral -->
+                            <div class="guide-group">
+                                <div class="guide-group-header" data-group="ester-amaral">
+                                    <div class="guide-group-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="12" cy="7" r="4"></circle>
+                                        </svg>
+                                    </div>
+                                    <div class="guide-group-title">Ester Amaral</div>
+                                    <svg class="guide-group-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </div>
+                                <ul class="guide-items">
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">33</span>
+                                            <span class="guide-item-text">Eifa Padaria e Confeitaria - Rua Bahia Bairro Centro</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">296</span>
+                                            <span class="guide-item-text">M.X.A. Comércio e Serviços - Rua Itumiritinga Bairro Bom Pastor</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">854</span>
+                                            <span class="guide-item-text">Ester Amaral Pães & Cia (MXA Comércio e Serviços) - Rua Rio de Janeiro Bairro Levino de Paula Pereira</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">1102</span>
+                                            <span class="guide-item-text">Torre Gourmet - Rua Cristóvão Teixeira Bairro Bom Pastor</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Casa Fidélis -->
+                            <div class="guide-group">
+                                <div class="guide-group-header" data-group="casa-fidelis">
+                                    <div class="guide-group-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                        </svg>
+                                    </div>
+                                    <div class="guide-group-title">Casa Fidélis</div>
+                                    <svg class="guide-group-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </div>
+                                <ul class="guide-items">
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">914</span>
+                                            <span class="guide-item-text">Avenida Dr. Roberto Melo Queiroz</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">971</span>
+                                            <span class="guide-item-text">Avenida Doutor Manoel Pereira</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">1088</span>
+                                            <span class="guide-item-text">Avenida Guarujá</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">1089</span>
+                                            <span class="guide-item-text">Fidélis Supermercados (Comercial Neide) - Avenida Martinho Campos</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">273</span>
+                                            <span class="guide-item-text">Luz</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Supermercado Josildo -->
+                            <div class="guide-group">
+                                <div class="guide-group-header" data-group="supermercado-josildo">
+                                    <div class="guide-group-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                                            <path d="M16 10a4 4 0 0 1-8 0"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="guide-group-title">Supermercado Josildo</div>
+                                    <svg class="guide-group-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </div>
+                                <ul class="guide-items">
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">131</span>
+                                            <span class="guide-item-text">Bairro Santa Clara</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">132</span>
+                                            <span class="guide-item-text">Bairro Icaraí</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -1133,7 +1550,7 @@
                             <div class="stat-label">Itens</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-value" id="total-categories">4</div>
+                            <div class="stat-value" id="total-categories">5</div>
                             <div class="stat-label">Categorias</div>
                         </div>
                         <div class="stat-card">
@@ -1176,7 +1593,7 @@
     </div>
 
     <script>
-        // Dados do sistema
+        // Dados do sistema atualizados
         const systemData = {
             items: [
                 { id: 'mac-77', name: 'MAC Bairro São Geraldo', category: 'macs', url: 'mac77.html', favorite: false },
@@ -1199,7 +1616,18 @@
             ],
             recent: [],
             favorites: [],
-            recentExpanded: false
+            categoryFavorites: [],
+            recentExpanded: false,
+            quickAccessCollapsed: false,
+            categoriesCollapsed: false,
+            guidesCollapsed: false,
+            guideGroupsCollapsed: {
+                macs: false,
+                somar: false,
+                'ester-amaral': false,
+                'casa-fidelis': false,
+                'supermercado-josildo': false
+            }
         };
 
         // Funções básicas para interatividade
@@ -1212,6 +1640,8 @@
             updateRecentList();
             updateStats();
             updateFavoriteStars();
+            updateCategoryFavoriteStars();
+            updateGuideGroups();
             
             // Busca
             const searchInput = document.getElementById('search-input');
@@ -1277,6 +1707,15 @@
                 });
             });
             
+            // Estrelas de categoria favorita
+            document.querySelectorAll('.category-favorite-star').forEach(star => {
+                star.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const category = this.getAttribute('data-category');
+                    toggleCategoryFavorite(category);
+                });
+            });
+            
             // Filtro de favoritos
             document.getElementById('show-favorites').addEventListener('change', function() {
                 filterFavorites(this.checked);
@@ -1290,6 +1729,27 @@
             // Modal de anotações
             document.getElementById('close-notes').addEventListener('click', closeNotesModal);
             document.getElementById('close-notes-btn').addEventListener('click', closeNotesModal);
+            
+            // Toggle sections
+            document.getElementById('toggle-quick-access').addEventListener('click', function() {
+                toggleSection('quick-access');
+            });
+            
+            document.getElementById('toggle-categories').addEventListener('click', function() {
+                toggleSection('categories');
+            });
+            
+            document.getElementById('toggle-guides').addEventListener('click', function() {
+                toggleSection('guides');
+            });
+            
+            // Toggle guide groups
+            document.querySelectorAll('.guide-group-header').forEach(header => {
+                header.addEventListener('click', function() {
+                    const group = this.getAttribute('data-group');
+                    toggleGuideGroup(group);
+                });
+            });
         });
         
         // Carregar dados do localStorage
@@ -1299,7 +1759,34 @@
                 const parsedData = JSON.parse(savedData);
                 systemData.recent = parsedData.recent || [];
                 systemData.favorites = parsedData.favorites || [];
+                systemData.categoryFavorites = parsedData.categoryFavorites || [];
                 systemData.recentExpanded = parsedData.recentExpanded || false;
+                systemData.quickAccessCollapsed = parsedData.quickAccessCollapsed || false;
+                systemData.categoriesCollapsed = parsedData.categoriesCollapsed || false;
+                systemData.guidesCollapsed = parsedData.guidesCollapsed || false;
+                systemData.guideGroupsCollapsed = parsedData.guideGroupsCollapsed || {
+                    macs: false,
+                    somar: false,
+                    'ester-amaral': false,
+                    'casa-fidelis': false,
+                    'supermercado-josildo': false
+                };
+                
+                // Aplicar estado das seções
+                if (systemData.quickAccessCollapsed) {
+                    document.getElementById('quick-access-content').style.display = 'none';
+                    document.querySelector('#toggle-quick-access .toggle-section').classList.add('collapsed');
+                }
+                
+                if (systemData.categoriesCollapsed) {
+                    document.getElementById('categories-content').style.display = 'none';
+                    document.querySelector('#toggle-categories .toggle-section').classList.add('collapsed');
+                }
+                
+                if (systemData.guidesCollapsed) {
+                    document.getElementById('guides-content').style.display = 'none';
+                    document.querySelector('#toggle-guides .toggle-section').classList.add('collapsed');
+                }
                 
                 // Atualizar favoritos nos dados principais
                 systemData.items.forEach(item => {
@@ -1315,53 +1802,230 @@
             localStorage.setItem('systemData', JSON.stringify({
                 recent: systemData.recent,
                 favorites: systemData.favorites,
-                recentExpanded: systemData.recentExpanded
+                categoryFavorites: systemData.categoryFavorites,
+                recentExpanded: systemData.recentExpanded,
+                quickAccessCollapsed: systemData.quickAccessCollapsed,
+                categoriesCollapsed: systemData.categoriesCollapsed,
+                guidesCollapsed: systemData.guidesCollapsed,
+                guideGroupsCollapsed: systemData.guideGroupsCollapsed
             }));
         }
         
-        // Buscar itens
+        // Alternar seção (minimizar/expandir)
+        function toggleSection(section) {
+            const content = document.getElementById(`${section}-content`);
+            const toggle = document.querySelector(`#toggle-${section} .toggle-section`);
+            
+            if (section === 'quick-access') {
+                systemData.quickAccessCollapsed = !systemData.quickAccessCollapsed;
+                if (systemData.quickAccessCollapsed) {
+                    content.style.display = 'none';
+                    toggle.classList.add('collapsed');
+                } else {
+                    content.style.display = 'grid';
+                    toggle.classList.remove('collapsed');
+                }
+            } else if (section === 'categories') {
+                systemData.categoriesCollapsed = !systemData.categoriesCollapsed;
+                if (systemData.categoriesCollapsed) {
+                    content.style.display = 'none';
+                    toggle.classList.add('collapsed');
+                } else {
+                    content.style.display = 'grid';
+                    toggle.classList.remove('collapsed');
+                }
+            } else if (section === 'guides') {
+                systemData.guidesCollapsed = !systemData.guidesCollapsed;
+                if (systemData.guidesCollapsed) {
+                    content.style.display = 'none';
+                    toggle.classList.add('collapsed');
+                } else {
+                    content.style.display = 'block';
+                    toggle.classList.remove('collapsed');
+                }
+            }
+            
+            saveData();
+        }
+        
+        // Alternar grupos de guias
+        function toggleGuideGroup(group) {
+            systemData.guideGroupsCollapsed[group] = !systemData.guideGroupsCollapsed[group];
+            
+            const guideGroup = document.querySelector(`.guide-group-header[data-group="${group}"]`).closest('.guide-group');
+            const guideItems = guideGroup.querySelector('.guide-items');
+            const toggle = guideGroup.querySelector('.guide-group-toggle');
+            
+            if (systemData.guideGroupsCollapsed[group]) {
+                guideItems.style.display = 'none';
+                toggle.classList.add('collapsed');
+            } else {
+                guideItems.style.display = 'block';
+                toggle.classList.remove('collapsed');
+            }
+            
+            saveData();
+        }
+        
+        // Atualizar estado dos grupos de guias
+        function updateGuideGroups() {
+            Object.keys(systemData.guideGroupsCollapsed).forEach(group => {
+                const guideGroup = document.querySelector(`.guide-group-header[data-group="${group}"]`);
+                if (guideGroup) {
+                    const guideItems = guideGroup.closest('.guide-group').querySelector('.guide-items');
+                    const toggle = guideGroup.querySelector('.guide-group-toggle');
+                    
+                    if (systemData.guideGroupsCollapsed[group]) {
+                        guideItems.style.display = 'none';
+                        toggle.classList.add('collapsed');
+                    } else {
+                        guideItems.style.display = 'block';
+                        toggle.classList.remove('collapsed');
+                    }
+                }
+            });
+        }
+        
+        // Buscar itens - função completamente reescrita
         function performSearch(query) {
             const searchTerm = query.toLowerCase().trim();
+            const quickAccessSection = document.querySelector('.quick-access');
+            const categoriesSection = document.querySelector('.categories');
+            const guidesSection = document.querySelector('.guides-section');
+            const categoryGrid = document.querySelector('.category-grid');
+            
+            // Remover mensagem de nenhum resultado anterior, se existir
+            const existingNoResults = document.querySelector('.no-results');
+            if (existingNoResults) {
+                existingNoResults.remove();
+            }
             
             if (searchTerm === '') {
-                // Mostrar todos os itens se a busca estiver vazia
+                // Mostrar todas as seções se a busca estiver vazia
+                quickAccessSection.style.display = 'block';
+                categoriesSection.style.display = 'block';
+                guidesSection.style.display = 'block';
+                
+                // Mostrar todos os itens
                 document.querySelectorAll('.category-item').forEach(item => {
                     item.style.display = 'flex';
                 });
                 document.querySelectorAll('.quick-card').forEach(card => {
                     card.style.display = 'flex';
                 });
+                document.querySelectorAll('.category-card').forEach(card => {
+                    card.style.display = 'block';
+                });
+                document.querySelectorAll('.guide-group').forEach(group => {
+                    group.style.display = 'block';
+                });
                 return;
             }
             
-            // Filtrar itens que correspondem à busca
-            document.querySelectorAll('.category-item').forEach(item => {
-                const itemText = item.textContent.toLowerCase();
-                if (itemText.includes(searchTerm)) {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
+            // Ocultar seção de acesso rápido durante a busca
+            quickAccessSection.style.display = 'none';
             
-            document.querySelectorAll('.quick-card').forEach(card => {
-                const cardText = card.textContent.toLowerCase();
-                if (cardText.includes(searchTerm)) {
-                    card.style.display = 'flex';
+            // Mostrar seção de categorias
+            categoriesSection.style.display = 'block';
+            guidesSection.style.display = 'block';
+            
+            let hasResults = false;
+            
+            // Filtrar categorias e itens
+            document.querySelectorAll('.category-card').forEach(card => {
+                const category = card.getAttribute('data-category');
+                let categoryHasResults = false;
+                
+                // Verificar itens dentro da categoria
+                const categoryItems = card.querySelectorAll('.category-item');
+                categoryItems.forEach(item => {
+                    if (item.classList.contains('expandable')) return; // Pular o "Ver todos"
+                    
+                    const itemText = item.textContent.toLowerCase();
+                    if (itemText.includes(searchTerm)) {
+                        item.style.display = 'flex';
+                        categoryHasResults = true;
+                        hasResults = true;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                
+                // Mostrar ou ocultar a categoria com base nos resultados
+                if (categoryHasResults) {
+                    card.style.display = 'block';
                 } else {
                     card.style.display = 'none';
                 }
             });
+            
+            // Filtrar grupos de guias
+            document.querySelectorAll('.guide-group').forEach(group => {
+                let groupHasResults = false;
+                
+                // Verificar itens dentro do grupo
+                const guideItems = group.querySelectorAll('.guide-item');
+                guideItems.forEach(item => {
+                    const itemText = item.textContent.toLowerCase();
+                    if (itemText.includes(searchTerm)) {
+                        item.style.display = 'flex';
+                        groupHasResults = true;
+                        hasResults = true;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                
+                // Mostrar ou ocultar o grupo com base nos resultados
+                if (groupHasResults) {
+                    group.style.display = 'block';
+                } else {
+                    group.style.display = 'none';
+                }
+            });
+            
+            // Se não houver resultados, mostrar mensagem
+            if (!hasResults) {
+                const noResults = document.createElement('div');
+                noResults.className = 'no-results';
+                noResults.textContent = `Nenhum resultado encontrado para "${query}"`;
+                categoryGrid.parentNode.appendChild(noResults);
+            }
         }
         
         // Limpar busca
         function clearSearch() {
+            const quickAccessSection = document.querySelector('.quick-access');
+            const categoriesSection = document.querySelector('.categories');
+            const guidesSection = document.querySelector('.guides-section');
+            
+            // Mostrar todas as seções
+            quickAccessSection.style.display = 'block';
+            categoriesSection.style.display = 'block';
+            guidesSection.style.display = 'block';
+            
+            // Mostrar todos os itens
             document.querySelectorAll('.category-item').forEach(item => {
                 item.style.display = 'flex';
             });
             document.querySelectorAll('.quick-card').forEach(card => {
                 card.style.display = 'flex';
             });
+            document.querySelectorAll('.category-card').forEach(card => {
+                card.style.display = 'block';
+            });
+            document.querySelectorAll('.guide-group').forEach(group => {
+                group.style.display = 'block';
+            });
+            document.querySelectorAll('.guide-item').forEach(item => {
+                item.style.display = 'flex';
+            });
+            
+            // Remover mensagem de nenhum resultado, se existir
+            const existingNoResults = document.querySelector('.no-results');
+            if (existingNoResults) {
+                existingNoResults.remove();
+            }
         }
         
         // Expandir/contrair categoria
@@ -1434,6 +2098,27 @@
             }
         }
         
+        // Adicionar/remover categoria favorita
+        function toggleCategoryFavorite(category) {
+            const categoryIndex = systemData.categoryFavorites.indexOf(category);
+            
+            if (categoryIndex === -1) {
+                // Adicionar aos favoritos
+                systemData.categoryFavorites.push(category);
+            } else {
+                // Remover dos favoritos
+                systemData.categoryFavorites.splice(categoryIndex, 1);
+            }
+            
+            updateCategoryFavoriteStars();
+            saveData();
+            
+            // Se o filtro de favoritos estiver ativo, atualizar a exibição
+            if (document.getElementById('show-favorites').checked) {
+                filterFavorites(true);
+            }
+        }
+        
         // Atualizar estrelas de favoritos
         function updateFavoriteStars() {
             document.querySelectorAll('.favorite-star').forEach(star => {
@@ -1450,33 +2135,106 @@
             });
         }
         
-        // Filtrar por favoritos
-        function filterFavorites(showOnlyFavorites) {
-            document.querySelectorAll('.category-item').forEach(item => {
-                const itemId = item.getAttribute('data-id');
-                if (!itemId) return; // Pular itens sem ID (como o "Ver todos...")
+        // Atualizar estrelas de categorias favoritas
+        function updateCategoryFavoriteStars() {
+            document.querySelectorAll('.category-favorite-star').forEach(star => {
+                const category = star.getAttribute('data-category');
+                const isFavorite = systemData.categoryFavorites.includes(category);
                 
-                const isFavorite = systemData.favorites.includes(itemId);
-                
-                if (showOnlyFavorites && !isFavorite) {
-                    item.style.display = 'none';
+                if (isFavorite) {
+                    star.classList.add('active');
+                    star.style.fill = 'currentColor';
                 } else {
+                    star.classList.remove('active');
+                    star.style.fill = 'none';
+                }
+            });
+        }
+        
+        // Filtrar por favoritos - função completamente reescrita
+        function filterFavorites(showOnlyFavorites) {
+            const quickAccessSection = document.querySelector('.quick-access');
+            const categoriesSection = document.querySelector('.categories');
+            const guidesSection = document.querySelector('.guides-section');
+            const categoryGrid = document.querySelector('.category-grid');
+            
+            // Remover mensagem de nenhum resultado anterior, se existir
+            const existingNoResults = document.querySelector('.no-results');
+            if (existingNoResults) {
+                existingNoResults.remove();
+            }
+            
+            if (!showOnlyFavorites) {
+                // Mostrar todas as seções
+                quickAccessSection.style.display = 'block';
+                categoriesSection.style.display = 'block';
+                guidesSection.style.display = 'block';
+                
+                // Mostrar todos os itens
+                document.querySelectorAll('.category-item').forEach(item => {
                     item.style.display = 'flex';
+                });
+                document.querySelectorAll('.quick-card').forEach(card => {
+                    card.style.display = 'flex';
+                });
+                document.querySelectorAll('.category-card').forEach(card => {
+                    card.style.display = 'block';
+                });
+                document.querySelectorAll('.guide-group').forEach(group => {
+                    group.style.display = 'block';
+                });
+                return;
+            }
+            
+            // Ocultar seção de acesso rápido durante o filtro de favoritos
+            quickAccessSection.style.display = 'none';
+            
+            // Mostrar seção de categorias
+            categoriesSection.style.display = 'block';
+            guidesSection.style.display = 'none'; // Guias não são clicáveis, então ocultamos
+            
+            let hasResults = false;
+            
+            // Filtrar categorias e itens por favoritos
+            document.querySelectorAll('.category-card').forEach(card => {
+                const category = card.getAttribute('data-category');
+                let categoryHasResults = false;
+                
+                // Verificar se a categoria inteira é favorita
+                const isCategoryFavorite = systemData.categoryFavorites.includes(category);
+                
+                // Verificar itens dentro da categoria
+                const categoryItems = card.querySelectorAll('.category-item');
+                categoryItems.forEach(item => {
+                    if (item.classList.contains('expandable')) return; // Pular o "Ver todos"
+                    
+                    const itemId = item.getAttribute('data-id');
+                    const isItemFavorite = systemData.favorites.includes(itemId);
+                    
+                    if (isCategoryFavorite || isItemFavorite) {
+                        item.style.display = 'flex';
+                        categoryHasResults = true;
+                        hasResults = true;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                
+                // Mostrar ou ocultar a categoria com base nos resultados
+                if (categoryHasResults) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
                 }
             });
             
-            document.querySelectorAll('.quick-card').forEach(card => {
-                const itemId = card.getAttribute('data-id');
-                if (!itemId) return;
-                
-                const isFavorite = systemData.favorites.includes(itemId);
-                
-                if (showOnlyFavorites && !isFavorite) {
-                    card.style.display = 'none';
-                } else {
-                    card.style.display = 'flex';
-                }
-            });
+            // Se não houver resultados, mostrar mensagem
+            if (!hasResults) {
+                const noResults = document.createElement('div');
+                noResults.className = 'no-results';
+                noResults.textContent = 'Nenhum favorito encontrado';
+                categoryGrid.appendChild(noResults);
+            }
         }
         
         // Atualizar lista de favoritos
@@ -1595,17 +2353,20 @@
             document.getElementById('total-items').textContent = systemData.items.length;
             document.getElementById('total-favorites').textContent = systemData.favorites.length;
             document.getElementById('total-recent').textContent = systemData.recent.length;
+            document.getElementById('total-categories').textContent = 5; // Agora temos 5 categorias
         }
         
         // Limpar favoritos
         function clearFavorites() {
             if (confirm('Tem certeza que deseja limpar todos os favoritos?')) {
                 systemData.favorites = [];
+                systemData.categoryFavorites = [];
                 systemData.items.forEach(item => {
                     item.favorite = false;
                 });
                 updateFavoritesList();
                 updateFavoriteStars();
+                updateCategoryFavoriteStars();
                 saveData();
                 updateStats();
                 

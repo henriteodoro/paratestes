@@ -10,17 +10,17 @@
         
         /* Efeito de hover aprimorado para itens de categoria */
         .category-item {
-            padding: 8px 0;
+            padding: 12px 12px;
             border-bottom: 1px solid var(--borda);
             font-size: 14px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             cursor: pointer;
             transition: all 0.2s ease;
             border-radius: 6px;
             margin: 2px 0;
-            padding: 10px 12px;
+            min-height: 44px;
         }
 
         .category-item:hover {
@@ -40,6 +40,9 @@
             transition: all 0.3s;
             text-decoration: none;
             color: inherit;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
         }
 
         .category-card:hover {
@@ -377,6 +380,7 @@
 
         .category-items {
             list-style: none;
+            flex-grow: 1;
         }
 
         .category-item:last-child {
@@ -385,33 +389,37 @@
 
         .item-content {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             flex: 1;
-            min-width: 0; /* Permite que o texto seja truncado se necessário */
+            min-width: 0;
+            gap: 8px;
         }
 
         .item-text {
             flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: normal;
+            overflow: visible;
+            word-wrap: break-word;
+            line-height: 1.4;
+            min-width: 0;
         }
 
         .item-badge {
             background: var(--fundo);
             color: var(--muted);
-            padding: 2px 8px;
+            padding: 4px 8px;
             border-radius: 10px;
             font-size: 12px;
-            margin-left: 8px;
             flex-shrink: 0;
+            align-self: flex-start;
         }
 
         .item-actions {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 8px;
             margin-left: 8px;
+            flex-shrink: 0;
         }
 
         .expandable {
@@ -594,6 +602,25 @@
                 gap: 15px;
                 text-align: center;
             }
+            
+            .category-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .item-content {
+                width: 100%;
+            }
+            
+            .item-actions {
+                align-self: flex-end;
+                margin-left: 0;
+            }
+            
+            .guides-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* Utilities */
@@ -769,7 +796,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
-            align-items: start; /* IMPORTANTE: impede que os itens se estiquem */
+            align-items: stretch; /* Faz com que todos os itens tenham a mesma altura */
         }
 
         .guide-group {
@@ -777,10 +804,10 @@
             border-radius: 12px;
             padding: 20px;
             border: 1px solid var(--borda);
-            height: fit-content; /* Altura se ajusta ao conteúdo */
-            min-height: 120px; /* Altura mínima uniforme para todos */
             display: flex;
             flex-direction: column;
+            min-height: 180px; /* Altura mínima uniforme para todos os grupos */
+            height: auto; /* Altura automática para se ajustar ao conteúdo */
         }
 
         .guide-group-header {
@@ -801,17 +828,20 @@
             align-items: center;
             justify-content: center;
             color: var(--azul);
+            flex-shrink: 0;
         }
 
         .guide-group-title {
             font-size: 16px;
             font-weight: 600;
             color: var(--ink-strong);
+            flex: 1;
         }
 
         .guide-group-toggle {
             margin-left: auto;
             transition: transform 0.3s;
+            flex-shrink: 0;
         }
 
         .guide-group-toggle.collapsed {
@@ -820,15 +850,15 @@
 
         .guide-items {
             list-style: none;
-            flex-grow: 1; /* Ocupa o espaço disponível */
-            max-height: 0; /* Começa fechado */
+            flex-grow: 1; /* Ocupa o espaço disponível restante */
             overflow: hidden;
-            transition: max-height 0.3s ease;
+            transition: all 0.3s ease;
+            max-height: 0;
         }
 
         .guide-items.expanded {
             max-height: 500px; /* Altura máxima quando expandido */
-            overflow-y: auto; /* Adiciona scroll se necessário */
+            overflow-y: auto; /* Scroll apenas quando necessário */
         }
 
         .guide-item {
@@ -861,6 +891,26 @@
 
         .guide-item-text {
             flex: 1;
+            word-wrap: break-word; /* Permite quebra de palavras longas */
+        }
+
+        /* Barra de scroll personalizada para as guias */
+        .guide-items::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .guide-items::-webkit-scrollbar-track {
+            background: var(--fundo);
+            border-radius: 3px;
+        }
+
+        .guide-items::-webkit-scrollbar-thumb {
+            background: var(--borda);
+            border-radius: 3px;
+        }
+
+        .guide-items::-webkit-scrollbar-thumb:hover {
+            background: var(--muted);
         }
 
         /* Melhorias para a seção de guias durante a pesquisa */
@@ -1903,11 +1953,19 @@
             
             if (isCurrentlyCollapsed) {
                 // Expandir este grupo
+                guideItems.style.maxHeight = '500px'; // Valor fixo para evitar flickering
                 guideItems.classList.add('expanded');
                 toggle.classList.remove('collapsed');
                 systemData.guideGroupsCollapsed[group] = false;
+                
+                // Pequeno timeout para garantir que a transição aconteça suavemente
+                setTimeout(() => {
+                    guideItems.style.overflowY = 'auto';
+                }, 300);
             } else {
                 // Colapsar este grupo
+                guideItems.style.maxHeight = '0';
+                guideItems.style.overflowY = 'hidden';
                 guideItems.classList.remove('expanded');
                 toggle.classList.add('collapsed');
                 systemData.guideGroupsCollapsed[group] = true;
@@ -1926,11 +1984,19 @@
                     const toggle = guideGroup.querySelector('.guide-group-toggle');
                     
                     if (systemData.guideGroupsCollapsed[group]) {
+                        guideItems.style.maxHeight = '0';
+                        guideItems.style.overflowY = 'hidden';
                         guideItems.classList.remove('expanded');
                         toggle.classList.add('collapsed');
                     } else {
+                        guideItems.style.maxHeight = '500px';
                         guideItems.classList.add('expanded');
                         toggle.classList.remove('collapsed');
+                        
+                        // Pequeno timeout para garantir que a transição aconteça suavemente
+                        setTimeout(() => {
+                            guideItems.style.overflowY = 'auto';
+                        }, 300);
                     }
                 }
             });
@@ -2319,7 +2385,12 @@
             const quickAccessSection = document.querySelector('.quick-access');
             const categoriesSection = document.querySelector('.categories');
             const guidesSection = document.querySelector('.guides-section');
-            const categoryGrid = document.querySelector('.category-grid');
+            const mainContent = document.querySelector('.main-content > main');
+            
+            // Obter os elementos de título das seções
+            const quickAccessTitle = document.getElementById('toggle-quick-access');
+            const categoriesTitle = document.getElementById('toggle-categories');
+            const guidesTitle = document.getElementById('toggle-guides');
             
             // Remover mensagem de nenhum resultado anterior, se existir
             const existingNoResults = document.querySelector('.no-results');
@@ -2328,10 +2399,15 @@
             }
             
             if (!showOnlyFavorites) {
-                // Mostrar todas as seções
+                // Mostrar todas as seções se o filtro estiver desativado
                 quickAccessSection.style.display = 'block';
                 categoriesSection.style.display = 'block';
                 guidesSection.style.display = 'block';
+                
+                // Mostrar todos os títulos
+                quickAccessTitle.style.display = 'flex';
+                categoriesTitle.style.display = 'flex';
+                guidesTitle.style.display = 'flex';
                 
                 // Mostrar todos os itens
                 document.querySelectorAll('.category-item').forEach(item => {
@@ -2349,12 +2425,15 @@
                 return;
             }
             
-            // Ocultar seção de acesso rápido durante o filtro de favoritos
+            // Ocultar seções que não serão usadas no filtro de favoritos
             quickAccessSection.style.display = 'none';
+            guidesSection.style.display = 'none';
+            quickAccessTitle.style.display = 'none';
+            guidesTitle.style.display = 'none';
             
-            // Mostrar seção de categorias
+            // Mostrar seção de categorias (onde os favoritos aparecem)
             categoriesSection.style.display = 'block';
-            guidesSection.style.display = 'none'; // Guias não são clicáveis, então ocultamos
+            categoriesTitle.style.display = 'flex';
             
             let hasResults = false;
             
@@ -2391,12 +2470,15 @@
                 }
             });
             
-            // Se não houver resultados, mostrar mensagem
+            // Se não houver resultados, ocultar tudo e mostrar mensagem
             if (!hasResults) {
+                categoriesSection.style.display = 'none';
+                categoriesTitle.style.display = 'none';
+                
                 const noResults = document.createElement('div');
                 noResults.className = 'no-results';
                 noResults.textContent = 'Nenhum favorito encontrado';
-                categoryGrid.appendChild(noResults);
+                mainContent.insertBefore(noResults, mainContent.firstChild);
             }
         }
         

@@ -113,34 +113,127 @@
     height: 20px;
   }
 
-  .subtopicos-lista {
+  .conteudo-header-acoes {
     display: flex;
-    flex-direction: column;
     gap: 8px;
-    margin-bottom: 20px;
   }
 
-  .subtopicos-lista a {
+  .btn-acao {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: 8px;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 6px;
     border: 1px solid var(--borda);
-    text-decoration: none;
+    background: var(--card);
     color: var(--ink);
+    cursor: pointer;
     transition: all 0.2s ease;
-    font-size: 13px;
+    font-size: 12px;
+    font-weight: 500;
   }
 
-  .subtopicos-lista a:hover {
+  .btn-acao:hover {
     background: #f3f8ff;
     border-color: var(--borda-ativa);
   }
 
-  .subtopicos-lista svg {
-    width: 16px;
-    height: 16px;
+  .btn-imprimir {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    color: var(--success);
+  }
+
+  .btn-imprimir:hover {
+    background: #dcfce7;
+  }
+
+  .btn-download {
+    background: #f0f9ff;
+    border-color: #bae6fd;
+    color: var(--azul);
+  }
+
+  .btn-download:hover {
+    background: #e0f2fe;
+  }
+
+  /* Layout para conteúdo com subtópicos */
+  .conteudo-com-subtopicos {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 20px;
+  }
+
+  .lista-subtopicos {
+    background: var(--fundo);
+    border: 1px solid var(--borda);
+    border-radius: 12px;
+    padding: 16px;
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+  }
+
+  .lista-subtopicos h3 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .subtopico-item {
+    padding: 12px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 6px;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid transparent;
+  }
+
+  .subtopico-item:hover {
+    background: #ffffff;
+    border-color: var(--borda-ativa);
+  }
+
+  .subtopico-item.ativo {
+    background: var(--azul);
+    color: white;
+  }
+
+  .subtopico-acoes {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .subtopico-item:hover .subtopico-acoes {
+    opacity: 1;
+  }
+
+  .btn-subtopico {
+    background: none;
+    border: none;
+    border-radius: 4px;
+    padding: 4px;
+    cursor: pointer;
+    color: inherit;
+    transition: all 0.2s ease;
+  }
+
+  .btn-subtopico:hover {
+    background: rgba(255,255,255,0.2);
+  }
+
+  .conteudo-subtopico {
+    animation: fadeIn 0.3s ease;
   }
 
   /* Estilos para o conteúdo carregado dos arquivos externos */
@@ -266,6 +359,13 @@
     .topicos-sidebar {
       position: static;
     }
+    .conteudo-com-subtopicos {
+      grid-template-columns: 1fr;
+    }
+    .lista-subtopicos {
+      position: static;
+      margin-bottom: 20px;
+    }
   }
 
   .toolbar{
@@ -350,13 +450,13 @@
     background: #e0f2fe;
   }
 
-  .btn-imprimir {
+  .btn-imprimir-toolbar {
     background: #f0fdf4;
     border-color: #bbf7d0;
     color: var(--success);
   }
 
-  .btn-imprimir:hover {
+  .btn-imprimir-toolbar:hover {
     background: #dcfce7;
   }
 
@@ -618,6 +718,20 @@
   .conteudo-carregado img:hover {
     transform: scale(1.02);
   }
+
+  /* Estado vazio */
+  .estado-vazio {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+
+  .estado-vazio svg {
+    width: 64px;
+    height: 64px;
+    opacity: 0.5;
+    margin-bottom: 16px;
+  }
 </style>
 </head>
 <body>
@@ -649,7 +763,7 @@
       <input type="search" id="campo-busca" placeholder="Buscar nas anotações…" />
     </div>
     
-    <button class="btn-toolbar btn-imprimir" id="btn-imprimir">
+    <button class="btn-toolbar btn-imprimir-toolbar" id="btn-imprimir">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
         <rect x="6" y="14" width="12" height="8"/>
@@ -709,12 +823,12 @@
           </svg>
           Bem-vindo
         </h2>
-        <div id="topico-acoes"></div>
+        <div class="conteudo-header-acoes" id="topico-acoes"></div>
       </div>
 
       <div id="conteudo-dinamico">
-        <div style="text-align: center; padding: 40px 20px; color: var(--muted);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; opacity: 0.5; margin-bottom: 16px;">
+        <div class="estado-vazio">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
           <p>Selecione um tópico para visualizar o conteúdo</p>
@@ -776,13 +890,14 @@
 class GerenciadorAnotacoes {
   constructor() {
     this.topicoAtual = null;
+    this.subtopicoAtual = null;
     this.cache = new Map();
     this.conteudoAtual = null;
-    this.subtopicosAtivos = [];
   }
 
   async carregarTopico(arquivo) {
     this.topicoAtual = arquivo;
+    this.subtopicoAtual = null;
     
     // Atualizar UI
     const item = document.querySelector(`[data-arquivo="${arquivo}"]`);
@@ -795,13 +910,26 @@ class GerenciadorAnotacoes {
       ${nomeTopico}
     `;
     
-    // Adicionar botão de fechar tópico
+    // Adicionar botões de ação do tópico
     document.getElementById('topico-acoes').innerHTML = `
+      <button class="btn-acao btn-imprimir" id="btn-imprimir-topico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+          <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+          <rect x="6" y="14" width="12" height="8"/>
+        </svg>
+        Imprimir
+      </button>
+      <button class="btn-acao btn-download" id="btn-download-topico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download
+      </button>
       <button class="btn-fechar-topico" id="btn-fechar-topico">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
-        Fechar Tópico
+        Fechar
       </button>
     `;
 
@@ -867,29 +995,45 @@ class GerenciadorAnotacoes {
     // Criar menu de subtópicos
     const menuSubtopicos = this.conteudoAtual.subtopicos.map((subtopico, index) => {
       return `
-        <a href="#" data-subtopico="${subtopico.id}" data-index="${index}">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
-          </svg>
-          ${subtopico.titulo}
-        </a>
+        <div class="subtopico-item" data-subtopico="${subtopico.id}" data-index="${index}">
+          <span>${subtopico.titulo}</span>
+          <div class="subtopico-acoes">
+            <button class="btn-subtopico" data-index="${index}" title="Imprimir">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                <rect x="6" y="14" width="12" height="8"/>
+              </svg>
+            </button>
+            <button class="btn-subtopico" data-index="${index}" title="Download">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
       `;
     }).join('');
 
     document.getElementById('conteudo-dinamico').innerHTML = `
-      <div class="subtopicos-lista">
-        ${menuSubtopicos}
+      <div class="conteudo-com-subtopicos">
+        <div class="lista-subtopicos">
+          <h3>Subtópicos</h3>
+          ${menuSubtopicos}
+        </div>
+        <div id="conteudo-subtopico" class="conteudo-subtopico">
+          <div class="estado-vazio">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+            </svg>
+            <p>Selecione um subtópico para visualizar o conteúdo</p>
+          </div>
+        </div>
       </div>
-      <div id="conteudo-subtopico" class="conteudo-carregado"></div>
     `;
 
     // Adicionar eventos
     this.adicionarEventosSubtopicos();
-
-    // Mostrar primeiro subtópico
-    if (this.conteudoAtual.subtopicos.length > 0) {
-      this.mostrarSubtopico(0);
-    }
   }
 
   mostrarConteudoDireto() {
@@ -905,11 +1049,28 @@ class GerenciadorAnotacoes {
   }
 
   adicionarEventosSubtopicos() {
-    document.querySelectorAll('[data-subtopico]').forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const index = parseInt(link.getAttribute('data-index'));
+    document.querySelectorAll('.subtopico-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        // Não disparar se clicou em um botão de ação
+        if (e.target.closest('.btn-subtopico')) return;
+        
+        const index = parseInt(item.getAttribute('data-index'));
         this.mostrarSubtopico(index);
+      });
+    });
+
+    // Eventos para os botões de ação dos subtópicos
+    document.querySelectorAll('.btn-subtopico').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const index = parseInt(btn.getAttribute('data-index'));
+        const isDownload = btn.querySelector('svg path[d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"]');
+        
+        if (isDownload) {
+          this.downloadSubtopico(index);
+        } else {
+          this.imprimirSubtopico(index);
+        }
       });
     });
   }
@@ -917,6 +1078,8 @@ class GerenciadorAnotacoes {
   mostrarSubtopico(index) {
     const container = document.getElementById('conteudo-subtopico');
     const subtopico = this.conteudoAtual.subtopicos[index];
+    this.subtopicoAtual = index;
+    
     let conteudo = '';
     
     // Encontrar conteúdo entre este h2 e o próximo
@@ -927,17 +1090,14 @@ class GerenciadorAnotacoes {
       elementoAtual = elementoAtual.nextElementSibling;
     }
     
-    container.innerHTML = conteudo;
+    container.innerHTML = '<div class="conteudo-carregado">' + conteudo + '</div>';
     
-    // Atualizar link ativo
-    document.querySelectorAll('[data-subtopico]').forEach(l => {
-      l.style.fontWeight = 'normal';
-      l.style.background = 'transparent';
+    // Atualizar subtópico ativo
+    document.querySelectorAll('.subtopico-item').forEach(item => {
+      item.classList.remove('ativo');
     });
     
-    const linkAtivo = document.querySelector(`[data-index="${index}"]`);
-    linkAtivo.style.fontWeight = '600';
-    linkAtivo.style.background = '#f3f8ff';
+    document.querySelector(`[data-index="${index}"]`).classList.add('ativo');
 
     // Adicionar eventos para imagens no conteúdo carregado
     this.adicionarEventosImagens();
@@ -989,6 +1149,7 @@ class GerenciadorAnotacoes {
 
   fecharTopico() {
     this.topicoAtual = null;
+    this.subtopicoAtual = null;
     this.conteudoAtual = null;
     
     document.getElementById('topico-titulo').innerHTML = `
@@ -1001,13 +1162,165 @@ class GerenciadorAnotacoes {
     document.getElementById('topico-acoes').innerHTML = '';
     
     document.getElementById('conteudo-dinamico').innerHTML = `
-      <div style="text-align: center; padding: 40px 20px; color: var(--muted);">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; opacity: 0.5; margin-bottom: 16px;">
+      <div class="estado-vazio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
         <p>Selecione um tópico para visualizar o conteúdo</p>
       </div>
     `;
+  }
+
+  // Métodos para impressão e download
+  prepararImpressao(tipo = 'topico', index = null) {
+    const opcoesContainer = document.getElementById('print-options');
+    
+    if (tipo === 'topico') {
+      opcoesContainer.innerHTML = `
+        <div class="print-option selected" data-tipo="topico-completo">
+          <input type="radio" id="print-todo" name="print-option" checked>
+          <label for="print-todo">Todo o tópico: ${this.conteudoAtual.titulo}</label>
+        </div>
+      `;
+    } else if (tipo === 'subtopico' && index !== null) {
+      const subtopico = this.conteudoAtual.subtopicos[index];
+      opcoesContainer.innerHTML = `
+        <div class="print-option selected" data-tipo="subtopico" data-index="${index}">
+          <input type="radio" id="print-subtopico" name="print-option" checked>
+          <label for="print-subtopico">Subtópico: ${subtopico.titulo}</label>
+        </div>
+      `;
+    }
+    
+    document.getElementById('print-overlay').style.display = 'flex';
+  }
+
+  imprimirConteudo() {
+    const opcaoSelecionada = document.querySelector('.print-option.selected');
+    
+    if (!opcaoSelecionada) return;
+    
+    const tipo = opcaoSelecionada.getAttribute('data-tipo');
+    const janelaImpressao = window.open('', '_blank');
+    
+    let conteudoParaImprimir = '';
+    let titulo = this.conteudoAtual.titulo;
+    
+    if (tipo === 'topico-completo') {
+      // Imprimir todo o tópico
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = this.conteudoAtual.html;
+      
+      // Remover h1 se existir
+      const h1 = tempDiv.querySelector('h1');
+      if (h1) h1.remove();
+      
+      conteudoParaImprimir = tempDiv.innerHTML;
+    } else if (tipo === 'subtopico') {
+      // Imprimir apenas um subtópico
+      const index = parseInt(opcaoSelecionada.getAttribute('data-index'));
+      const subtopico = this.conteudoAtual.subtopicos[index];
+      titulo += ' - ' + subtopico.titulo;
+      
+      let conteudo = '';
+      let elementoAtual = subtopico.elemento.nextElementSibling;
+      
+      while (elementoAtual && elementoAtual.tagName !== 'H2') {
+        conteudo += elementoAtual.outerHTML;
+        elementoAtual = elementoAtual.nextElementSibling;
+      }
+      
+      conteudoParaImprimir = `<h2>${subtopico.titulo}</h2>${conteudo}`;
+    }
+    
+    janelaImpressao.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${titulo}</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+          h1 { color: #0b5ed7; border-bottom: 1px solid #e6eefc; padding-bottom: 10px; }
+          h2 { color: #0b4fa0; margin-top: 20px; }
+          .destaque { background: #f0f7ff; padding: 10px; border-left: 4px solid #007BFF; margin: 10px 0; }
+          .info-box { background: #fff7f0; padding: 10px; border-left: 4px solid #f59e0b; margin: 10px 0; }
+          img { max-width: 100%; height: auto; }
+          @media print {
+            body { margin: 0; }
+            .no-print { display: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>${titulo}</h1>
+        ${conteudoParaImprimir}
+        <div class="no-print" style="margin-top: 20px; font-size: 12px; color: #6b7280;">
+          Impresso em ${new Date().toLocaleString()}
+        </div>
+      </body>
+      </html>
+    `);
+    
+    janelaImpressao.document.close();
+    janelaImpressao.focus();
+    janelaImpressao.print();
+    // Não fechar imediatamente para dar tempo da impressão ser feita
+    setTimeout(() => {
+      if (!janelaImpressao.closed) {
+        janelaImpressao.close();
+      }
+    }, 500);
+  }
+
+  downloadSubtopico(index) {
+    const subtopico = this.conteudoAtual.subtopicos[index];
+    let conteudo = '';
+    let elementoAtual = subtopico.elemento.nextElementSibling;
+    
+    while (elementoAtual && elementoAtual.tagName !== 'H2') {
+      conteudo += elementoAtual.outerHTML;
+      elementoAtual = elementoAtual.nextElementSibling;
+    }
+    
+    const conteudoCompleto = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${this.conteudoAtual.titulo} - ${subtopico.titulo}</title>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+          h1 { color: #0b5ed7; border-bottom: 1px solid #e6eefc; padding-bottom: 10px; }
+          h2 { color: #0b4fa0; margin-top: 20px; }
+          .destaque { background: #f0f7ff; padding: 10px; border-left: 4px solid #007BFF; margin: 10px 0; }
+          .info-box { background: #fff7f0; padding: 10px; border-left: 4px solid #f59e0b; margin: 10px 0; }
+          img { max-width: 100%; height: auto; }
+        </style>
+      </head>
+      <body>
+        <h1>${this.conteudoAtual.titulo}</h1>
+        <h2>${subtopico.titulo}</h2>
+        ${conteudo}
+        <div style="margin-top: 20px; font-size: 12px; color: #6b7280;">
+          Baixado em ${new Date().toLocaleString()}
+        </div>
+      </body>
+      </html>
+    `;
+    
+    const blob = new Blob([conteudoCompleto], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${this.conteudoAtual.titulo} - ${subtopico.titulo}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  imprimirSubtopico(index) {
+    this.prepararImpressao('subtopico', index);
   }
 
   // Métodos para busca
@@ -1121,129 +1434,6 @@ class GerenciadorAnotacoes {
     const regex = new RegExp(`(${termo})`, 'gi');
     return texto.replace(regex, '<mark>$1</mark>').substring(0, 100) + '...';
   }
-
-  // Métodos para impressão
-  prepararImpressao() {
-    const opcoesContainer = document.getElementById('print-options');
-    
-    if (!this.topicoAtual) {
-      opcoesContainer.innerHTML = '<p>Nenhum tópico selecionado para impressão.</p>';
-      return;
-    }
-
-    let opcoesHTML = '';
-    
-    if (this.conteudoAtual && this.conteudoAtual.subtopicos.length > 0) {
-      // Tópico com subtópicos
-      opcoesHTML = `
-        <div class="print-option" data-tipo="topico-completo">
-          <input type="radio" id="print-todo" name="print-option" checked>
-          <label for="print-todo">Todo o tópico</label>
-        </div>
-      `;
-      
-      this.conteudoAtual.subtopicos.forEach((subtopico, index) => {
-        opcoesHTML += `
-          <div class="print-option" data-tipo="subtopico" data-index="${index}">
-            <input type="radio" id="print-${index}" name="print-option">
-            <label for="print-${index}">${subtopico.titulo}</label>
-          </div>
-        `;
-      });
-    } else {
-      // Tópico sem subtópicos
-      opcoesHTML = `
-        <div class="print-option" data-tipo="topico-completo">
-          <input type="radio" id="print-todo" name="print-option" checked>
-          <label for="print-todo">Todo o tópico</label>
-        </div>
-      `;
-    }
-    
-    opcoesContainer.innerHTML = opcoesHTML;
-
-    // Adicionar eventos de seleção
-    document.querySelectorAll('.print-option').forEach(option => {
-      option.addEventListener('click', () => {
-        document.querySelectorAll('.print-option').forEach(o => {
-          o.classList.remove('selected');
-        });
-        option.classList.add('selected');
-        const radio = option.querySelector('input[type="radio"]');
-        radio.checked = true;
-      });
-    });
-  }
-
-  imprimirConteudo() {
-    const opcaoSelecionada = document.querySelector('.print-option.selected');
-    
-    if (!opcaoSelecionada) return;
-    
-    const tipo = opcaoSelecionada.getAttribute('data-tipo');
-    const janelaImpressao = window.open('', '_blank');
-    
-    let conteudoParaImprimir = '';
-    
-    if (tipo === 'topico-completo') {
-      // Imprimir todo o tópico
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = this.conteudoAtual.html;
-      
-      // Remover h1 se existir
-      const h1 = tempDiv.querySelector('h1');
-      if (h1) h1.remove();
-      
-      conteudoParaImprimir = tempDiv.innerHTML;
-    } else if (tipo === 'subtopico') {
-      // Imprimir apenas um subtópico
-      const index = parseInt(opcaoSelecionada.getAttribute('data-index'));
-      const subtopico = this.conteudoAtual.subtopicos[index];
-      
-      let conteudo = '';
-      let elementoAtual = subtopico.elemento.nextElementSibling;
-      
-      while (elementoAtual && elementoAtual.tagName !== 'H2') {
-        conteudo += elementoAtual.outerHTML;
-        elementoAtual = elementoAtual.nextElementSibling;
-      }
-      
-      conteudoParaImprimir = `<h2>${subtopico.titulo}</h2>${conteudo}`;
-    }
-    
-    janelaImpressao.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Impressão - ${this.conteudoAtual.titulo}</title>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
-          h1 { color: #0b5ed7; border-bottom: 1px solid #e6eefc; padding-bottom: 10px; }
-          h2 { color: #0b4fa0; margin-top: 20px; }
-          .destaque { background: #f0f7ff; padding: 10px; border-left: 4px solid #007BFF; margin: 10px 0; }
-          .info-box { background: #fff7f0; padding: 10px; border-left: 4px solid #f59e0b; margin: 10px 0; }
-          img { max-width: 100%; height: auto; }
-          @media print {
-            body { margin: 0; }
-            .no-print { display: none; }
-          }
-        </style>
-      </head>
-      <body>
-        <h1>${this.conteudoAtual.titulo}</h1>
-        ${conteudoParaImprimir}
-        <div class="no-print" style="margin-top: 20px; font-size: 12px; color: #6b7280;">
-          Impresso em ${new Date().toLocaleString()}
-        </div>
-      </body>
-      </html>
-    `);
-    
-    janelaImpressao.document.close();
-    janelaImpressao.focus();
-    janelaImpressao.print();
-    janelaImpressao.close();
-  }
 }
 
 // Inicialização
@@ -1261,9 +1451,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Botão fechar (voltar para index.html)
+  // Botão fechar (voltar para index.html fora da pasta)
   document.getElementById('btn-fechar').addEventListener('click', function() {
-    window.location.href = 'index.html';
+    window.location.href = '../index.html';
   });
 
   // Menu hamburger
@@ -1288,10 +1478,11 @@ document.addEventListener('DOMContentLoaded', function() {
     gerenciador.buscarConteudo(e.target.value);
   });
 
-  // Botão imprimir
+  // Botão imprimir da toolbar
   document.getElementById('btn-imprimir').addEventListener('click', function() {
-    gerenciador.prepararImpressao();
-    document.getElementById('print-overlay').style.display = 'flex';
+    if (gerenciador.topicoAtual) {
+      gerenciador.prepararImpressao();
+    }
   });
 
   // Fechar modal de impressão
@@ -1324,10 +1515,63 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Fechar tópico atual
+  // Eventos para os botões de ação do tópico
   document.addEventListener('click', function(e) {
+    // Fechar tópico
     if (e.target.id === 'btn-fechar-topico' || e.target.closest('#btn-fechar-topico')) {
       gerenciador.fecharTopico();
+    }
+    
+    // Imprimir tópico
+    if (e.target.id === 'btn-imprimir-topico' || e.target.closest('#btn-imprimir-topico')) {
+      gerenciador.prepararImpressao();
+    }
+    
+    // Download tópico
+    if (e.target.id === 'btn-download-topico' || e.target.closest('#btn-download-topico')) {
+      if (gerenciador.conteudoAtual) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = gerenciador.conteudoAtual.html;
+        
+        // Remover h1 se existir
+        const h1 = tempDiv.querySelector('h1');
+        if (h1) h1.remove();
+        
+        const conteudoCompleto = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>${gerenciador.conteudoAtual.titulo}</title>
+            <meta charset="utf-8">
+            <style>
+              body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+              h1 { color: #0b5ed7; border-bottom: 1px solid #e6eefc; padding-bottom: 10px; }
+              h2 { color: #0b4fa0; margin-top: 20px; }
+              .destaque { background: #f0f7ff; padding: 10px; border-left: 4px solid #007BFF; margin: 10px 0; }
+              .info-box { background: #fff7f0; padding: 10px; border-left: 4px solid #f59e0b; margin: 10px 0; }
+              img { max-width: 100%; height: auto; }
+            </style>
+          </head>
+          <body>
+            <h1>${gerenciador.conteudoAtual.titulo}</h1>
+            ${tempDiv.innerHTML}
+            <div style="margin-top: 20px; font-size: 12px; color: #6b7280;">
+              Baixado em ${new Date().toLocaleString()}
+            </div>
+          </body>
+          </html>
+        `;
+        
+        const blob = new Blob([conteudoCompleto], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${gerenciador.conteudoAtual.titulo}.html`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
     }
   });
 });

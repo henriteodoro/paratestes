@@ -456,13 +456,13 @@
     background: #e0f2fe;
   }
 
-  .btn-imprimir-toolbar {
+  .btn-salvar-toolbar {
     background: #f0fdf4;
     border-color: #bbf7d0;
     color: var(--success);
   }
 
-  .btn-imprimir-toolbar:hover {
+  .btn-salvar-toolbar:hover {
     background: #dcfce7;
   }
 
@@ -512,7 +512,7 @@
     font-weight: 500;
   }
 
-  /* Modal de impressão - NOVO DESIGN */
+  /* Modal de Salvar - NOVO DESIGN */
   .print-overlay {
     position: fixed;
     top: 0;
@@ -549,9 +549,6 @@
   .print-header h3 {
     margin: 0;
     color: var(--ink-strong);
-    display: flex;
-    align-items: center;
-    gap: 10px;
     font-size: 16px;
   }
 
@@ -654,6 +651,14 @@
     border-radius: 8px;
     cursor: pointer;
     font-weight: 500;
+  }
+
+  /* Separador de opções */
+  .option-separator {
+    height: 1px;
+    background: var(--borda);
+    margin: 8px 0;
+    width: 100%;
   }
 
   /* Lightbox para imagens */
@@ -827,20 +832,19 @@
       Menu
     </button>
     
+    <button class="btn-toolbar btn-salvar-toolbar" id="btn-salvar-geral">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+      </svg>
+      Salvar
+    </button>
+    
     <div class="search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
       <input type="search" id="campo-busca" placeholder="Buscar nas anotações…" />
     </div>
-    
-    <button class="btn-toolbar btn-imprimir-toolbar" id="btn-imprimir-geral">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-        <rect x="6" y="14" width="12" height="8"/>
-      </svg>
-      Imprimir
-    </button>
   </div>
 
   <div class="anotacoes-container">
@@ -923,17 +927,11 @@
   </div>
 </div>
 
-<!-- Modal de Impressão - NOVO DESIGN -->
+<!-- Modal de Salvar - NOVO DESIGN -->
 <div class="print-overlay" id="print-overlay">
   <div class="print-content">
     <div class="print-header">
-      <h3>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-          <rect x="6" y="14" width="12" height="8"/>
-        </svg>
-        Imprimir Conteúdo
-      </h3>
+      <h3>Salvar Conteúdo</h3>
       <button class="print-close" id="print-close">×</button>
     </div>
     
@@ -945,11 +943,7 @@
       <label>Formato de saída:</label>
       <div class="format-options">
         <div class="format-option">
-          <input type="radio" id="format-html" name="print-format" value="html" checked>
-          <label for="format-html">HTML</label>
-        </div>
-        <div class="format-option">
-          <input type="radio" id="format-txt" name="print-format" value="txt">
+          <input type="radio" id="format-txt" name="print-format" value="txt" checked>
           <label for="format-txt">Texto (TXT)</label>
         </div>
         <div class="format-option">
@@ -961,7 +955,7 @@
     
     <div class="print-actions">
       <button class="btn-secondary" id="btn-cancelar-impressao">Cancelar</button>
-      <button class="btn-primary" id="btn-confirmar-impressao">Imprimir / Salvar</button>
+      <button class="btn-primary" id="btn-confirmar-impressao">Salvar</button>
     </div>
   </div>
 </div>
@@ -1007,18 +1001,11 @@ class GerenciadorAnotacoes {
     
     // Adicionar botões de ação do tópico
     document.getElementById('topico-acoes').innerHTML = `
-      <button class="btn-acao btn-imprimir" id="btn-imprimir-topico">
+      <button class="btn-acao btn-imprimir" id="btn-salvar-topico">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-          <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-          <rect x="6" y="14" width="12" height="8"/>
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
         </svg>
-        Imprimir
-      </button>
-      <button class="btn-acao btn-download" id="btn-download-topico">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        Download
+        Salvar
       </button>
       <button class="btn-fechar-topico" id="btn-fechar-topico">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
@@ -1093,15 +1080,9 @@ class GerenciadorAnotacoes {
         <div class="subtopico-item" data-subtopico="${subtopico.id}" data-index="${index}">
           <span>${subtopico.titulo}</span>
           <div class="subtopico-acoes">
-            <button class="btn-subtopico" data-index="${index}" title="Imprimir" data-action="imprimir">
+            <button class="btn-subtopico" data-index="${index}" title="Salvar" data-action="salvar">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-                <rect x="6" y="14" width="12" height="8"/>
-              </svg>
-            </button>
-            <button class="btn-subtopico" data-index="${index}" title="Download" data-action="download">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
               </svg>
             </button>
           </div>
@@ -1161,10 +1142,8 @@ class GerenciadorAnotacoes {
         const index = parseInt(btn.getAttribute('data-index'));
         const action = btn.getAttribute('data-action');
         
-        if (action === 'download') {
-          this.downloadSubtopico(index);
-        } else if (action === 'imprimir') {
-          this.imprimirSubtopico(index);
+        if (action === 'salvar') {
+          this.prepararSalvamentoSubtopico(index);
         }
       });
     });
@@ -1247,6 +1226,11 @@ class GerenciadorAnotacoes {
     this.subtopicoAtual = null;
     this.conteudoAtual = null;
     
+    // Remover seleção do menu lateral
+    document.querySelectorAll('.topico-item').forEach(item => {
+      item.classList.remove('ativo');
+    });
+    
     document.getElementById('topico-titulo').innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
@@ -1266,8 +1250,8 @@ class GerenciadorAnotacoes {
     `;
   }
 
-  // NOVOS MÉTODOS PARA IMPRESSÃO E DOWNLOAD
-  prepararImpressaoGeral() {
+  // NOVOS MÉTODOS PARA SALVAR
+  prepararSalvamentoGeral() {
     this.tipoImpressaoAtual = 'geral';
     const opcoesContainer = document.getElementById('print-options');
     
@@ -1276,17 +1260,18 @@ class GerenciadorAnotacoes {
     
     const opcoesHTML = `
       <div class="print-option-group">
-        <h4>Selecione os tópicos para imprimir:</h4>
+        <h4>Selecione os tópicos para salvar:</h4>
         <div class="print-option">
-          <input type="checkbox" id="select-all-geral" checked>
+          <input type="checkbox" id="select-all-geral">
           <label for="select-all-geral">Selecionar todos os tópicos</label>
         </div>
+        <div class="option-separator"></div>
         ${topicos.map((topico, index) => {
           const nomeTopico = topico.textContent.trim();
           const arquivo = topico.getAttribute('data-arquivo');
           return `
             <div class="print-option">
-              <input type="checkbox" id="topico-${index}" name="topico" value="${arquivo}" data-nome="${nomeTopico}" checked>
+              <input type="checkbox" id="topico-${index}" name="topico" value="${arquivo}" data-nome="${nomeTopico}">
               <label for="topico-${index}">${nomeTopico}</label>
             </div>
           `;
@@ -1307,21 +1292,22 @@ class GerenciadorAnotacoes {
     document.getElementById('print-overlay').style.display = 'flex';
   }
 
-  prepararImpressaoTopico() {
+  prepararSalvamentoTopico() {
     this.tipoImpressaoAtual = 'topico';
     const opcoesContainer = document.getElementById('print-options');
     
     const opcoesHTML = `
       <div class="print-option-group">
-        <h4>Selecione os tópicos para imprimir:</h4>
+        <h4>Selecione os tópicos para salvar:</h4>
         <div class="print-option">
-          <input type="checkbox" id="select-all-topico" checked>
+          <input type="checkbox" id="select-all-topico">
           <label for="select-all-topico">Selecionar todos os tópicos</label>
         </div>
+        <div class="option-separator"></div>
         ${this.conteudoAtual.subtopicos.map((subtopico, index) => {
           return `
             <div class="print-option">
-              <input type="checkbox" id="subtopico-${index}" name="subtopico" value="${index}" data-nome="${subtopico.titulo}" checked>
+              <input type="checkbox" id="subtopico-${index}" name="subtopico" value="${index}" data-nome="${subtopico.titulo}">
               <label for="subtopico-${index}">${subtopico.titulo}</label>
             </div>
           `;
@@ -1342,23 +1328,46 @@ class GerenciadorAnotacoes {
     document.getElementById('print-overlay').style.display = 'flex';
   }
 
-  imprimirConteudo() {
+  prepararSalvamentoSubtopico(index) {
+    this.tipoImpressaoAtual = 'subtopico';
+    const opcoesContainer = document.getElementById('print-options');
+    const subtopico = this.conteudoAtual.subtopicos[index];
+    
+    const opcoesHTML = `
+      <div class="print-option-group">
+        <h4>Salvar conteúdo:</h4>
+        <div class="print-option">
+          <input type="checkbox" id="subtopico-unico" checked disabled>
+          <label for="subtopico-unico">${subtopico.titulo}</label>
+        </div>
+      </div>
+      <input type="hidden" id="subtopico-index" value="${index}">
+    `;
+    
+    opcoesContainer.innerHTML = opcoesHTML;
+    document.getElementById('print-overlay').style.display = 'flex';
+  }
+
+  salvarConteudo() {
     const formato = document.querySelector('input[name="print-format"]:checked').value;
     
     if (this.tipoImpressaoAtual === 'geral') {
-      this.imprimirConteudoGeral(formato);
+      this.salvarConteudoGeral(formato);
     } else if (this.tipoImpressaoAtual === 'topico') {
-      this.imprimirConteudoTopico(formato);
+      this.salvarConteudoTopico(formato);
+    } else if (this.tipoImpressaoAtual === 'subtopico') {
+      const index = parseInt(document.getElementById('subtopico-index').value);
+      this.salvarConteudoSubtopico(index, formato);
     }
     
     document.getElementById('print-overlay').style.display = 'none';
   }
 
-  async imprimirConteudoGeral(formato) {
+  async salvarConteudoGeral(formato) {
     const topicosSelecionados = Array.from(document.querySelectorAll('input[name="topico"]:checked'));
     
     if (topicosSelecionados.length === 0) {
-      alert('Selecione pelo menos um tópico para imprimir.');
+      alert('Selecione pelo menos um tópico para salvar.');
       return;
     }
 
@@ -1397,11 +1406,11 @@ class GerenciadorAnotacoes {
     this.gerarSaida(conteudoCompleto, `Anotações - ${new Date().toLocaleDateString()}`, formato);
   }
 
-  imprimirConteudoTopico(formato) {
+  salvarConteudoTopico(formato) {
     const subtopicosSelecionados = Array.from(document.querySelectorAll('input[name="subtopico"]:checked'));
     
     if (subtopicosSelecionados.length === 0) {
-      alert('Selecione pelo menos um tópico para imprimir.');
+      alert('Selecione pelo menos um tópico para salvar.');
       return;
     }
 
@@ -1426,151 +1435,7 @@ class GerenciadorAnotacoes {
     this.gerarSaida(conteudoCompleto, this.conteudoAtual.titulo, formato);
   }
 
-  gerarSaida(conteudo, titulo, formato) {
-    if (formato === 'html') {
-      // Criar nova janela com o conteúdo HTML
-      const janela = window.open('', '_blank');
-      janela.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>${titulo}</title>
-          <meta charset="utf-8">
-          <style>
-            body { 
-              font-family: Arial, sans-serif; 
-              line-height: 1.6; 
-              margin: 20px; 
-              max-width: 800px;
-              margin: 0 auto;
-              padding: 20px;
-            }
-            h1 { 
-              color: #0b5ed7; 
-              border-bottom: 2px solid #e6eefc; 
-              padding-bottom: 10px;
-              margin-bottom: 20px;
-            }
-            h2 { 
-              color: #0b4fa0; 
-              margin-top: 25px;
-              border-left: 4px solid #007BFF;
-              padding-left: 10px;
-            }
-            .destaque { 
-              background: #f0f7ff; 
-              padding: 12px 15px; 
-              border-left: 4px solid #007BFF; 
-              margin: 15px 0;
-              border-radius: 4px;
-            }
-            .info-box { 
-              background: #fff7f0; 
-              padding: 12px 15px; 
-              border-left: 4px solid #f59e0b; 
-              margin: 15px 0;
-              border-radius: 4px;
-            }
-            img { 
-              max-width: 100%; 
-              height: auto;
-              border: 1px solid #ddd;
-              border-radius: 4px;
-            }
-            ul, ol {
-              padding-left: 20px;
-            }
-            li {
-              margin: 8px 0;
-            }
-            @media print {
-              body { margin: 0; padding: 15px; }
-              .no-print { display: none; }
-            }
-          </style>
-        </head>
-        <body>
-          ${conteudo}
-          <div class="no-print" style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #e6eefc; font-size: 12px; color: #6b7280;">
-            Impresso em ${new Date().toLocaleString()} | Sistema de Anotações
-          </div>
-          <div class="no-print" style="margin-top: 20px;">
-            <button onclick="window.print()" style="padding: 8px 16px; background: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer;">Imprimir</button>
-          </div>
-        </body>
-        </html>
-      `);
-      janela.document.close();
-    } else if (formato === 'txt') {
-      // Converter HTML para texto simples
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = conteudo;
-      const texto = tempDiv.textContent || tempDiv.innerText || '';
-      
-      const blob = new Blob([texto], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${titulo}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } else if (formato === 'pdf') {
-      // Para PDF, usamos a impressão nativa do navegador
-      alert('Para salvar como PDF, use a opção "Imprimir" na janela que será aberta e selecione "Salvar como PDF" como destino de impressão.');
-      this.gerarSaida(conteudo, titulo, 'html');
-    }
-  }
-
-  downloadSubtopico(index) {
-    const subtopico = this.conteudoAtual.subtopicos[index];
-    let conteudo = '';
-    let elementoAtual = subtopico.elemento.nextElementSibling;
-    
-    while (elementoAtual && elementoAtual.tagName !== 'H2') {
-      conteudo += elementoAtual.outerHTML;
-      elementoAtual = elementoAtual.nextElementSibling;
-    }
-    
-    const conteudoCompleto = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>${this.conteudoAtual.titulo} - ${subtopico.titulo}</title>
-        <meta charset="utf-8">
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
-          h1 { color: #0b5ed7; border-bottom: 1px solid #e6eefc; padding-bottom: 10px; }
-          h2 { color: #0b4fa0; margin-top: 20px; }
-          .destaque { background: #f0f7ff; padding: 10px; border-left: 4px solid #007BFF; margin: 10px 0; }
-          .info-box { background: #fff7f0; padding: 10px; border-left: 4px solid #f59e0b; margin: 10px 0; }
-          img { max-width: 100%; height: auto; }
-        </style>
-      </head>
-      <body>
-        <h1>${this.conteudoAtual.titulo}</h1>
-        <h2>${subtopico.titulo}</h2>
-        ${conteudo}
-        <div style="margin-top: 20px; font-size: 12px; color: #6b7280;">
-          Baixado em ${new Date().toLocaleString()}
-        </div>
-      </body>
-      </html>
-    `;
-    
-    const blob = new Blob([conteudoCompleto], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${this.conteudoAtual.titulo} - ${subtopico.titulo}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
-
-  imprimirSubtopico(index) {
+  salvarConteudoSubtopico(index, formato) {
     const subtopico = this.conteudoAtual.subtopicos[index];
     let conteudo = '';
     let elementoAtual = subtopico.elemento.nextElementSibling;
@@ -1586,7 +1451,196 @@ class GerenciadorAnotacoes {
       ${conteudo}
     `;
     
-    this.gerarSaida(conteudoCompleto, `${this.conteudoAtual.titulo} - ${subtopico.titulo}`, 'html');
+    this.gerarSaida(conteudoCompleto, `${this.conteudoAtual.titulo} - ${subtopico.titulo}`, formato);
+  }
+
+  gerarSaida(conteudo, titulo, formato) {
+    if (formato === 'txt') {
+      // Converter HTML para texto simples mantendo a estrutura
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = conteudo;
+      
+      // Função para extrair texto mantendo estrutura
+      let texto = this.extrairTextoEstruturado(tempDiv);
+      
+      const blob = new Blob([texto], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${titulo}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } else if (formato === 'pdf') {
+      // Para PDF, vamos usar a impressão nativa do navegador com estilos otimizados
+      const janela = window.open('', '_blank');
+      janela.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>${titulo}</title>
+          <meta charset="utf-8">
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+            
+            body { 
+              font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+              line-height: 1.6; 
+              margin: 40px;
+              color: #0b3b6b;
+              background: white;
+            }
+            
+            h1 { 
+              color: #0b5ed7; 
+              border-bottom: 2px solid #e6eefc; 
+              padding-bottom: 10px;
+              margin-bottom: 25px;
+              font-size: 24px;
+            }
+            
+            h2 { 
+              color: #0b4fa0; 
+              margin-top: 25px;
+              border-left: 4px solid #007BFF;
+              padding-left: 12px;
+              font-size: 18px;
+            }
+            
+            .destaque { 
+              background: #f0f7ff; 
+              padding: 12px 16px; 
+              border-radius: 8px;
+              border-left: 4px solid #007BFF; 
+              margin: 15px 0;
+            }
+            
+            .info-box { 
+              background: #fff7f0; 
+              padding: 12px 16px; 
+              border-radius: 8px;
+              border-left: 4px solid #f59e0b; 
+              margin: 15px 0;
+            }
+            
+            .passo-a-passo {
+              background: #f7fff0;
+              padding: 16px;
+              border-radius: 8px;
+              border: 1px solid #e6eefc;
+              margin: 16px 0;
+            }
+            
+            .passo {
+              display: flex;
+              align-items: flex-start;
+              gap: 12px;
+              margin: 12px 0;
+            }
+            
+            .passo-num {
+              background: #007BFF;
+              color: white;
+              width: 24px;
+              height: 24px;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 14px;
+              font-weight: bold;
+              flex-shrink: 0;
+            }
+            
+            ul, ol {
+              padding-left: 24px;
+            }
+            
+            li {
+              margin: 8px 0;
+            }
+            
+            img {
+              max-width: 100%;
+              height: auto;
+              border-radius: 8px;
+              margin: 12px 0;
+            }
+            
+            @media print {
+              body { margin: 20px; }
+              .no-print { display: none; }
+            }
+          </style>
+        </head>
+        <body>
+          ${conteudo}
+          <div class="no-print" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e6eefc; font-size: 12px; color: #6b7280;">
+            Gerado em ${new Date().toLocaleString()} | Sistema de Anotações
+          </div>
+          <div class="no-print" style="margin-top: 20px;">
+            <button onclick="window.print()" style="padding: 10px 20px; background: #007BFF; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Imprimir PDF</button>
+            <button onclick="window.close()" style="padding: 10px 20px; background: #6b7280; color: white; border: none; border-radius: 6px; cursor: pointer; margin-left: 10px;">Fechar</button>
+          </div>
+          <script>
+            // Focar na janela e preparar para impressão
+            window.focus();
+          </script>
+        </body>
+        </html>
+      `);
+      janela.document.close();
+    }
+  }
+
+  extrairTextoEstruturado(elemento) {
+    let texto = '';
+    
+    // Processar elementos filhos
+    for (const child of elemento.childNodes) {
+      if (child.nodeType === Node.TEXT_NODE) {
+        texto += child.textContent;
+      } else if (child.nodeType === Node.ELEMENT_NODE) {
+        const tagName = child.tagName.toLowerCase();
+        
+        if (tagName === 'h1') {
+          texto += '\n\n' + child.textContent + '\n' + '='.repeat(child.textContent.length) + '\n\n';
+        } else if (tagName === 'h2') {
+          texto += '\n\n' + child.textContent + '\n' + '-'.repeat(child.textContent.length) + '\n\n';
+        } else if (tagName === 'h3') {
+          texto += '\n' + child.textContent + '\n\n';
+        } else if (tagName === 'p') {
+          texto += child.textContent + '\n\n';
+        } else if (tagName === 'ul' || tagName === 'ol') {
+          const itens = child.querySelectorAll('li');
+          itens.forEach((item, index) => {
+            texto += (tagName === 'ol' ? `${index + 1}. ` : '• ') + item.textContent + '\n';
+          });
+          texto += '\n';
+        } else if (tagName === 'div') {
+          // Verificar se é uma caixa especial
+          if (child.classList.contains('destaque')) {
+            texto += '💡 ' + child.textContent.trim() + '\n\n';
+          } else if (child.classList.contains('info-box')) {
+            texto += '⚠️ ' + child.textContent.trim() + '\n\n';
+          } else if (child.classList.contains('passo-a-passo')) {
+            texto += '📋 PASSOS:\n';
+            const passos = child.querySelectorAll('.passo');
+            passos.forEach((passo, index) => {
+              texto += `${index + 1}. ${passo.textContent.trim()}\n`;
+            });
+            texto += '\n';
+          } else {
+            texto += this.extrairTextoEstruturado(child);
+          }
+        } else {
+          texto += this.extrairTextoEstruturado(child);
+        }
+      }
+    }
+    
+    return texto;
   }
 
   // Métodos para busca
@@ -1744,12 +1798,12 @@ document.addEventListener('DOMContentLoaded', function() {
     gerenciador.buscarConteudo(e.target.value);
   });
 
-  // Botão imprimir geral (toolbar)
-  document.getElementById('btn-imprimir-geral').addEventListener('click', function() {
-    gerenciador.prepararImpressaoGeral();
+  // Botão salvar geral (toolbar)
+  document.getElementById('btn-salvar-geral').addEventListener('click', function() {
+    gerenciador.prepararSalvamentoGeral();
   });
 
-  // Fechar modal de impressão
+  // Fechar modal de salvamento
   document.getElementById('btn-cancelar-impressao').addEventListener('click', function() {
     document.getElementById('print-overlay').style.display = 'none';
   });
@@ -1758,12 +1812,12 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('print-overlay').style.display = 'none';
   });
 
-  // Confirmar impressão
+  // Confirmar salvamento
   document.getElementById('btn-confirmar-impressao').addEventListener('click', function() {
-    gerenciador.imprimirConteudo();
+    gerenciador.salvarConteudo();
   });
 
-  // Fechar modal de impressão ao clicar fora
+  // Fechar modal de salvamento ao clicar fora
   document.getElementById('print-overlay').addEventListener('click', function(e) {
     if (e.target === this) {
       this.style.display = 'none';
@@ -1789,56 +1843,9 @@ document.addEventListener('DOMContentLoaded', function() {
       gerenciador.fecharTopico();
     }
     
-    // Imprimir tópico
-    if (e.target.id === 'btn-imprimir-topico' || e.target.closest('#btn-imprimir-topico')) {
-      gerenciador.prepararImpressaoTopico();
-    }
-    
-    // Download tópico
-    if (e.target.id === 'btn-download-topico' || e.target.closest('#btn-download-topico')) {
-      if (gerenciador.conteudoAtual) {
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = gerenciador.conteudoAtual.html;
-        
-        // Remover h1 se existir
-        const h1 = tempDiv.querySelector('h1');
-        if (h1) h1.remove();
-        
-        const conteudoCompleto = `
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <title>${gerenciador.conteudoAtual.titulo}</title>
-            <meta charset="utf-8">
-            <style>
-              body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
-              h1 { color: #0b5ed7; border-bottom: 1px solid #e6eefc; padding-bottom: 10px; }
-              h2 { color: #0b4fa0; margin-top: 20px; }
-              .destaque { background: #f0f7ff; padding: 10px; border-left: 4px solid #007BFF; margin: 10px 0; }
-              .info-box { background: #fff7f0; padding: 10px; border-left: 4px solid #f59e0b; margin: 10px 0; }
-              img { max-width: 100%; height: auto; }
-            </style>
-          </head>
-          <body>
-            <h1>${gerenciador.conteudoAtual.titulo}</h1>
-            ${tempDiv.innerHTML}
-            <div style="margin-top: 20px; font-size: 12px; color: #6b7280;">
-              Baixado em ${new Date().toLocaleString()}
-            </div>
-          </body>
-          </html>
-        `;
-        
-        const blob = new Blob([conteudoCompleto], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${gerenciador.conteudoAtual.titulo}.html`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
+    // Salvar tópico
+    if (e.target.id === 'btn-salvar-topico' || e.target.closest('#btn-salvar-topico')) {
+      gerenciador.prepararSalvamentoTopico();
     }
   });
 });

@@ -138,24 +138,14 @@
     border-color: var(--borda-ativa);
   }
 
-  .btn-imprimir {
+  .btn-salvar {
     background: #f0fdf4;
     border-color: #bbf7d0;
     color: var(--success);
   }
 
-  .btn-imprimir:hover {
+  .btn-salvar:hover {
     background: #dcfce7;
-  }
-
-  .btn-download {
-    background: #f0f9ff;
-    border-color: #bae6fd;
-    color: var(--azul);
-  }
-
-  .btn-download:hover {
-    background: #e0f2fe;
   }
 
   /* Layout para conteúdo com subtópicos */
@@ -513,7 +503,7 @@
   }
 
   /* Modal de Salvar - NOVO DESIGN */
-  .print-overlay {
+  .salvar-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -526,7 +516,7 @@
     z-index: 100;
   }
 
-  .print-content {
+  .salvar-content {
     background: var(--card);
     border-radius: 14px;
     padding: 24px;
@@ -537,7 +527,7 @@
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
   }
 
-  .print-header {
+  .salvar-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -546,13 +536,13 @@
     border-bottom: 1px solid var(--borda);
   }
 
-  .print-header h3 {
+  .salvar-header h3 {
     margin: 0;
     color: var(--ink-strong);
     font-size: 16px;
   }
 
-  .print-close {
+  .salvar-close {
     background: none;
     border: none;
     font-size: 24px;
@@ -566,24 +556,24 @@
     justify-content: center;
   }
 
-  .print-options {
+  .salvar-options {
     display: flex;
     flex-direction: column;
     gap: 12px;
     margin-bottom: 20px;
   }
 
-  .print-option-group {
+  .salvar-option-group {
     margin-bottom: 16px;
   }
 
-  .print-option-group h4 {
+  .salvar-option-group h4 {
     margin: 0 0 8px 0;
     font-size: 14px;
     color: var(--ink-strong);
   }
 
-  .print-option {
+  .salvar-option {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -593,22 +583,22 @@
     transition: all 0.2s ease;
   }
 
-  .print-option:hover {
+  .salvar-option:hover {
     background: #f3f8ff;
   }
 
-  .print-option input[type="checkbox"] {
+  .salvar-option input[type="checkbox"] {
     margin: 0;
   }
 
-  .print-format {
+  .salvar-format {
     margin: 16px 0;
     padding: 12px;
     background: #f8fafc;
     border-radius: 8px;
   }
 
-  .print-format label {
+  .salvar-format label {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
@@ -626,7 +616,7 @@
     gap: 6px;
   }
 
-  .print-actions {
+  .salvar-actions {
     display: flex;
     gap: 10px;
     justify-content: flex-end;
@@ -928,34 +918,34 @@
 </div>
 
 <!-- Modal de Salvar - NOVO DESIGN -->
-<div class="print-overlay" id="print-overlay">
-  <div class="print-content">
-    <div class="print-header">
+<div class="salvar-overlay" id="salvar-overlay">
+  <div class="salvar-content">
+    <div class="salvar-header">
       <h3>Salvar Conteúdo</h3>
-      <button class="print-close" id="print-close">×</button>
+      <button class="salvar-close" id="salvar-close">×</button>
     </div>
     
-    <div class="print-options" id="print-options">
+    <div class="salvar-options" id="salvar-options">
       <!-- Conteúdo será preenchido dinamicamente -->
     </div>
     
-    <div class="print-format">
+    <div class="salvar-format">
       <label>Formato de saída:</label>
       <div class="format-options">
         <div class="format-option">
-          <input type="radio" id="format-txt" name="print-format" value="txt" checked>
+          <input type="radio" id="format-txt" name="salvar-format" value="txt" checked>
           <label for="format-txt">Texto (TXT)</label>
         </div>
         <div class="format-option">
-          <input type="radio" id="format-pdf" name="print-format" value="pdf">
+          <input type="radio" id="format-pdf" name="salvar-format" value="pdf">
           <label for="format-pdf">PDF</label>
         </div>
       </div>
     </div>
     
-    <div class="print-actions">
-      <button class="btn-secondary" id="btn-cancelar-impressao">Cancelar</button>
-      <button class="btn-primary" id="btn-confirmar-impressao">Salvar</button>
+    <div class="salvar-actions">
+      <button class="btn-secondary" id="btn-cancelar-salvar">Cancelar</button>
+      <button class="btn-primary" id="btn-confirmar-salvar">Salvar</button>
     </div>
   </div>
 </div>
@@ -975,20 +965,20 @@
 </div>
 
 <script>
+// Classe principal para gerenciar as anotações
 class GerenciadorAnotacoes {
   constructor() {
     this.topicoAtual = null;
     this.subtopicoAtual = null;
     this.cache = new Map();
     this.conteudoAtual = null;
-    this.tipoImpressaoAtual = null; // 'geral', 'topico', 'subtopico'
+    this.tipoSalvarAtual = null;
   }
 
   async carregarTopico(arquivo) {
     this.topicoAtual = arquivo;
     this.subtopicoAtual = null;
     
-    // Atualizar UI
     const item = document.querySelector(`[data-arquivo="${arquivo}"]`);
     const nomeTopico = item.textContent.trim();
     
@@ -999,9 +989,8 @@ class GerenciadorAnotacoes {
       ${nomeTopico}
     `;
     
-    // Adicionar botões de ação do tópico
     document.getElementById('topico-acoes').innerHTML = `
-      <button class="btn-acao btn-imprimir" id="btn-salvar-topico">
+      <button class="btn-acao btn-salvar" id="btn-salvar-topico">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
           <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
         </svg>
@@ -1018,22 +1007,16 @@ class GerenciadorAnotacoes {
     document.getElementById('conteudo-dinamico').innerHTML = '<div class="loading">Carregando...</div>';
 
     try {
-      // Verificar cache
       if (this.cache.has(arquivo)) {
         this.processarConteudo(this.cache.get(arquivo), arquivo);
         return;
       }
 
-      // Carregar arquivo
       const response = await fetch(arquivo);
       if (!response.ok) throw new Error('Arquivo não encontrado');
       
       const html = await response.text();
-      
-      // Armazenar no cache
       this.cache.set(arquivo, html);
-      
-      // Processar conteúdo
       this.processarConteudo(html, arquivo);
       
     } catch (error) {
@@ -1046,11 +1029,9 @@ class GerenciadorAnotacoes {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
     
-    // Extrair título do h1
     const tituloPrincipal = tempDiv.querySelector('h1')?.textContent || 
                            document.querySelector(`[data-arquivo="${arquivo}"]`).textContent.trim();
     
-    // Extrair subtópicos (h2)
     const subtopicos = Array.from(tempDiv.querySelectorAll('h2'));
     
     this.conteudoAtual = {
@@ -1069,12 +1050,10 @@ class GerenciadorAnotacoes {
       this.mostrarConteudoDireto();
     }
 
-    // Adicionar eventos para imagens
     this.adicionarEventosImagens();
   }
 
   criarInterfaceComSubtopicos() {
-    // Criar menu de subtópicos
     const menuSubtopicos = this.conteudoAtual.subtopicos.map((subtopico, index) => {
       return `
         <div class="subtopico-item" data-subtopico="${subtopico.id}" data-index="${index}">
@@ -1108,7 +1087,6 @@ class GerenciadorAnotacoes {
       </div>
     `;
 
-    // Adicionar eventos
     this.adicionarEventosSubtopicos();
   }
 
@@ -1116,7 +1094,6 @@ class GerenciadorAnotacoes {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = this.conteudoAtual.html;
     
-    // Remover h1 se existir (já está no header)
     const h1 = tempDiv.querySelector('h1');
     if (h1) h1.remove();
     
@@ -1127,7 +1104,6 @@ class GerenciadorAnotacoes {
   adicionarEventosSubtopicos() {
     document.querySelectorAll('.subtopico-item').forEach(item => {
       item.addEventListener('click', (e) => {
-        // Não disparar se clicou em um botão de ação
         if (e.target.closest('.btn-subtopico')) return;
         
         const index = parseInt(item.getAttribute('data-index'));
@@ -1135,7 +1111,6 @@ class GerenciadorAnotacoes {
       });
     });
 
-    // Eventos para os botões de ação dos subtópicos
     document.querySelectorAll('.btn-subtopico').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1155,8 +1130,6 @@ class GerenciadorAnotacoes {
     this.subtopicoAtual = index;
     
     let conteudo = '';
-    
-    // Encontrar conteúdo entre este h2 e o próximo
     let elementoAtual = subtopico.elemento.nextElementSibling;
     
     while (elementoAtual && elementoAtual.tagName !== 'H2') {
@@ -1166,19 +1139,15 @@ class GerenciadorAnotacoes {
     
     container.innerHTML = '<div class="conteudo-carregado">' + conteudo + '</div>';
     
-    // Atualizar subtópico ativo
     document.querySelectorAll('.subtopico-item').forEach(item => {
       item.classList.remove('ativo');
     });
     
     document.querySelector(`[data-index="${index}"]`).classList.add('ativo');
-
-    // Adicionar eventos para imagens no conteúdo carregado
     this.adicionarEventosImagens();
   }
 
   adicionarEventosImagens() {
-    // Adicionar eventos de clique para todas as imagens no conteúdo
     document.querySelectorAll('#conteudo-dinamico img').forEach(img => {
       img.addEventListener('click', () => {
         this.abrirLightbox(img.src);
@@ -1194,7 +1163,6 @@ class GerenciadorAnotacoes {
     lightboxImg.src = src;
     downloadBtn.href = src;
     downloadBtn.download = src.split('/').pop() || 'imagem.png';
-    
     lightbox.style.display = 'flex';
   }
 
@@ -1226,7 +1194,6 @@ class GerenciadorAnotacoes {
     this.subtopicoAtual = null;
     this.conteudoAtual = null;
     
-    // Remover seleção do menu lateral
     document.querySelectorAll('.topico-item').forEach(item => {
       item.classList.remove('ativo');
     });
@@ -1250,18 +1217,17 @@ class GerenciadorAnotacoes {
     `;
   }
 
-  // NOVOS MÉTODOS PARA SALVAR
+  // MÉTODOS PARA SALVAR
   prepararSalvamentoGeral() {
-    this.tipoImpressaoAtual = 'geral';
-    const opcoesContainer = document.getElementById('print-options');
+    this.tipoSalvarAtual = 'geral';
+    const opcoesContainer = document.getElementById('salvar-options');
     
-    // Buscar todos os tópicos disponíveis
     const topicos = Array.from(document.querySelectorAll('.topico-item'));
     
     const opcoesHTML = `
-      <div class="print-option-group">
+      <div class="salvar-option-group">
         <h4>Selecione os tópicos para salvar:</h4>
-        <div class="print-option">
+        <div class="salvar-option">
           <input type="checkbox" id="select-all-geral">
           <label for="select-all-geral">Selecionar todos os tópicos</label>
         </div>
@@ -1270,7 +1236,7 @@ class GerenciadorAnotacoes {
           const nomeTopico = topico.textContent.trim();
           const arquivo = topico.getAttribute('data-arquivo');
           return `
-            <div class="print-option">
+            <div class="salvar-option">
               <input type="checkbox" id="topico-${index}" name="topico" value="${arquivo}" data-nome="${nomeTopico}">
               <label for="topico-${index}">${nomeTopico}</label>
             </div>
@@ -1281,7 +1247,6 @@ class GerenciadorAnotacoes {
     
     opcoesContainer.innerHTML = opcoesHTML;
     
-    // Evento para selecionar/deselecionar todos
     document.getElementById('select-all-geral').addEventListener('change', function(e) {
       const checkboxes = opcoesContainer.querySelectorAll('input[name="topico"]');
       checkboxes.forEach(checkbox => {
@@ -1289,24 +1254,24 @@ class GerenciadorAnotacoes {
       });
     });
     
-    document.getElementById('print-overlay').style.display = 'flex';
+    document.getElementById('salvar-overlay').style.display = 'flex';
   }
 
   prepararSalvamentoTopico() {
-    this.tipoImpressaoAtual = 'topico';
-    const opcoesContainer = document.getElementById('print-options');
+    this.tipoSalvarAtual = 'topico';
+    const opcoesContainer = document.getElementById('salvar-options');
     
     const opcoesHTML = `
-      <div class="print-option-group">
+      <div class="salvar-option-group">
         <h4>Selecione os tópicos para salvar:</h4>
-        <div class="print-option">
+        <div class="salvar-option">
           <input type="checkbox" id="select-all-topico">
           <label for="select-all-topico">Selecionar todos os tópicos</label>
         </div>
         <div class="option-separator"></div>
         ${this.conteudoAtual.subtopicos.map((subtopico, index) => {
           return `
-            <div class="print-option">
+            <div class="salvar-option">
               <input type="checkbox" id="subtopico-${index}" name="subtopico" value="${index}" data-nome="${subtopico.titulo}">
               <label for="subtopico-${index}">${subtopico.titulo}</label>
             </div>
@@ -1317,7 +1282,6 @@ class GerenciadorAnotacoes {
     
     opcoesContainer.innerHTML = opcoesHTML;
     
-    // Evento para selecionar/deselecionar todos
     document.getElementById('select-all-topico').addEventListener('change', function(e) {
       const checkboxes = opcoesContainer.querySelectorAll('input[name="subtopico"]');
       checkboxes.forEach(checkbox => {
@@ -1325,18 +1289,18 @@ class GerenciadorAnotacoes {
       });
     });
     
-    document.getElementById('print-overlay').style.display = 'flex';
+    document.getElementById('salvar-overlay').style.display = 'flex';
   }
 
   prepararSalvamentoSubtopico(index) {
-    this.tipoImpressaoAtual = 'subtopico';
-    const opcoesContainer = document.getElementById('print-options');
+    this.tipoSalvarAtual = 'subtopico';
+    const opcoesContainer = document.getElementById('salvar-options');
     const subtopico = this.conteudoAtual.subtopicos[index];
     
     const opcoesHTML = `
-      <div class="print-option-group">
+      <div class="salvar-option-group">
         <h4>Salvar conteúdo:</h4>
-        <div class="print-option">
+        <div class="salvar-option">
           <input type="checkbox" id="subtopico-unico" checked disabled>
           <label for="subtopico-unico">${subtopico.titulo}</label>
         </div>
@@ -1345,22 +1309,22 @@ class GerenciadorAnotacoes {
     `;
     
     opcoesContainer.innerHTML = opcoesHTML;
-    document.getElementById('print-overlay').style.display = 'flex';
+    document.getElementById('salvar-overlay').style.display = 'flex';
   }
 
   salvarConteudo() {
-    const formato = document.querySelector('input[name="print-format"]:checked').value;
+    const formato = document.querySelector('input[name="salvar-format"]:checked').value;
     
-    if (this.tipoImpressaoAtual === 'geral') {
+    if (this.tipoSalvarAtual === 'geral') {
       this.salvarConteudoGeral(formato);
-    } else if (this.tipoImpressaoAtual === 'topico') {
+    } else if (this.tipoSalvarAtual === 'topico') {
       this.salvarConteudoTopico(formato);
-    } else if (this.tipoImpressaoAtual === 'subtopico') {
+    } else if (this.tipoSalvarAtual === 'subtopico') {
       const index = parseInt(document.getElementById('subtopico-index').value);
       this.salvarConteudoSubtopico(index, formato);
     }
     
-    document.getElementById('print-overlay').style.display = 'none';
+    document.getElementById('salvar-overlay').style.display = 'none';
   }
 
   async salvarConteudoGeral(formato) {
@@ -1378,7 +1342,6 @@ class GerenciadorAnotacoes {
       const nomeTopico = topicoCheckbox.getAttribute('data-nome');
       
       try {
-        // Verificar cache primeiro
         let html;
         if (this.cache.has(arquivo)) {
           html = this.cache.get(arquivo);
@@ -1392,7 +1355,6 @@ class GerenciadorAnotacoes {
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = html;
         
-        // Remover h1 se existir
         const h1 = tempDiv.querySelector('h1');
         if (h1) h1.remove();
         
@@ -1456,12 +1418,10 @@ class GerenciadorAnotacoes {
 
   gerarSaida(conteudo, titulo, formato) {
     if (formato === 'txt') {
-      // Converter HTML para texto simples mantendo a estrutura
+      // Converter HTML para texto puro
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = conteudo;
-      
-      // Função para extrair texto mantendo estrutura
-      let texto = this.extrairTextoEstruturado(tempDiv);
+      const texto = this.htmlParaTexto(tempDiv);
       
       const blob = new Blob([texto], { type: 'text/plain;charset=utf-8' });
       const url = URL.createObjectURL(blob);
@@ -1473,7 +1433,7 @@ class GerenciadorAnotacoes {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } else if (formato === 'pdf') {
-      // Para PDF, vamos usar a impressão nativa do navegador com estilos otimizados
+      // Usar a API de impressão do navegador para PDF
       const janela = window.open('', '_blank');
       janela.document.write(`
         <!DOCTYPE html>
@@ -1580,13 +1540,12 @@ class GerenciadorAnotacoes {
             Gerado em ${new Date().toLocaleString()} | Sistema de Anotações
           </div>
           <div class="no-print" style="margin-top: 20px;">
-            <button onclick="window.print()" style="padding: 10px 20px; background: #007BFF; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Imprimir PDF</button>
+            <button onclick="window.print()" style="padding: 10px 20px; background: #007BFF; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Salvar como PDF</button>
             <button onclick="window.close()" style="padding: 10px 20px; background: #6b7280; color: white; border: none; border-radius: 6px; cursor: pointer; margin-left: 10px;">Fechar</button>
           </div>
           <script>
-            // Focar na janela e preparar para impressão
             window.focus();
-          </script>
+          <\/script>
         </body>
         </html>
       `);
@@ -1594,10 +1553,9 @@ class GerenciadorAnotacoes {
     }
   }
 
-  extrairTextoEstruturado(elemento) {
+  htmlParaTexto(elemento) {
     let texto = '';
     
-    // Processar elementos filhos
     for (const child of elemento.childNodes) {
       if (child.nodeType === Node.TEXT_NODE) {
         texto += child.textContent;
@@ -1619,7 +1577,6 @@ class GerenciadorAnotacoes {
           });
           texto += '\n';
         } else if (tagName === 'div') {
-          // Verificar se é uma caixa especial
           if (child.classList.contains('destaque')) {
             texto += '💡 ' + child.textContent.trim() + '\n\n';
           } else if (child.classList.contains('info-box')) {
@@ -1632,10 +1589,10 @@ class GerenciadorAnotacoes {
             });
             texto += '\n';
           } else {
-            texto += this.extrairTextoEstruturado(child);
+            texto += this.htmlParaTexto(child);
           }
         } else {
-          texto += this.extrairTextoEstruturado(child);
+          texto += this.htmlParaTexto(child);
         }
       }
     }
@@ -1643,7 +1600,6 @@ class GerenciadorAnotacoes {
     return texto;
   }
 
-  // Métodos para busca
   buscarConteudo(termo) {
     if (!termo.trim()) {
       document.getElementById('resultados-busca').style.display = 'none';
@@ -1656,7 +1612,6 @@ class GerenciadorAnotacoes {
     const resultados = [];
     const termoLower = termo.toLowerCase();
 
-    // Buscar nos títulos dos tópicos
     document.querySelectorAll('.topico-item').forEach(item => {
       const titulo = item.textContent.toLowerCase();
       const arquivo = item.getAttribute('data-arquivo');
@@ -1671,12 +1626,10 @@ class GerenciadorAnotacoes {
       }
     });
 
-    // Buscar no conteúdo em cache
     this.cache.forEach((html, arquivo) => {
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = html;
       
-      // Buscar em subtítulos (h2)
       const subtitulos = tempDiv.querySelectorAll('h2');
       subtitulos.forEach(h2 => {
         const texto = h2.textContent.toLowerCase();
@@ -1692,7 +1645,6 @@ class GerenciadorAnotacoes {
         }
       });
 
-      // Buscar em parágrafos
       const paragrafos = tempDiv.querySelectorAll('p');
       paragrafos.forEach(p => {
         const texto = p.textContent.toLowerCase();
@@ -1731,12 +1683,10 @@ class GerenciadorAnotacoes {
     
     container.style.display = 'block';
     
-    // Ocultar tópicos normais
     document.querySelectorAll('.topico-item').forEach(item => {
       item.style.display = 'none';
     });
 
-    // Adicionar eventos aos resultados
     document.querySelectorAll('.resultado-item').forEach(item => {
       item.addEventListener('click', () => {
         const arquivo = item.getAttribute('data-arquivo');
@@ -1756,11 +1706,11 @@ class GerenciadorAnotacoes {
   }
 }
 
-// Inicialização
+// Inicialização da aplicação
 document.addEventListener('DOMContentLoaded', function() {
   const gerenciador = new GerenciadorAnotacoes();
 
-  // Event listeners para tópicos
+  // Eventos para os tópicos
   document.querySelectorAll('.topico-item').forEach(item => {
     item.addEventListener('click', function() {
       document.querySelectorAll('.topico-item').forEach(i => i.classList.remove('ativo'));
@@ -1771,12 +1721,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Botão fechar (voltar para index.html fora da pasta)
+  // Eventos para os botões da toolbar
   document.getElementById('btn-fechar').addEventListener('click', function() {
     window.location.href = '../index.html';
   });
 
-  // Menu hamburger
   document.getElementById('btn-menu').addEventListener('click', function() {
     document.getElementById('menu-overlay').style.display = 'flex';
   });
@@ -1785,65 +1734,58 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('menu-overlay').style.display = 'none';
   });
 
-  // Fechar menu ao clicar fora
   document.getElementById('menu-overlay').addEventListener('click', function(e) {
     if (e.target === this) {
       this.style.display = 'none';
     }
   });
 
-  // Sistema de busca
+  // Eventos para a busca
   const searchInput = document.getElementById('campo-busca');
   searchInput.addEventListener('input', function(e) {
     gerenciador.buscarConteudo(e.target.value);
   });
 
-  // Botão salvar geral (toolbar)
+  // Eventos para salvar
   document.getElementById('btn-salvar-geral').addEventListener('click', function() {
     gerenciador.prepararSalvamentoGeral();
   });
 
-  // Fechar modal de salvamento
-  document.getElementById('btn-cancelar-impressao').addEventListener('click', function() {
-    document.getElementById('print-overlay').style.display = 'none';
+  document.getElementById('btn-cancelar-salvar').addEventListener('click', function() {
+    document.getElementById('salvar-overlay').style.display = 'none';
   });
 
-  document.getElementById('print-close').addEventListener('click', function() {
-    document.getElementById('print-overlay').style.display = 'none';
+  document.getElementById('salvar-close').addEventListener('click', function() {
+    document.getElementById('salvar-overlay').style.display = 'none';
   });
 
-  // Confirmar salvamento
-  document.getElementById('btn-confirmar-impressao').addEventListener('click', function() {
+  document.getElementById('btn-confirmar-salvar').addEventListener('click', function() {
     gerenciador.salvarConteudo();
   });
 
-  // Fechar modal de salvamento ao clicar fora
-  document.getElementById('print-overlay').addEventListener('click', function(e) {
+  document.getElementById('salvar-overlay').addEventListener('click', function(e) {
     if (e.target === this) {
       this.style.display = 'none';
     }
   });
 
-  // Lightbox para imagens
+  // Eventos para o lightbox de imagens
   document.getElementById('lightbox-close').addEventListener('click', function() {
     gerenciador.fecharLightbox();
   });
 
-  // Fechar lightbox ao clicar fora
   document.getElementById('image-lightbox').addEventListener('click', function(e) {
     if (e.target === this) {
       gerenciador.fecharLightbox();
     }
   });
 
-  // Eventos para os botões de ação do tópico
+  // Eventos delegados para ações dinâmicas
   document.addEventListener('click', function(e) {
-    // Fechar tópico
     if (e.target.id === 'btn-fechar-topico' || e.target.closest('#btn-fechar-topico')) {
       gerenciador.fecharTopico();
     }
     
-    // Salvar tópico
     if (e.target.id === 'btn-salvar-topico' || e.target.closest('#btn-salvar-topico')) {
       gerenciador.prepararSalvamentoTopico();
     }

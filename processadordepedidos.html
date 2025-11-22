@@ -5,17 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Processador de Pedidos</title>
     <style>
-        /* ===== base / tipografia (mantive seu visual) ===== */
+        /* ===== base / tipografia ===== */
         :root {
             --azul: #007BFF;
             --azul-escuro: #0056b3;
             --amarelo: #FFD700;
             --vermelho: #b22222;
-            --verde: #28a745;
-            --laranja: #FF8C00;
-            --roxo: #8A2BE2;
-            --bg: #ffffff;
-            --muted: #666;
         }
         html,body { height:100%; }
         body {
@@ -23,7 +18,20 @@
             margin: 0;
             padding: 0;
             color: #111;
-            background: #f7f9fb;
+            background: #fff;
+        }
+
+        /* small helper for screen readers */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            white-space: nowrap;
+            border: 0;
         }
 
         /* ===== header ===== */
@@ -52,11 +60,61 @@
             cursor: pointer;
             padding: 6px 8px;
             border-radius: 6px;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
         }
         .icon-btn:hover { background: rgba(255,255,255,0.08); }
+
+        .icon-btn svg {
+            width: 22px;
+            height: 22px;
+            display: block;
+            flex-shrink: 0;
+        }
+
+        /* dropdowns */
+        .menu-dropdown { position: relative; }
+        .menu-dropdown-content {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            background: white;
+            color: #111;
+            border-radius: 6px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+            min-width: 220px;
+            max-width: calc(100vw - 40px);
+            overflow: auto;
+            z-index: 1200;
+            padding: 6px 0;
+            white-space: normal;
+        }
+        .menu-right .menu-dropdown-content { right: 0; left: auto; }
+
+        .menu-dropdown-content a {
+            display:block;
+            padding: 8px 12px;
+            color: #111;
+            text-decoration: none;
+            font-family: monospace;
+        }
+        .menu-dropdown-content a:hover { background: #f2f2f2; }
+
+        .dropdown-section { border-top: 1px solid #f0f0f0; padding-top: 6px; margin-top: 6px; }
+        .section-header {
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight:700;
+        }
+        .section-header small { font-weight:400; color:#666; }
+        .submenu { display:none; padding-left: 6px; padding-bottom:6px; }
+        .submenu a { padding-left: 18px; font-weight:500; }
 
         /* ===== título ===== */
         .titulo-nav {
@@ -72,20 +130,31 @@
             color:#111;
         }
 
-        /* ===== container ===== */
+        /* ===== container principal ===== */
         .container {
-            display:flex;
-            justify-content:center;
+            display: flex;
+            justify-content: center;
             gap: 48px;
-            align-items:flex-start;
+            align-items: flex-start;
             padding: 10px 14px 24px;
-            flex-wrap:wrap;
+            flex-wrap: nowrap;
+            min-height: 500px;
+        }
+
+        /* Colunas de entrada e saída */
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 300px;
+            max-width: 420px;
+            width: 100%;
+            flex-shrink: 0;
         }
 
         /* Áreas de texto */
         .text-area-wrap {
-            width:100%;
-            max-width:1100px;
+            width: 100%;
             background: #fff;
             border-radius: 10px;
             box-shadow: 0 6px 20px rgba(2,6,23,0.08);
@@ -95,42 +164,50 @@
         }
 
         textarea {
-            width:100%;
-            height: 400px;
-            padding: 15px;
+            width: 100%;
+            height: 460px;
+            padding: 14px;
             border: 1px solid #ddd;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 14px;
             resize: vertical;
-            line-height: 1.5;
+            line-height: 1.4;
             font-family: monospace;
             box-sizing: border-box;
         }
 
         /* ===== MIDDLE CONTROLS ===== */
         #middle-controls {
-            display:flex;
-            flex-direction:column;
-            gap:10px;
-            align-items:center;
-            justify-content:flex-start;
-            min-width:170px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            min-width: 170px;
             max-width: 200px;
+            margin: 0 20px;
+            flex-shrink: 0;
         }
         
         #middle-controls button {
-            width:170px;
-            padding:10px 12px;
-            font-size:14px;
-            border-radius:6px;
-            border:none;
-            cursor:pointer;
+            width: 170px;
+            padding: 12px 16px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
             font-family: monospace;
             text-align: center;
         }
         
-        .btn-azul{background:var(--azul);color:#fff}
-        .btn-vermelho{background:var(--vermelho);color:#fff}
+        .btn-azul { background: var(--azul); color: white; }
+        .btn-vermelho { background: var(--vermelho); color: white; }
+        
+        /* Botão com seta */
+        #process-btn {
+            font-size: 24px;
+            padding: 10px 16px;
+        }
         
         /* Divisória */
         .divisoria {
@@ -140,79 +217,205 @@
             margin: 10px 0;
         }
 
-        #contador-linhas{ text-align:center; margin: 12px 0 24px; font-weight:700; }
+        #contador-linhas { 
+            text-align: center; 
+            margin: 12px 0 0; 
+            font-weight: 700;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
 
-        #copy-notice{position: fixed;right: 18px;bottom: 18px;background: rgba(0,0,0,0.78);color: white;padding: 8px 12px;border-radius: 6px;display: none;z-index: 2000;font-family: monospace;font-size: 13px}
-
-        /* Campo flutuante para contagem */
-        #floating-count {
+        /* Aviso de cópia */
+        #copy-notice {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--azul);
+            right: 18px;
+            bottom: 18px;
+            background: rgba(0,0,0,0.78);
             color: white;
-            padding: 12px 16px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1000;
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: none;
+            z-index: 2000;
             font-family: monospace;
-            font-size: 14px;
-            font-weight: normal;
-            transition: opacity 0.3s;
-            line-height: 1.4;
-        }
-        
-        #floating-count.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        #floating-count-content {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+            font-size: 13px;
         }
 
-        /* Espaço vazio no final da página */
+        /* Espaço final */
         .espaco-final {
             height: 60px;
             width: 100%;
         }
 
-        .content {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            width: 100%;
-        }
-        
-        .input-section, .output-section {
-            flex: 1;
-            min-width: 300px;
-        }
-        
         .section-title {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-size: 18px;
             color: #2c3e50;
         }
 
-        @media (max-width:900px){.container{gap:20px;padding:10px}#middle-controls{order:2}}
-        @media (max-width:520px){.container{flex-direction:column;align-items:center}#middle-controls{flex-direction:row;gap:8px;max-width:100%}#middle-controls button{width:140px}}
+        /* Ajustes para telas menores */
+        @media (max-width: 1200px) {
+            .container {
+                gap: 30px;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .container {
+                gap: 20px;
+                padding: 10px;
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+            #middle-controls { 
+                order: 0; 
+                margin: 20px auto;
+                flex-direction: row;
+                max-width: 100%;
+                width: 100%;
+                justify-content: center;
+            }
+            #middle-controls button {
+                width: 150px;
+            }
+            .column {
+                min-width: 280px;
+                max-width: 48%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            .column {
+                max-width: 100%;
+                width: 100%;
+            }
+            #middle-controls {
+                flex-direction: column;
+                gap: 10px;
+                max-width: 100%;
+                margin: 10px 0;
+            }
+            #middle-controls button {
+                width: 100%;
+                max-width: 280px;
+            }
+        }
     </style>
 </head>
 <body>
 
 <header>
     <div class="menu-left">
-        <button class="icon-btn" id="btn-home" title="Menu inicial">
-            ≡
+        <div class="menu-dropdown">
+            <!-- MENU -->
+            <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')" aria-haspopup="true" aria-controls="dropdown-menu" aria-expanded="false">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+                    <title>Menu</title>
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                    <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+                <span class="sr-only">Abrir menu</span>
+            </button>
+
+            <div class="menu-dropdown-content" id="dropdown-menu" role="menu" aria-hidden="true">
+                <div class="dropdown-section">
+                    <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)">
+                        <span>MACS</span>
+                        <small class="chev">▸</small>
+                    </div>
+                    <div class="submenu">
+                        <a href="mac77.html" data-mac="77" onclick="abrirMac(event, 'MAC Bairro São Geraldo - Cód. 77')">MAC Bairro São Geraldo - Cód. 77</a>
+                        <a href="mac78.html" data-mac="78" onclick="abrirMac(event, 'MAC Bairro Planalto - Cód. 78')">MAC Bairro Planalto - Cód. 78</a>
+                        <a href="mac79.html" data-mac="79" onclick="abrirMac(event, 'MAC Romeu Duarte - Cód. 79')">MAC Romeu Duarte - Cód. 79</a>
+                        <a href="mac80.html" data-mac="80" onclick="abrirMac(event, 'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC Rua São Geraldo / Centro 2 - Cód. 80</a>
+                        <a href="mac277.html" data-mac="277" onclick="abrirMac(event, 'MAC Matriz - Cód. 277')">MAC Matriz - Cód. 277</a>
+                        <a href="mac853.html" data-mac="853" onclick="abrirMac(event, 'MAC Concesso - Cód. 853')">MAC Concesso - Cód. 853</a>
+                        <a href="mac1249.html" data-mac="1249" onclick="abrirMac(event, 'MAC Jardim do Lago - Cód. 1249')">MAC Jardim do Lago - Cód. 1249</a>
+                        <a href="mac989.html" data-mac="989" onclick="abrirMac(event, 'MAC Araújos - Cód. 989')">MAC Araújos - Cód. 989</a>
+                    </div>
+                </div>
+
+                <div class="dropdown-section">
+                    <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)">
+                        <span>São José</span>
+                        <small class="chev">▸</small>
+                    </div>
+                    <div class="submenu">
+                        <a href="saojose.html" onclick="abrirLocal(event, 'São José')">São José</a>
+                        <a href="paototal.html" onclick="abrirLocal(event, 'Pão Total')">Pão Total</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- X (fechar) -->
+        <button class="icon-btn" id="btn-close" title="Fechar" onclick="fecharPagina()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+                <title>Fechar</title>
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+            <span class="sr-only">Fechar</span>
+        </button>
+
+        <!-- Home -->
+        <button class="icon-btn" id="btn-home" title="Menu inicial" onclick="voltarMenu()">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 width="22" height="22"
+                 viewBox="0 0 24 24"
+                 fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M21.4498 10.275L11.9998 3.1875L2.5498 10.275L2.9998 11.625H3.7498V20.25H20.2498V11.625H20.9998L21.4498 10.275ZM5.2498 18.75V10.125L11.9998 5.0625L18.7498 10.125V18.75H14.9999V14.3333L14.2499 13.5833H9.74988L8.99988 14.3333V18.75H5.2498ZM10.4999 18.75H13.4999V15.0833H10.4999V18.75Z"/>
+            </svg>
+            <span class="sr-only">Menu inicial</span>
         </button>
     </div>
 
     <div class="menu-right">
+        <div class="menu-dropdown">
+            <!-- botão salvar -->
+            <button class="icon-btn" id="btn-salvar" title="Salvar" onclick="toggleMenu('dropdown-save')" aria-haspopup="true" aria-controls="dropdown-save" aria-expanded="false">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <title>Salvar</title>
+                    <path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7z"/>
+                    <path d="M17 3v4H7V3"/>
+                    <rect x="7" y="13" width="10" height="8" rx="1"/>
+                </svg>
+                <span class="sr-only">Salvar</span>
+            </button>
+            <div class="menu-dropdown-content" id="dropdown-save" aria-labelledby="btn-salvar">
+                <a href="#" onclick="salvarComoTXT(event)" title="Salvar como TXT">Salvar como TXT</a>
+                <a href="#" onclick="salvarComoPDF(event)" title="Salvar como PDF">Salvar como PDF</a>
+                <a href="#" onclick="salvarComoExcel(event)" title="Salvar como Excel">Salvar como Excel</a>
+            </div>
+        </div>
+
+        <!-- botão imprimir -->
+        <button class="icon-btn" id="btn-print" title="Imprimir">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 width="22" height="22"
+                 viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="2"
+                 stroke-linecap="round"
+                 stroke-linejoin="round" aria-hidden="true">
+                <path d="M7 18H6.2C5.0799 18 4.51984 18 4.09202 17.782C3.71569 17.5903 3.40973 17.2843 3.21799 16.908C3 16.4802 3 15.9201 3 14.8V10.2C3 9.0799 3 8.51984 3.21799 8.09202C3.40973 7.71569 3.71569 7.40973 4.09202 7.21799C4.51984 7 5.0799 7 6.2 7H7M17 18H17.8C18.9201 18 19.4802 18 19.908 17.782C20.2843 17.5903 20.5903 17.2843 20.782 16.908C21 16.4802 21 15.9201 21 14.8V10.2C21 9.07989 21 8.51984 20.782 8.09202C20.5903 7.71569 20.2843 7.40973 19.908 7.21799C19.4802 7 18.9201 7 17.8 7H17M7 11H7.01M17 7V5.4V4.6C17 4.03995 17 3.75992 16.891 3.54601C16.7951 3.35785 16.6422 3.20487 16.454 3.10899C16.2401 3 15.9601 3 15.4 3H8.6C8.03995 3 7.75992 3 7.54601 3.10899C7.35785 3.20487 7.20487 3.35785 7.10899 3.54601C7 3.75992 7 4.03995 7 4.6V5.4V7M17 7H7M8.6 21H15.4C15.9601 21 16.2401 21 16.454 20.891C16.6422 20.7951 16.7951 20.6422 16.891 20.454C17 20.2401 17 19.9601 17 19.4V16.6C17 16.0399 17 15.7599 16.891 15.546C16.7951 15.3578 16.6422 15.2049 16.454 15.109C16.2401 15 15.9601 15 15.4 15H8.6C8.03995 15 7.75992 15 7.54601 15.109C7.35785 15.2049 7.20487 15.3578 7.10899 15.546C7 15.7599 7 16.0399 7 16.6V19.4C7 19.9601 7 20.2401 7.10899 20.454C7.20487 20.6422 7.35785 20.7951 7.54601 20.891C7.75992 21 8.03995 21 8.6 21Z"/>
+            </svg>
+        </button>
+
+        <!-- botão copiar -->
         <button class="icon-btn" id="btn-copy" title="Copiar" onclick="copiarTexto()">
-            ⎘
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <title>Copiar</title>
+                <path d="M15 17v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1H7" />
+                <rect x="7" y="3" width="12" height="14" rx="1" />
+            </svg>
         </button>
     </div>
 </header>
@@ -222,49 +425,41 @@
 </div>
 
 <div class="container">
-    <div class="content">
-        <div class="input-section">
-            <h2 class="section-title">Entrada</h2>
-            <div class="text-area-wrap">
-                <textarea id="input-text" placeholder="Digite seus pedidos aqui, um por linha. Exemplo:
+    <div class="column">
+        <h2 class="section-title">Entrada</h2>
+        <div class="text-area-wrap">
+            <textarea id="input-text" placeholder="Digite seus pedidos aqui, um por linha. Exemplo:
 3 baguete
 2 pao de queijo
 3 pao de sal"></textarea>
-            </div>
-        </div>
-        
-        <div class="output-section">
-            <h2 class="section-title">Saída</h2>
-            <div class="text-area-wrap">
-                <textarea id="output-text" readonly></textarea>
-            </div>
         </div>
     </div>
-
+    
     <div id="middle-controls" aria-hidden="false">
-        <button id="process-btn" class="btn-azul" onclick="processarTexto()">Processar</button>
+        <button id="process-btn" class="btn-azul" onclick="processarTexto()">→</button>
         <button id="reset-btn" class="btn-vermelho" onclick="resetarTudo()">Resetar Tudo</button>
         
         <!-- Divisória -->
         <div class="divisoria"></div>
         
         <button class="btn-azul" onclick="copiarTexto()">Copiar Texto</button>
+        
+        <!-- Contador de linhas movido para cá -->
+        <div id="contador-linhas">Linhas processadas: 0</div>
+    </div>
+    
+    <div class="column">
+        <h2 class="section-title">Saída</h2>
+        <div class="text-area-wrap">
+            <textarea id="output-text" readonly></textarea>
+        </div>
     </div>
 </div>
-
-<div id="contador-linhas">Linhas processadas: 0</div>
 
 <!-- Espaço vazio no final da página -->
 <div class="espaco-final"></div>
 
 <div id="copy-notice">Copiado!</div>
-
-<!-- Campo flutuante para contagem -->
-<div id="floating-count" class="hidden">
-    <div id="floating-count-content">
-        <div>Linhas: <span id="floating-line-count">0</span></div>
-    </div>
-</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -273,8 +468,6 @@
         const processBtn = document.getElementById('process-btn');
         const resetBtn = document.getElementById('reset-btn');
         const contadorEl = document.getElementById('contador-linhas');
-        const floatingLineCount = document.getElementById('floating-line-count');
-        const floatingCount = document.getElementById('floating-count');
         
         // Função para processar o texto
         function processarTexto() {
@@ -282,8 +475,6 @@
             if (!input) {
                 outputText.value = "Nenhum pedido para processar.";
                 contadorEl.textContent = "Linhas processadas: 0";
-                floatingLineCount.textContent = "0";
-                floatingCount.classList.add('hidden');
                 return;
             }
             
@@ -331,14 +522,6 @@
             // Atualiza o contador
             const count = processedLines.length;
             contadorEl.textContent = `Linhas processadas: ${count}`;
-            floatingLineCount.textContent = count;
-            
-            // Mostra o campo flutuante se houver linhas
-            if (count > 0) {
-                floatingCount.classList.remove('hidden');
-            } else {
-                floatingCount.classList.add('hidden');
-            }
         }
         
         // Função para resetar tudo
@@ -346,8 +529,6 @@
             inputText.value = '';
             outputText.value = '';
             contadorEl.textContent = "Linhas processadas: 0";
-            floatingLineCount.textContent = "0";
-            floatingCount.classList.add('hidden');
         }
         
         // Função para copiar o texto processado
@@ -368,11 +549,6 @@
         // Atribuir as funções aos botões
         processBtn.addEventListener('click', processarTexto);
         resetBtn.addEventListener('click', resetarTudo);
-        
-        // Verificar visibilidade do campo flutuante ao rolar
-        window.addEventListener('scroll', function() {
-            // Esta função pode ser expandida para esconder/mostrar o campo flutuante conforme necessário
-        });
     });
     
     /* ==================== toasts ==================== */
@@ -389,6 +565,121 @@
             el.style.display = 'none'; 
             el._hideTimeout = null; 
         }, duration);
+    }
+    
+    /* ==================== funções do menu ==================== */
+    function toggleMenu(id) {
+        document.querySelectorAll('.menu-dropdown-content').forEach(el => {
+            if (el.id !== id) { el.style.display = 'none'; el.style.opacity = 0; el.setAttribute('aria-hidden','true'); }
+        });
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (el.style.display === 'block') {
+            el.style.opacity = 0;
+            setTimeout(() => { el.style.display = 'none'; el.setAttribute('aria-hidden','true'); }, 180);
+            try {
+                const btn = document.querySelector(`[aria-controls="${id}"]`);
+                if (btn) btn.setAttribute('aria-expanded', 'false');
+            } catch(e){}
+        } else {
+            el.style.display = 'block';
+            el.style.opacity = 0;
+            el.setAttribute('aria-hidden','false');
+            setTimeout(() => el.style.opacity = 1, 10);
+            try {
+                const btn = document.querySelector(`[aria-controls="${id}"]`);
+                if (btn) btn.setAttribute('aria-expanded', 'true');
+            } catch(e){}
+        }
+    }
+
+    function toggleSubmenu(headerEl) {
+        const submenu = headerEl.nextElementSibling;
+        if (!submenu) return;
+        const chev = headerEl.querySelector('.chev');
+        if (submenu.style.display === 'block') {
+            submenu.style.display = 'none';
+            if (chev) chev.textContent = '▸';
+        } else {
+            submenu.style.display = 'block';
+            if (chev) chev.textContent = '▾';
+        }
+    }
+
+    document.addEventListener('click', (ev) => {
+        if (!ev.target.closest('.menu-dropdown')) {
+            document.querySelectorAll('.menu-dropdown-content').forEach(el => {
+                el.style.display = 'none';
+                el.style.opacity = 0;
+                el.setAttribute('aria-hidden','true');
+            });
+            document.querySelectorAll('[aria-controls]').forEach(b => { try { b.setAttribute('aria-expanded','false'); } catch(e){} });
+        }
+    });
+    
+    function fecharPagina() {
+        window.location.href = "index.html"; 
+    }
+    
+    function voltarMenu() {
+        window.location.href = "index.html";
+    }
+    
+    function abrirMac(e, nome) {
+        try {
+            if (e && e.currentTarget) {
+                const href = e.currentTarget.getAttribute('href');
+                if (href && href !== '#' && href.trim() !== '') {
+                    if (nome) {
+                        const titulo = document.getElementById('titulo-principal');
+                        if (titulo) titulo.textContent = nome;
+                    }
+                    const menu = document.getElementById('dropdown-menu');
+                    if (menu) { menu.style.display = 'none'; menu.setAttribute('aria-hidden','true'); }
+                    window.location.href = href;
+                    return;
+                }
+            }
+        } catch(err) { /* ignore */ }
+        if (e) e.preventDefault();
+        document.getElementById('titulo-principal').textContent = nome;
+        toggleMenu('dropdown-menu');
+    }
+
+    function abrirLocal(e, nome) {
+        try {
+            if (e && e.currentTarget) {
+                const href = e.currentTarget.getAttribute('href');
+                if (href && href !== '#' && href.trim() !== '') {
+                    if (nome) {
+                        const titulo = document.getElementById('titulo-principal');
+                        if (titulo) titulo.textContent = nome;
+                    }
+                    const menu = document.getElementById('dropdown-menu');
+                    if (menu) { menu.style.display = 'none'; menu.setAttribute('aria-hidden','true'); }
+                    window.location.href = href;
+                    return;
+                }
+            }
+        } catch(err) { /* ignore */ }
+        if (e) e.preventDefault();
+        toggleMenu('dropdown-menu');
+    }
+    
+    // Funções de salvar (placeholders)
+    function salvarComoTXT(e) {
+        if (e) e.preventDefault();
+        showBottomNotice('Funcionalidade TXT em desenvolvimento', 2000);
+    }
+    
+    function salvarComoPDF(e) {
+        if (e) e.preventDefault();
+        showBottomNotice('Funcionalidade PDF em desenvolvimento', 2000);
+    }
+    
+    function salvarComoExcel(e) {
+        if (e) e.preventDefault();
+        showBottomNotice('Funcionalidade Excel em desenvolvimento', 2000);
     }
 </script>
 </body>

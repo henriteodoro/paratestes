@@ -264,6 +264,13 @@
             margin-bottom: 20px;
             color: var(--ink-strong);
             cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .section-title:hover {
+            background-color: #f0f7ff;
         }
 
         .section-title h2 {
@@ -475,6 +482,14 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .sidebar-title:hover {
+            background-color: #f0f7ff;
         }
 
         .sidebar-title .icon {
@@ -491,9 +506,15 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 10px 0;
+            padding: 10px;
             border-bottom: 1px solid var(--borda);
             cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .fav-item:hover, .recent-item:hover {
+            background-color: #f0f7ff;
         }
 
         .fav-item:last-child, .recent-item:last-child {
@@ -802,11 +823,11 @@
         .guide-group {
             background: var(--fundo);
             border-radius: 12px;
-            padding: 20px;
+            padding: 15px;
             border: 1px solid var(--borda);
             display: flex;
             flex-direction: column;
-            min-height: 180px; /* Altura mínima uniforme para todos os grupos */
+            min-height: 160px; /* Altura mínima uniforme reduzida */
             height: auto; /* Altura automática para se ajustar ao conteúdo */
         }
 
@@ -814,7 +835,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             cursor: pointer;
             flex-shrink: 0; /* Impede que o header cresça */
         }
@@ -857,12 +878,12 @@
         }
 
         .guide-items.expanded {
-            max-height: 500px; /* Altura máxima quando expandido */
+            max-height: 300px; /* Altura máxima reduzida quando expandido */
             overflow-y: auto; /* Scroll apenas quando necessário */
         }
 
         .guide-item {
-            padding: 10px 0;
+            padding: 8px 0;
             border-bottom: 1px solid var(--borda);
             color: var(--ink);
             font-size: 14px;
@@ -922,6 +943,63 @@
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
             gap: 15px !important;
         }
+
+        /* Modal de confirmação personalizado */
+        .confirmation-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .confirmation-modal.active {
+            display: flex;
+        }
+        
+        .confirmation-content {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        
+        .confirmation-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--ink-strong);
+        }
+        
+        .confirmation-message {
+            margin-bottom: 20px;
+            color: var(--ink);
+        }
+        
+        .confirmation-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+            border-color: #bd2130;
+        }
     </style>
 </head>
 <body>
@@ -930,12 +1008,9 @@
             <div class="header-content">
                 <div class="logo">
                     <div class="logo-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                            <polyline points="10 9 9 9 8 9"></polyline>
+                        <!-- Novo ícone SVG -->
+                        <svg width="30" height="30" viewBox="0 0 73.768 73.768" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M117.606,385.2a36.884,36.884,0,1,0,36.884,36.884A36.926,36.926,0,0,0,117.606,385.2Zm33.846,35.383H136.366a48.681,48.681,0,0,0-3.047-16.068,36.786,36.786,0,0,0,8.781-5.808A33.752,33.752,0,0,1,151.452,420.586Zm-32.346-31.072a36.534,36.534,0,0,1,6.069,6.387,39.467,39.467,0,0,1,4.176,7.028,33.843,33.843,0,0,1-10.245,2.061Zm3.534-.935a33.762,33.762,0,0,1,17.292,8.051,33.809,33.809,0,0,1-7.772,5.116A41.252,41.252,0,0,0,122.64,388.579ZM110.19,395.9a36.615,36.615,0,0,1,5.916-6.261v15.35a33.789,33.789,0,0,1-10.116-2.013A39.5,39.5,0,0,1,110.19,395.9Zm-7.013,5.906a33.8,33.8,0,0,1-7.9-5.177,33.757,33.757,0,0,1,17.469-8.074A41.244,41.244,0,0,0,103.177,401.807Zm12.929,6.183v12.6H102a45.607,45.607,0,0,1,2.835-14.838A36.83,36.83,0,0,0,116.106,407.99Zm0,15.6v12.386a36.8,36.8,0,0,0-11.018,2.146A42.373,42.373,0,0,1,102,423.587Zm0,15.386v15.252a47.106,47.106,0,0,1-9.792-13.361A33.819,33.819,0,0,1,116.106,438.973Zm-2.86,16.708a33.755,33.755,0,0,1-18.084-8.24,33.786,33.786,0,0,1,8.306-5.426A48.955,48.955,0,0,0,113.246,455.681Zm5.86-1.313v-15.4a33.8,33.8,0,0,1,9.922,1.94A47.081,47.081,0,0,1,119.106,454.368Zm12.762-12.294a33.846,33.846,0,0,1,8.182,5.367,33.759,33.759,0,0,1-17.909,8.217A48.888,48.888,0,0,0,131.868,442.074Zm-12.762-6.1V423.587h14.257a42.352,42.352,0,0,1-3.106,14.582A36.818,36.818,0,0,0,119.106,435.973Zm0-15.386v-12.6a36.806,36.806,0,0,0,11.4-2.291,45.562,45.562,0,0,1,2.854,14.888ZM93.112,398.711a36.8,36.8,0,0,0,8.91,5.871A48.7,48.7,0,0,0,99,420.587H83.76A33.757,33.757,0,0,1,93.112,398.711ZM83.76,423.587H99a45.675,45.675,0,0,0,3.256,15.683A36.807,36.807,0,0,0,93,445.35,33.755,33.755,0,0,1,83.76,423.587Zm58.447,21.764a36.8,36.8,0,0,0-9.122-6.022,45.69,45.69,0,0,0,3.279-15.742h15.088A33.759,33.759,0,0,1,142.207,445.351Z" transform="translate(-80.722 -385.203)" fill="#ffffff"/>
                         </svg>
                     </div>
                     <h1>Sistema de Informações</h1>
@@ -1279,7 +1354,7 @@
                                 </div>
                                 <div>
                                     <div class="category-title">Ferramentas</div>
-                                    <div class="category-count">4 utilitários</div>
+                                    <div class="category-count">5 utilitários</div>
                                 </div>
                                 <svg class="category-favorite-star" data-category="ferramentas" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
@@ -1323,6 +1398,17 @@
                                     </div>
                                     <div class="item-actions">
                                         <svg class="favorite-star" data-id="tool-notes" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                        </svg>
+                                    </div>
+                                </li>
+                                <!-- Nova opção de Planilhas de Autocontrole -->
+                                <li class="category-item" data-id="tool-autocontrol">
+                                    <div class="item-content">
+                                        <span class="item-text">Planilhas de Autocontrole</span>
+                                    </div>
+                                    <div class="item-actions">
+                                        <svg class="favorite-star" data-id="tool-autocontrol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                                         </svg>
                                     </div>
@@ -1594,6 +1680,38 @@
                                     </li>
                                 </ul>
                             </div>
+
+                            <!-- Souza Melo e Filho - NOVA SEÇÃO -->
+                            <div class="guide-group">
+                                <div class="guide-group-header" data-group="souza-melo">
+                                    <div class="guide-group-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="9" cy="7" r="4"></circle>
+                                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="guide-group-title">Souza Melo e Filho</div>
+                                    <svg class="guide-group-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </div>
+                                <ul class="guide-items">
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">123</span>
+                                            <span class="guide-item-text">Souza Melo e Filho 123 - Rua Esmeralda Bairro Padre Eustáquio</span>
+                                        </div>
+                                    </li>
+                                    <li class="guide-item">
+                                        <div class="guide-item-info">
+                                            <span class="guide-item-badge">327</span>
+                                            <span class="guide-item-text">Souza Melo e Filho 327 - Rua Antônio Corradi Bairro Cerqueira Lima</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -1683,6 +1801,30 @@
         </div>
     </div>
 
+    <!-- Modal de confirmação para limpar favoritos -->
+    <div class="confirmation-modal" id="clear-favorites-confirm">
+        <div class="confirmation-content">
+            <h3 class="confirmation-title">Limpar Favoritos</h3>
+            <p class="confirmation-message">Tem certeza que deseja limpar todos os favoritos?</p>
+            <div class="confirmation-actions">
+                <button class="btn" id="cancel-clear-favorites">Cancelar</button>
+                <button class="btn btn-danger" id="confirm-clear-favorites">Limpar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmação para limpar recentes -->
+    <div class="confirmation-modal" id="clear-recent-confirm">
+        <div class="confirmation-content">
+            <h3 class="confirmation-title">Limpar Recentes</h3>
+            <p class="confirmation-message">Tem certeza que deseja limpar a lista de itens recentes?</p>
+            <div class="confirmation-actions">
+                <button class="btn" id="cancel-clear-recent">Cancelar</button>
+                <button class="btn btn-danger" id="confirm-clear-recent">Limpar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Dados do sistema atualizados
         const systemData = {
@@ -1703,7 +1845,8 @@
                 { id: 'tool-1', name: 'Lista Ordenada', category: 'ferramentas', url: 'listaordenada.html', favorite: false },
                 { id: 'tool-2', name: 'Abrir Arquivo', category: 'ferramentas', url: 'ods.html', favorite: false },
                 { id: 'tool-3', name: 'Simular Pedido', category: 'ferramentas', url: 'simularpedido.html', favorite: false },
-                { id: 'tool-notes', name: 'Anotações', category: 'ferramentas', url: '#', favorite: false }
+                { id: 'tool-notes', name: 'Anotações', category: 'ferramentas', url: '#', favorite: false },
+                { id: 'tool-autocontrol', name: 'Planilhas de Autocontrole', category: 'ferramentas', url: 'planilhaautocontrole.html', favorite: false }
             ],
             recent: [],
             favorites: [],
@@ -1717,7 +1860,11 @@
                 somar: true,
                 'ester-amaral': true,
                 'casa-fidelis': true,
-                'supermercado-josildo': true
+                'supermercado-josildo': true,
+                'souza-melo': true // Nova seção adicionada
+            },
+            categoryExpanded: { // Novo estado para expansão de categorias
+                macs: false
             }
         };
 
@@ -1733,6 +1880,7 @@
             updateFavoriteStars();
             updateCategoryFavoriteStars();
             updateGuideGroups();
+            updateCategoryExpansions(); // Nova função para restaurar expansões de categoria
             
             // Busca
             const searchInput = document.getElementById('search-input');
@@ -1751,8 +1899,32 @@
             });
             
             // Botões de ação
-            document.getElementById('clear-favorites').addEventListener('click', clearFavorites);
-            document.getElementById('clear-recent').addEventListener('click', clearRecent);
+            document.getElementById('clear-favorites').addEventListener('click', function() {
+                document.getElementById('clear-favorites-confirm').classList.add('active');
+            });
+            
+            document.getElementById('clear-recent').addEventListener('click', function() {
+                document.getElementById('clear-recent-confirm').classList.add('active');
+            });
+            
+            // Botões de confirmação dos modais
+            document.getElementById('cancel-clear-favorites').addEventListener('click', function() {
+                document.getElementById('clear-favorites-confirm').classList.remove('active');
+            });
+            
+            document.getElementById('confirm-clear-favorites').addEventListener('click', function() {
+                clearFavorites();
+                document.getElementById('clear-favorites-confirm').classList.remove('active');
+            });
+            
+            document.getElementById('cancel-clear-recent').addEventListener('click', function() {
+                document.getElementById('clear-recent-confirm').classList.remove('active');
+            });
+            
+            document.getElementById('confirm-clear-recent').addEventListener('click', function() {
+                clearRecent();
+                document.getElementById('clear-recent-confirm').classList.remove('active');
+            });
             
             // Expandir categorias
             document.querySelectorAll('.expandable').forEach(expandable => {
@@ -1834,7 +2006,7 @@
                 toggleSection('guides');
             });
             
-            // Toggle guide groups - ATUALIZADO
+            // Toggle guide groups
             document.querySelectorAll('.guide-group-header').forEach(header => {
                 header.addEventListener('click', function() {
                     const group = this.getAttribute('data-group');
@@ -1860,8 +2032,10 @@
                     somar: true,
                     'ester-amaral': true,
                     'casa-fidelis': true,
-                    'supermercado-josildo': true
+                    'supermercado-josildo': true,
+                    'souza-melo': true
                 };
+                systemData.categoryExpanded = parsedData.categoryExpanded || { macs: false };
                 
                 // Aplicar estado das seções
                 if (systemData.quickAccessCollapsed) {
@@ -1898,8 +2072,23 @@
                 quickAccessCollapsed: systemData.quickAccessCollapsed,
                 categoriesCollapsed: systemData.categoriesCollapsed,
                 guidesCollapsed: systemData.guidesCollapsed,
-                guideGroupsCollapsed: systemData.guideGroupsCollapsed
+                guideGroupsCollapsed: systemData.guideGroupsCollapsed,
+                categoryExpanded: systemData.categoryExpanded // Salvar estado de expansão das categorias
             }));
+        }
+        
+        // Atualizar expansões de categoria
+        function updateCategoryExpansions() {
+            Object.keys(systemData.categoryExpanded).forEach(category => {
+                if (systemData.categoryExpanded[category]) {
+                    const expandedItems = document.getElementById(`${category}-expanded`);
+                    const expandable = document.getElementById(`expand-${category}`);
+                    if (expandedItems && expandable) {
+                        expandedItems.classList.add('active');
+                        expandable.textContent = 'Ver menos...';
+                    }
+                }
+            });
         }
         
         // Alternar seção (minimizar/expandir)
@@ -1939,7 +2128,7 @@
             saveData();
         }
         
-        // Alternar grupos de guias - COMPLETAMENTE REESCRITO
+        // Alternar grupos de guias
         function toggleGuideGroup(group) {
             const guideGroupHeader = document.querySelector(`.guide-group-header[data-group="${group}"]`);
             if (!guideGroupHeader) return;
@@ -1953,7 +2142,7 @@
             
             if (isCurrentlyCollapsed) {
                 // Expandir este grupo
-                guideItems.style.maxHeight = '500px'; // Valor fixo para evitar flickering
+                guideItems.style.maxHeight = '300px'; // Valor reduzido para evitar excesso de espaço
                 guideItems.classList.add('expanded');
                 toggle.classList.remove('collapsed');
                 systemData.guideGroupsCollapsed[group] = false;
@@ -1974,7 +2163,7 @@
             saveData();
         }
         
-        // Atualizar estado dos grupos de guias - COMPLETAMENTE REESCRITO
+        // Atualizar estado dos grupos de guias
         function updateGuideGroups() {
             Object.keys(systemData.guideGroupsCollapsed).forEach(group => {
                 const guideGroupHeader = document.querySelector(`.guide-group-header[data-group="${group}"]`);
@@ -1989,7 +2178,7 @@
                         guideItems.classList.remove('expanded');
                         toggle.classList.add('collapsed');
                     } else {
-                        guideItems.style.maxHeight = '500px';
+                        guideItems.style.maxHeight = '300px';
                         guideItems.classList.add('expanded');
                         toggle.classList.remove('collapsed');
                         
@@ -2002,6 +2191,25 @@
             });
         }
         
+        // Expandir/contrair categoria
+        function toggleCategoryExpansion(category) {
+            const expandedItems = document.getElementById(`${category}-expanded`);
+            const expandable = document.getElementById(`expand-${category}`);
+            
+            if (expandedItems.classList.contains('active')) {
+                expandedItems.classList.remove('active');
+                expandable.textContent = 'Ver todos...';
+                systemData.categoryExpanded[category] = false;
+            } else {
+                expandedItems.classList.add('active');
+                expandable.textContent = 'Ver menos...';
+                systemData.categoryExpanded[category] = true;
+            }
+            
+            saveData();
+        }
+        
+        // Resto do JavaScript permanece igual (com algumas pequenas correções)
         // Buscar itens - função completamente reescrita
         function performSearch(query) {
             const searchTerm = query.toLowerCase().trim();
@@ -2057,6 +2265,7 @@
                 
                 // Restaurar o estado de expansão das guias baseado no saved state
                 updateGuideGroups();
+                updateCategoryExpansions();
                 return;
             }
             
@@ -2255,20 +2464,6 @@
             const searchInput = document.getElementById('search-input');
             searchInput.value = '';
             performSearch(''); // Usamos a própria função de busca com string vazia para restaurar
-        }
-        
-        // Expandir/contrair categoria
-        function toggleCategoryExpansion(category) {
-            const expandedItems = document.getElementById(`${category}-expanded`);
-            const expandable = document.getElementById(`expand-${category}`);
-            
-            if (expandedItems.classList.contains('active')) {
-                expandedItems.classList.remove('active');
-                expandable.textContent = 'Ver todos...';
-            } else {
-                expandedItems.classList.add('active');
-                expandable.textContent = 'Ver menos...';
-            }
         }
         
         // Abrir item
@@ -2603,34 +2798,30 @@
         
         // Limpar favoritos
         function clearFavorites() {
-            if (confirm('Tem certeza que deseja limpar todos os favoritos?')) {
-                systemData.favorites = [];
-                systemData.categoryFavorites = [];
-                systemData.items.forEach(item => {
-                    item.favorite = false;
-                });
-                updateFavoritesList();
-                updateFavoriteStars();
-                updateCategoryFavoriteStars();
-                saveData();
-                updateStats();
-                
-                // Se o filtro de favoritos estiver ativo, atualizar a exibição
-                if (document.getElementById('show-favorites').checked) {
-                    filterFavorites(true);
-                }
+            systemData.favorites = [];
+            systemData.categoryFavorites = [];
+            systemData.items.forEach(item => {
+                item.favorite = false;
+            });
+            updateFavoritesList();
+            updateFavoriteStars();
+            updateCategoryFavoriteStars();
+            saveData();
+            updateStats();
+            
+            // Se o filtro de favoritos estiver ativo, atualizar a exibição
+            if (document.getElementById('show-favorites').checked) {
+                filterFavorites(true);
             }
         }
         
         // Limpar recentes
         function clearRecent() {
-            if (confirm('Tem certeza que deseja limpar a lista de itens recentes?')) {
-                systemData.recent = [];
-                systemData.recentExpanded = false;
-                updateRecentList();
-                saveData();
-                updateStats();
-            }
+            systemData.recent = [];
+            systemData.recentExpanded = false;
+            updateRecentList();
+            saveData();
+            updateStats();
         }
         
         // Ações rápidas

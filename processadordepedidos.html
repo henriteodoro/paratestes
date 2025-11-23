@@ -11,12 +11,15 @@
             --azul-escuro: #0056b3;
             --amarelo: #FFD700;
             --vermelho: #b22222;
+            --verde: #28a745;
         }
-        html,body { height:100%; }
-        body {
-            font-family: monospace;
+        html,body { 
+            height:100%; 
             margin: 0;
             padding: 0;
+        }
+        body {
+            font-family: monospace;
             color: #111;
             background: #fff;
         }
@@ -133,12 +136,14 @@
         /* ===== container principal ===== */
         .container {
             display: flex;
-            justify-content: center;
-            gap: 48px;
+            justify-content: space-between;
             align-items: flex-start;
             padding: 10px 14px 24px;
             flex-wrap: nowrap;
             min-height: 500px;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 40px;
         }
 
         /* Colunas de entrada e saída */
@@ -147,9 +152,18 @@
             flex-direction: column;
             gap: 6px;
             min-width: 300px;
-            max-width: 420px;
+            max-width: 400px;
             width: 100%;
-            flex-shrink: 0;
+            flex: 1;
+        }
+
+        /* Ajuste específico para a coluna da esquerda */
+        .column:first-child {
+            margin-left: 0px;
+        }
+
+        .column:last-child {
+             margin-left: 0px; /* ← AQUI: aumenta/diminui distância dos botões pra direita */
         }
 
         /* Áreas de texto */
@@ -170,7 +184,7 @@
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 14px;
-            resize: vertical;
+            resize: none;
             line-height: 1.4;
             font-family: monospace;
             box-sizing: border-box;
@@ -183,10 +197,10 @@
             gap: 12px;
             align-items: center;
             justify-content: center;
-            min-width: 170px;
-            max-width: 200px;
-            margin: 0 20px;
+            width: 170px;
+            margin: 0;
             flex-shrink: 0;
+            flex-grow: 0;
         }
         
         #middle-controls button {
@@ -202,6 +216,7 @@
         
         .btn-azul { background: var(--azul); color: white; }
         .btn-vermelho { background: var(--vermelho); color: white; }
+        .btn-verde { background: var(--verde); color: white; }
         
         /* Botão com seta */
         #process-btn {
@@ -253,56 +268,143 @@
             color: #2c3e50;
         }
 
-        /* Ajustes para telas menores */
+        /* ===== AJUSTES PARA TELAS MENORES ===== */
+        
+        /* Para telas de laptop/tablet grande */
         @media (max-width: 1200px) {
             .container {
+                justify-content: space-between;
                 gap: 30px;
+            }
+            .column {
+                min-width: 280px;
+                max-width: 380px;
             }
         }
         
+        /* Para telas médias (janelas divididas) */
+        @media (max-width: 1024px) {
+            .container {
+                justify-content: space-between;
+                padding: 10px 12px 20px;
+                gap: 25px;
+            }
+            .column {
+                min-width: 250px;
+                max-width: 350px;
+            }
+            textarea {
+                height: 420px;
+            }
+        }
+        
+        /* Para tablets e telas menores */
         @media (max-width: 900px) {
             .container {
+                flex-wrap: wrap;
                 gap: 20px;
                 padding: 10px;
-                flex-wrap: wrap;
-                justify-content: space-between;
-            }
-            #middle-controls { 
-                order: 0; 
-                margin: 20px auto;
-                flex-direction: row;
-                max-width: 100%;
-                width: 100%;
                 justify-content: center;
-            }
-            #middle-controls button {
-                width: 150px;
             }
             .column {
                 min-width: 280px;
                 max-width: 48%;
+                flex: 1 1 45%;
+            }
+            #middle-controls { 
+                order: 3;
+                margin: 10px auto 0;
+                flex-direction: row;
+                width: 100%;
+                max-width: 500px;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            #middle-controls button {
+                width: 160px;
+                margin: 0 5px;
             }
         }
         
+        /* Para dispositivos móveis */
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
                 align-items: center;
                 gap: 15px;
+                padding: 10px;
             }
             .column {
                 max-width: 100%;
                 width: 100%;
+                min-width: auto;
+            }
+            #middle-controls {
+                flex-direction: row;
+                gap: 10px;
+                width: 100%;
+                margin: 10px 0;
+                flex-wrap: wrap;
+            }
+            #middle-controls button {
+                width: 160px;
+                max-width: none;
+            }
+            textarea {
+                height: 300px;
+            }
+        }
+        
+        /* Para telas pequenas (celulares) */
+        @media (max-width: 600px) {
+            .container {
+                padding: 8px;
+            }
+            .text-area-wrap {
+                padding: 12px;
+            }
+            textarea {
+                padding: 12px;
+                height: 250px;
+            }
+            .section-title {
+                font-size: 16px;
             }
             #middle-controls {
                 flex-direction: column;
-                gap: 10px;
-                max-width: 100%;
-                margin: 10px 0;
+                align-items: center;
+                gap: 8px;
             }
             #middle-controls button {
                 width: 100%;
                 max-width: 280px;
+            }
+        }
+        
+        /* Para telas muito pequenas */
+        @media (max-width: 480px) {
+            .container {
+                padding: 5px;
+            }
+            .text-area-wrap {
+                padding: 8px;
+            }
+            textarea {
+                padding: 10px;
+                height: 200px;
+            }
+            .section-title {
+                font-size: 16px;
+                margin-bottom: 8px;
+            }
+            #middle-controls button {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+            #process-btn {
+                font-size: 20px;
+                padding: 8px 14px;
             }
         }
     </style>
@@ -442,7 +544,8 @@
         <!-- Divisória -->
         <div class="divisoria"></div>
         
-        <button class="btn-azul" onclick="copiarTexto()">Copiar Texto</button>
+        <!-- Botão copiar texto com cor verde -->
+        <button class="btn-verde" onclick="copiarTexto()">Copiar Texto</button>
         
         <!-- Contador de linhas movido para cá -->
         <div id="contador-linhas">Linhas processadas: 0</div>

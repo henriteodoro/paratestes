@@ -827,17 +827,31 @@
             border: 1px solid var(--borda);
             display: flex;
             flex-direction: column;
-            min-height: 160px; /* Altura mínima uniforme reduzida */
-            height: auto; /* Altura automática para se ajustar ao conteúdo */
+            min-height: 60px; /* Altura mínima uniforme reduzida */
+            height: auto;
+            transition: all 0.3s ease;
         }
 
         .guide-group-header {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 10px;
+            margin-bottom: 0; /* Removido margin quando fechado */
             cursor: pointer;
             flex-shrink: 0; /* Impede que o header cresça */
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .guide-group-header:hover {
+            background-color: #f0f7ff;
+            transform: translateX(3px);
+        }
+
+        .guide-group-header:hover .guide-group-title {
+            color: var(--azul);
+            transition: color 0.2s ease;
         }
 
         .guide-group-icon {
@@ -875,11 +889,14 @@
             overflow: hidden;
             transition: all 0.3s ease;
             max-height: 0;
+            margin: 0;
+            padding: 0;
         }
 
         .guide-items.expanded {
             max-height: 300px; /* Altura máxima reduzida quando expandido */
             overflow-y: auto; /* Scroll apenas quando necessário */
+            margin-top: 8px;
         }
 
         .guide-item {
@@ -888,6 +905,18 @@
             color: var(--ink);
             font-size: 14px;
             line-height: 1.5;
+            transition: all 0.2s ease;
+        }
+
+        .guide-item:hover {
+            background-color: #f8fbff;
+            border-radius: 6px;
+            transform: translateX(2px);
+        }
+
+        .guide-item:hover .guide-item-text {
+            color: var(--azul);
+            transition: color 0.2s ease;
         }
 
         .guide-item:last-child {
@@ -999,6 +1028,34 @@
         .btn-danger:hover {
             background: #c82333;
             border-color: #bd2130;
+        }
+
+        /* Estilo para o destaque da busca */
+        .search-highlight {
+            background-color: #ffeb3b;
+            color: #000;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* Estilos para as setas da barra lateral */
+        .toggle-sidebar-section {
+            margin-left: auto;
+            transition: transform 0.3s;
+        }
+
+        .toggle-sidebar-section.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .sidebar-content {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .sidebar-content.collapsed {
+            display: none;
         }
     </style>
 </head>
@@ -1719,56 +1776,71 @@
 
             <aside class="sidebar">
                 <div class="sidebar-section">
-                    <h3 class="sidebar-title">
+                    <h3 class="sidebar-title" data-section="favorites">
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                         </svg>
                         Favoritos
+                        <svg class="toggle-sidebar-section" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
                     </h3>
-                    <ul class="favorites-list" id="favorites-list">
-                        <!-- Itens de favoritos serão carregados aqui -->
-                    </ul>
+                    <div class="sidebar-content" id="favorites-content">
+                        <ul class="favorites-list" id="favorites-list">
+                            <!-- Itens de favoritos serão carregados aqui -->
+                        </ul>
+                    </div>
                 </div>
 
                 <div class="sidebar-section">
-                    <h3 class="sidebar-title">
+                    <h3 class="sidebar-title" data-section="recent">
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="10"></circle>
                             <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
                         Acessados Recentemente
+                        <svg class="toggle-sidebar-section" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
                     </h3>
-                    <ul class="recent-list" id="recent-list">
-                        <!-- Itens recentes serão carregados aqui -->
-                    </ul>
-                    <button class="expand-recents" id="expand-recents">Ver todos</button>
+                    <div class="sidebar-content" id="recent-content">
+                        <ul class="recent-list" id="recent-list">
+                            <!-- Itens recentes serão carregados aqui -->
+                        </ul>
+                        <button class="expand-recents" id="expand-recents">Ver todos</button>
+                    </div>
                 </div>
 
                 <div class="sidebar-section">
-                    <h3 class="sidebar-title">
+                    <h3 class="sidebar-title" data-section="stats">
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="12" y1="20" x2="12" y2="10"></line>
                             <line x1="18" y1="20" x2="18" y2="4"></line>
                             <line x1="6" y1="20" x2="6" y2="16"></line>
                         </svg>
                         Estatísticas
+                        <svg class="toggle-sidebar-section" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
                     </h3>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-value" id="total-items">0</div>
-                            <div class="stat-label">Itens</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="total-categories">5</div>
-                            <div class="stat-label">Categorias</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="total-favorites">0</div>
-                            <div class="stat-label">Favoritos</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="total-recent">0</div>
-                            <div class="stat-label">Recentes</div>
+                    <div class="sidebar-content" id="stats-content">
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value" id="total-items">0</div>
+                                <div class="stat-label">Itens</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="total-categories">5</div>
+                                <div class="stat-label">Categorias</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="total-favorites">0</div>
+                                <div class="stat-label">Favoritos</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="total-recent">0</div>
+                                <div class="stat-label">Recentes</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1861,10 +1933,15 @@
                 'ester-amaral': true,
                 'casa-fidelis': true,
                 'supermercado-josildo': true,
-                'souza-melo': true // Nova seção adicionada
+                'souza-melo': true
             },
-            categoryExpanded: { // Novo estado para expansão de categorias
+            categoryExpanded: {
                 macs: false
+            },
+            sidebarSections: {
+                favorites: false,
+                recent: false,
+                stats: false
             }
         };
 
@@ -1880,7 +1957,8 @@
             updateFavoriteStars();
             updateCategoryFavoriteStars();
             updateGuideGroups();
-            updateCategoryExpansions(); // Nova função para restaurar expansões de categoria
+            updateCategoryExpansions();
+            loadSidebarSectionsState();
             
             // Busca
             const searchInput = document.getElementById('search-input');
@@ -2013,6 +2091,22 @@
                     toggleGuideGroup(group);
                 });
             });
+
+            // Controlar expansão/recolhimento das seções da barra lateral
+            document.querySelectorAll('.sidebar-title').forEach(title => {
+                title.addEventListener('click', function() {
+                    const section = this.getAttribute('data-section');
+                    const content = document.getElementById(`${section}-content`);
+                    const toggle = this.querySelector('.toggle-sidebar-section');
+                    
+                    content.classList.toggle('collapsed');
+                    toggle.classList.toggle('collapsed');
+                    
+                    // Salvar estado no sistema de dados
+                    systemData.sidebarSections[section] = content.classList.contains('collapsed');
+                    saveData();
+                });
+            });
         });
         
         // Carregar dados do localStorage
@@ -2036,6 +2130,11 @@
                     'souza-melo': true
                 };
                 systemData.categoryExpanded = parsedData.categoryExpanded || { macs: false };
+                systemData.sidebarSections = parsedData.sidebarSections || {
+                    favorites: false,
+                    recent: false,
+                    stats: false
+                };
                 
                 // Aplicar estado das seções
                 if (systemData.quickAccessCollapsed) {
@@ -2062,6 +2161,23 @@
             }
         }
         
+        // Carregar estado das seções da barra lateral
+        function loadSidebarSectionsState() {
+            if (systemData.sidebarSections) {
+                Object.keys(systemData.sidebarSections).forEach(section => {
+                    const content = document.getElementById(`${section}-content`);
+                    const toggle = document.querySelector(`.sidebar-title[data-section="${section}"] .toggle-sidebar-section`);
+                    
+                    if (content && toggle) {
+                        if (systemData.sidebarSections[section]) {
+                            content.classList.add('collapsed');
+                            toggle.classList.add('collapsed');
+                        }
+                    }
+                });
+            }
+        }
+        
         // Salvar dados no localStorage
         function saveData() {
             localStorage.setItem('systemData', JSON.stringify({
@@ -2073,7 +2189,8 @@
                 categoriesCollapsed: systemData.categoriesCollapsed,
                 guidesCollapsed: systemData.guidesCollapsed,
                 guideGroupsCollapsed: systemData.guideGroupsCollapsed,
-                categoryExpanded: systemData.categoryExpanded // Salvar estado de expansão das categorias
+                categoryExpanded: systemData.categoryExpanded,
+                sidebarSections: systemData.sidebarSections
             }));
         }
         
@@ -2209,7 +2326,23 @@
             saveData();
         }
         
-        // Resto do JavaScript permanece igual (com algumas pequenas correções)
+        // Função para destacar texto nos resultados da busca
+        function highlightText(text, searchTerm) {
+            if (!searchTerm) return text;
+            
+            const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return text.replace(regex, '<mark class="search-highlight">$1</mark>');
+        }
+
+        // Função para remover destaques anteriores
+        function removeHighlights() {
+            document.querySelectorAll('.search-highlight').forEach(highlight => {
+                const parent = highlight.parentNode;
+                parent.replaceChild(document.createTextNode(highlight.textContent), highlight);
+                parent.normalize();
+            });
+        }
+        
         // Buscar itens - função completamente reescrita
         function performSearch(query) {
             const searchTerm = query.toLowerCase().trim();
@@ -2227,6 +2360,9 @@
             if (existingNoResults) {
                 existingNoResults.remove();
             }
+            
+            // Remover destaques anteriores
+            removeHighlights();
             
             if (searchTerm === '') {
                 // Mostrar todas as seções se a busca estiver vazia
@@ -2446,6 +2582,38 @@
             } else {
                 guidesSection.style.display = 'none';
                 guidesTitle.style.display = 'none';
+            }
+            
+            // Aplicar destaque nos resultados visíveis
+            if (searchTerm) {
+                // Destaque nos itens de categoria
+                document.querySelectorAll('.category-item[style*="display: flex"] .item-text').forEach(element => {
+                    const originalText = element.textContent;
+                    element.innerHTML = highlightText(originalText, searchTerm);
+                });
+                
+                // Destaque nos cards de acesso rápido
+                document.querySelectorAll('.quick-card[style*="display: flex"] h3, .quick-card[style*="display: flex"] p').forEach(element => {
+                    const originalText = element.textContent;
+                    element.innerHTML = highlightText(originalText, searchTerm);
+                });
+                
+                // Destaque nos títulos das categorias
+                document.querySelectorAll('.category-card[style*="display: block"] .category-title').forEach(element => {
+                    const originalText = element.textContent;
+                    element.innerHTML = highlightText(originalText, searchTerm);
+                });
+                
+                // Destaque nas guias
+                document.querySelectorAll('.guide-group[style*="display: block"] .guide-group-title').forEach(element => {
+                    const originalText = element.textContent;
+                    element.innerHTML = highlightText(originalText, searchTerm);
+                });
+                
+                document.querySelectorAll('.guide-item[style*="display: flex"] .guide-item-text').forEach(element => {
+                    const originalText = element.textContent;
+                    element.innerHTML = highlightText(originalText, searchTerm);
+                });
             }
             
             // Se não houver resultados em nenhuma seção, mostrar mensagem

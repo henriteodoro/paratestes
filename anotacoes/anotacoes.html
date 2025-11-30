@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Anotações — MACs & Guias</title>
-<meta name="description" content="Sistema de anotações organizadas por tópicos" />
+<meta name="description" content="Sistema organizado de anotações por tópicos e subtópicos" />
 <style>
   :root{
     --azul:#007BFF;
@@ -163,6 +163,8 @@
     height: fit-content;
     position: sticky;
     top: 20px;
+    max-height: 500px;
+    overflow-y: auto;
   }
 
   .lista-subtopicos h3 {
@@ -201,6 +203,12 @@
     background: var(--azul);
     color: white;
     border-color: var(--azul);
+  }
+
+  .subtopico-checkbox {
+    margin-right: 8px;
+    width: 16px;
+    height: 16px;
   }
 
   .subtopico-acoes {
@@ -434,6 +442,7 @@
 
   .btn-fechar:hover {
     background: #fee2e2;
+    border-color: #ef4444;
   }
 
   .btn-menu {
@@ -444,264 +453,6 @@
 
   .btn-menu:hover {
     background: #e0f2fe;
-  }
-
-  .btn-salvar-toolbar {
-    background: #f0fdf4;
-    border-color: #bbf7d0;
-    color: var(--success);
-  }
-
-  .btn-salvar-toolbar:hover {
-    background: #dcfce7;
-  }
-
-  /* Menu hamburger */
-  .menu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 100;
-  }
-
-  .menu-content {
-    background: var(--card);
-    border-radius: 14px;
-    padding: 24px;
-    max-width: 400px;
-    width: 90%;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-  }
-
-  .menu-content h3 {
-    margin: 0 0 16px 0;
-    color: var(--ink-strong);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .menu-content p {
-    color: var(--muted);
-    margin: 0 0 20px 0;
-  }
-
-  .btn-fechar-menu {
-    background: var(--azul);
-    color: white;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 500;
-  }
-
-  /* Modal de Salvar - NOVO DESIGN */
-  .salvar-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 100;
-  }
-
-  .salvar-content {
-    background: var(--card);
-    border-radius: 14px;
-    padding: 24px;
-    max-width: 600px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-  }
-
-  .salvar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--borda);
-  }
-
-  .salvar-header h3 {
-    margin: 0;
-    color: var(--ink-strong);
-    font-size: 16px;
-  }
-
-  .salvar-close {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: var(--muted);
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .salvar-options {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
-  .salvar-option-group {
-    margin-bottom: 16px;
-  }
-
-  .salvar-option-group h4 {
-    margin: 0 0 8px 0;
-    font-size: 14px;
-    color: var(--ink-strong);
-  }
-
-  .salvar-option {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .salvar-option:hover {
-    background: #f3f8ff;
-  }
-
-  .salvar-option input[type="checkbox"] {
-    margin: 0;
-  }
-
-  .salvar-format {
-    margin: 16px 0;
-    padding: 12px;
-    background: #f8fafc;
-    border-radius: 8px;
-  }
-
-  .salvar-format label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: var(--ink-strong);
-  }
-
-  .format-options {
-    display: flex;
-    gap: 12px;
-  }
-
-  .format-option {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .salvar-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    margin-top: 20px;
-  }
-
-  .btn-secondary {
-    background: #f8fafc;
-    border: 1px solid var(--borda);
-    color: var(--ink);
-    padding: 10px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 500;
-  }
-
-  .btn-primary {
-    background: var(--azul);
-    color: white;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 500;
-  }
-
-  /* Separador de opções */
-  .option-separator {
-    height: 1px;
-    background: var(--borda);
-    margin: 8px 0;
-    width: 100%;
-  }
-
-  /* Lightbox para imagens */
-  .image-lightbox {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.9);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-
-  .lightbox-content {
-    position: relative;
-    max-width: 90%;
-    max-height: 90%;
-  }
-
-  .lightbox-content img {
-    max-width: 100%;
-    max-height: 100%;
-    border-radius: 8px;
-  }
-
-  .lightbox-close {
-    position: absolute;
-    top: -40px;
-    right: 0;
-    background: none;
-    border: none;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-  }
-
-  .lightbox-download {
-    position: absolute;
-    bottom: -50px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--azul);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
   }
 
   /* Botão de fechar tópico */
@@ -720,6 +471,7 @@
 
   .btn-fechar-topico:hover {
     background: #fee2e2;
+    border-color: #ef4444;
   }
 
   /* Resultados da busca - ÁREA DELIMITADA */
@@ -798,6 +550,171 @@
     opacity: 0.5;
     margin-bottom: 16px;
   }
+
+  /* Botões de ação para salvar/impressão */
+  .btn-impressao {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--borda);
+    background: var(--card);
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .btn-impressao:hover {
+    background: #f3f8ff;
+    border-color: var(--borda-ativa);
+  }
+
+  .btn-pdf {
+    background: #fff7f0;
+    border-color: #fed7aa;
+    color: var(--warn);
+  }
+
+  .btn-pdf:hover {
+    background: #ffedd5;
+  }
+
+  .btn-imprimir {
+    background: #f0f9ff;
+    border-color: #bae6fd;
+    color: var(--azul);
+  }
+
+  .btn-imprimir:hover {
+    background: #e0f2fe;
+  }
+
+  /* Seletor de tópicos */
+  .selecao-topicos {
+    margin-bottom: 16px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid var(--borda);
+  }
+
+  .selecao-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .selecao-header h4 {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ink-strong);
+  }
+
+  .selecao-topicos-lista {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--borda);
+    border-radius: 6px;
+    background: white;
+  }
+
+  .selecao-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--borda);
+    transition: all 0.2s ease;
+  }
+
+  .selecao-item:last-child {
+    border-bottom: none;
+  }
+
+  .selecao-item:hover {
+    background: #f3f8ff;
+  }
+
+  .selecao-item label {
+    margin-left: 8px;
+    cursor: pointer;
+    flex: 1;
+  }
+
+  .selecao-item input[type="checkbox"] {
+    margin: 0;
+  }
+
+  .btn-selecionar-todos {
+    background: none;
+    border: none;
+    color: var(--azul);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: underline;
+  }
+
+  .btn-selecionar-todos:hover {
+    color: var(--accent);
+  }
+
+  /* Estilos de impressão */
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    
+    .conteudo-area, .conteudo-area * {
+      visibility: visible;
+    }
+    
+    .conteudo-area {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      box-shadow: none;
+      border: none;
+      padding: 0;
+    }
+    
+    .conteudo-header, .btn-acao, .btn-fechar-topico {
+      display: none;
+    }
+    
+    /* Evitar quebra de página no meio de um tópico */
+    .conteudo-carregado h2 {
+      page-break-before: auto;
+      page-break-after: avoid;
+    }
+    
+    .conteudo-carregado h2:last-child {
+      page-break-after: auto;
+    }
+    
+    /* Garantir que os tópicos não fiquem isolados no final da página */
+    .conteudo-carregado h2 {
+      break-inside: avoid;
+    }
+    
+    /* Se um tópico começar perto do final da página, mover para a próxima */
+    .conteudo-carregado h2:first-child {
+      break-before: auto;
+    }
+    
+    .conteudo-carregado h2:not(:first-child) {
+      break-before: avoid;
+    }
+    
+    /* Ajustar margens para melhor aproveitamento do espaço */
+    @page {
+      margin: 1cm;
+    }
+  }
 </style>
 </head>
 <body>
@@ -820,13 +737,6 @@
         <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
       </svg>
       Menu
-    </button>
-    
-    <button class="btn-toolbar btn-salvar-toolbar" id="btn-salvar-geral">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
-      </svg>
-      Salvar
     </button>
     
     <div class="search">
@@ -917,39 +827,6 @@
   </div>
 </div>
 
-<!-- Modal de Salvar - NOVO DESIGN -->
-<div class="salvar-overlay" id="salvar-overlay">
-  <div class="salvar-content">
-    <div class="salvar-header">
-      <h3>Salvar Conteúdo</h3>
-      <button class="salvar-close" id="salvar-close">×</button>
-    </div>
-    
-    <div class="salvar-options" id="salvar-options">
-      <!-- Conteúdo será preenchido dinamicamente -->
-    </div>
-    
-    <div class="salvar-format">
-      <label>Formato de saída:</label>
-      <div class="format-options">
-        <div class="format-option">
-          <input type="radio" id="format-txt" name="salvar-format" value="txt" checked>
-          <label for="format-txt">Texto (TXT)</label>
-        </div>
-        <div class="format-option">
-          <input type="radio" id="format-pdf" name="salvar-format" value="pdf">
-          <label for="format-pdf">PDF</label>
-        </div>
-      </div>
-    </div>
-    
-    <div class="salvar-actions">
-      <button class="btn-secondary" id="btn-cancelar-salvar">Cancelar</button>
-      <button class="btn-primary" id="btn-confirmar-salvar">Salvar</button>
-    </div>
-  </div>
-</div>
-
 <!-- Lightbox para imagens -->
 <div class="image-lightbox" id="image-lightbox">
   <div class="lightbox-content">
@@ -990,11 +867,19 @@ class GerenciadorAnotacoes {
     `;
     
     document.getElementById('topico-acoes').innerHTML = `
-      <button class="btn-acao btn-salvar" id="btn-salvar-topico">
+      <button class="btn-acao btn-pdf" id="btn-pdf-topico">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
         </svg>
-        Salvar
+        Salvar PDF
+      </button>
+      <button class="btn-acao btn-imprimir" id="btn-imprimir-topico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+          <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+          <rect x="6" y="14" width="12" height="8"/>
+        </svg>
+        Imprimir
       </button>
       <button class="btn-fechar-topico" id="btn-fechar-topico">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
@@ -1057,13 +942,9 @@ class GerenciadorAnotacoes {
     const menuSubtopicos = this.conteudoAtual.subtopicos.map((subtopico, index) => {
       return `
         <div class="subtopico-item" data-subtopico="${subtopico.id}" data-index="${index}">
-          <span>${subtopico.titulo}</span>
-          <div class="subtopico-acoes">
-            <button class="btn-subtopico" data-index="${index}" title="Salvar" data-action="salvar">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
-              </svg>
-            </button>
+          <div style="display: flex; align-items: center; flex: 1;">
+            <input type="checkbox" class="subtopico-checkbox" id="check-${index}" data-index="${index}">
+            <label for="check-${index}" style="margin-left: 8px; cursor: pointer; flex: 1;">${subtopico.titulo}</label>
           </div>
         </div>
       `;
@@ -1073,7 +954,31 @@ class GerenciadorAnotacoes {
       <div class="conteudo-com-subtopicos">
         <div class="lista-subtopicos">
           <h3>TÓPICOS</h3>
-          ${menuSubtopicos}
+          <div class="selecao-topicos">
+            <div class="selecao-header">
+              <h4>Selecionar tópicos</h4>
+              <button class="btn-selecionar-todos" id="btn-selecionar-todos">Selecionar todos</button>
+            </div>
+            <div class="selecao-topicos-lista">
+              ${menuSubtopicos}
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; margin-top: 12px;">
+            <button class="btn-impressao btn-pdf" id="btn-pdf-selecionados">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+              </svg>
+              PDF Selecionados
+            </button>
+            <button class="btn-impressao btn-imprimir" id="btn-imprimir-selecionados">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                <rect x="6" y="14" width="12" height="8"/>
+              </svg>
+              Imprimir Selecionados
+            </button>
+          </div>
         </div>
         <div id="conteudo-subtopico" class="conteudo-subtopico">
           <div class="estado-vazio">
@@ -1088,6 +993,7 @@ class GerenciadorAnotacoes {
     `;
 
     this.adicionarEventosSubtopicos();
+    this.adicionarEventosSelecao();
   }
 
   mostrarConteudoDireto() {
@@ -1104,23 +1010,37 @@ class GerenciadorAnotacoes {
   adicionarEventosSubtopicos() {
     document.querySelectorAll('.subtopico-item').forEach(item => {
       item.addEventListener('click', (e) => {
-        if (e.target.closest('.btn-subtopico')) return;
+        // Não mostrar o conteúdo ao clicar no checkbox
+        if (e.target.type === 'checkbox') return;
         
         const index = parseInt(item.getAttribute('data-index'));
         this.mostrarSubtopico(index);
       });
     });
+  }
 
-    document.querySelectorAll('.btn-subtopico').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const index = parseInt(btn.getAttribute('data-index'));
-        const action = btn.getAttribute('data-action');
-        
-        if (action === 'salvar') {
-          this.prepararSalvamentoSubtopico(index);
-        }
+  adicionarEventosSelecao() {
+    // Selecionar todos os tópicos
+    document.getElementById('btn-selecionar-todos').addEventListener('click', () => {
+      const checkboxes = document.querySelectorAll('.subtopico-checkbox');
+      const todosSelecionados = Array.from(checkboxes).every(cb => cb.checked);
+      
+      checkboxes.forEach(cb => {
+        cb.checked = !todosSelecionados;
       });
+      
+      document.getElementById('btn-selecionar-todos').textContent = 
+        todosSelecionados ? 'Selecionar todos' : 'Desmarcar todos';
+    });
+
+    // PDF dos selecionados
+    document.getElementById('btn-pdf-selecionados').addEventListener('click', () => {
+      this.salvarSubtopicosSelecionados('pdf');
+    });
+
+    // Imprimir selecionados
+    document.getElementById('btn-imprimir-selecionados').addEventListener('click', () => {
+      this.salvarSubtopicosSelecionados('imprimir');
     });
   }
 
@@ -1217,171 +1137,34 @@ class GerenciadorAnotacoes {
     `;
   }
 
-  // MÉTODOS PARA SALVAR
-  prepararSalvamentoGeral() {
-    this.tipoSalvarAtual = 'geral';
-    const opcoesContainer = document.getElementById('salvar-options');
+  // MÉTODOS PARA SALVAR/IMPRIMIR
+  salvarTopicoCompleto(formato) {
+    let conteudoCompleto = this.conteudoAtual.html;
     
-    const topicos = Array.from(document.querySelectorAll('.topico-item'));
+    // Remove o h1 se existir, porque vamos colocar o título do tópico
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = conteudoCompleto;
+    const h1 = tempDiv.querySelector('h1');
+    if (h1) h1.remove();
     
-    const opcoesHTML = `
-      <div class="salvar-option-group">
-        <h4>Selecione os tópicos para salvar:</h4>
-        <div class="salvar-option">
-          <input type="checkbox" id="select-all-geral">
-          <label for="select-all-geral">Selecionar todos os tópicos</label>
-        </div>
-        <div class="option-separator"></div>
-        ${topicos.map((topico, index) => {
-          const nomeTopico = topico.textContent.trim();
-          const arquivo = topico.getAttribute('data-arquivo');
-          return `
-            <div class="salvar-option">
-              <input type="checkbox" id="topico-${index}" name="topico" value="${arquivo}" data-nome="${nomeTopico}">
-              <label for="topico-${index}">${nomeTopico}</label>
-            </div>
-          `;
-        }).join('')}
-      </div>
-    `;
+    conteudoCompleto = `<h1>${this.conteudoAtual.titulo}</h1>${tempDiv.innerHTML}`;
     
-    opcoesContainer.innerHTML = opcoesHTML;
-    
-    document.getElementById('select-all-geral').addEventListener('change', function(e) {
-      const checkboxes = opcoesContainer.querySelectorAll('input[name="topico"]');
-      checkboxes.forEach(checkbox => {
-        checkbox.checked = e.target.checked;
-      });
-    });
-    
-    document.getElementById('salvar-overlay').style.display = 'flex';
+    this.gerarSaida(conteudoCompleto, this.conteudoAtual.titulo, formato);
   }
 
-  prepararSalvamentoTopico() {
-    this.tipoSalvarAtual = 'topico';
-    const opcoesContainer = document.getElementById('salvar-options');
+  salvarSubtopicosSelecionados(formato) {
+    const checkboxes = document.querySelectorAll('.subtopico-checkbox:checked');
     
-    const opcoesHTML = `
-      <div class="salvar-option-group">
-        <h4>Selecione os tópicos para salvar:</h4>
-        <div class="salvar-option">
-          <input type="checkbox" id="select-all-topico">
-          <label for="select-all-topico">Selecionar todos os tópicos</label>
-        </div>
-        <div class="option-separator"></div>
-        ${this.conteudoAtual.subtopicos.map((subtopico, index) => {
-          return `
-            <div class="salvar-option">
-              <input type="checkbox" id="subtopico-${index}" name="subtopico" value="${index}" data-nome="${subtopico.titulo}">
-              <label for="subtopico-${index}">${subtopico.titulo}</label>
-            </div>
-          `;
-        }).join('')}
-      </div>
-    `;
-    
-    opcoesContainer.innerHTML = opcoesHTML;
-    
-    document.getElementById('select-all-topico').addEventListener('change', function(e) {
-      const checkboxes = opcoesContainer.querySelectorAll('input[name="subtopico"]');
-      checkboxes.forEach(checkbox => {
-        checkbox.checked = e.target.checked;
-      });
-    });
-    
-    document.getElementById('salvar-overlay').style.display = 'flex';
-  }
-
-  prepararSalvamentoSubtopico(index) {
-    this.tipoSalvarAtual = 'subtopico';
-    const opcoesContainer = document.getElementById('salvar-options');
-    const subtopico = this.conteudoAtual.subtopicos[index];
-    
-    const opcoesHTML = `
-      <div class="salvar-option-group">
-        <h4>Salvar conteúdo:</h4>
-        <div class="salvar-option">
-          <input type="checkbox" id="subtopico-unico" checked disabled>
-          <label for="subtopico-unico">${subtopico.titulo}</label>
-        </div>
-      </div>
-      <input type="hidden" id="subtopico-index" value="${index}">
-    `;
-    
-    opcoesContainer.innerHTML = opcoesHTML;
-    document.getElementById('salvar-overlay').style.display = 'flex';
-  }
-
-  salvarConteudo() {
-    const formato = document.querySelector('input[name="salvar-format"]:checked').value;
-    
-    if (this.tipoSalvarAtual === 'geral') {
-      this.salvarConteudoGeral(formato);
-    } else if (this.tipoSalvarAtual === 'topico') {
-      this.salvarConteudoTopico(formato);
-    } else if (this.tipoSalvarAtual === 'subtopico') {
-      const index = parseInt(document.getElementById('subtopico-index').value);
-      this.salvarConteudoSubtopico(index, formato);
-    }
-    
-    document.getElementById('salvar-overlay').style.display = 'none';
-  }
-
-  async salvarConteudoGeral(formato) {
-    const topicosSelecionados = Array.from(document.querySelectorAll('input[name="topico"]:checked'));
-    
-    if (topicosSelecionados.length === 0) {
-      alert('Selecione pelo menos um tópico para salvar.');
-      return;
-    }
-
-    let conteudoCompleto = '';
-    
-    for (const topicoCheckbox of topicosSelecionados) {
-      const arquivo = topicoCheckbox.value;
-      const nomeTopico = topicoCheckbox.getAttribute('data-nome');
-      
-      try {
-        let html;
-        if (this.cache.has(arquivo)) {
-          html = this.cache.get(arquivo);
-        } else {
-          const response = await fetch(arquivo);
-          if (!response.ok) continue;
-          html = await response.text();
-          this.cache.set(arquivo, html);
-        }
-        
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = html;
-        
-        const h1 = tempDiv.querySelector('h1');
-        if (h1) h1.remove();
-        
-        conteudoCompleto += `<h1>${nomeTopico}</h1>${tempDiv.innerHTML}`;
-        
-      } catch (error) {
-        console.error(`Erro ao carregar ${arquivo}:`, error);
-      }
-    }
-    
-    this.gerarSaida(conteudoCompleto, `Anotações - ${new Date().toLocaleDateString()}`, formato);
-  }
-
-  salvarConteudoTopico(formato) {
-    const subtopicosSelecionados = Array.from(document.querySelectorAll('input[name="subtopico"]:checked'));
-    
-    if (subtopicosSelecionados.length === 0) {
+    if (checkboxes.length === 0) {
       alert('Selecione pelo menos um tópico para salvar.');
       return;
     }
 
     let conteudoCompleto = `<h1>${this.conteudoAtual.titulo}</h1>`;
     
-    subtopicosSelecionados.forEach(subtopicoCheckbox => {
-      const index = parseInt(subtopicoCheckbox.value);
+    checkboxes.forEach(checkbox => {
+      const index = parseInt(checkbox.getAttribute('data-index'));
       const subtopico = this.conteudoAtual.subtopicos[index];
-      const nomeSubtopico = subtopicoCheckbox.getAttribute('data-nome');
       
       let conteudo = '';
       let elementoAtual = subtopico.elemento.nextElementSibling;
@@ -1391,51 +1174,175 @@ class GerenciadorAnotacoes {
         elementoAtual = elementoAtual.nextElementSibling;
       }
       
-      conteudoCompleto += `<h2>${nomeSubtopico}</h2>${conteudo}`;
+      conteudoCompleto += `<h2>${subtopico.titulo}</h2>${conteudo}`;
     });
     
     this.gerarSaida(conteudoCompleto, this.conteudoAtual.titulo, formato);
   }
 
-  salvarConteudoSubtopico(index, formato) {
-    const subtopico = this.conteudoAtual.subtopicos[index];
-    let conteudo = '';
-    let elementoAtual = subtopico.elemento.nextElementSibling;
-    
-    while (elementoAtual && elementoAtual.tagName !== 'H2') {
-      conteudo += elementoAtual.outerHTML;
-      elementoAtual = elementoAtual.nextElementSibling;
-    }
-    
-    const conteudoCompleto = `
-      <h1>${this.conteudoAtual.titulo}</h1>
-      <h2>${subtopico.titulo}</h2>
-      ${conteudo}
-    `;
-    
-    this.gerarSaida(conteudoCompleto, `${this.conteudoAtual.titulo} - ${subtopico.titulo}`, formato);
-  }
-
   gerarSaida(conteudo, titulo, formato) {
-    if (formato === 'txt') {
-      // Converter HTML para texto puro
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = conteudo;
-      const texto = this.htmlParaTexto(tempDiv);
-      
-      const blob = new Blob([texto], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${titulo}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } else if (formato === 'pdf') {
+    if (formato === 'pdf') {
       // Usar a API de impressão do navegador para PDF
       const janela = window.open('', '_blank');
       janela.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>${titulo}</title>
+          <meta charset="utf-8">
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+            
+            body { 
+              font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+              line-height: 1.6; 
+              margin: 40px;
+              color: #0b3b6b;
+              background: white;
+            }
+            
+            h1 { 
+              color: #0b5ed7; 
+              border-bottom: 2px solid #e6eefc; 
+              padding-bottom: 10px;
+              margin-bottom: 25px;
+              font-size: 24px;
+              page-break-after: avoid;
+            }
+            
+            h2 { 
+              color: #0b4fa0; 
+              margin-top: 25px;
+              border-left: 4px solid #007BFF;
+              padding-left: 12px;
+              font-size: 18px;
+              page-break-after: avoid;
+              page-break-before: auto;
+            }
+            
+            /* Evitar quebra de página entre título e conteúdo */
+            h2:last-child {
+              page-break-after: auto;
+            }
+            
+            /* Se um tópico começar perto do final da página, mover para a próxima */
+            h2:not(:first-child) {
+              break-before: avoid;
+            }
+            
+            .destaque { 
+              background: #f0f7ff; 
+              padding: 12px 16px; 
+              border-radius: 8px;
+              border-left: 4px solid #007BFF; 
+              margin: 15px 0;
+              page-break-inside: avoid;
+            }
+            
+            .info-box { 
+              background: #fff7f0; 
+              padding: 12px 16px; 
+              border-radius: 8px;
+              border-left: 4px solid #f59e0b; 
+              margin: 15px 0;
+              page-break-inside: avoid;
+            }
+            
+            .passo-a-passo {
+              background: #f7fff0;
+              padding: 16px;
+              border-radius: 8px;
+              border: 1px solid #e6eefc;
+              margin: 16px 0;
+              page-break-inside: avoid;
+            }
+            
+            .passo {
+              display: flex;
+              align-items: flex-start;
+              gap: 12px;
+              margin: 12px 0;
+            }
+            
+            .passo-num {
+              background: #007BFF;
+              color: white;
+              width: 24px;
+              height: 24px;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 14px;
+              font-weight: bold;
+              flex-shrink: 0;
+            }
+            
+            ul, ol {
+              padding-left: 24px;
+            }
+            
+            li {
+              margin: 8px 0;
+            }
+            
+            img {
+              max-width: 100%;
+              height: auto;
+              border-radius: 8px;
+              margin: 12px 0;
+            }
+            
+            @media print {
+              body { margin: 20px; }
+              .no-print { display: none; }
+              
+              /* Evitar quebra de página no meio de um tópico */
+              h2 {
+                page-break-before: auto;
+                page-break-after: avoid;
+              }
+              
+              /* Garantir que os tópicos não fiquem isolados no final da página */
+              h2 {
+                break-inside: avoid;
+              }
+              
+              /* Se um tópico começar perto do final da página, mover para a próxima */
+              h2:not(:first-child) {
+                break-before: avoid;
+              }
+              
+              /* Ajustar margens para melhor aproveitamento do espaço */
+              @page {
+                margin: 1cm;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          ${conteudo}
+          <div class="no-print" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e6eefc; font-size: 12px; color: #6b7280;">
+            Gerado em ${new Date().toLocaleString()} | Sistema de Anotações
+          </div>
+          <div class="no-print" style="margin-top: 20px;">
+            <button onclick="window.print()" style="padding: 10px 20px; background: #007BFF; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Salvar como PDF</button>
+            <button onclick="window.close()" style="padding: 10px 20px; background: #6b7280; color: white; border: none; border-radius: 6px; cursor: pointer; margin-left: 10px;">Fechar</button>
+          </div>
+          <script>
+            window.focus();
+            // Focar na janela e abrir o diálogo de impressão automaticamente
+            setTimeout(() => {
+              window.print();
+            }, 500);
+          <\/script>
+        </body>
+        </html>
+      `);
+      janela.document.close();
+    } else if (formato === 'imprimir') {
+      // Imprimir na mesma aba
+      const conteudoParaImprimir = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -1530,74 +1437,44 @@ class GerenciadorAnotacoes {
             
             @media print {
               body { margin: 20px; }
-              .no-print { display: none; }
+              
+              /* Evitar quebra de página no meio de um tópico */
+              h2 {
+                page-break-before: auto;
+                page-break-after: avoid;
+              }
+              
+              /* Garantir que os tópicos não fiquem isolados no final da página */
+              h2 {
+                break-inside: avoid;
+              }
+              
+              /* Se um tópico começar perto do final da página, mover para a próxima */
+              h2:not(:first-child) {
+                break-before: avoid;
+              }
+              
+              /* Ajustar margens para melhor aproveitamento do espaço */
+              @page {
+                margin: 1cm;
+              }
             }
           </style>
         </head>
         <body>
           ${conteudo}
-          <div class="no-print" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e6eefc; font-size: 12px; color: #6b7280;">
+          <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e6eefc; font-size: 12px; color: #6b7280;">
             Gerado em ${new Date().toLocaleString()} | Sistema de Anotações
           </div>
-          <div class="no-print" style="margin-top: 20px;">
-            <button onclick="window.print()" style="padding: 10px 20px; background: #007BFF; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Salvar como PDF</button>
-            <button onclick="window.close()" style="padding: 10px 20px; background: #6b7280; color: white; border: none; border-radius: 6px; cursor: pointer; margin-left: 10px;">Fechar</button>
-          </div>
-          <script>
-            window.focus();
-          <\/script>
         </body>
         </html>
-      `);
+      `;
+      
+      const janela = window.open('', '_blank');
+      janela.document.write(conteudoParaImprimir);
       janela.document.close();
+      janela.print();
     }
-  }
-
-  htmlParaTexto(elemento) {
-    let texto = '';
-    
-    for (const child of elemento.childNodes) {
-      if (child.nodeType === Node.TEXT_NODE) {
-        texto += child.textContent;
-      } else if (child.nodeType === Node.ELEMENT_NODE) {
-        const tagName = child.tagName.toLowerCase();
-        
-        if (tagName === 'h1') {
-          texto += '\n\n' + child.textContent + '\n' + '='.repeat(child.textContent.length) + '\n\n';
-        } else if (tagName === 'h2') {
-          texto += '\n\n' + child.textContent + '\n' + '-'.repeat(child.textContent.length) + '\n\n';
-        } else if (tagName === 'h3') {
-          texto += '\n' + child.textContent + '\n\n';
-        } else if (tagName === 'p') {
-          texto += child.textContent + '\n\n';
-        } else if (tagName === 'ul' || tagName === 'ol') {
-          const itens = child.querySelectorAll('li');
-          itens.forEach((item, index) => {
-            texto += (tagName === 'ol' ? `${index + 1}. ` : '• ') + item.textContent + '\n';
-          });
-          texto += '\n';
-        } else if (tagName === 'div') {
-          if (child.classList.contains('destaque')) {
-            texto += '💡 ' + child.textContent.trim() + '\n\n';
-          } else if (child.classList.contains('info-box')) {
-            texto += '⚠️ ' + child.textContent.trim() + '\n\n';
-          } else if (child.classList.contains('passo-a-passo')) {
-            texto += '📋 PASSOS:\n';
-            const passos = child.querySelectorAll('.passo');
-            passos.forEach((passo, index) => {
-              texto += `${index + 1}. ${passo.textContent.trim()}\n`;
-            });
-            texto += '\n';
-          } else {
-            texto += this.htmlParaTexto(child);
-          }
-        } else {
-          texto += this.htmlParaTexto(child);
-        }
-      }
-    }
-    
-    return texto;
   }
 
   buscarConteudo(termo) {
@@ -1746,29 +1623,6 @@ document.addEventListener('DOMContentLoaded', function() {
     gerenciador.buscarConteudo(e.target.value);
   });
 
-  // Eventos para salvar
-  document.getElementById('btn-salvar-geral').addEventListener('click', function() {
-    gerenciador.prepararSalvamentoGeral();
-  });
-
-  document.getElementById('btn-cancelar-salvar').addEventListener('click', function() {
-    document.getElementById('salvar-overlay').style.display = 'none';
-  });
-
-  document.getElementById('salvar-close').addEventListener('click', function() {
-    document.getElementById('salvar-overlay').style.display = 'none';
-  });
-
-  document.getElementById('btn-confirmar-salvar').addEventListener('click', function() {
-    gerenciador.salvarConteudo();
-  });
-
-  document.getElementById('salvar-overlay').addEventListener('click', function(e) {
-    if (e.target === this) {
-      this.style.display = 'none';
-    }
-  });
-
   // Eventos para o lightbox de imagens
   document.getElementById('lightbox-close').addEventListener('click', function() {
     gerenciador.fecharLightbox();
@@ -1786,8 +1640,12 @@ document.addEventListener('DOMContentLoaded', function() {
       gerenciador.fecharTopico();
     }
     
-    if (e.target.id === 'btn-salvar-topico' || e.target.closest('#btn-salvar-topico')) {
-      gerenciador.prepararSalvamentoTopico();
+    if (e.target.id === 'btn-pdf-topico' || e.target.closest('#btn-pdf-topico')) {
+      gerenciador.salvarTopicoCompleto('pdf');
+    }
+    
+    if (e.target.id === 'btn-imprimir-topico' || e.target.closest('#btn-imprimir-topico')) {
+      gerenciador.salvarTopicoCompleto('imprimir');
     }
   });
 });

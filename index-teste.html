@@ -817,7 +817,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
-            align-items: stretch; /* Faz com que todos os itens tenham a mesma altura */
+            align-items: start; /* Alteração importante: não mais stretch */
         }
 
         .guide-group {
@@ -906,6 +906,7 @@
             font-size: 14px;
             line-height: 1.5;
             transition: all 0.2s ease;
+            cursor: pointer;
         }
 
         .guide-item:hover {
@@ -1030,13 +1031,15 @@
             border-color: #bd2130;
         }
 
-        /* Estilo para o destaque da busca */
+        /* Estilo para o destaque da busca - MODIFICADO conforme solicitado */
         .search-highlight {
             background-color: #ffeb3b;
             color: #000;
-            padding: 2px 4px;
-            border-radius: 4px;
+            padding: 0 1px; /* Reduzido significativamente o padding */
+            border-radius: 1px; /* Reduzido o border-radius */
             font-weight: 600;
+            display: inline;
+            line-height: 1.2; /* Reduzido para aproximar as linhas */
         }
 
         /* Estilos para as setas da barra lateral */
@@ -1923,26 +1926,7 @@
             recent: [],
             favorites: [],
             categoryFavorites: [],
-            recentExpanded: false,
-            quickAccessCollapsed: false,
-            categoriesCollapsed: false,
-            guidesCollapsed: false,
-            guideGroupsCollapsed: {
-                macs: true,
-                somar: true,
-                'ester-amaral': true,
-                'casa-fidelis': true,
-                'supermercado-josildo': true,
-                'souza-melo': true
-            },
-            categoryExpanded: {
-                macs: false
-            },
-            sidebarSections: {
-                favorites: false,
-                recent: false,
-                stats: false
-            }
+            recentExpanded: false
         };
 
         // Funções básicas para interatividade
@@ -1956,9 +1940,12 @@
             updateStats();
             updateFavoriteStars();
             updateCategoryFavoriteStars();
-            updateGuideGroups();
-            updateCategoryExpansions();
-            loadSidebarSectionsState();
+            
+            // Inicializar guias fechadas
+            document.querySelectorAll('.guide-items').forEach(items => {
+                items.style.maxHeight = '0';
+                items.style.overflowY = 'hidden';
+            });
             
             // Busca
             const searchInput = document.getElementById('search-input');
@@ -2039,6 +2026,17 @@
                 }
             });
             
+            // Itens de guias
+            document.querySelectorAll('.guide-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const itemName = this.querySelector('.guide-item-text').textContent;
+                    const itemId = findItemIdByName(itemName);
+                    if (itemId) {
+                        openItem(itemId);
+                    }
+                });
+            });
+            
             // Estrelas de favorito
             document.querySelectorAll('.favorite-star').forEach(star => {
                 star.addEventListener('click', function(e) {
@@ -2101,10 +2099,6 @@
                     
                     content.classList.toggle('collapsed');
                     toggle.classList.toggle('collapsed');
-                    
-                    // Salvar estado no sistema de dados
-                    systemData.sidebarSections[section] = content.classList.contains('collapsed');
-                    saveData();
                 });
             });
         });
@@ -2118,61 +2112,11 @@
                 systemData.favorites = parsedData.favorites || [];
                 systemData.categoryFavorites = parsedData.categoryFavorites || [];
                 systemData.recentExpanded = parsedData.recentExpanded || false;
-                systemData.quickAccessCollapsed = parsedData.quickAccessCollapsed || false;
-                systemData.categoriesCollapsed = parsedData.categoriesCollapsed || false;
-                systemData.guidesCollapsed = parsedData.guidesCollapsed || false;
-                systemData.guideGroupsCollapsed = parsedData.guideGroupsCollapsed || {
-                    macs: true,
-                    somar: true,
-                    'ester-amaral': true,
-                    'casa-fidelis': true,
-                    'supermercado-josildo': true,
-                    'souza-melo': true
-                };
-                systemData.categoryExpanded = parsedData.categoryExpanded || { macs: false };
-                systemData.sidebarSections = parsedData.sidebarSections || {
-                    favorites: false,
-                    recent: false,
-                    stats: false
-                };
-                
-                // Aplicar estado das seções
-                if (systemData.quickAccessCollapsed) {
-                    document.getElementById('quick-access-content').style.display = 'none';
-                    document.querySelector('#toggle-quick-access .toggle-section').classList.add('collapsed');
-                }
-                
-                if (systemData.categoriesCollapsed) {
-                    document.getElementById('categories-content').style.display = 'none';
-                    document.querySelector('#toggle-categories .toggle-section').classList.add('collapsed');
-                }
-                
-                if (systemData.guidesCollapsed) {
-                    document.getElementById('guides-content').style.display = 'none';
-                    document.querySelector('#toggle-guides .toggle-section').classList.add('collapsed');
-                }
                 
                 // Atualizar favoritos nos dados principais
                 systemData.items.forEach(item => {
                     if (systemData.favorites.includes(item.id)) {
                         item.favorite = true;
-                    }
-                });
-            }
-        }
-        
-        // Carregar estado das seções da barra lateral
-        function loadSidebarSectionsState() {
-            if (systemData.sidebarSections) {
-                Object.keys(systemData.sidebarSections).forEach(section => {
-                    const content = document.getElementById(`${section}-content`);
-                    const toggle = document.querySelector(`.sidebar-title[data-section="${section}"] .toggle-sidebar-section`);
-                    
-                    if (content && toggle) {
-                        if (systemData.sidebarSections[section]) {
-                            content.classList.add('collapsed');
-                            toggle.classList.add('collapsed');
-                        }
                     }
                 });
             }
@@ -2184,128 +2128,8 @@
                 recent: systemData.recent,
                 favorites: systemData.favorites,
                 categoryFavorites: systemData.categoryFavorites,
-                recentExpanded: systemData.recentExpanded,
-                quickAccessCollapsed: systemData.quickAccessCollapsed,
-                categoriesCollapsed: systemData.categoriesCollapsed,
-                guidesCollapsed: systemData.guidesCollapsed,
-                guideGroupsCollapsed: systemData.guideGroupsCollapsed,
-                categoryExpanded: systemData.categoryExpanded,
-                sidebarSections: systemData.sidebarSections
+                recentExpanded: systemData.recentExpanded
             }));
-        }
-        
-        // Atualizar expansões de categoria
-        function updateCategoryExpansions() {
-            Object.keys(systemData.categoryExpanded).forEach(category => {
-                if (systemData.categoryExpanded[category]) {
-                    const expandedItems = document.getElementById(`${category}-expanded`);
-                    const expandable = document.getElementById(`expand-${category}`);
-                    if (expandedItems && expandable) {
-                        expandedItems.classList.add('active');
-                        expandable.textContent = 'Ver menos...';
-                    }
-                }
-            });
-        }
-        
-        // Alternar seção (minimizar/expandir)
-        function toggleSection(section) {
-            const content = document.getElementById(`${section}-content`);
-            const toggle = document.querySelector(`#toggle-${section} .toggle-section`);
-            
-            if (section === 'quick-access') {
-                systemData.quickAccessCollapsed = !systemData.quickAccessCollapsed;
-                if (systemData.quickAccessCollapsed) {
-                    content.style.display = 'none';
-                    toggle.classList.add('collapsed');
-                } else {
-                    content.style.display = 'grid';
-                    toggle.classList.remove('collapsed');
-                }
-            } else if (section === 'categories') {
-                systemData.categoriesCollapsed = !systemData.categoriesCollapsed;
-                if (systemData.categoriesCollapsed) {
-                    content.style.display = 'none';
-                    toggle.classList.add('collapsed');
-                } else {
-                    content.style.display = 'grid';
-                    toggle.classList.remove('collapsed');
-                }
-            } else if (section === 'guides') {
-                systemData.guidesCollapsed = !systemData.guidesCollapsed;
-                if (systemData.guidesCollapsed) {
-                    content.style.display = 'none';
-                    toggle.classList.add('collapsed');
-                } else {
-                    content.style.display = 'block';
-                    toggle.classList.remove('collapsed');
-                }
-            }
-            
-            saveData();
-        }
-        
-        // Alternar grupos de guias
-        function toggleGuideGroup(group) {
-            const guideGroupHeader = document.querySelector(`.guide-group-header[data-group="${group}"]`);
-            if (!guideGroupHeader) return;
-            
-            const guideGroup = guideGroupHeader.closest('.guide-group');
-            const guideItems = guideGroup.querySelector('.guide-items');
-            const toggle = guideGroup.querySelector('.guide-group-toggle');
-            
-            // Alternar apenas este grupo específico
-            const isCurrentlyCollapsed = systemData.guideGroupsCollapsed[group];
-            
-            if (isCurrentlyCollapsed) {
-                // Expandir este grupo
-                guideItems.style.maxHeight = '300px'; // Valor reduzido para evitar excesso de espaço
-                guideItems.classList.add('expanded');
-                toggle.classList.remove('collapsed');
-                systemData.guideGroupsCollapsed[group] = false;
-                
-                // Pequeno timeout para garantir que a transição aconteça suavemente
-                setTimeout(() => {
-                    guideItems.style.overflowY = 'auto';
-                }, 300);
-            } else {
-                // Colapsar este grupo
-                guideItems.style.maxHeight = '0';
-                guideItems.style.overflowY = 'hidden';
-                guideItems.classList.remove('expanded');
-                toggle.classList.add('collapsed');
-                systemData.guideGroupsCollapsed[group] = true;
-            }
-            
-            saveData();
-        }
-        
-        // Atualizar estado dos grupos de guias
-        function updateGuideGroups() {
-            Object.keys(systemData.guideGroupsCollapsed).forEach(group => {
-                const guideGroupHeader = document.querySelector(`.guide-group-header[data-group="${group}"]`);
-                if (guideGroupHeader) {
-                    const guideGroup = guideGroupHeader.closest('.guide-group');
-                    const guideItems = guideGroup.querySelector('.guide-items');
-                    const toggle = guideGroup.querySelector('.guide-group-toggle');
-                    
-                    if (systemData.guideGroupsCollapsed[group]) {
-                        guideItems.style.maxHeight = '0';
-                        guideItems.style.overflowY = 'hidden';
-                        guideItems.classList.remove('expanded');
-                        toggle.classList.add('collapsed');
-                    } else {
-                        guideItems.style.maxHeight = '300px';
-                        guideItems.classList.add('expanded');
-                        toggle.classList.remove('collapsed');
-                        
-                        // Pequeno timeout para garantir que a transição aconteça suavemente
-                        setTimeout(() => {
-                            guideItems.style.overflowY = 'auto';
-                        }, 300);
-                    }
-                }
-            });
         }
         
         // Expandir/contrair categoria
@@ -2316,14 +2140,10 @@
             if (expandedItems.classList.contains('active')) {
                 expandedItems.classList.remove('active');
                 expandable.textContent = 'Ver todos...';
-                systemData.categoryExpanded[category] = false;
             } else {
                 expandedItems.classList.add('active');
                 expandable.textContent = 'Ver menos...';
-                systemData.categoryExpanded[category] = true;
             }
-            
-            saveData();
         }
         
         // Função para destacar texto nos resultados da busca
@@ -2343,7 +2163,7 @@
             });
         }
         
-        // Buscar itens - função completamente reescrita
+        // Buscar itens
         function performSearch(query) {
             const searchTerm = query.toLowerCase().trim();
             const quickAccessSection = document.querySelector('.quick-access');
@@ -2399,9 +2219,6 @@
                 guidesGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(300px, 1fr))';
                 guidesGrid.style.gap = '20px';
                 
-                // Restaurar o estado de expansão das guias baseado no saved state
-                updateGuideGroups();
-                updateCategoryExpansions();
                 return;
             }
             
@@ -2627,11 +2444,53 @@
             }
         }
         
-        // Limpar busca - função corrigida
+        // Limpar busca
         function clearSearch() {
             const searchInput = document.getElementById('search-input');
             searchInput.value = '';
             performSearch(''); // Usamos a própria função de busca com string vazia para restaurar
+        }
+        
+        // Alternar seção (minimizar/expandir)
+        function toggleSection(section) {
+            const content = document.getElementById(`${section}-content`);
+            const toggle = document.querySelector(`#toggle-${section} .toggle-section`);
+            
+            if (content.style.display === 'none') {
+                content.style.display = section === 'guides' ? 'block' : 'grid';
+                toggle.classList.remove('collapsed');
+            } else {
+                content.style.display = 'none';
+                toggle.classList.add('collapsed');
+            }
+        }
+        
+        // Alternar grupos de guias individualmente
+        function toggleGuideGroup(group) {
+            const guideGroupHeader = document.querySelector(`.guide-group-header[data-group="${group}"]`);
+            if (!guideGroupHeader) return;
+            
+            const guideGroup = guideGroupHeader.closest('.guide-group');
+            const guideItems = guideGroup.querySelector('.guide-items');
+            const toggle = guideGroup.querySelector('.guide-group-toggle');
+            
+            if (guideItems.classList.contains('expanded')) {
+                // Fechar este grupo
+                guideItems.style.maxHeight = '0';
+                guideItems.style.overflowY = 'hidden';
+                guideItems.classList.remove('expanded');
+                toggle.classList.add('collapsed');
+            } else {
+                // Expandir este grupo
+                guideItems.style.maxHeight = '300px';
+                guideItems.classList.add('expanded');
+                toggle.classList.remove('collapsed');
+                
+                // Pequeno timeout para garantir que a transição aconteça suavemente
+                setTimeout(() => {
+                    guideItems.style.overflowY = 'auto';
+                }, 300);
+            }
         }
         
         // Abrir item
@@ -2660,6 +2519,12 @@
             
             // Atualizar estatísticas
             updateStats();
+        }
+        
+        // Encontrar ID do item pelo nome
+        function findItemIdByName(name) {
+            const item = systemData.items.find(i => i.name === name);
+            return item ? item.id : null;
         }
         
         // Adicionar/remover favorito
@@ -2743,7 +2608,7 @@
             });
         }
         
-        // Filtrar por favoritos - função completamente reescrita
+        // Filtrar por favoritos
         function filterFavorites(showOnlyFavorites) {
             const quickAccessSection = document.querySelector('.quick-access');
             const categoriesSection = document.querySelector('.categories');

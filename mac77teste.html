@@ -483,10 +483,18 @@
     html, body { height: auto !important; min-height: auto !important; font-family: monospace; }
 
     /* pagina A4 e margens pequenas para caber o conteúdo */
-    @page { size: A4 portrait; margin: 8mm; }
+    @page { 
+      size: A4 portrait; 
+      margin: 4mm; /* REDUZIDO DE 8mm PARA 4mm */
+    }
 
     /* evita problemas de impressão com flex: usar blocos e floats no print */
-    .container { display: block !important; gap: 8px !important; padding: 0 !important; }
+    .container { 
+      display: block !important; 
+      gap: 4px !important; /* REDUZIDO DE 8px PARA 4px */
+      padding: 0 !important; 
+      max-width: 100% !important;
+    }
     .container:after { content: ''; display: block; clear: both; }
 
     /* coloca as colunas lado a lado usando float (mais previsível em impressão) */
@@ -494,25 +502,57 @@
       box-shadow: none; 
       border: 1px solid #000 !important; 
       min-width: auto; 
-      max-width: 48%; 
-      width: 48%; 
+      max-width: 49%; /* AJUSTADO PARA 49% PARA MELHOR APROVEITAMENTO */
+      width: 49%; 
       float: left !important; 
       box-sizing: border-box; 
+      padding: 6px !important; /* REDUZIDO DE 12px PARA 6px */
+      margin-bottom: 4px !important;
     }
 
     /* reduz o espaçamento por item e evita quebra dentro do item */
-    .item { gap: 6px !important; padding: 2px 4px !important; page-break-inside: avoid; break-inside: avoid; }
-    .item span { font-size: 11px; line-height: 1.12; }
-    .item input[type="text"] { width: 44px; padding: 2px 4px; font-size: 11px; text-align: center; }
+    .item { 
+      gap: 4px !important; /* REDUZIDO DE 6px PARA 4px */
+      padding: 1px 2px !important; /* REDUZIDO DE 2px 4px PARA 1px 2px */
+      page-break-inside: avoid; 
+      break-inside: avoid; 
+    }
+    .item span { font-size: 10px; line-height: 1.1; } /* REDUZIDO DE 11px PARA 10px */
+    .item input[type="text"] { 
+      width: 40px; /* REDUZIDO DE 44px PARA 40px */
+      padding: 1px 2px; /* REDUZIDO DE 2px 4px PARA 1px 2px */
+      font-size: 10px; /* REDUZIDO DE 11px PARA 10px */
+      text-align: center; 
+    }
 
     /* ajustar o espaço estético também para o print */
     .tail-space { height: 0mm; }
 
     /* caso tenhamos MUITAS linhas, aplicamos uma classe (JS) para reduzir ainda mais a fonte */
-    body.print-tight { font-size: 10px !important; }
-    body.print-tight .column { max-width: 48%; width: 48%; float: left !important; }
-    body.print-tight .item span { font-size: 10px; }
-    body.print-tight .item input[type="text"] { width: 38px; font-size: 10px; padding: 1px 3px; }
+    body.print-tight { font-size: 9px !important; } /* REDUZIDO DE 10px PARA 9px */
+    body.print-tight .column { max-width: 49%; width: 49%; float: left !important; }
+    body.print-tight .item span { font-size: 9px; } /* REDUZIDO DE 10px PARA 9px */
+    body.print-tight .item input[type="text"] { 
+      width: 35px; /* REDUZIDO DE 38px PARA 35px */
+      font-size: 9px; /* REDUZIDO DE 10px PARA 9px */
+      padding: 1px 2px; 
+    }
+    
+    /* Estilo para caber em uma página quando não há itens adicionados */
+    body.single-page-print .column { 
+      max-width: 100%; 
+      width: 100%; 
+      float: none !important; 
+    }
+    
+    body.single-page-print .item span { 
+      font-size: 11px; /* TAMANHO MAIOR QUANDO CABE EM UMA PÁGINA */
+    }
+    
+    body.single-page-print .item input[type="text"] { 
+      width: 45px; /* LARGURA MAIOR QUANDO CABE EM UMA PÁGINA */
+      font-size: 11px; /* TAMANHO MAIOR QUANDO CABE EM UMA PÁGINA */
+    }
   }
   /* ---------- fim PRINT ---------- */
 </style>
@@ -704,7 +744,7 @@
     </div>
     <div class="modal-input-group">
       <label for="nome-direita">Nome na Coluna Direita:</label>
-      <input type="text" id="nome-direita" placeholder="Digite o nome para a coluna direita">
+      <input type="text" id="nome-direita" placeholder="Deixe em branco para preenchimento automático">
     </div>
     <div class="modal-buttons">
       <button class="btn-modal-confirm" onclick="confirmarAdicionarItem()">Adicionar</button>
@@ -871,11 +911,17 @@ function fecharModalAdicionar() {
 
 function confirmarAdicionarItem() {
   const nomeEsquerda = document.getElementById('nome-esquerda').value.trim();
-  const nomeDireita = document.getElementById('nome-direita').value.trim();
+  let nomeDireita = document.getElementById('nome-direita').value.trim();
   
-  if (!nomeEsquerda || !nomeDireita) {
-    showBottomNotice('Preencha ambos os campos!', 2000);
+  if (!nomeEsquerda) {
+    showBottomNotice('Preencha o nome da coluna esquerda!', 2000);
     return;
+  }
+  
+  // Se o nome da direita estiver vazio, preencher automaticamente
+  if (!nomeDireita) {
+    // Formatação automática: converter para minúsculas e capitalizar palavras
+    nomeDireita = nomeEsquerda.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
   }
   
   // Verificar se o item já existe na esquerda
@@ -1377,12 +1423,21 @@ function prepareAndPrintSinglePage() {
   const filledCount = Math.max(filledLeft, filledRight);
 
   document.body.classList.remove('print-tight');
-  if (totalRows > 34 || filledCount > 34) {
+  document.body.classList.remove('single-page-print');
+  
+  // Verificar se não há itens adicionados pelo usuário
+  const hasCustomItems = itensAdicionados.esquerda.length > 0;
+  
+  // Se não houver itens adicionados e o total de linhas for menor que 25, usar layout de página única
+  if (!hasCustomItems && totalRows <= 25) {
+    document.body.classList.add('single-page-print');
+  } else if (totalRows > 34 || filledCount > 34) {
     document.body.classList.add('print-tight');
   }
 
   const cleanup = () => {
     document.body.classList.remove('print-tight');
+    document.body.classList.remove('single-page-print');
     try { window.removeEventListener('afterprint', cleanup); } catch(e){}
   };
   try { window.addEventListener('afterprint', cleanup); } catch(e){}

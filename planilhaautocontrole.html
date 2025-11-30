@@ -1,1 +1,949 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planilhas de Autocontrole - Downloads</title>
+    <style>
+        :root {
+            --azul: #007BFF;
+            --accent: #0b5ed7;
+            --fundo: #f7fbff;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --borda: #e6eefc;
+            --borda-ativa: #cfe0ff;
+            --ink: #0b3b6b;
+            --ink-strong: #0b4fa0;
+            --warn: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+
+        body {
+            background: linear-gradient(180deg, var(--fundo), #f3f7ff);
+            min-height: 100vh;
+            margin: 0;
+            padding: 18px;
+            color: var(--ink);
+            position: relative;
+        }
+
+        .wrap {
+            max-width: 1120px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0 0 8px 0;
+            font-size: 22px;
+            color: var(--accent);
+        }
+
+        p.lead {
+            margin: 4px 0 16px 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            background: var(--card);
+            border: 1px solid var(--borda);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 10px 30px rgba(11, 78, 167, .06);
+            position: sticky;
+            top: 14px;
+            z-index: 60;
+            margin-bottom: 20px;
+        }
+
+        .btn-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border: 1px solid var(--borda);
+            border-radius: 8px;
+            background: var(--card);
+            color: var(--ink);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .btn-toolbar:hover {
+            background: #f3f8ff;
+            border-color: var(--borda-ativa);
+        }
+
+        .btn-toolbar svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .btn-fechar {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: var(--danger);
+        }
+
+        .btn-fechar:hover {
+            background: #fee2e2;
+            border-color: var(--danger); /* Borda vermelha no hover */
+        }
+
+        .btn-menu {
+            background: #f0f9ff;
+            border-color: #bae6fd;
+            color: var(--azul);
+        }
+
+        .btn-menu:hover {
+            background: #e0f2fe;
+        }
+
+        .search {
+            position: relative;
+            flex: 1 1 320px;
+        }
+
+        .search input {
+            width: 100%;
+            padding: 12px 40px 12px 40px;
+            border: 1px solid var(--borda);
+            border-radius: 12px;
+            background: #fbfdff;
+            color: var(--ink);
+            font-size: 15px;
+        }
+
+        .search svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+        }
+
+        .downloads-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .categorias-sidebar {
+            background: var(--card);
+            border: 1px solid var(--borda);
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 10px 30px rgba(11, 78, 167, .06);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .categoria-item {
+            padding: 12px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid transparent;
+        }
+
+        .categoria-item:hover {
+            background: #f3f8ff;
+            border-color: var(--borda-ativa);
+        }
+
+        .categoria-item.ativo {
+            background: var(--azul);
+            color: white;
+        }
+
+        .categoria-item svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .conteudo-area {
+            background: var(--card);
+            border: 1px solid var(--borda);
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(11, 78, 167, .06);
+            min-height: 400px;
+            position: relative;
+        }
+
+        .conteudo-header {
+            border-bottom: 1px solid var(--borda);
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .conteudo-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: var(--ink-strong);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .conteudo-header h2 svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .arquivos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .arquivo-card {
+            background: var(--card);
+            border: 1px solid var(--borda);
+            border-radius: 10px;
+            padding: 18px;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .arquivo-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(11, 78, 167, .1);
+            border-color: var(--borda-ativa);
+        }
+
+        .arquivo-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .arquivo-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .arquivo-icon.pdf {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .arquivo-icon.docx {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .arquivo-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .arquivo-info {
+            flex: 1;
+        }
+
+        .arquivo-titulo {
+            font-weight: 600;
+            color: var(--ink-strong);
+            margin-bottom: 4px;
+            font-size: 15px;
+        }
+
+        .arquivo-desc {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .download-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: var(--azul);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .download-btn:hover {
+            background: var(--accent);
+        }
+
+        .download-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .arquivo-original {
+            border-left: 4px solid var(--azul);
+        }
+
+        .arquivo-setor {
+            border-left: 4px solid var(--success);
+        }
+
+        .estado-vazio {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--muted);
+        }
+
+        .estado-vazio svg {
+            width: 64px;
+            height: 64px;
+            opacity: 0.5;
+            margin-bottom: 16px;
+        }
+
+        /* Menu Sidebar */
+        .menu-sidebar {
+            position: fixed;
+            top: 0;
+            left: -320px;
+            width: 320px;
+            height: 100vh;
+            background: var(--card);
+            border-right: 1px solid var(--borda);
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            transition: left 0.3s ease;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .menu-sidebar.ativo {
+            left: 0;
+        }
+
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--borda);
+        }
+
+        .menu-header h3 {
+            margin: 0;
+            color: var(--ink-strong);
+            font-size: 18px;
+        }
+
+        .btn-fechar-sidebar {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--muted);
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-fechar-sidebar:hover {
+            background: #fef2f2;
+            color: var(--danger);
+        }
+
+        .btn-fechar-sidebar svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .menu-secao {
+            margin-bottom: 24px;
+        }
+
+        .menu-secao h4 {
+            font-size: 14px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--borda);
+        }
+
+        .menu-opcao {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 6px;
+            text-decoration: none;
+            color: var(--ink);
+        }
+
+        .menu-opcao:hover {
+            background: #f3f8ff;
+        }
+
+        .menu-opcao .codigo {
+            background: var(--azul);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 999;
+        }
+
+        .menu-overlay.ativo {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .downloads-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .categorias-sidebar {
+                position: static;
+            }
+            
+            .arquivos-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .menu-sidebar {
+                width: 280px;
+                left: -280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <h1>Planilhas de Autocontrole</h1>
+            <p class="lead">Downloads organizados por categoria</p>
+        </header>
+
+        <div class="toolbar">
+            <button class="btn-toolbar btn-fechar" id="btn-fechar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+                Fechar
+            </button>
+            
+            <button class="btn-toolbar btn-menu" id="btn-menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+                Menu
+            </button>
+            
+            <div class="search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="search" id="campo-busca" placeholder="Buscar nas planilhas…" />
+            </div>
+        </div>
+
+        <div class="downloads-container">
+            <div class="categorias-sidebar">
+                <div class="categoria-item ativo" data-categoria="original">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                    Arquivos Originais
+                </div>
+                
+                <div class="categoria-item" data-categoria="setores">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>
+                    </svg>
+                    Planilhas por Setor
+                </div>
+            </div>
+
+            <div class="conteudo-area">
+                <div class="conteudo-header">
+                    <h2 id="categoria-titulo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                        Arquivos Originais
+                    </h2>
+                </div>
+
+                <div id="conteudo-dinamico">
+                    <div class="arquivos-grid">
+                        <!-- Arquivos Originais -->
+                        <div class="arquivo-card arquivo-original">
+                            <div class="arquivo-header">
+                                <div class="arquivo-icon pdf">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                        <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                                    </svg>
+                                </div>
+                                <div class="arquivo-info">
+                                    <div class="arquivo-titulo">PDF Original</div>
+                                    <div class="arquivo-desc">Planilhas de Autocontrole - Pão de Ouro Atualizadas</div>
+                                </div>
+                            </div>
+                            <a href="pdfs/Planilhas de Autocontrole - Pão de Ouro Atualizadas.pdf" class="download-btn" download target="_blank">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                Baixar PDF
+                            </a>
+                        </div>
+
+                        <div class="arquivo-card arquivo-original">
+                            <div class="arquivo-header">
+                                <div class="arquivo-icon docx">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                        <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                                    </svg>
+                                </div>
+                                <div class="arquivo-info">
+                                    <div class="arquivo-titulo">DOCX Original</div>
+                                    <div class="arquivo-desc">Planilhas de Autocontrole - Pão de Ouro Atualizadas</div>
+                                </div>
+                            </div>
+                            <a href="pdfs/Planilhas de Autocontrole - Pão de Ouro Atualizadas.docx" class="download-btn" download target="_blank">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                Baixar DOCX
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu Sidebar -->
+    <div class="menu-overlay" id="menu-overlay"></div>
+    <div class="menu-sidebar" id="menu-sidebar">
+        <div class="menu-header">
+            <h3>Navegação</h3>
+            <button class="btn-fechar-sidebar" id="btn-fechar-sidebar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="menu-secao">
+            <h4>MACS</h4>
+            <a href="mac77.html" class="menu-opcao">
+                <div class="codigo">77</div>
+                <span>MAC Bairro São Geraldo</span>
+            </a>
+            <a href="mac78.html" class="menu-opcao">
+                <div class="codigo">78</div>
+                <span>MAC Bairro Planalto</span>
+            </a>
+            <a href="mac79.html" class="menu-opcao">
+                <div class="codigo">79</div>
+                <span>MAC Romeu Duarte</span>
+            </a>
+            <a href="mac80.html" class="menu-opcao">
+                <div class="codigo">80</div>
+                <span>MAC Rua São Geraldo / Centro 2</span>
+            </a>
+            <a href="mac277.html" class="menu-opcao">
+                <div class="codigo">277</div>
+                <span>MAC Matriz</span>
+            </a>
+            <a href="mac853.html" class="menu-opcao">
+                <div class="codigo">853</div>
+                <span>MAC Concesso</span>
+            </a>
+            <a href="mac1249.html" class="menu-opcao">
+                <div class="codigo">1249</div>
+                <span>MAC Jardim do Lago</span>
+            </a>
+            <a href="mac989.html" class="menu-opcao">
+                <div class="codigo">989</div>
+                <span>MAC Araújos</span>
+            </a>
+        </div>
+        
+        <div class="menu-secao">
+            <h4>São José</h4>
+            <a href="saojose.html" class="menu-opcao">
+                <span>Pedido São José</span>
+            </a>
+            <a href="paototal.html" class="menu-opcao">
+                <span>Pedido Pão Total</span>
+            </a>
+        </div>
+        
+        <div class="menu-secao">
+            <h4>Tabelas</h4>
+            <a href="pdfs/Tabela 2025 Geral.pdf" class="menu-opcao" target="_blank">
+                <span>Tabela de Preços Geral</span>
+            </a>
+            <a href="pdfs/Tabela 2025 Empresa.pdf" class="menu-opcao" target="_blank">
+                <span>Tabela de Preços Empresa</span>
+            </a>
+            <a href="https://github.com/henriteodoro/paratestes/releases/download/v1.0/Catalogo.Sao.Jose.2025.AT03.pdf" class="menu-opcao" target="_blank">
+                <span>Catálogo de Produtos</span>
+            </a>
+        </div>
+        
+        <div class="menu-secao">
+            <h4>Ferramentas</h4>
+            <a href="processadordepedidos.html" class="menu-opcao">
+                <span>Processador de Pedidos</span>
+            </a>
+            <a href="ods.html" class="menu-opcao">
+                <span>Visualizar Planilhas</span>
+            </a>
+            <a href="simularpedido.html" class="menu-opcao">
+                <span>Simulador de Pedido</span>
+            </a>
+            <a href="anotacoes/anotacoes.html" class="menu-opcao">
+                <span>Anotações</span>
+            </a>
+            <a href="planilhaautocontrole.html" class="menu-opcao">
+                <span>Planilhas de Autocontrole</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos da interface
+            const categoriaItems = document.querySelectorAll('.categoria-item');
+            const categoriaTitulo = document.getElementById('categoria-titulo');
+            const conteudoDinamico = document.getElementById('conteudo-dinamico');
+            const btnMenu = document.getElementById('btn-menu');
+            const btnFechar = document.getElementById('btn-fechar');
+            const menuSidebar = document.getElementById('menu-sidebar');
+            const menuOverlay = document.getElementById('menu-overlay');
+            const btnFecharSidebar = document.getElementById('btn-fechar-sidebar');
+            const campoBusca = document.getElementById('campo-busca');
+            
+            // Dados dos arquivos por setor
+            const arquivosSetores = [
+                {
+                    setor: "Pão de Sal",
+                    arquivo: "pdfs/Planilha Gilson.pdf",
+                    tipo: "pdf"
+                },
+                {
+                    setor: "Pães Doce", 
+                    arquivo: "pdfs/Planilha Ceará.pdf",
+                    tipo: "pdf"
+                },
+                {
+                    setor: "Salgado e Biscoitos",
+                    arquivo: "pdfs/Planilha Valdecino.pdf",
+                    tipo: "pdf"
+                },
+                {
+                    setor: "Pré-peságem",
+                    arquivo: "pdfs/Planilha Pre Pesagem.pdf",
+                    tipo: "pdf"
+                },
+                {
+                    setor: "Embalagem",
+                    arquivo: "pdfs/Planilha Embalagem.pdf",
+                    tipo: "pdf"
+                },
+                {
+                    setor: "Estoque",
+                    arquivo: "pdfs/Planilha João Estoque.pdf",
+                    tipo: "pdf"
+                },
+                {
+                    setor: "Limpeza",
+                    arquivo: "pdfs/Planilha Jaqueline.pdf",
+                    tipo: "pdf"
+                },
+                {
+                    setor: "Manutenção",
+                    arquivo: "pdfs/Planilha Mateus.pdf",
+                    tipo: "pdf"
+                }
+            ];
+
+            // Função para carregar conteúdo da categoria
+            function carregarCategoria(categoria) {
+                // Atualizar estado ativo
+                categoriaItems.forEach(item => {
+                    item.classList.remove('ativo');
+                });
+                
+                const itemAtivo = document.querySelector(`[data-categoria="${categoria}"]`);
+                itemAtivo.classList.add('ativo');
+                
+                // Atualizar título
+                if (categoria === 'original') {
+                    categoriaTitulo.innerHTML = `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                        Arquivos Originais
+                    `;
+                    
+                    // Conteúdo dos arquivos originais
+                    conteudoDinamico.innerHTML = `
+                        <div class="arquivos-grid">
+                            <div class="arquivo-card arquivo-original">
+                                <div class="arquivo-header">
+                                    <div class="arquivo-icon pdf">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                                        </svg>
+                                    </div>
+                                    <div class="arquivo-info">
+                                        <div class="arquivo-titulo">PDF Original</div>
+                                        <div class="arquivo-desc">Planilhas de Autocontrole - Pão de Ouro Atualizadas</div>
+                                    </div>
+                                </div>
+                                <a href="pdfs/Planilhas de Autocontrole - Pão de Ouro Atualizadas.pdf" class="download-btn" download target="_blank">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                                    </svg>
+                                    Baixar PDF
+                                </a>
+                            </div>
+
+                            <div class="arquivo-card arquivo-original">
+                                <div class="arquivo-header">
+                                    <div class="arquivo-icon docx">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                                        </svg>
+                                    </div>
+                                    <div class="arquivo-info">
+                                        <div class="arquivo-titulo">DOCX Original</div>
+                                        <div class="arquivo-desc">Planilhas de Autocontrole - Pão de Ouro Atualizadas</div>
+                                    </div>
+                                </div>
+                                <a href="pdfs/Planilhas de Autocontrole - Pão de Ouro Atualizadas.docx" class="download-btn" download target="_blank">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                                    </svg>
+                                    Baixar DOCX
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                } else if (categoria === 'setores') {
+                    categoriaTitulo.innerHTML = `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>
+                        </svg>
+                        Planilhas por Setor
+                    `;
+                    
+                    // Gerar HTML para os arquivos dos setores
+                    const setoresHTML = arquivosSetores.map(arquivo => {
+                        return `
+                            <div class="arquivo-card arquivo-setor">
+                                <div class="arquivo-header">
+                                    <div class="arquivo-icon pdf">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                                        </svg>
+                                    </div>
+                                    <div class="arquivo-info">
+                                        <div class="arquivo-titulo">Setor ${arquivo.setor}</div>
+                                        <div class="arquivo-desc">Planilha do setor</div>
+                                    </div>
+                                </div>
+                                <a href="${arquivo.arquivo}" class="download-btn" download target="_blank">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                                    </svg>
+                                    Baixar PDF
+                                </a>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    conteudoDinamico.innerHTML = `<div class="arquivos-grid">${setoresHTML}</div>`;
+                }
+            }
+
+            // Eventos para as categorias
+            categoriaItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const categoria = this.getAttribute('data-categoria');
+                    carregarCategoria(categoria);
+                });
+            });
+
+            // Eventos para o botão fechar (redireciona para index.html)
+            btnFechar.addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+
+            // Eventos para o menu sidebar
+            btnMenu.addEventListener('click', function() {
+                menuSidebar.classList.add('ativo');
+                menuOverlay.classList.add('ativo');
+            });
+
+            btnFecharSidebar.addEventListener('click', function() {
+                menuSidebar.classList.remove('ativo');
+                menuOverlay.classList.remove('ativo');
+            });
+
+            menuOverlay.addEventListener('click', function() {
+                menuSidebar.classList.remove('ativo');
+                menuOverlay.classList.remove('ativo');
+            });
+
+            // Evento para a busca
+            campoBusca.addEventListener('input', function(e) {
+                const termo = e.target.value.toLowerCase().trim();
+                
+                if (termo === '') {
+                    // Se a busca estiver vazia, mostrar todos os arquivos da categoria atual
+                    const categoriaAtiva = document.querySelector('.categoria-item.ativo').getAttribute('data-categoria');
+                    carregarCategoria(categoriaAtiva);
+                    return;
+                }
+                
+                // Filtrar arquivos baseados no termo de busca
+                const categoriaAtiva = document.querySelector('.categoria-item.ativo').getAttribute('data-categoria');
+                let arquivosFiltrados = [];
+                
+                if (categoriaAtiva === 'original') {
+                    arquivosFiltrados = [
+                        {
+                            setor: "PDF Original",
+                            arquivo: "pdfs/Planilhas de Autocontrole - Pão de Ouro Atualizadas.pdf",
+                            tipo: "pdf"
+                        },
+                        {
+                            setor: "DOCX Original", 
+                            arquivo: "pdfs/Planilhas de Autocontrole - Pão de Ouro Atualizadas.docx",
+                            tipo: "docx"
+                        }
+                    ].filter(arquivo => 
+                        arquivo.setor.toLowerCase().includes(termo)
+                    );
+                } else {
+                    arquivosFiltrados = arquivosSetores.filter(arquivo => 
+                        arquivo.setor.toLowerCase().includes(termo)
+                    );
+                }
+                
+                // Gerar HTML para os arquivos filtrados
+                const arquivosHTML = arquivosFiltrados.map(arquivo => {
+                    const tipoIcon = arquivo.tipo === 'pdf' ? 'pdf' : 'docx';
+                    
+                    return `
+                        <div class="arquivo-card arquivo-${categoriaAtiva === 'original' ? 'original' : 'setor'}">
+                            <div class="arquivo-header">
+                                <div class="arquivo-icon ${tipoIcon}">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                        <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                                    </svg>
+                                </div>
+                                <div class="arquivo-info">
+                                    <div class="arquivo-titulo">${categoriaAtiva === 'original' ? '' : 'Setor '}${arquivo.setor}</div>
+                                    <div class="arquivo-desc">${categoriaAtiva === 'original' ? 'Planilhas de Autocontrole - Pão de Ouro Atualizadas' : 'Planilha do setor'}</div>
+                                </div>
+                            </div>
+                            <a href="${arquivo.arquivo}" class="download-btn" download target="_blank">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                Baixar ${arquivo.tipo.toUpperCase()}
+                            </a>
+                        </div>
+                    `;
+                }).join('');
+                
+                conteudoDinamico.innerHTML = arquivosFiltrados.length > 0 
+                    ? `<div class="arquivos-grid">${arquivosHTML}</div>`
+                    : `<div class="estado-vazio">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
+                            <p>Nenhum resultado encontrado para "${termo}"</p>
+                        </div>`;
+            });
+        });
+    </script>
+</body>
+</html>

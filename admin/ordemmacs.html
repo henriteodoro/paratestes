@@ -1,1 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Nomes de Produtos</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button.copy {
+            background-color: #2196F3;
+        }
+        button.copy:hover {
+            background-color: #0b7dda;
+        }
+        .result-container {
+            margin-top: 20px;
+        }
+        .product-item {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .product-original {
+            flex: 1;
+            font-weight: bold;
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+        .product-input {
+            flex: 2;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .notification.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <h1>Conversor de Nomes de Produtos</h1>
+    
+    <div class="container">
+        <div>
+            <label for="productList">Cole sua lista de produtos:</label>
+            <textarea id="productList" placeholder="Cole aqui sua lista de produtos, exatamente como no exemplo"></textarea>
+        </div>
+        
+        <button id="processBtn">Processar Lista</button>
+        
+        <div class="result-container" id="resultContainer" style="display: none;">
+            <h2>Edite os nomes dos produtos:</h2>
+            <div id="productResults"></div>
+            
+            <div class="buttons">
+                <button id="copyBtn" class="copy">Copiar Resultado</button>
+                <button id="resetBtn">Limpar Tudo</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">Texto copiado com sucesso!</div>
 
+    <script>
+        document.getElementById('processBtn').addEventListener('click', processProductList);
+        document.getElementById('copyBtn').addEventListener('click', copyResults);
+        document.getElementById('resetBtn').addEventListener('click', resetAll);
+        
+        function processProductList() {
+            const productListText = document.getElementById('productList').value.trim();
+            if (!productListText) {
+                alert('Por favor, cole sua lista de produtos');
+                return;
+            }
+            
+            // Processar cada linha - remover aspas, vírgulas e espaços extras
+            const products = productListText.split('\n')
+                .map(item => {
+                    // Remover aspas, vírgulas e espaços extras
+                    return item.trim()
+                        .replace(/^["']|["'],?$/g, '') // Remove aspas no início e fim, e vírgula no final
+                        .trim();
+                })
+                .filter(item => item.length > 0);
+            
+            if (products.length === 0) {
+                alert('Nenhum produto encontrado na lista');
+                return;
+            }
+            
+            const resultsContainer = document.getElementById('productResults');
+            resultsContainer.innerHTML = '';
+            
+            // Para cada produto, criar um campo de entrada
+            products.forEach(product => {
+                const productItem = document.createElement('div');
+                productItem.className = 'product-item';
+                
+                const originalSpan = document.createElement('span');
+                originalSpan.className = 'product-original';
+                originalSpan.textContent = `"${product}":`;
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'product-input';
+                input.value = '*campo inserivel*';
+                input.dataset.original = product;
+                
+                // Se for o primeiro item específico, preencher automaticamente
+                if (product === "PÃO DE QUEIJO RECHEADO FRANGO PAC 7 KG") {
+                    input.value = "Pão de queijo recheado frango pequeno 7kg";
+                }
+                
+                productItem.appendChild(originalSpan);
+                productItem.appendChild(input);
+                resultsContainer.appendChild(productItem);
+            });
+            
+            document.getElementById('resultContainer').style.display = 'block';
+        }
+        
+        function copyResults() {
+            const inputs = document.querySelectorAll('.product-input');
+            let resultText = '';
+            
+            inputs.forEach((input, index) => {
+                const original = input.dataset.original;
+                const value = input.value;
+                
+                resultText += `  "${original}": "${value}"`;
+                
+                if (index < inputs.length - 1) {
+                    resultText += ',\n';
+                }
+            });
+            
+            // Adicionar chaves no início e fim para formar um objeto JSON válido
+            resultText = '{\n' + resultText + '\n}';
+            
+            // Copiar para a área de transferência
+            navigator.clipboard.writeText(resultText)
+                .then(() => {
+                    showNotification();
+                })
+                .catch(err => {
+                    console.error('Erro ao copiar: ', err);
+                    // Fallback para navegadores mais antigos
+                    const textArea = document.createElement('textarea');
+                    textArea.value = resultText;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    showNotification();
+                });
+        }
+        
+        function showNotification() {
+            const notification = document.getElementById('notification');
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+        
+        function resetAll() {
+            document.getElementById('productList').value = '';
+            document.getElementById('productResults').innerHTML = '';
+            document.getElementById('resultContainer').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

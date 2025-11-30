@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MAC 277 - Organizador de Lista</title>
+
+<!-- jsPDF + SheetJS via CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+  /* ===== base / tipografia ===== */
+  :root {
+    --azul: #007BFF;
+    --azul-escuro: #0056b3;
+    --amarelo: #FFD700;
+    --vermelho: #b22222;
+    --verde: #28a745;
+    --roxo: #6f42c1;
+    --bg: #ffffff;
+    --ink: #111;
+    --line: #e6eef9;
+    --cinza-claro: #f8f9fa;
+    --cinza-medio: #e9ecef;
+    --cinza-escuro: #495057;
+  }
+  html,body { height:100%; }
+  body {
+    font-family: monospace;
+    margin: 0;
+    padding: 0;
+    color: var(--ink);
+    background: var(--bg);
+  }
+
+  /* small helper for screen readers */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ===== header ===== */
+  header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background: var(--azul);
+    color: white;
+    padding: 10px 14px;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+  }
+  .menu-left, .menu-right {
+    display:flex;
+    gap: 8px;
+    align-items:center;
+  }
+  .icon-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 6px;
+
+    /* align SVG nicely */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .icon-btn:hover { background: rgba(255,255,255,0.08); }
+
+  /* sizing only (cada SVG controla fill/stroke via currentColor) */
+  .icon-btn svg {
+    width: 22px;
+    height: 22px;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  /* dropdowns */
+  .menu-dropdown { position: relative; }
+  .menu-dropdown-content {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    background: white;
+    color: #111;
+    border-radius: 6px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    min-width: 240px;
+    max-width: calc(100vw - 40px);
+    overflow: auto;
+    z-index: 1200;
+    padding: 6px 0;
+    white-space: normal;
+  }
+  .menu-right .menu-dropdown-content { right: 0; left: auto; }
+
+  .menu-dropdown-content a {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    color: #111;
+    text-decoration: none;
+    font-family: monospace;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+  }
+  .menu-dropdown-content a:hover { 
+    background: var(--cinza-claro);
+    border-left-color: var(--azul);
+    color: var(--azul-escuro);
+  }
+
+  .dropdown-section { border-top: 1px solid #f0f0f0; padding-top: 6px; margin-top: 6px; }
+  .section-header {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    font-weight:700;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+  }
+  .section-header:hover { 
+    background: var(--cinza-claro);
+    border-left-color: var(--azul);
+    color: var(--azul-escuro);
+  }
+  .section-header small { font-weight:400; color:#666; }
+  .submenu { display:none; padding-left: 6px; padding-bottom:6px; }
+  .submenu a { padding-left: 18px; font-weight:500; }
+  
+  /* Estilo para a caixinha do código MAC */
+  .mac-code {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--azul);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: bold;
+    margin-right: 10px;
+    min-width: 32px;
+    height: 22px;
+  }
+
+  /* ===== título com setas ===== */
+  .titulo-nav {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap: 16px;
+    margin: 14px 10px 8px;
+  }
+  .titulo-nav h1 {
+    margin:0;
+    font-size:18px;
+    color:#111;
+  }
+  .titulo-nav a {
+    color: var(--azul);
+    text-decoration:none;
+    font-size:22px;
+    user-select:none;
+  }
+  .titulo-nav .arrow {
+    width:28px;
+    height:28px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:6px;
+    cursor:pointer;
+    color:var(--azul-escuro);
+    text-decoration:none;
+  }
+  .titulo-nav .arrow:hover { background:#f0f8ff; }
+
+  /* ===== container duas colunas ===== */
+  .container {
+    display:flex;
+    justify-content:center;
+    gap: 32px;
+    align-items:flex-start;
+    padding: 10px 14px 24px;
+    flex-wrap:wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .column {
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    min-width: 300px;
+    max-width: 420px;
+    width: 100%;
+    flex: 1;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px;
+    box-sizing: border-box;
+  }
+
+  .item {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:6px 8px;
+    border-radius:6px;
+    transition: background-color 0.2s;
+    position: relative;
+  }
+  
+  /* Borda completa ao redor do item novo - REDUZIDA PARA 1px */
+  .item.novo-item {
+    background-color: #e8f5e8;
+    border: 1px solid var(--verde);
+    border-radius: 6px;
+  }
+  
+  .item span { flex:1; color:#111; }
+  .item input[type="text"] {
+    width: 60px;
+    padding:6px 6px;
+    font-family: monospace;
+    text-align:center;
+    border:1px solid #ddd;
+    border-radius:4px;
+    background: white;
+    transition: box-shadow .12s, border-color .12s;
+  }
+  .item input[readonly] { background: #fafafa; }
+
+  .item input:focus {
+    outline: none;
+    border-color: var(--azul-escuro);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.12);
+  }
+
+  /* Botão de remover item - estilo do código de referência */
+  .remove-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #6c757d;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+  }
+  
+  .remove-btn:hover {
+    background: #f8f9fa;
+    color: #495057;
+  }
+
+  /* ===== middle controls ===== */
+  #middle-controls {
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    align-items:center;
+    justify-content:center;
+    min-width:170px;
+    flex-shrink: 0;
+  }
+  #middle-controls button {
+    width:170px;
+    padding:10px 12px;
+    font-size:14px;
+    border-radius:6px;
+    border:none;
+    cursor:pointer;
+  }
+
+  /* Botão Adicionar Item - VOLTAR PARA ROXO */
+  #middle-controls button:first-child { 
+    background: var(--roxo); 
+    color:white; 
+  }
+  #middle-controls button:first-child:hover { 
+    background: #5a32a3; 
+  }
+
+  .btn-azul { background: var(--azul); color:white; }
+  .btn-azul:hover { background:var(--azul-escuro); }
+  .btn-verde { background: var(--verde); color:white; }
+  .btn-verde:hover { background:#218838; }
+  .btn-amarelo { background: var(--amarelo); color:black; }
+  .btn-amarelo:hover { background:#e6c200; }
+  .btn-vermelho { background: var(--vermelho); color:white; }
+  .btn-vermelho:hover { background:#8b1a1a; }
+
+  /* ===== contador ===== */
+  #contador-linhas { text-align:center; margin: 12px 0 24px; font-weight:700; }
+
+  /* aviso / toast discreto (reaproveitamos #copy-notice) */
+  #copy-notice {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    background: rgba(0,0,0,0.78);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: none;
+    z-index: 2000;
+    font-family: monospace;
+    font-size: 13px;
+  }
+
+  /* Modal para adicionar itens */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 3000;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  
+  .modal-content h2 {
+    margin-top: 0;
+    color: #333;
+  }
+  
+  .modal-input-group {
+    margin-bottom: 15px;
+  }
+  
+  .modal-input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .modal-input-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: monospace;
+  }
+  
+  .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .modal-buttons button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: monospace;
+  }
+  
+  .btn-modal-confirm {
+    background: var(--verde);
+    color: white;
+  }
+  
+  .btn-modal-cancel {
+    background: #6c757d;
+    color: white;
+  }
+
+  /* espaço estético no final da página */
+  .tail-space { height: 20px; }
+
+  /* ===== RESPONSIVIDADE ===== */
+  @media (max-width: 1024px) {
+    .container {
+      gap: 24px;
+    }
+    
+    .column {
+      min-width: 280px;
+      max-width: 380px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .container {
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .column {
+      min-width: 100%;
+      max-width: 100%;
+    }
+    
+    #middle-controls {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      min-width: auto;
+      width: 100%;
+      max-width: 400px;
+    }
+    
+    #middle-controls button {
+      width: 160px;
+    }
+    
+    .titulo-nav {
+      flex-wrap: wrap;
+      text-align: center;
+    }
+    
+    .titulo-nav h1 {
+      font-size: 16px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .container {
+      padding: 10px 8px 20px;
+    }
+    
+    #middle-controls button {
+      width: 140px;
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+    
+    .item {
+      padding: 5px 6px;
+    }
+    
+    .item input[type="text"] {
+      width: 50px;
+    }
+    
+    .modal-content {
+      padding: 15px;
+      margin: 10px;
+    }
+  }
+
+  /* ---------- PRINT (melhoria mínima adicionada) ---------- */
+  @media print {
+    /* esconder controles e rodapé */
+    header, .menu-dropdown-content, #middle-controls, #copy-notice, .modal-overlay, .remove-btn { display: none !important; }
+
+    /* alturas automáticas */
+    html, body { height: auto !important; min-height: auto !important; font-family: monospace; }
+
+    /* pagina A4 e margens pequenas para caber o conteúdo */
+    @page { 
+      size: A4 portrait; 
+      margin: 4mm; /* REDUZIDO DE 8mm PARA 4mm */
+    }
+
+    /* evita problemas de impressão com flex: usar blocos e floats no print */
+    .container { 
+      display: block !important; 
+      gap: 4px !important; /* REDUZIDO DE 8px PARA 4px */
+      padding: 0 !important; 
+      max-width: 100% !important;
+    }
+    .container:after { content: ''; display: block; clear: both; }
+
+    /* coloca as colunas lado a lado usando float (mais previsível em impressão) */
+    .column { 
+      box-shadow: none; 
+      border: 1px solid #000 !important; 
+      min-width: auto; 
+      max-width: 49%; /* AJUSTADO PARA 49% PARA MELHOR APROVEITAMENTO */
+      width: 49%; 
+      float: left !important; 
+      box-sizing: border-box; 
+      padding: 6px !important; /* REDUZIDO DE 12px PARA 6px */
+      margin-bottom: 4px !important;
+    }
+
+    /* reduz o espaçamento por item e evita quebra dentro do item */
+    .item { 
+      gap: 4px !important; /* REDUZIDO DE 6px PARA 4px */
+      padding: 1px 2px !important; /* REDUZIDO DE 2px 4px PARA 1px 2px */
+      page-break-inside: avoid; 
+      break-inside: avoid; 
+    }
+    .item span { font-size: 10px; line-height: 1.1; } /* REDUZIDO DE 11px PARA 10px */
+    .item input[type="text"] { 
+      width: 40px; /* REDUZIDO DE 44px PARA 40px */
+      padding: 1px 2px; /* REDUZIDO DE 2px 4px PARA 1px 2px */
+      font-size: 10px; /* REDUZIDO DE 11px PARA 10px */
+      text-align: center; 
+    }
+
+    /* ajustar o espaço estético também para o print */
+    .tail-space { height: 0mm; }
+
+    /* caso tenhamos MUITAS linhas, aplicamos uma classe (JS) para reduzir ainda mais a fonte */
+    body.print-tight { font-size: 9px !important; } /* REDUZIDO DE 10px PARA 9px */
+    body.print-tight .column { max-width: 49%; width: 49%; float: left !important; }
+    body.print-tight .item span { font-size: 9px; } /* REDUZIDO DE 10px PARA 9px */
+    body.print-tight .item input[type="text"] { 
+      width: 35px; /* REDUZIDO DE 38px PARA 35px */
+      font-size: 9px; /* REDUZIDO DE 10px PARA 9px */
+      padding: 1px 2px; 
+    }
+    
+    /* Estilo para caber em uma página quando não há itens adicionados */
+    body.single-page-print .column { 
+      max-width: 100%; 
+      width: 100%; 
+      float: none !important; 
+    }
+    
+    body.single-page-print .item span { 
+      font-size: 11px; /* TAMANHO MAIOR QUANDO CABE EM UMA PÁGINA */
+    }
+    
+    body.single-page-print .item input[type="text"] { 
+      width: 45px; /* LARGURA MAIOR QUANDO CABE EM UMA PÁGINA */
+      font-size: 11px; /* TAMANHO MAIOR QUANDO CABE EM UMA PÁGINA */
+    }
+  }
+  /* ---------- fim PRINT ---------- */
+</style>
+</head>
+<body>
+
+<header>
+  <div class="menu-left">
+    <div class="menu-dropdown">
+      <!-- MENU hamburger - DO CÓDIGO FORNECIDO -->
+      <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')" aria-haspopup="true" aria-controls="dropdown-menu" aria-expanded="false">
+        <!-- svg: três fileiras / menu sanduíche -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+          <title>Menu</title>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+        <span class="sr-only">Abrir menu</span>
+      </button>
+
+      <div class="menu-dropdown-content" id="dropdown-menu" role="menu" aria-hidden="true">
+        <div class="dropdown-section">
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)">
+            <span>MACS</span>
+            <small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="mac77.html" data-mac="77" onclick="abrirMac(event, 'MAC Bairro São Geraldo')">
+              <span class="mac-code">77</span> MAC Bairro São Geraldo
+            </a>
+            <a href="mac78.html" data-mac="78" onclick="abrirMac(event, 'MAC Bairro Planalto')">
+              <span class="mac-code">78</span> MAC Bairro Planalto
+            </a>
+            <a href="mac79.html" data-mac="79" onclick="abrirMac(event, 'MAC Romeu Duarte')">
+              <span class="mac-code">79</span> MAC Romeu Duarte
+            </a>
+            <a href="mac80.html" data-mac="80" onclick="abrirMac(event, 'MAC Rua São Geraldo / Centro 2')">
+              <span class="mac-code">80</span> MAC Rua São Geraldo / Centro 2
+            </a>
+            <a href="mac277.html" data-mac="277" onclick="abrirMac(event, 'MAC Matriz')">
+              <span class="mac-code">277</span> MAC Matriz
+            </a>
+            <a href="mac853.html" data-mac="853" onclick="abrirMac(event, 'MAC Concesso')">
+              <span class="mac-code">853</span> MAC Concesso
+            </a>
+            <a href="mac1249.html" data-mac="1249" onclick="abrirMac(event, 'MAC Jardim do Lago')">
+              <span class="mac-code">1249</span> MAC Jardim do Lago
+            </a>
+            <a href="mac989.html" data-mac="989" onclick="abrirMac(event, 'MAC Araújos')">
+              <span class="mac-code">989</span> MAC Araújos
+            </a>
+          </div>
+        </div>
+
+        <div class="dropdown-section">
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)">
+            <span>São José</span>
+            <small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="saojose.html" onclick="abrirLocal(event, 'Pedido São José')">Pedido São José</a>
+            <a href="paototal.html" onclick="abrirLocal(event, 'Pedido Pão Total')">Pedido Pão Total</a>
+          </div>
+        </div>
+        
+        <div class="dropdown-section">
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)">
+            <span>Tabelas</span>
+            <small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="pdfs/Tabela 2025 Geral.pdf" onclick="abrirLocal(event, 'Tabela de Preços Geral')">Tabela de Preços Geral</a>
+            <a href="pdfs/Tabela 2025 Empresa.pdf" onclick="abrirLocal(event, 'Tabela de Preços Empresa')">Tabela de Preços Empresa</a>
+            <a href="https://github.com/henriteodoro/paratestes/releases/download/v1.0/Catalogo.Sao.Jose.2025.AT03.pdf" onclick="abrirLocal(event, 'Catálogo de Produtos')">Catálogo de Produtos</a>
+          </div>
+        </div>
+        
+        <div class="dropdown-section">
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)">
+            <span>Ferramentas</span>
+            <small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="processadordepedidos.html" onclick="abrirLocal(event, 'Processador de Pedidos')">Processador de Pedidos</a>
+            <a href="ods.html" onclick="abrirLocal(event, 'Visualizar Planilhas')">Visualizar Planilhas</a>
+            <a href="simularpedido.html" onclick="abrirLocal(event, 'Simulador de Pedido')">Simulador de Pedido</a>
+            <a href="anotacoes/anotacoes.html" onclick="abrirLocal(event, 'Anotações')">Anotações</a>
+            <a href="planilhaautocontrole.html" onclick="abrirLocal(event, 'Planilhas de Autocontrole')">Planilhas de Autocontrole</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- X (fechar) - FUNCIONALIDADE DO CÓDIGO FORNECIDO -->
+    <button class="icon-btn" id="btn-close" title="Fechar" onclick="fecharPagina()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+        <title>Fechar</title>
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+      <span class="sr-only">Fechar</span>
+    </button>
+
+    <!-- Home - FUNCIONALIDADE DO CÓDIGO FORNECIDO -->
+    <button class="icon-btn" id="btn-home" title="Menu inicial" onclick="voltarMenu()">
+      <svg xmlns="http://www.w3.org/2000/svg"
+           width="22" height="22"
+           viewBox="0 0 24 24"
+           fill="currentColor" aria-hidden="true">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M21.4498 10.275L11.9998 3.1875L2.5498 10.275L2.9998 11.625H3.7498V20.25H20.2498V11.625H20.9998L21.4498 10.275ZM5.2498 18.75V10.125L11.9998 5.0625L18.7498 10.125V18.75H14.9999V14.3333L14.2499 13.5833H9.74988L8.99988 14.3333V18.75H5.2498ZM10.4999 18.75H13.4999V15.0833H10.4999V18.75Z"/>
+      </svg>
+      <span class="sr-only">Menu inicial</span>
+    </button>
+  </div>
+
+  <div class="menu-right">
+    <div class="menu-dropdown">
+      <!-- botão salvar (mantido) -->
+      <button class="icon-btn" id="btn-salvar" title="Salvar" onclick="toggleMenu('dropdown-save')" aria-haspopup="true" aria-controls="dropdown-save" aria-expanded="false">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <title>Salvar</title>
+          <path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7z"/>
+          <path d="M17 3v4H7V3"/>
+          <rect x="7" y="13" width="10" height="8" rx="1"/>
+        </svg>
+        <span class="sr-only">Salvar</span>
+      </button>
+      <div class="menu-dropdown-content" id="dropdown-save" aria-labelledby="btn-salvar">
+        <a href="#" onclick="salvarComoTXT(event)" title="Salvar como TXT">Salvar como TXT</a>
+        <a href="#" onclick="salvarComoPDF(event)" title="Salvar como PDF">Salvar como PDF</a>
+        <a href="#" onclick="salvarComoExcel(event)" title="Salvar como Excel">Salvar como Excel</a>
+      </div>
+    </div>
+
+    <!-- botão imprimir: com SVG fornecido -->
+    <button class="icon-btn" id="btn-print" title="Imprimir">
+      <svg xmlns="http://www.w3.org/2000/svg"
+           width="22" height="22"
+           viewBox="0 0 24 24"
+           fill="none"
+           stroke="currentColor"
+           stroke-width="2"
+           stroke-linecap="round"
+           stroke-linejoin="round" aria-hidden="true">
+        <path d="M7 18H6.2C5.0799 18 4.51984 18 4.09202 17.782C3.71569 17.5903 3.40973 17.2843 3.21799 16.908C3 16.4802 3 15.9201 3 14.8V10.2C3 9.0799 3 8.51984 3.21799 8.09202C3.40973 7.71569 3.71569 7.40973 4.09202 7.21799C4.51984 7 5.0799 7 6.2 7H7M17 18H17.8C18.9201 18 19.4802 18 19.908 17.782C20.2843 17.5903 20.5903 17.2843 20.782 16.908C21 16.4802 21 15.9201 21 14.8V10.2C21 9.07989 21 8.51984 20.782 8.09202C20.5903 7.71569 20.2843 7.40973 19.908 7.21799C19.4802 7 18.9201 7 17.8 7H17M7 11H7.01M17 7V5.4V4.6C17 4.03995 17 3.75992 16.891 3.54601C16.7951 3.35785 16.6422 3.20487 16.454 3.10899C16.2401 3 15.9601 3 15.4 3H8.6C8.03995 3 7.75992 3 7.54601 3.10899C7.35785 3.20487 7.20487 3.35785 7.10899 3.54601C7 3.75992 7 4.03995 7 4.6V5.4V7M17 7H7M8.6 21H15.4C15.9601 21 16.2401 21 16.454 20.891C16.6422 20.7951 16.7951 20.6422 16.891 20.454C17 20.2401 17 19.9601 17 19.4V16.6C17 16.0399 17 15.7599 16.891 15.546C16.7951 15.3578 16.6422 15.2049 16.454 15.109C16.2401 15 15.9601 15 15.4 15H8.6C8.03995 15 7.75992 15 7.54601 15.109C7.35785 15.2049 7.20487 15.3578 7.10899 15.546C7 15.7599 7 16.0399 7 16.6V19.4C7 19.9601 7 20.2401 7.10899 20.454C7.20487 20.6422 7.35785 20.7951 7.54601 20.891C7.75992 21 8.03995 21 8.6 21Z"/>
+      </svg>
+    </button>
+
+    <!-- botão copiar: ícone substituído conforme pedido (agora usa currentColor -> branco pela regra .icon-btn) -->
+    <button class="icon-btn" id="btn-copy" title="Copiar" onclick="copiarDireita()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <title>Copiar</title>
+        <path d="M15 17v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1H7" />
+        <rect x="7" y="3" width="12" height="14" rx="1" />
+      </svg>
+    </button>
+  </div>
+</header>
+
+<!-- AQUI ESTÁ A ALTERAÇÃO PRINCIPAL - ADICIONEI AS DUAS SETAS -->
+<div class="titulo-nav" role="navigation" aria-label="Navegação MAC">
+  <a href="mac80.html" class="arrow" id="arrow-left" title="MAC Anterior" onclick="abrirMac(event,'MAC Rua São Geraldo / Centro 2 - Cód. 80')">←</a>
+  <h1 id="titulo-principal">MAC Matriz - Cód. 277</h1>
+  <a href="mac853.html" class="arrow" id="arrow-right" title="Próximo MAC" onclick="abrirMac(event,'MAC Concesso - Cód. 853')">→</a>
+</div>
+
+<div class="container">
+  <div class="column" id="coluna-esquerda"></div>
+
+  <div id="middle-controls" aria-hidden="false">
+    <button onclick="abrirModalAdicionar()">Adicionar Item</button>
+    <button id="btn-transfer" onclick="transferir()" class="btn-azul">→</button>
+    <button onclick="alternarLinhas()" id="btn-linhas" class="btn-amarelo">Remover Linhas Vazias</button>
+    <button onclick="resetarTudo()" class="btn-vermelho">Resetar Tudo</button>
+  </div>
+
+  <div class="column" id="coluna-direita"></div>
+</div>
+
+<div id="contador-linhas">Linhas preenchidas: 0</div>
+
+<!-- Modal para adicionar itens -->
+<div class="modal-overlay" id="modal-adicionar">
+  <div class="modal-content">
+    <h2>Adicionar Novo Item</h2>
+    <div class="modal-input-group">
+      <label for="nome-esquerda">Nome na Coluna Esquerda:</label>
+      <input type="text" id="nome-esquerda" placeholder="Digite o nome para a coluna esquerda">
+    </div>
+    <div class="modal-input-group">
+      <label for="nome-direita">Nome na Coluna Direita:</label>
+      <input type="text" id="nome-direita" placeholder="Deixe em branco para preenchimento automático">
+    </div>
+    <div class="modal-buttons">
+      <button class="btn-modal-confirm" onclick="confirmarAdicionarItem()">Adicionar</button>
+      <button class="btn-modal-cancel" onclick="fecharModalAdicionar()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- aviso discreto (reaproveitado para toasts) -->
+<div id="copy-notice">Copiado!</div>
+
+<!-- espaço estético no fim da página -->
+<div class="tail-space" aria-hidden="true"></div>
+
+<script>
+/* ============================
+   Dados
+   ============================ */
+const frasesEsquerda = [
+  "PÃO DE QUEIJO RECHEADO FRANGO PAC 7 KG",
+  "PÃO DE QUEIJO GRANDE",
+  "PÃO FRANCÊS 6HRS PAC 7 KG",
+  "PÃO FRANCÊS 12HRS 7 KG",
+  "PÃO FRANCÊS 18HRS 7 KG",
+  "PAO DE 4 HRS 7KG",
+  "PAO DE QUEIJO 7KG",
+  "BAGUETE 6 HRS 7 KG",
+  "BAGUETE 12 HRS 7 KG",
+  "BISCOITO CHIPA MP KG 7KG",
+  "BISCOITO DOCE FRITO MP 1 KG",
+  "BISCOITO DE QUEIJO MP 7 KG",
+  "BISCOITO SEQUILHO MP MANGA",
+  "BISCOITO TRES QUEIJOS MP 7 KG",
+  "BOLO FUBA CREMOSO MP 1 UNIDADE",
+  "BOLO MILHO MP 1 UNIDADE",
+  "BROINHA DE FUBA DOCE MP 7 KG",
+  "BROINHA BACON TEMPERADA MP 7 KG",
+  "CROISSANT DE FRANGO MP 7 KG",
+  "CROISSANT DE PRESUNTO MP 7 KG",
+  "PÃO DE BATATA MP 7 KG",
+  "PÃO DE QUEIJO MEIA LUA PAC COM 10 UNI",
+  "PÃO DOCE C/CREME MP 7 KG CARACOL",
+  "PÃO DOCE MP 7 KG",
+  "PÃO DOCE MINI MP 7 KG",
+  "PÃO MILHO MP 7 KG",
+  "PÃO PANHOCA MP 7 KG",
+  "ROSCOVADO MP UNIDADE",
+  "ROSCA CREME E COCO MP PAC COM 5 UNI",
+  "ROSCA FRUTAS CRISTALIZADAS PCT 5 UNI",
+  "ROSCA TRANÇA MP PAC COM 10 UNID",
+  "ROSCA TRANCINHA MP PAC 3KG",
+  "ROSCA TRANÇA REDONDA MP",
+  "ROSQUINHA CANUDINHO DE QUEIJO MP PAC COM 7KG",
+  "SALGADO COXINHA DE FRANGO MP 1 KG",
+  "SALGADOS BOLINHA DE CARNE MP 1 KG",
+  "SALGADOS EMPADA DE FRANGO MP 1 KG",
+  "SALGADOS ENROLADINHO PRESUNTO MP 1 KG",
+  "SALGADOS PASTEL CATUPIRY MP 1 KG",
+  "SALGADOS KIBE CATUPIRY MP 1 KG",
+  "SONHO MP PAC 3 KG"
+];
+
+// Mapeamento direto entre os produtos originais e seus equivalentes formatados
+const mapeamentoProdutos = {
+  "PÃO DE QUEIJO RECHEADO FRANGO PAC 7 KG": "Pão de queijo recheado frango pequeno 7kg",
+  "PÃO DE QUEIJO GRANDE": "Pão de queijo tradicional grande 1kg",
+  "PÃO FRANCÊS 6HRS PAC 7 KG": "Pão francês 06hrs 7kg",
+  "PÃO FRANCÊS 12HRS 7 KG": "Pão francês 12hrs 7kg",
+  "PÃO FRANCÊS 18HRS 7 KG": "Pão francês 18hrs 7kg",
+  "PAO DE 4 HRS 7KG": "Pão francês 04hrs 7kg",
+  "PAO DE QUEIJO 7KG": "Pão de queijo tradicional pequeno 7kg",
+  "BAGUETE 6 HRS 7 KG": "Baguete 06hrs 7kg",
+  "BAGUETE 12 HRS 7 KG": "Baguete 12hrs 7kg",
+  "BISCOITO CHIPA MP KG 7KG": "Biscoito chipa 7kg",
+  "BISCOITO DOCE FRITO MP 1 KG": "Biscoitinho doce frito 1kg",
+  "BISCOITO DE QUEIJO MP 7 KG": "Biscoito de queijo 7kg",
+  "BISCOITO SEQUILHO MP MANGA": "Mistura biscoito sequilho 4kg",
+  "BISCOITO TRES QUEIJOS MP 7 KG": "Biscoito três queijos 7kg",
+  "BOLO FUBA CREMOSO MP 1 UNIDADE": "Bolo cremoso de fubá 1 unidade",
+  "BOLO MILHO MP 1 UNIDADE": "Bolo cremoso de milho 1 unidade",
+  "BROINHA DE FUBA DOCE MP 7 KG": "Broinha de fubá doce 7kg",
+  "BROINHA BACON TEMPERADA MP 7 KG": "Broinha temperada com bacon 7kg",
+  "CROISSANT DE FRANGO MP 7 KG": "Croissant de frango 7kg",
+  "CROISSANT DE PRESUNTO MP 7 KG": "Croissant de presunto 7kg",
+  "PÃO DE BATATA MP 7 KG": "Pão de batata 7kg",
+  "PÃO DE QUEIJO MEIA LUA PAC COM 10 UNI": "Meia lua 1kg com 10 unidades",
+  "PÃO DOCE C/CREME MP 7 KG CARACOL": "Caracol 7kg",
+  "PÃO DOCE MP 7 KG": "Carioca 7kg",
+  "PÃO DOCE MINI MP 7 KG": "Mini carioca 7kg",
+  "PÃO MILHO MP 7 KG": "Pão de milho 7kg",
+  "PÃO PANHOCA MP 7 KG": "Panhoca 7kg",
+  "ROSCOVADO MP UNIDADE": "Roscovado 1 unidade",
+  "ROSCA CREME E COCO MP PAC COM 5 UNI": "Rosca creme e coco PCT 5 unidades",
+  "ROSCA FRUTAS CRISTALIZADAS PCT 5 UNI": "Rosca frutas cristalizadas PCT 5 unidades",
+  "ROSCA TRANÇA MP PAC COM 10 UNID": "Trança PCT 10 unidades",
+  "ROSCA TRANCINHA MP PAC 3KG": "Trancinha PCT 3kg",
+  "ROSCA TRANÇA REDONDA MP": "Trancinha redonda",
+  "ROSQUINHA CANUDINHO DE QUEIJO MP PAC COM 7KG": "Canudinho de queijo 7kg",
+  "SALGADO COXINHA DE FRANGO MP 1 KG": "Coxinha de frango pequena 1kg",
+  "SALGADOS BOLINHA DE CARNE MP 1 KG": "Bolinha de carne pequena 1kg",
+  "SALGADOS EMPADA DE FRANGO MP 1 KG": "Empadinha de frango pequena 1kg",
+  "SALGADOS ENROLADINHO PRESUNTO MP 1 KG": "Enroladinho de presunto pequeno 1kg",
+  "SALGADOS PASTEL CATUPIRY MP 1 KG": "Pastelzinho catupiry pequeno 1kg",
+  "SALGADOS KIBE CATUPIRY MP 1 KG": "Quibe com catupiry pequeno 1kg",
+  "SONHO MP PAC 3 KG": "Sonho PCT 3kg"
+};
+
+// Array para armazenar itens adicionados pelo usuário
+const itensAdicionados = {
+  esquerda: [],
+  direita: []
+};
+
+// Criar lista ordenada alfabeticamente dos produtos formatados
+let frasesDireitaOrdenadas = Object.values(mapeamentoProdutos).sort((a, b) => 
+  a.localeCompare(b, 'pt-BR', { sensitivity: 'base' })
+);
+
+// Criar mapeamento reverso para facilitar a transferência
+const mapeamentoReverso = {};
+Object.keys(mapeamentoProdutos).forEach(chave => {
+  mapeamentoReverso[mapeamentoProdutos[chave]] = chave;
+});
+
+/* ============================
+   Utilitários
+   ============================ */
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/* ============================
+   Toast / aviso inferior direito
+   ============================ */
+function showBottomNotice(message = 'Copiado!', duration = 2000) {
+  const el = document.getElementById('copy-notice');
+  if (!el) return;
+  // se já estiver visível, cancela o timeout anterior
+  if (el._hideTimeout) {
+    clearTimeout(el._hideTimeout);
+    el._hideTimeout = null;
+  }
+  el.textContent = message;
+  el.style.display = 'block';
+  el._hideTimeout = setTimeout(() => {
+    el.style.display = 'none';
+    el._hideTimeout = null;
+  }, duration);
+}
+
+// compat shim para chamadas antigas
+function mostrarAvisoCopia() {
+  showBottomNotice('Copiado!', 2000);
+}
+
+/* ============================
+   Modal para adicionar itens
+   ============================ */
+function abrirModalAdicionar() {
+  const modal = document.getElementById('modal-adicionar');
+  modal.style.display = 'flex';
+  document.getElementById('nome-esquerda').focus();
+}
+
+function fecharModalAdicionar() {
+  const modal = document.getElementById('modal-adicionar');
+  modal.style.display = 'none';
+  // Limpar os campos
+  document.getElementById('nome-esquerda').value = '';
+  document.getElementById('nome-direita').value = '';
+}
+
+function confirmarAdicionarItem() {
+  const nomeEsquerda = document.getElementById('nome-esquerda').value.trim();
+  let nomeDireita = document.getElementById('nome-direita').value.trim();
+  
+  if (!nomeEsquerda) {
+    showBottomNotice('Preencha o nome da coluna esquerda!', 2000);
+    return;
+  }
+  
+  // Se o nome da direita estiver vazio, preencher automaticamente
+  if (!nomeDireita) {
+    // Formatação automática: converter para minúsculas e capitalizar palavras
+    nomeDireita = nomeEsquerda.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+  }
+  
+  // Verificar se o item já existe na esquerda
+  if ([...frasesEsquerda, ...itensAdicionados.esquerda].includes(nomeEsquerda)) {
+    showBottomNotice('Este item já existe na coluna esquerda!', 2000);
+    return;
+  }
+  
+  // Verificar se o item já existe na direita
+  if (frasesDireitaOrdenadas.includes(nomeDireita)) {
+    showBottomNotice('Este item já existe na coluna direita!', 2000);
+    return;
+  }
+  
+  // Adicionar aos arrays de itens adicionados
+  itensAdicionados.esquerda.push(nomeEsquerda);
+  
+  // Atualizar o mapeamento
+  mapeamentoProdutos[nomeEsquerda] = nomeDireita;
+  mapeamentoReverso[nomeDireita] = nomeEsquerda;
+  
+  // Reordenar a coluna direita
+  frasesDireitaOrdenadas = Object.values(mapeamentoProdutos).sort((a, b) => 
+    a.localeCompare(b, 'pt-BR', { sensitivity: 'base' })
+  );
+  
+  // Reconstruir a interface
+  montarInterface();
+  
+  // Fechar o modal
+  fecharModalAdicionar();
+  
+  showBottomNotice('Item adicionado com sucesso!', 2000);
+}
+
+/* ============================
+   Função para remover item
+   ============================ */
+function removerItem(nomeEsquerda, nomeDireita) {
+  // Remover dos arrays de itens adicionados
+  const indexEsquerda = itensAdicionados.esquerda.indexOf(nomeEsquerda);
+  if (indexEsquerda > -1) {
+    itensAdicionados.esquerda.splice(indexEsquerda, 1);
+  }
+  
+  // Remover do mapeamento
+  delete mapeamentoProdutos[nomeEsquerda];
+  delete mapeamentoReverso[nomeDireita];
+  
+  // Reordenar a coluna direita
+  frasesDireitaOrdenadas = Object.values(mapeamentoProdutos).sort((a, b) => 
+    a.localeCompare(b, 'pt-BR', { sensitivity: 'base' })
+  );
+  
+  // Reconstruir a interface
+  montarInterface();
+  
+  showBottomNotice('Item removido com sucesso!', 2000);
+}
+
+// Fechar modal com ESC
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    fecharModalAdicionar();
+  }
+});
+
+// Fechar modal clicando fora
+document.getElementById('modal-adicionar').addEventListener('click', (e) => {
+  if (e.target.id === 'modal-adicionar') {
+    fecharModalAdicionar();
+  }
+});
+
+/* ============================
+   Construção da interface
+   ============================ */
+function montarInterface() {
+  const colEsq = document.getElementById("coluna-esquerda");
+  const colDir = document.getElementById("coluna-direita");
+  colEsq.innerHTML = "";
+  colDir.innerHTML = "";
+
+  // Montar coluna da esquerda (ordem original + itens adicionados)
+  [...frasesEsquerda, ...itensAdicionados.esquerda].forEach((frase, i) => {
+    const item = document.createElement("div");
+    item.className = "item";
+    
+    // Verificar se é um item adicionado pelo usuário
+    const isCustom = i >= frasesEsquerda.length;
+    if (isCustom) {
+      item.classList.add("novo-item");
+    }
+
+    const label = document.createElement("span");
+    label.textContent = frase;
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.dataset.index = i;
+    input.dataset.nome = frase;
+    input.dataset.isCustom = isCustom.toString();
+    input.setAttribute('inputmode','numeric');
+    input.setAttribute('aria-label', `Quantidade ${frase}`);
+
+    input.addEventListener("input", () => {
+      const cur = input.value;
+      const filtered = cur.replace(/[^0-9]/g, '');
+      if (cur !== filtered) input.value = filtered;
+    });
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const next = colEsq.querySelector(`input[data-index="${i+1}"]`);
+        if (next) next.focus();
+      }
+    });
+
+    item.appendChild(label);
+    item.appendChild(input);
+    
+    // Adicionar botão de remover para itens customizados
+    if (isCustom) {
+      const btnRemover = document.createElement("button");
+      btnRemover.className = "remove-btn";
+      btnRemover.title = "Remover item";
+      btnRemover.textContent = "✕";
+      btnRemover.onclick = () => {
+        const nomeDireita = mapeamentoProdutos[frase];
+        removerItem(frase, nomeDireita);
+      };
+      item.appendChild(btnRemover);
+    }
+    
+    colEsq.appendChild(item);
+  });
+
+  // Montar coluna da direita (ordenada alfabeticamente)
+  frasesDireitaOrdenadas.forEach((frase, i) => {
+    const item = document.createElement("div");
+    item.className = "item";
+    
+    // Verificar se é um item adicionado pelo usuário
+    const nomeOriginal = mapeamentoReverso[frase];
+    const isCustom = itensAdicionados.esquerda.includes(nomeOriginal);
+    if (isCustom) {
+      item.classList.add("novo-item");
+    }
+
+    const label = document.createElement("span");
+    label.textContent = frase;
+
+    const output = document.createElement("input");
+    output.type = "text";
+    output.readOnly = true;
+    output.dataset.index = i;
+    output.dataset.nome = frase;
+    output.setAttribute('aria-label', `Resultado ${frase}`);
+
+    item.appendChild(label);
+    item.appendChild(output);
+    
+    // Adicionar botão de remover para itens customizados
+    if (isCustom) {
+      const btnRemover = document.createElement("button");
+      btnRemover.className = "remove-btn";
+      btnRemover.title = "Remover item";
+      btnRemover.textContent = "✕";
+      btnRemover.onclick = () => {
+        removerItem(nomeOriginal, frase);
+      };
+      item.appendChild(btnRemover);
+    }
+    
+    colDir.appendChild(item);
+  });
+
+  atualizarContagemDireita();
+}
+
+/* ============================
+   Funções principais
+   ============================ */
+function transferir() {
+  const inputs = Array.from(document.querySelectorAll("#coluna-esquerda input"));
+  const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
+  
+  // Limpar todos os outputs primeiro
+  outputs.forEach(output => output.value = "");
+  
+  // Para cada input com valor, encontrar o output correspondente
+  inputs.forEach(input => {
+    if (input.value.trim() !== "") {
+      const nomeOriginal = input.dataset.nome;
+      const nomeFormatado = mapeamentoProdutos[nomeOriginal];
+      
+      // Encontrar o output com o nome formatado correspondente
+      const outputCorrespondente = outputs.find(output => 
+        output.dataset.nome === nomeFormatado
+      );
+      
+      if (outputCorrespondente) {
+        outputCorrespondente.value = input.value.trim();
+      }
+    }
+  });
+  
+  atualizarContagemDireita();
+}
+
+let linhasOcultas = false;
+let elementosOcultos = [];
+
+function alternarLinhas() {
+  if (!linhasOcultas) {
+    removerVazios();
+    document.getElementById('btn-linhas').innerText = "Restaurar Linhas Vazias";
+  } else {
+    restaurarLinhas();
+    document.getElementById('btn-linhas').innerText = "Remover Linhas Vazias";
+  }
+  linhasOcultas = !linhasOcultas;
+}
+
+function removerVazios() {
+  const items = document.querySelectorAll("#coluna-direita .item");
+  elementosOcultos = [];
+  items.forEach(it => {
+    const input = it.querySelector("input[type='text']");
+    if (input && input.value.trim() === "") {
+      it.style.display = "none";
+      elementosOcultos.push(it);
+    }
+  });
+}
+
+function restaurarLinhas() {
+  elementosOcultos.forEach(el => el.style.display = "flex");
+  elementosOcultos = [];
+}
+
+function resetarTudo() {
+  const inputs = document.querySelectorAll("input[type='text']");
+  inputs.forEach(i => i.value = "");
+  restaurarLinhas();
+  atualizarContagemDireita();
+}
+
+function atualizarContagemDireita() {
+  const outputs = document.querySelectorAll("#coluna-direita input");
+  let preenchidos = 0;
+  outputs.forEach(out => {
+    if (out.parentElement.style.display !== "none" && out.value.trim() !== "") preenchidos++;
+  });
+  document.getElementById("contador-linhas").innerText = `Linhas preenchidas: ${preenchidos}`;
+}
+
+/* ============================
+   Copiar / aviso discreto
+   ============================ */
+function copiarDireita() {
+  const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
+  const textos = [];
+  outputs.forEach(output => {
+    if (output.value.trim() !== "") {
+      const label = output.parentElement.querySelector("span").textContent;
+      textos.push(`${label}: ${output.value}`);
+    }
+  });
+  const textoFinal = textos.join("\n");
+  if (!textoFinal) {
+    showBottomNotice('Nada para copiar', 2000);
+    return;
+  }
+  // tenta clipboard API
+  navigator.clipboard.writeText(textoFinal).then(() => {
+    showBottomNotice('Copiado!', 2000);
+  }).catch(() => {
+    // fallback execCommand
+    const ta = document.createElement('textarea');
+    ta.value = textoFinal;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      showBottomNotice('Copiado!', 2000);
+    } catch (e) {
+      showBottomNotice('Falha ao copiar', 2000);
+    }
+    ta.remove();
+  });
+}
+
+/* ============================
+   Salvar TXT / PDF / Excel
+   ============================ */
+function salvarComoTXT(e) {
+  if (e) e.preventDefault();
+  const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
+  const linhas = [];
+  outputs.forEach((output) => {
+    if (output.value.trim() !== "") {
+      const label = output.parentElement.querySelector("span").textContent;
+      linhas.push(`${label}: ${output.value}`);
+    }
+  });
+  if (linhas.length === 0) {
+    showBottomNotice('Nenhum item preenchido para salvar', 2000);
+    return;
+  }
+  baixarArquivo(linhas.join("\n"), "lista_mac_277.txt", "text/plain");
+  showBottomNotice('Arquivo TXT salvo', 2000);
+}
+
+function salvarComoPDF(e) {
+  if (e) e.preventDefault();
+  const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
+  const linhas = [];
+  
+  outputs.forEach((output) => {
+    if (output.value.trim() !== "") {
+      const label = output.parentElement.querySelector("span").textContent;
+      const valor = output.value.trim();
+      linhas.push({texto: label, valor});
+    }
+  });
+
+  if (linhas.length === 0) { 
+    showBottomNotice('Nenhum item preenchido para salvar em PDF', 2000); 
+    return; 
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  doc.setFont("courier", "normal");
+  doc.setFontSize(11);
+
+  const marginLeft = 40;
+  const maxWidth = doc.internal.pageSize.getWidth() - marginLeft*2;
+  let y = 40;
+  doc.text("MAC Matriz - Cód. 277", marginLeft, y);
+  y += 18;
+
+  linhas.forEach(({texto, valor}) => {
+    // Verificar se precisa adicionar nova página ANTES de adicionar o texto
+    if (y > doc.internal.pageSize.getHeight() - 40) {
+      doc.addPage();
+      y = 40;
+    }
+    doc.text(texto, marginLeft, y, { maxWidth });
+    doc.text(String(valor), marginLeft + 360, y);
+    y += 14;
+  });
+
+  // Verificar se há espaço para o contador antes de adicioná-lo
+  if (y > doc.internal.pageSize.getHeight() - 30) {
+    doc.addPage();
+    y = 40;
+  }
+  
+  y += 8;
+  doc.text(`Linhas preenchidas: ${linhas.length}`, marginLeft, y);
+
+  doc.save("lista_mac_277.pdf");
+  showBottomNotice('PDF salvo', 2000);
+}
+
+function salvarComoExcel(e) {
+  if (e) e.preventDefault();
+  const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
+  const data = [];
+  data.push(["Produto", "Quantidade"]);
+  outputs.forEach((output) => {
+    if (output.value.trim() !== "") {
+      const produto = output.parentElement.querySelector("span").textContent;
+      const qtd = output.value.trim();
+      data.push([produto, qtd]);
+    }
+  });
+  if (data.length === 1) { showBottomNotice('Nenhum item preenchido para exportar Excel', 2000); return; }
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  XLSX.utils.book_append_sheet(wb, ws, "MAC 277");
+  XLSX.writeFile(wb, "lista_mac_277.xlsx");
+  showBottomNotice('Excel salvo', 2000);
+}
+
+/* ============================
+   Imprimir -> gerar PDF e abrir em nova aba (mantida)
+   ============================ */
+function imprimirDireto() {
+  const printBtn = document.getElementById('btn-print');
+  if (printBtn) printBtn.disabled = true;
+
+  const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
+  const linhas = [];
+  
+  outputs.forEach((output) => {
+    if (output.value.trim() !== "") {
+      const label = output.parentElement.querySelector("span").textContent;
+      const valor = output.value.trim();
+      linhas.push({texto: label, valor});
+    }
+  });
+
+  if (linhas.length === 0) {
+    showBottomNotice('Nenhum item preenchido para imprimir', 2000);
+    if (printBtn) printBtn.disabled = false;
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  doc.setFont("courier", "normal");
+  doc.setFontSize(11);
+
+  const marginLeft = 40;
+  const maxWidth = doc.internal.pageSize.getWidth() - marginLeft*2;
+  let y = 40;
+  doc.text("MAC Matriz - Cód. 277", marginLeft, y);
+  y += 18;
+
+  linhas.forEach(({texto, valor}) => {
+    // Verificar se precisa adicionar nova página ANTES de adicionar o texto
+    if (y > doc.internal.pageSize.getHeight() - 40) {
+      doc.addPage();
+      y = 40;
+    }
+    doc.text(texto, marginLeft, y, { maxWidth });
+    doc.text(String(valor), marginLeft + 360, y);
+    y += 14;
+  });
+
+  // Verificar se há espaço para o contador antes de adicioná-lo
+  if (y > doc.internal.pageSize.getHeight() - 30) {
+    doc.addPage();
+    y = 40;
+  }
+  
+  y += 8;
+  doc.text(`Linhas preenchidas: ${linhas.length}`, marginLeft, y);
+
+  try {
+    const newWin = window.open('', '_blank');
+    if (!newWin) {
+      doc.save("lista_mac_277.pdf");
+      showBottomNotice('PDF baixado', 2000);
+      if (printBtn) printBtn.disabled = false;
+      return;
+    }
+    const pdfBlob = doc.output('blob');
+    const url = URL.createObjectURL(pdfBlob);
+    try {
+      newWin.location.href = url;
+    } catch (e) {
+      try {
+        newWin.document.open();
+        newWin.document.write(`
+          <!doctype html>
+          <html>
+            <head><title>PDF - MAC 277</title></head>
+            <body style="margin:0">
+              <embed src="${url}" type="application/pdf" width="100%" height="100%"/>
+            </body>
+          </html>
+        `);
+        newWin.document.close();
+      } catch (err2) {
+        doc.save("lista_mac_277.pdf");
+        showBottomNotice('PDF baixado', 2000);
+        try { newWin.close(); } catch(e){}
+      }
+    }
+    setTimeout(() => { try { URL.revokeObjectURL(url); } catch(e) {} }, 60000);
+  } catch (err) {
+    showBottomNotice('Erro ao gerar PDF', 3000);
+    console.error(err);
+  } finally {
+    if (printBtn) printBtn.disabled = false;
+  }
+}
+
+/* ============================
+   Imprimir diretamente a página (sem gerar PDF)
+   ============================ */
+function prepareAndPrintSinglePage() {
+  const esquerda = document.getElementById('coluna-esquerda');
+  const direita = document.getElementById('coluna-direita');
+  if (!esquerda || !direita) { showBottomNotice('Nada para imprimir', 2000); return; }
+
+  transferir();
+
+  const totalRows = Math.max(frasesEsquerda.length + itensAdicionados.esquerda.length, frasesDireitaOrdenadas.length);
+  const filledLeft = Array.from(document.querySelectorAll('#coluna-esquerda input')).filter(i=>i.value.trim()!=='').length;
+  const filledRight = Array.from(document.querySelectorAll('#coluna-direita input')).filter(i=>i.value.trim()!=='').length;
+  const filledCount = Math.max(filledLeft, filledRight);
+
+  document.body.classList.remove('print-tight');
+  document.body.classList.remove('single-page-print');
+  
+  // Verificar se não há itens adicionados pelo usuário
+  const hasCustomItems = itensAdicionados.esquerda.length > 0;
+  
+  // Se não houver itens adicionados e o total de linhas for menor que 25, usar layout de página única
+  if (!hasCustomItems && totalRows <= 25) {
+    document.body.classList.add('single-page-print');
+  } else if (totalRows > 34 || filledCount > 34) {
+    document.body.classList.add('print-tight');
+  }
+
+  const cleanup = () => {
+    document.body.classList.remove('print-tight');
+    document.body.classList.remove('single-page-print');
+    try { window.removeEventListener('afterprint', cleanup); } catch(e){}
+  };
+  try { window.addEventListener('afterprint', cleanup); } catch(e){}
+
+  try {
+    window.print();
+  } catch (err) {
+    showBottomNotice('Falha ao abrir impressão', 2000);
+    setTimeout(cleanup, 1000);
+  }
+}
+
+/* ============================
+   util: baixar arquivo
+   ============================ */
+function baixarArquivo(conteudo, nomeArquivo, tipo) {
+  const blob = new Blob([conteudo], { type: tipo });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = nomeArquivo;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+/* ============================
+   dropdown / menus / seções - DO CÓDIGO FORNECIDO
+   ============================ */
+function toggleMenu(id) {
+  document.querySelectorAll('.menu-dropdown-content').forEach(el => {
+    if (el.id !== id) { 
+      el.style.display = 'none'; 
+      el.style.opacity = 0; 
+      el.setAttribute('aria-hidden','true'); 
+    }
+  });
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (el.style.display === 'block') {
+    el.style.opacity = 0;
+    setTimeout(() => { 
+      el.style.display = 'none'; 
+      el.setAttribute('aria-hidden','true'); 
+      // Fechar todas as subseções quando o menu é fechado
+      closeAllSubmenus();
+    }, 180);
+    try {
+      const btn = document.querySelector(`[aria-controls="${id}"]`);
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    } catch(e){}
+  } else {
+    // Fechar todas as subseções quando um novo menu é aberto
+    closeAllSubmenus();
+    el.style.display = 'block';
+    el.style.opacity = 0;
+    el.setAttribute('aria-hidden','false');
+    setTimeout(() => el.style.opacity = 1, 10);
+    try {
+      const btn = document.querySelector(`[aria-controls="${id}"]`);
+      if (btn) btn.setAttribute('aria-expanded', 'true');
+    } catch(e){}
+  }
+}
+
+function toggleSubmenu(headerEl) {
+  const submenu = headerEl.nextElementSibling;
+  if (!submenu) return;
+  const chev = headerEl.querySelector('.chev');
+  if (submenu.style.display === 'block') {
+    submenu.style.display = 'none';
+    if (chev) chev.textContent = '▸';
+  } else {
+    submenu.style.display = 'block';
+    if (chev) chev.textContent = '▾';
+  }
+}
+
+// Função para fechar todas as subseções - DO CÓDIGO FORNECIDO
+function closeAllSubmenus() {
+  document.querySelectorAll('.submenu').forEach(submenu => {
+    submenu.style.display = 'none';
+  });
+  document.querySelectorAll('.chev').forEach(chev => {
+    chev.textContent = '▸';
+  });
+}
+
+document.addEventListener('click', (ev) => {
+  if (!ev.target.closest('.menu-dropdown')) {
+    document.querySelectorAll('.menu-dropdown-content').forEach(el => {
+      el.style.display = 'none';
+      el.style.opacity = 0;
+      el.setAttribute('aria-hidden','true');
+    });
+    document.querySelectorAll('[aria-controls]').forEach(b => { 
+      try { 
+        b.setAttribute('aria-expanded','false'); 
+      } catch(e){} 
+    });
+    // Fechar todas as subseções quando clicar fora do menu
+    closeAllSubmenus();
+  }
+});
+
+/* ============================
+   Placeholders de navegação - DO CÓDIGO FORNECIDO
+   ============================ */
+function fecharPagina() {
+  // Redireciona diretamente sem popup
+  window.location.href = "index.html";
+}
+
+function voltarMenu() {
+  window.location.href = "index.html";
+}
+
+function abrirMac(e, nome) {
+  // se o link tem href válido, fazemos a navegação para esse href
+  try {
+    if (e && e.currentTarget) {
+      const href = e.currentTarget.getAttribute('href');
+      if (href && href !== '#' && href.trim() !== '') {
+        const menu = document.getElementById('dropdown-menu');
+        if (menu) { 
+          menu.style.display = 'none'; 
+          menu.setAttribute('aria-hidden','true'); 
+        }
+        // Fechar todas as subseções
+        closeAllSubmenus();
+        // navega programaticamente (substitui o comportamento padrão)
+        window.location.href = href;
+        return;
+      }
+    }
+  } catch(err) { /* ignore */ }
+  if (e) e.preventDefault();
+  toggleMenu('dropdown-menu');
+}
+
+function abrirLocal(e, nome) {
+  try {
+    if (e && e.currentTarget) {
+      const href = e.currentTarget.getAttribute('href');
+      if (href && href !== '#' && href.trim() !== '') {
+        const menu = document.getElementById('dropdown-menu');
+        if (menu) { 
+          menu.style.display = 'none'; 
+          menu.setAttribute('aria-hidden','true'); 
+        }
+        // Fechar todas as subseções
+        closeAllSubmenus();
+        window.location.href = href;
+        return;
+      }
+    }
+  } catch(err) { /* ignore */ }
+  if (e) e.preventDefault();
+  toggleMenu('dropdown-menu');
+}
+
+/* ============================
+   Inicialização
+   ============================ */
+montarInterface();
+
+const transferBtn = document.querySelector('#middle-controls #btn-transfer');
+if (transferBtn) transferBtn.addEventListener('click', () => {
+  setTimeout(() => atualizarContagemDireita(), 80);
+});
+
+const printBtn = document.getElementById('btn-print');
+if (printBtn) {
+  try { printBtn.onclick = null; } catch(e){}
+  printBtn.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    if (printBtn.disabled) return;
+    prepareAndPrintSinglePage();
+  });
+}
+
+// Fechar menus ao pressionar ESC - DO CÓDIGO FORNECIDO
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.menu-dropdown-content').forEach(el => {
+      el.style.display = 'none';
+      el.style.opacity = 0;
+      el.setAttribute('aria-hidden','true');
+    });
+    document.querySelectorAll('[aria-controls]').forEach(b => { 
+      try { 
+        b.setAttribute('aria-expanded','false'); 
+      } catch(e){} 
+    });
+    // Fechar todas as subseções ao pressionar ESC
+    closeAllSubmenus();
+  }
+});
+</script>
+</body>
+</html>

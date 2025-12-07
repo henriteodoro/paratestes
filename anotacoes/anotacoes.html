@@ -27,7 +27,6 @@
     margin:0;
     padding:18px;
     color:#111;
-    overflow-x: hidden;
   }
   .wrap{max-width:1120px;margin:0 auto}
   h1{margin:0 0 8px 0;font-size:22px;color:var(--accent)}
@@ -279,7 +278,6 @@
     animation: fadeIn 0.3s ease;
   }
 
-  /* REMOVIDO: .conteudo-carregado h2::before - que adicionava o ponto */
   .conteudo-carregado h2 {
     color: var(--ink-strong);
     margin: 24px 0 12px 0;
@@ -619,7 +617,6 @@
     margin-bottom: 0;
   }
 
-  /* BOTÃO SELECIONAR TODOS NOVO ESTILO */
   .btn-selecionar-todos {
     width: 100% !important;
     grid-column: 1 / -1;
@@ -675,24 +672,26 @@
     }
   }
 
-  /* MENU SIDEBAR CORRIGIDO */
+  /* MENU SIDEBAR CORRIGIDO - NÃO VISÍVEL INICIALMENTE */
   .menu-sidebar {
     position: fixed;
     top: 0;
-    left: -320px; /* Mantém oculto inicialmente */
+    left: 0;
     width: 320px;
     height: 100vh;
     background: var(--card);
     border-right: 1px solid var(--borda);
     box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
-    transition: left 0.3s ease;
+    transition: transform 0.3s ease;
     z-index: 1000;
     padding: 20px;
+    transform: translateX(-100%);
+    display: block; /* IMPORTANTE: Mantém display block mas fora da tela */
   }
 
   .menu-sidebar.ativo {
-    left: 0;
+    transform: translateX(0);
   }
 
   .menu-header {
@@ -1967,20 +1966,19 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Eventos para o menu sidebar - CORRIGIDO
-  document.getElementById('btn-menu').addEventListener('click', function() {
+  const abrirMenu = function() {
     document.getElementById('menu-sidebar').classList.add('ativo');
     document.getElementById('menu-overlay').classList.add('ativo');
-  });
+  };
 
-  document.getElementById('btn-fechar-sidebar').addEventListener('click', function() {
+  const fecharMenu = function() {
     document.getElementById('menu-sidebar').classList.remove('ativo');
     document.getElementById('menu-overlay').classList.remove('ativo');
-  });
+  };
 
-  document.getElementById('menu-overlay').addEventListener('click', function() {
-    document.getElementById('menu-sidebar').classList.remove('ativo');
-    document.getElementById('menu-overlay').classList.remove('ativo');
-  });
+  document.getElementById('btn-menu').addEventListener('click', abrirMenu);
+  document.getElementById('btn-fechar-sidebar').addEventListener('click', fecharMenu);
+  document.getElementById('menu-overlay').addEventListener('click', fecharMenu);
 
   // Eventos para a busca
   const searchInput = document.getElementById('campo-busca');

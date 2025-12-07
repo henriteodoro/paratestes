@@ -106,7 +106,7 @@
 
         .btn-fechar:hover {
             background: #fee2e2;
-            border-color: var(--danger); /* Borda vermelha no hover */
+            border-color: var(--danger);
         }
 
         .btn-menu {
@@ -197,7 +197,7 @@
             border-radius: 14px;
             padding: 20px;
             box-shadow: 0 10px 30px rgba(11, 78, 167, .06);
-            min-height: 400px;
+            /* Removido min-height para que se ajuste ao conteúdo */
             position: relative;
         }
 
@@ -294,6 +294,12 @@
             color: var(--muted);
         }
 
+        .arquivo-botoes {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
         .download-btn {
             display: flex;
             align-items: center;
@@ -309,6 +315,7 @@
             font-size: 14px;
             transition: all 0.2s ease;
             text-decoration: none;
+            flex: 1;
         }
 
         .download-btn:hover {
@@ -316,6 +323,33 @@
         }
 
         .download-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .print-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: var(--warn);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            flex: 1;
+        }
+
+        .print-btn:hover {
+            background: #d97706;
+        }
+
+        .print-btn svg {
             width: 16px;
             height: 16px;
         }
@@ -475,6 +509,10 @@
                 width: 280px;
                 left: -280px;
             }
+            
+            .arquivo-botoes {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -554,12 +592,20 @@
                                     <div class="arquivo-desc">Planilhas de Autocontrole - Pão de Ouro Atualizadas</div>
                                 </div>
                             </div>
-                            <a href="pdfs/Planilhas de Autocontrole - Pão de Ouro Atualizadas.pdf" class="download-btn" download target="_blank">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-                                </svg>
-                                Baixar PDF
-                            </a>
+                            <div class="arquivo-botoes">
+                                <a href="pdfs/Planilhas de Autocontrole - Pão de Ouro Atualizadas.pdf" class="download-btn" download target="_blank">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                                    </svg>
+                                    Baixar PDF
+                                </a>
+                                <button class="print-btn" onclick="window.open('pdfs/Planilhas de Autocontrole - Pão de Ouro Atualizadas.pdf'); window.print();">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+                                    </svg>
+                                    Imprimir PDF
+                                </button>
+                            </div>
                         </div>
 
                         <div class="arquivo-card arquivo-original">
@@ -575,12 +621,14 @@
                                     <div class="arquivo-desc">Planilhas de Autocontrole - Pão de Ouro Atualizadas</div>
                                 </div>
                             </div>
-                            <a href="pdfs/Planilhas de Autocontrole - Pão de Ouro Atualizadas.docx" class="download-btn" download target="_blank">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-                                </svg>
-                                Baixar DOCX
-                            </a>
+                            <div class="arquivo-botoes">
+                                <a href="pdfs/Planilhas de Autocontrole - Pão de Ouro Atualizadas.docx" class="download-btn" download target="_blank">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                                    </svg>
+                                    Baixar DOCX
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -692,49 +740,115 @@
             const btnFecharSidebar = document.getElementById('btn-fechar-sidebar');
             const campoBusca = document.getElementById('campo-busca');
             
-            // Dados dos arquivos por setor
-            const arquivosSetores = [
+            // Dados de TODOS os arquivos para busca global
+            const todosArquivos = [
+                // Arquivos Originais
                 {
+                    categoria: "original",
+                    setor: "PDF Original",
+                    descricao: "Planilhas de Autocontrole - Pão de Ouro Atualizadas",
+                    arquivo: "pdfs/Planilhas de Autocontrole - Pão de Ouro Atualizadas.pdf",
+                    tipo: "pdf"
+                },
+                {
+                    categoria: "original",
+                    setor: "DOCX Original",
+                    descricao: "Planilhas de Autocontrole - Pão de Ouro Atualizadas",
+                    arquivo: "pdfs/Planilhas de Autocontrole - Pão de Ouro Atualizadas.docx",
+                    tipo: "docx"
+                },
+                // Arquivos por Setor
+                {
+                    categoria: "setores",
                     setor: "Pão de Sal",
                     arquivo: "pdfs/Planilha Gilson.pdf",
                     tipo: "pdf"
                 },
                 {
-                    setor: "Pães Doce", 
+                    categoria: "setores",
+                    setor: "Pães Doce",
                     arquivo: "pdfs/Planilha Ceará.pdf",
                     tipo: "pdf"
                 },
                 {
+                    categoria: "setores",
                     setor: "Salgado e Biscoitos",
                     arquivo: "pdfs/Planilha Valdecino.pdf",
                     tipo: "pdf"
                 },
                 {
+                    categoria: "setores",
                     setor: "Pré-peságem",
                     arquivo: "pdfs/Planilha Pre Pesagem.pdf",
                     tipo: "pdf"
                 },
                 {
+                    categoria: "setores",
                     setor: "Embalagem",
                     arquivo: "pdfs/Planilha Embalagem.pdf",
                     tipo: "pdf"
                 },
                 {
+                    categoria: "setores",
                     setor: "Estoque",
                     arquivo: "pdfs/Planilha João Estoque.pdf",
                     tipo: "pdf"
                 },
                 {
+                    categoria: "setores",
                     setor: "Limpeza",
                     arquivo: "pdfs/Planilha Jaqueline.pdf",
                     tipo: "pdf"
                 },
                 {
+                    categoria: "setores",
                     setor: "Manutenção",
                     arquivo: "pdfs/Planilha Mateus.pdf",
                     tipo: "pdf"
                 }
             ];
+
+            // Função para gerar o HTML de um arquivo
+            function gerarCardArquivo(arquivo) {
+                const tipoIcon = arquivo.tipo === 'pdf' ? 'pdf' : 'docx';
+                const categoriaClasse = arquivo.categoria === 'original' ? 'arquivo-original' : 'arquivo-setor';
+                const tituloSetor = arquivo.categoria === 'original' ? arquivo.setor : `Setor ${arquivo.setor}`;
+                
+                // Botão de imprimir apenas para PDFs
+                const botaoImprimir = arquivo.tipo === 'pdf' ? 
+                    `<button class="print-btn" onclick="window.open('${arquivo.arquivo}'); window.print();">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+                        </svg>
+                        Imprimir PDF
+                    </button>` : '';
+                
+                return `
+                    <div class="arquivo-card ${categoriaClasse}">
+                        <div class="arquivo-header">
+                            <div class="arquivo-icon ${tipoIcon}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                                </svg>
+                            </div>
+                            <div class="arquivo-info">
+                                <div class="arquivo-titulo">${tituloSetor}</div>
+                                <div class="arquivo-desc">${arquivo.descricao || 'Planilha do setor'}</div>
+                            </div>
+                        </div>
+                        <div class="arquivo-botoes">
+                            <a href="${arquivo.arquivo}" class="download-btn" download target="_blank">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                Baixar ${arquivo.tipo.toUpperCase()}
+                            </a>
+                            ${botaoImprimir}
+                        </div>
+                    </div>
+                `;
+            }
 
             // Função para carregar conteúdo da categoria
             function carregarCategoria(categoria) {
@@ -755,53 +869,6 @@
                         </svg>
                         Arquivos Originais
                     `;
-                    
-                    // Conteúdo dos arquivos originais
-                    conteudoDinamico.innerHTML = `
-                        <div class="arquivos-grid">
-                            <div class="arquivo-card arquivo-original">
-                                <div class="arquivo-header">
-                                    <div class="arquivo-icon pdf">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                            <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
-                                        </svg>
-                                    </div>
-                                    <div class="arquivo-info">
-                                        <div class="arquivo-titulo">PDF Original</div>
-                                        <div class="arquivo-desc">Planilhas de Autocontrole - Pão de Ouro Atualizadas</div>
-                                    </div>
-                                </div>
-                                <a href="pdfs/Planilhas de Autocontrole - Pão de Ouro Atualizadas.pdf" class="download-btn" download target="_blank">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-                                    </svg>
-                                    Baixar PDF
-                                </a>
-                            </div>
-
-                            <div class="arquivo-card arquivo-original">
-                                <div class="arquivo-header">
-                                    <div class="arquivo-icon docx">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                            <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
-                                        </svg>
-                                    </div>
-                                    <div class="arquivo-info">
-                                        <div class="arquivo-titulo">DOCX Original</div>
-                                        <div class="arquivo-desc">Planilhas de Autocontrole - Pão de Ouro Atualizadas</div>
-                                    </div>
-                                </div>
-                                <a href="pdfs/Planilhas de Autocontrole - Pão de Ouro Atualizadas.docx" class="download-btn" download target="_blank">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-                                    </svg>
-                                    Baixar DOCX
-                                </a>
-                            </div>
-                        </div>
-                    `;
                 } else if (categoria === 'setores') {
                     categoriaTitulo.innerHTML = `
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -810,35 +877,22 @@
                         </svg>
                         Planilhas por Setor
                     `;
-                    
-                    // Gerar HTML para os arquivos dos setores
-                    const setoresHTML = arquivosSetores.map(arquivo => {
-                        return `
-                            <div class="arquivo-card arquivo-setor">
-                                <div class="arquivo-header">
-                                    <div class="arquivo-icon pdf">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                            <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
-                                        </svg>
-                                    </div>
-                                    <div class="arquivo-info">
-                                        <div class="arquivo-titulo">Setor ${arquivo.setor}</div>
-                                        <div class="arquivo-desc">Planilha do setor</div>
-                                    </div>
-                                </div>
-                                <a href="${arquivo.arquivo}" class="download-btn" download target="_blank">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-                                    </svg>
-                                    Baixar PDF
-                                </a>
-                            </div>
-                        `;
-                    }).join('');
-                    
-                    conteudoDinamico.innerHTML = `<div class="arquivos-grid">${setoresHTML}</div>`;
                 }
+                
+                // Filtrar arquivos da categoria
+                const arquivosCategoria = todosArquivos.filter(arq => arq.categoria === categoria);
+                
+                // Gerar HTML para os arquivos
+                const arquivosHTML = arquivosCategoria.map(gerarCardArquivo).join('');
+                
+                conteudoDinamico.innerHTML = arquivosCategoria.length > 0 
+                    ? `<div class="arquivos-grid">${arquivosHTML}</div>`
+                    : `<div class="estado-vazio">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
+                            <p>Nenhum arquivo nesta categoria</p>
+                        </div>`;
             }
 
             // Eventos para as categorias
@@ -870,7 +924,7 @@
                 menuOverlay.classList.remove('ativo');
             });
 
-            // Evento para a busca
+            // Evento para a busca global em todas as categorias
             campoBusca.addEventListener('input', function(e) {
                 const termo = e.target.value.toLowerCase().trim();
                 
@@ -881,58 +935,14 @@
                     return;
                 }
                 
-                // Filtrar arquivos baseados no termo de busca
-                const categoriaAtiva = document.querySelector('.categoria-item.ativo').getAttribute('data-categoria');
-                let arquivosFiltrados = [];
-                
-                if (categoriaAtiva === 'original') {
-                    arquivosFiltrados = [
-                        {
-                            setor: "PDF Original",
-                            arquivo: "pdfs/Planilhas de Autocontrole - Pão de Ouro Atualizadas.pdf",
-                            tipo: "pdf"
-                        },
-                        {
-                            setor: "DOCX Original", 
-                            arquivo: "pdfs/Planilhas de Autocontrole - Pão de Ouro Atualizadas.docx",
-                            tipo: "docx"
-                        }
-                    ].filter(arquivo => 
-                        arquivo.setor.toLowerCase().includes(termo)
-                    );
-                } else {
-                    arquivosFiltrados = arquivosSetores.filter(arquivo => 
-                        arquivo.setor.toLowerCase().includes(termo)
-                    );
-                }
+                // Filtrar arquivos baseados no termo de busca em TODOS os arquivos
+                const arquivosFiltrados = todosArquivos.filter(arquivo => 
+                    arquivo.setor.toLowerCase().includes(termo) ||
+                    (arquivo.descricao && arquivo.descricao.toLowerCase().includes(termo))
+                );
                 
                 // Gerar HTML para os arquivos filtrados
-                const arquivosHTML = arquivosFiltrados.map(arquivo => {
-                    const tipoIcon = arquivo.tipo === 'pdf' ? 'pdf' : 'docx';
-                    
-                    return `
-                        <div class="arquivo-card arquivo-${categoriaAtiva === 'original' ? 'original' : 'setor'}">
-                            <div class="arquivo-header">
-                                <div class="arquivo-icon ${tipoIcon}">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                        <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
-                                    </svg>
-                                </div>
-                                <div class="arquivo-info">
-                                    <div class="arquivo-titulo">${categoriaAtiva === 'original' ? '' : 'Setor '}${arquivo.setor}</div>
-                                    <div class="arquivo-desc">${categoriaAtiva === 'original' ? 'Planilhas de Autocontrole - Pão de Ouro Atualizadas' : 'Planilha do setor'}</div>
-                                </div>
-                            </div>
-                            <a href="${arquivo.arquivo}" class="download-btn" download target="_blank">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-                                </svg>
-                                Baixar ${arquivo.tipo.toUpperCase()}
-                            </a>
-                        </div>
-                    `;
-                }).join('');
+                const arquivosHTML = arquivosFiltrados.map(gerarCardArquivo).join('');
                 
                 conteudoDinamico.innerHTML = arquivosFiltrados.length > 0 
                     ? `<div class="arquivos-grid">${arquivosHTML}</div>`

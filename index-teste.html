@@ -1073,9 +1073,60 @@
             display: none;
         }
 
-        /* Estilo para links que abrem em nova aba */
-        .external-link {
+        /* NOVO: Estilos para transformar elementos em links reais */
+        .executable-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
             cursor: pointer;
+            position: relative;
+        }
+        
+        /* Para quick-cards que são links */
+        .quick-card.executable-link {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        /* Para itens de categoria que são links */
+        .category-item.executable-link {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 12px 12px;
+            border-bottom: 1px solid var(--borda);
+        }
+        
+        /* Para itens de guias que são links */
+        .guide-item.executable-link {
+            display: block;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--borda);
+        }
+        
+        /* Para itens da sidebar que são links */
+        .fav-item.executable-link,
+        .recent-item.executable-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-bottom: 1px solid var(--borda);
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        /* Estilo para elementos que não são links (como anotações) */
+        .quick-card[data-action="notes"] {
+            cursor: pointer;
+        }
+        
+        /* Evitar que o menu de contexto apareça nas estrelas de favorito */
+        .favorite-star,
+        .category-favorite-star,
+        .action-icon {
+            pointer-events: auto !important;
         }
     </style>
 </head>
@@ -1139,7 +1190,8 @@
                         </svg>
                     </div>
                     <div class="quick-grid" id="quick-access-content">
-                        <div class="quick-card" data-action="list" data-id="tool-1">
+                        <!-- Lista Ordenada - AGORA É UM LINK REAL -->
+                        <a href="listaordenada.html" class="quick-card executable-link" data-id="tool-1">
                             <div class="icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="8" y1="6" x2="21" y2="6"></line>
@@ -1155,10 +1207,10 @@
                             <svg class="favorite-star" data-id="tool-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                             </svg>
-                        </div>
-                        <div class="quick-card" data-action="file" data-id="tool-2">
+                        </a>
+                        <!-- Abrir Arquivo - AGORA É UM LINK REAL -->
+                        <a href="ods.html" class="quick-card executable-link" data-id="tool-2">
                             <div class="icon">
-                                <!-- Ícone atualizado para Abrir Arquivo -->
                                 <svg width="40" height="40" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg" fill="none">
                                     <path d="M56 30c0-1.662 1.338-3 3-3h108c1.662 0 3 1.338 3 3v132c0 1.662-1.338 3-3 3H59c-1.662 0-3-1.338-3-3v-32m0-68V30" style="fill-opacity:.402658;stroke:currentColor;stroke-width:12;stroke-linecap:round;paint-order:stroke fill markers"/>
                                     <rect width="68" height="68" x="-58.1" y="40.3" rx="3" style="fill:none;fill-opacity:.402658;stroke:currentColor;stroke-width:12;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers" transform="translate(80.1 21.7)"/>
@@ -1170,8 +1222,9 @@
                             <svg class="favorite-star" data-id="tool-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                             </svg>
-                        </div>
-                        <div class="quick-card" data-action="order" data-id="tool-3">
+                        </a>
+                        <!-- Simular Pedido - AGORA É UM LINK REAL -->
+                        <a href="simularpedido.html" class="quick-card executable-link" data-id="tool-3">
                             <div class="icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M6 6h15l-1.5 9H7.5L6 6z"></path>
@@ -1185,7 +1238,8 @@
                             <svg class="favorite-star" data-id="tool-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                             </svg>
-                        </div>
+                        </a>
+                        <!-- Anotações - NÃO É UM LINK (abre modal) -->
                         <div class="quick-card" data-action="notes" data-id="tool-notes">
                             <div class="icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1237,7 +1291,8 @@
                                 </svg>
                             </div>
                             <ul class="category-items">
-                                <li class="category-item" data-id="mac-77">
+                                <!-- MACs - AGORA SÃO LINKS REAIS -->
+                                <li><a href="mac77.html" class="category-item executable-link" data-id="mac-77">
                                     <div class="item-content">
                                         <span class="item-text">MAC Bairro São Geraldo</span>
                                         <span class="item-badge">77</span>
@@ -1247,8 +1302,8 @@
                                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                                         </svg>
                                     </div>
-                                </li>
-                                <li class="category-item" data-id="mac-78">
+                                </a></li>
+                                <li><a href="mac78.html" class="category-item executable-link" data-id="mac-78">
                                     <div class="item-content">
                                         <span class="item-text">MAC Bairro Planalto</span>
                                         <span class="item-badge">78</span>
@@ -1258,8 +1313,8 @@
                                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                                         </svg>
                                     </div>
-                                </li>
-                                <li class="category-item" data-id="mac-79">
+                                </a></li>
+                                <li><a href="mac79.html" class="category-item executable-link" data-id="mac-79">
                                     <div class="item-content">
                                         <span class="item-text">MAC Romeu Duarte</span>
                                         <span class="item-badge">79</span>
@@ -1269,9 +1324,9 @@
                                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                                         </svg>
                                     </div>
-                                </li>
+                                </a></li>
                                 <div class="expanded-items" id="macs-expanded">
-                                    <li class="category-item" data-id="mac-80">
+                                    <li><a href="mac80.html" class="category-item executable-link" data-id="mac-80">
                                         <div class="item-content">
                                             <span class="item-text">MAC Rua São Geraldo / Centro 2</span>
                                             <span class="item-badge">80</span>
@@ -1281,8 +1336,8 @@
                                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                                             </svg>
                                         </div>
-                                    </li>
-                                    <li class="category-item" data-id="mac-277">
+                                    </a></li>
+                                    <li><a href="mac277.html" class="category-item executable-link" data-id="mac-277">
                                         <div class="item-content">
                                             <span class="item-text">MAC Matriz</span>
                                             <span class="item-badge">277</span>
@@ -1292,8 +1347,8 @@
                                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                                             </svg>
                                         </div>
-                                    </li>
-                                    <li class="category-item" data-id="mac-853">
+                                    </a></li>
+                                    <li><a href="mac853.html" class="category-item executable-link" data-id="mac-853">
                                         <div class="item-content">
                                             <span class="item-text">MAC Concesso</span>
                                             <span class="item-badge">853</span>
@@ -1303,8 +1358,8 @@
                                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                                             </svg>
                                         </div>
-                                    </li>
-                                    <li class="category-item" data-id="mac-1249">
+                                    </a></li>
+                                    <li><a href="mac1249.html" class="category-item executable-link" data-id="mac-1249">
                                         <div class="item-content">
                                             <span class="item-text">MAC Jardim do Lago</span>
                                             <span class="item-badge">1249</span>
@@ -1314,8 +1369,8 @@
                                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                                             </svg>
                                         </div>
-                                    </li>
-                                    <li class="category-item" data-id="mac-989">
+                                    </a></li>
+                                    <li><a href="mac989.html" class="category-item executable-link" data-id="mac-989">
                                         <div class="item-content">
                                             <span class="item-text">MAC Araújos</span>
                                             <span class="item-badge">989</span>
@@ -1325,7 +1380,7 @@
                                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                                             </svg>
                                         </div>
-                                    </li>
+                                    </a></li>
                                 </div>
                                 <li class="category-item expandable" id="expand-macs">Ver todos...</li>
                             </ul>
@@ -1348,7 +1403,8 @@
                                 </svg>
                             </div>
                             <ul class="category-items">
-                                <li class="category-item" data-id="sao-jose-1">
+                                <!-- São José - AGORA SÃO LINKS REAIS -->
+                                <li><a href="saojose.html" class="category-item executable-link" data-id="sao-jose-1">
                                     <div class="item-content">
                                         <span class="item-text">Pedido São José</span>
                                     </div>
@@ -1357,8 +1413,8 @@
                                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                                         </svg>
                                     </div>
-                                </li>
-                                <li class="category-item" data-id="sao-jose-2">
+                                </a></li>
+                                <li><a href="paototal.html" class="category-item executable-link" data-id="sao-jose-2">
                                     <div class="item-content">
                                         <span class="item-text">Pedido Pão Total</span>
                                     </div>
@@ -1367,7 +1423,7 @@
                                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                                         </svg>
                                     </div>
-                                </li>
+                                </a></li>
                             </ul>
                         </div>
                         <div class="category-card" data-category="tabelas">
@@ -1390,7 +1446,8 @@
                                 </svg>
                             </div>
                             <ul class="category-items">
-                                <li class="category-item" data-id="table-1">
+                                <!-- Tabelas - AGORA SÃO LINKS REAIS -->
+                                <li><a href="pdfs/Tabela 2025 Geral.pdf" class="category-item executable-link" data-id="table-1">
                                     <div class="item-content">
                                         <span class="item-text">Tabela de Preços Geral</span>
                                     </div>
@@ -1399,8 +1456,8 @@
                                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                                         </svg>
                                     </div>
-                                </li>
-                                <li class="category-item" data-id="table-2">
+                                </a></li>
+                                <li><a href="pdfs/Tabela 2025 Empresa.pdf" class="category-item executable-link" data-id="table-2">
                                     <div class="item-content">
                                         <span class="item-text">Tabela de Preços Empresa</span>
                                     </div>
@@ -1409,8 +1466,8 @@
                                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                                         </svg>
                                     </div>
-                                </li>
-                                <li class="category-item" data-id="table-3">
+                                </a></li>
+                                <li><a href="https://github.com/henriteodoro/paratestes/releases/download/v1.0/Catalogo.Sao.Jose.2025.AT03.pdf" class="category-item executable-link" data-id="table-3">
                                     <div class="item-content">
                                         <span class="item-text">Catálogo de Produtos</span>
                                     </div>
@@ -1419,7 +1476,7 @@
                                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                                         </svg>
                                     </div>
-                                </li>
+                                </a></li>
                             </ul>
                         </div>
                         <div class="category-card" data-category="ferramentas">
@@ -1438,7 +1495,8 @@
                                 </svg>
                             </div>
                             <ul class="category-items">
-                                <li class="category-item" data-id="tool-1">
+                                <!-- Ferramentas - AGORA SÃO LINKS REAIS -->
+                                <li><a href="listaordenada.html" class="category-item executable-link" data-id="tool-1">
                                     <div class="item-content">
                                         <span class="item-text">Lista Ordenada</span>
                                     </div>
@@ -1447,8 +1505,8 @@
                                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                                         </svg>
                                     </div>
-                                </li>
-                                <li class="category-item" data-id="tool-2">
+                                </a></li>
+                                <li><a href="ods.html" class="category-item executable-link" data-id="tool-2">
                                     <div class="item-content">
                                         <span class="item-text">Abrir Arquivo</span>
                                     </div>
@@ -1457,8 +1515,8 @@
                                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                                         </svg>
                                     </div>
-                                </li>
-                                <li class="category-item" data-id="tool-3">
+                                </a></li>
+                                <li><a href="simularpedido.html" class="category-item executable-link" data-id="tool-3">
                                     <div class="item-content">
                                         <span class="item-text">Simular Pedido</span>
                                     </div>
@@ -1467,8 +1525,8 @@
                                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                                         </svg>
                                     </div>
-                                </li>
-                                <!-- Nova opção de Anotações na seção de Ferramentas -->
+                                </a></li>
+                                <!-- Anotações - NÃO É UM LINK (abre modal) -->
                                 <li class="category-item" data-id="tool-notes">
                                     <div class="item-content">
                                         <span class="item-text">Anotações</span>
@@ -1479,8 +1537,8 @@
                                         </svg>
                                     </div>
                                 </li>
-                                <!-- Nova opção de Planilhas de Autocontrole -->
-                                <li class="category-item" data-id="tool-autocontrol">
+                                <!-- Planilhas de Autocontrole - AGORA É UM LINK REAL -->
+                                <li><a href="planilhaautocontrole.html" class="category-item executable-link" data-id="tool-autocontrol">
                                     <div class="item-content">
                                         <span class="item-text">Planilhas de Autocontrole</span>
                                     </div>
@@ -1489,7 +1547,7 @@
                                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                                         </svg>
                                     </div>
-                                </li>
+                                </a></li>
                             </ul>
                         </div>
                     </div>
@@ -1525,54 +1583,55 @@
                                     </svg>
                                 </div>
                                 <ul class="guide-items">
-                                    <li class="guide-item">
+                                    <!-- MACs nas guias - AGORA SÃO LINKS REAIS -->
+                                    <li><a href="mac77.html" class="guide-item executable-link">
                                         <div class="guide-item-info">
                                             <span class="guide-item-badge">77</span>
                                             <span class="guide-item-text">MAC Bairro São Geraldo</span>
                                         </div>
-                                    </li>
-                                    <li class="guide-item">
+                                    </a></li>
+                                    <li><a href="mac78.html" class="guide-item executable-link">
                                         <div class="guide-item-info">
                                             <span class="guide-item-badge">78</span>
                                             <span class="guide-item-text">MAC Bairro Planalto</span>
                                         </div>
-                                    </li>
-                                    <li class="guide-item">
+                                    </a></li>
+                                    <li><a href="mac79.html" class="guide-item executable-link">
                                         <div class="guide-item-info">
                                             <span class="guide-item-badge">79</span>
                                             <span class="guide-item-text">MAC Romeu Duarte</span>
                                         </div>
-                                    </li>
-                                    <li class="guide-item">
+                                    </a></li>
+                                    <li><a href="mac80.html" class="guide-item executable-link">
                                         <div class="guide-item-info">
                                             <span class="guide-item-badge">80</span>
                                             <span class="guide-item-text">MAC Rua São Geraldo / Centro 2</span>
                                         </div>
-                                    </li>
-                                    <li class="guide-item">
+                                    </a></li>
+                                    <li><a href="mac277.html" class="guide-item executable-link">
                                         <div class="guide-item-info">
                                             <span class="guide-item-badge">277</span>
                                             <span class="guide-item-text">MAC Matriz</span>
                                         </div>
-                                    </li>
-                                    <li class="guide-item">
+                                    </a></li>
+                                    <li><a href="mac853.html" class="guide-item executable-link">
                                         <div class="guide-item-info">
                                             <span class="guide-item-badge">853</span>
                                             <span class="guide-item-text">MAC Concesso</span>
                                         </div>
-                                    </li>
-                                    <li class="guide-item">
+                                    </a></li>
+                                    <li><a href="mac1249.html" class="guide-item executable-link">
                                         <div class="guide-item-info">
                                             <span class="guide-item-badge">1249</span>
                                             <span class="guide-item-text">MAC Jardim do Lago</span>
                                         </div>
-                                    </li>
-                                    <li class="guide-item">
+                                    </a></li>
+                                    <li><a href="mac989.html" class="guide-item executable-link">
                                         <div class="guide-item-info">
                                             <span class="guide-item-badge">989</span>
                                             <span class="guide-item-text">MAC Araújos</span>
                                         </div>
-                                    </li>
+                                    </a></li>
                                 </ul>
                             </div>
 
@@ -1592,6 +1651,7 @@
                                     </svg>
                                 </div>
                                 <ul class="guide-items">
+                                    <!-- Os itens de Somar não têm URLs específicas, então não transformamos em links -->
                                     <li class="guide-item">
                                         <div class="guide-item-info">
                                             <span class="guide-item-badge">782</span>
@@ -1652,6 +1712,7 @@
                                     </svg>
                                 </div>
                                 <ul class="guide-items">
+                                    <!-- Os itens de Ester Amaral não têm URLs específicas, então não transformamos em links -->
                                     <li class="guide-item">
                                         <div class="guide-item-info">
                                             <span class="guide-item-badge">33</span>
@@ -1694,6 +1755,7 @@
                                     </svg>
                                 </div>
                                 <ul class="guide-items">
+                                    <!-- Os itens de Casa Fidélis não têm URLs específicas, então não transformamos em links -->
                                     <li class="guide-item">
                                         <div class="guide-item-info">
                                             <span class="guide-item-badge">914</span>
@@ -1743,6 +1805,7 @@
                                     </svg>
                                 </div>
                                 <ul class="guide-items">
+                                    <!-- Os itens de Supermercado Josildo não têm URLs específicas, então não transformamos em links -->
                                     <li class="guide-item">
                                         <div class="guide-item-info">
                                             <span class="guide-item-badge">131</span>
@@ -1775,6 +1838,7 @@
                                     </svg>
                                 </div>
                                 <ul class="guide-items">
+                                    <!-- Os itens de Souza Melo não têm URLs específicas, então não transformamos em links -->
                                     <li class="guide-item">
                                         <div class="guide-item-info">
                                             <span class="guide-item-badge">123</span>
@@ -1807,7 +1871,7 @@
                     </h3>
                     <div class="sidebar-content" id="favorites-content">
                         <ul class="favorites-list" id="favorites-list">
-                            <!-- Itens de favoritos serão carregados aqui -->
+                            <!-- Itens de favoritos serão carregados aqui como links reais -->
                         </ul>
                         <div id="no-favorites-message" class="empty-message" style="display: none;">
                             Nenhum favorito adicionado.
@@ -1828,7 +1892,7 @@
                     </h3>
                     <div class="sidebar-content" id="recent-content">
                         <ul class="recent-list" id="recent-list">
-                            <!-- Itens recentes serão carregados aqui -->
+                            <!-- Itens recentes serão carregados aqui como links reais -->
                         </ul>
                         <div id="no-recent-message" class="empty-message" style="display: none;">
                             Nenhum item recente.
@@ -2023,15 +2087,9 @@
                 });
             });
             
-            // Cards interativos
-            document.querySelectorAll('.quick-card').forEach(card => {
+            // Cards interativos (apenas os que não são links - como anotações)
+            document.querySelectorAll('.quick-card:not(.executable-link)').forEach(card => {
                 card.addEventListener('click', function(e) {
-                    // Verificar se é clique do botão direito (botão 2)
-                    if (e.button === 2) {
-                        // Para o botão direito, permitir o menu de contexto padrão
-                        return;
-                    }
-                    
                     e.preventDefault();
                     const action = this.getAttribute('data-action');
                     const itemId = this.getAttribute('data-id');
@@ -2041,88 +2099,48 @@
                         handleQuickAction(action);
                     }
                 });
-                
-                // Permitir menu de contexto padrão para botão direito
-                card.addEventListener('contextmenu', function(e) {
-                    // Permitir o menu de contexto padrão
-                    return true;
-                });
             });
             
-            // Itens de categoria - usar menu de contexto padrão
-            document.querySelectorAll('.category-item').forEach(item => {
+            // Itens de categoria que não são links
+            document.querySelectorAll('.category-item:not(.executable-link)').forEach(item => {
                 if (!item.classList.contains('expandable')) {
-                    item.addEventListener('click', function(e) {
-                        // Verificar se é clique do botão direito (botão 2)
-                        if (e.button === 2) {
-                            // Para o botão direito, permitir o menu de contexto padrão
-                            return;
-                        }
-                        
+                    item.addEventListener('click', function() {
                         const itemId = this.getAttribute('data-id');
                         if (itemId) {
                             openItem(itemId);
                         }
                     });
-                    
-                    // Permitir menu de contexto padrão para botão direito
-                    item.addEventListener('contextmenu', function(e) {
-                        // Permitir o menu de contexto padrão
-                        return true;
-                    });
                 }
             });
             
-            // Itens de guias - usar menu de contexto padrão
-            document.querySelectorAll('.guide-item').forEach(item => {
-                item.addEventListener('click', function(e) {
-                    // Verificar se é clique do botão direito (botão 2)
-                    if (e.button === 2) {
-                        // Para o botão direito, permitir o menu de contexto padrão
-                        return;
-                    }
-                    
+            // Itens de guias que não são links
+            document.querySelectorAll('.guide-item:not(.executable-link)').forEach(item => {
+                item.addEventListener('click', function() {
                     const itemName = this.querySelector('.guide-item-text').textContent;
                     const itemId = findItemIdByName(itemName);
                     if (itemId) {
                         openItem(itemId);
                     }
                 });
-                
-                // Permitir menu de contexto padrão para botão direito
-                item.addEventListener('contextmenu', function(e) {
-                    // Permitir o menu de contexto padrão
-                    return true;
-                });
             });
             
             // Estrelas de favorito
             document.querySelectorAll('.favorite-star').forEach(star => {
                 star.addEventListener('click', function(e) {
+                    e.preventDefault();
                     e.stopPropagation();
                     const itemId = this.getAttribute('data-id');
                     toggleFavorite(itemId);
-                });
-                
-                // Permitir menu de contexto padrão para botão direito nas estrelas
-                star.addEventListener('contextmenu', function(e) {
-                    e.stopPropagation();
-                    return true;
                 });
             });
             
             // Estrelas de categoria favorita
             document.querySelectorAll('.category-favorite-star').forEach(star => {
                 star.addEventListener('click', function(e) {
+                    e.preventDefault();
                     e.stopPropagation();
                     const category = this.getAttribute('data-category');
                     toggleCategoryFavorite(category);
-                });
-                
-                // Permitir menu de contexto padrão para botão direito
-                star.addEventListener('contextmenu', function(e) {
-                    e.stopPropagation();
-                    return true;
                 });
             });
             
@@ -2173,22 +2191,54 @@
                 });
             });
             
-            // Permitir menu de contexto padrão em todos os elementos executáveis
-            setupContextMenu();
+            // Configurar eventos para links reais
+            setupLinkEvents();
         });
         
-        // Configurar menu de contexto padrão para elementos executáveis
-        function setupContextMenu() {
-            // Permitir menu de contexto padrão em todos os elementos clicáveis
-            const executableElements = document.querySelectorAll('.quick-card, .category-item:not(.expandable), .guide-item, .fav-item, .recent-item');
+        // Configurar eventos para links reais
+        function setupLinkEvents() {
+            // Para links que abrem normalmente (clique esquerdo)
+            // Não precisamos fazer nada - o navegador já cuida
+            // Mas precisamos garantir que os favoritos/recentes sejam atualizados
             
-            executableElements.forEach(element => {
-                element.addEventListener('contextmenu', function(e) {
-                    // Permitir o menu de contexto padrão do navegador
-                    // O navegador mostrará automaticamente opções como "Abrir em nova aba" para links
-                    return true;
-                });
-            });
+            // Interceptar clique esquerdo para adicionar aos recentes
+            document.addEventListener('click', function(e) {
+                // Verificar se o clique foi em um link executável
+                if (e.target.closest('.executable-link')) {
+                    const link = e.target.closest('.executable-link');
+                    const itemId = link.getAttribute('data-id');
+                    
+                    if (itemId) {
+                        // Adicionar aos recentes
+                        if (!systemData.recent.includes(itemId)) {
+                            systemData.recent.unshift(itemId);
+                            // Manter apenas os 10 mais recentes
+                            if (systemData.recent.length > 10) {
+                                systemData.recent.pop();
+                            }
+                            updateRecentList();
+                            saveData();
+                        }
+                        
+                        // Atualizar estatísticas
+                        updateStats();
+                        
+                        // Verificar se a preferência "Abrir em nova aba" está marcada
+                        const openInNewTab = document.getElementById('new-tab').checked;
+                        if (e.button === 0 && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                            // Clique esquerdo normal
+                            if (openInNewTab) {
+                                // Abrir em nova aba, mas manter na atual
+                                e.preventDefault();
+                                window.open(link.href, '_blank');
+                                // Não seguimos o link na aba atual
+                                return false;
+                            }
+                            // Se não for para abrir em nova aba, deixar o link seguir normalmente
+                        }
+                    }
+                }
+            }, true); // Usar capture phase
         }
         
         // Carregar dados do localStorage
@@ -2581,7 +2631,7 @@
             }
         }
         
-        // Abrir item
+        // Abrir item (para elementos que não são links)
         function openItem(itemId) {
             const item = systemData.items.find(i => i.id === itemId);
             if (!item) return;
@@ -2814,7 +2864,10 @@
                     if (!item) return;
                     
                     const favItem = document.createElement('li');
-                    favItem.className = 'fav-item';
+                    favItem.className = 'fav-item executable-link';
+                    favItem.href = item.url;
+                    favItem.setAttribute('data-id', item.id);
+                    
                     favItem.innerHTML = `
                         <svg class="fav-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
@@ -2828,19 +2881,10 @@
                         </div>
                     `;
                     
-                    favItem.addEventListener('click', function(e) {
-                        // Verificar se é clique do botão direito
-                        if (e.button === 2) return;
-                        openItem(item.id);
-                    });
-                    
-                    // Permitir menu de contexto padrão
-                    favItem.addEventListener('contextmenu', function(e) {
-                        return true;
-                    });
-                    
+                    // Adicionar evento para remover favorito
                     const removeBtn = favItem.querySelector('.remove-favorite');
                     removeBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
                         e.stopPropagation();
                         toggleFavorite(item.id);
                     });
@@ -2875,7 +2919,10 @@
                     if (!item) return;
                     
                     const recentItem = document.createElement('li');
-                    recentItem.className = 'recent-item';
+                    recentItem.className = 'recent-item executable-link';
+                    recentItem.href = item.url;
+                    recentItem.setAttribute('data-id', item.id);
+                    
                     recentItem.innerHTML = `
                         <svg class="recent-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="10"></circle>
@@ -2890,19 +2937,10 @@
                         </div>
                     `;
                     
-                    recentItem.addEventListener('click', function(e) {
-                        // Verificar se é clique do botão direito
-                        if (e.button === 2) return;
-                        openItem(item.id);
-                    });
-                    
-                    // Permitir menu de contexto padrão
-                    recentItem.addEventListener('contextmenu', function(e) {
-                        return true;
-                    });
-                    
+                    // Adicionar evento para remover recente
                     const removeBtn = recentItem.querySelector('.remove-recent');
                     removeBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
                         e.stopPropagation();
                         removeRecent(item.id);
                     });

@@ -800,6 +800,18 @@
             box-shadow: var(--shadow);
         }
 
+        /* Mensagens para listas vazias na sidebar */
+        .empty-message {
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--muted);
+            font-style: italic;
+            background: var(--fundo);
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
         /* SEÇÃO GUIAS - COMPLETAMENTE REESTILIZADA */
         .guides-section {
             margin-bottom: 30px;
@@ -1031,15 +1043,15 @@
             border-color: #bd2130;
         }
 
-        /* Estilo para o destaque da busca - MODIFICADO conforme solicitado */
+        /* Estilo para o destaque da busca - MODIFICADO conforme solicitado (SEM ESPAÇAMENTO) */
         .search-highlight {
             background-color: #ffeb3b;
             color: #000;
-            padding: 0 1px; /* Reduzido significativamente o padding */
-            border-radius: 1px; /* Reduzido o border-radius */
+            padding: 0; /* Removido o padding */
+            border-radius: 0; /* Removido o border-radius */
             font-weight: 600;
             display: inline;
-            line-height: 1.2; /* Reduzido para aproximar as linhas */
+            line-height: inherit; /* Usa o line-height do elemento pai */
         }
 
         /* Estilos para as setas da barra lateral */
@@ -1059,6 +1071,11 @@
 
         .sidebar-content.collapsed {
             display: none;
+        }
+
+        /* Estilo para links que abrem em nova aba */
+        .external-link {
+            cursor: pointer;
         }
     </style>
 </head>
@@ -1792,6 +1809,9 @@
                         <ul class="favorites-list" id="favorites-list">
                             <!-- Itens de favoritos serão carregados aqui -->
                         </ul>
+                        <div id="no-favorites-message" class="empty-message" style="display: none;">
+                            Nenhum favorito adicionado.
+                        </div>
                     </div>
                 </div>
 
@@ -1810,6 +1830,9 @@
                         <ul class="recent-list" id="recent-list">
                             <!-- Itens recentes serão carregados aqui -->
                         </ul>
+                        <div id="no-recent-message" class="empty-message" style="display: none;">
+                            Nenhum item recente.
+                        </div>
                         <button class="expand-recents" id="expand-recents">Ver todos</button>
                     </div>
                 </div>
@@ -2003,6 +2026,12 @@
             // Cards interativos
             document.querySelectorAll('.quick-card').forEach(card => {
                 card.addEventListener('click', function(e) {
+                    // Verificar se é clique do botão direito (botão 2)
+                    if (e.button === 2) {
+                        // Para o botão direito, permitir o menu de contexto padrão
+                        return;
+                    }
+                    
                     e.preventDefault();
                     const action = this.getAttribute('data-action');
                     const itemId = this.getAttribute('data-id');
@@ -2012,28 +2041,58 @@
                         handleQuickAction(action);
                     }
                 });
+                
+                // Permitir menu de contexto padrão para botão direito
+                card.addEventListener('contextmenu', function(e) {
+                    // Permitir o menu de contexto padrão
+                    return true;
+                });
             });
             
-            // Itens de categoria
+            // Itens de categoria - usar menu de contexto padrão
             document.querySelectorAll('.category-item').forEach(item => {
                 if (!item.classList.contains('expandable')) {
-                    item.addEventListener('click', function() {
+                    item.addEventListener('click', function(e) {
+                        // Verificar se é clique do botão direito (botão 2)
+                        if (e.button === 2) {
+                            // Para o botão direito, permitir o menu de contexto padrão
+                            return;
+                        }
+                        
                         const itemId = this.getAttribute('data-id');
                         if (itemId) {
                             openItem(itemId);
                         }
                     });
+                    
+                    // Permitir menu de contexto padrão para botão direito
+                    item.addEventListener('contextmenu', function(e) {
+                        // Permitir o menu de contexto padrão
+                        return true;
+                    });
                 }
             });
             
-            // Itens de guias
+            // Itens de guias - usar menu de contexto padrão
             document.querySelectorAll('.guide-item').forEach(item => {
-                item.addEventListener('click', function() {
+                item.addEventListener('click', function(e) {
+                    // Verificar se é clique do botão direito (botão 2)
+                    if (e.button === 2) {
+                        // Para o botão direito, permitir o menu de contexto padrão
+                        return;
+                    }
+                    
                     const itemName = this.querySelector('.guide-item-text').textContent;
                     const itemId = findItemIdByName(itemName);
                     if (itemId) {
                         openItem(itemId);
                     }
+                });
+                
+                // Permitir menu de contexto padrão para botão direito
+                item.addEventListener('contextmenu', function(e) {
+                    // Permitir o menu de contexto padrão
+                    return true;
                 });
             });
             
@@ -2044,6 +2103,12 @@
                     const itemId = this.getAttribute('data-id');
                     toggleFavorite(itemId);
                 });
+                
+                // Permitir menu de contexto padrão para botão direito nas estrelas
+                star.addEventListener('contextmenu', function(e) {
+                    e.stopPropagation();
+                    return true;
+                });
             });
             
             // Estrelas de categoria favorita
@@ -2052,6 +2117,12 @@
                     e.stopPropagation();
                     const category = this.getAttribute('data-category');
                     toggleCategoryFavorite(category);
+                });
+                
+                // Permitir menu de contexto padrão para botão direito
+                star.addEventListener('contextmenu', function(e) {
+                    e.stopPropagation();
+                    return true;
                 });
             });
             
@@ -2101,7 +2172,24 @@
                     toggle.classList.toggle('collapsed');
                 });
             });
+            
+            // Permitir menu de contexto padrão em todos os elementos executáveis
+            setupContextMenu();
         });
+        
+        // Configurar menu de contexto padrão para elementos executáveis
+        function setupContextMenu() {
+            // Permitir menu de contexto padrão em todos os elementos clicáveis
+            const executableElements = document.querySelectorAll('.quick-card, .category-item:not(.expandable), .guide-item, .fav-item, .recent-item');
+            
+            executableElements.forEach(element => {
+                element.addEventListener('contextmenu', function(e) {
+                    // Permitir o menu de contexto padrão do navegador
+                    // O navegador mostrará automaticamente opções como "Abrir em nova aba" para links
+                    return true;
+                });
+            });
+        }
         
         // Carregar dados do localStorage
         function loadData() {
@@ -2146,7 +2234,7 @@
             }
         }
         
-        // Função para destacar texto nos resultados da busca
+        // Função para destacar texto nos resultados da busca - MODIFICADA SEM ESPAÇAMENTO
         function highlightText(text, searchTerm) {
             if (!searchTerm) return text;
             
@@ -2401,7 +2489,7 @@
                 guidesTitle.style.display = 'none';
             }
             
-            // Aplicar destaque nos resultados visíveis
+            // Aplicar destaque nos resultados visíveis - SEM ESPAÇAMENTO
             if (searchTerm) {
                 // Destaque nos itens de categoria
                 document.querySelectorAll('.category-item[style*="display: flex"] .item-text').forEach(element => {
@@ -2710,47 +2798,63 @@
             }
         }
         
-        // Atualizar lista de favoritos
+        // Atualizar lista de favoritos COM MENSAGEM PARA LISTA VAZIA
         function updateFavoritesList() {
             const favoritesList = document.getElementById('favorites-list');
+            const noFavoritesMessage = document.getElementById('no-favorites-message');
             favoritesList.innerHTML = '';
             
-            systemData.favorites.forEach(favId => {
-                const item = systemData.items.find(i => i.id === favId);
-                if (!item) return;
+            if (systemData.favorites.length === 0) {
+                noFavoritesMessage.style.display = 'block';
+            } else {
+                noFavoritesMessage.style.display = 'none';
                 
-                const favItem = document.createElement('li');
-                favItem.className = 'fav-item';
-                favItem.innerHTML = `
-                    <svg class="fav-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                    </svg>
-                    <span class="fav-name">${item.name}</span>
-                    <div class="fav-actions">
-                        <svg class="action-icon remove-favorite" data-id="${item.id}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                systemData.favorites.forEach(favId => {
+                    const item = systemData.items.find(i => i.id === favId);
+                    if (!item) return;
+                    
+                    const favItem = document.createElement('li');
+                    favItem.className = 'fav-item';
+                    favItem.innerHTML = `
+                        <svg class="fav-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                         </svg>
-                    </div>
-                `;
-                
-                favItem.addEventListener('click', function() {
-                    openItem(item.id);
+                        <span class="fav-name">${item.name}</span>
+                        <div class="fav-actions">
+                            <svg class="action-icon remove-favorite" data-id="${item.id}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </div>
+                    `;
+                    
+                    favItem.addEventListener('click', function(e) {
+                        // Verificar se é clique do botão direito
+                        if (e.button === 2) return;
+                        openItem(item.id);
+                    });
+                    
+                    // Permitir menu de contexto padrão
+                    favItem.addEventListener('contextmenu', function(e) {
+                        return true;
+                    });
+                    
+                    const removeBtn = favItem.querySelector('.remove-favorite');
+                    removeBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        toggleFavorite(item.id);
+                    });
+                    
+                    favoritesList.appendChild(favItem);
                 });
-                
-                const removeBtn = favItem.querySelector('.remove-favorite');
-                removeBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    toggleFavorite(item.id);
-                });
-                
-                favoritesList.appendChild(favItem);
-            });
+            }
         }
         
-        // Atualizar lista de recentes
+        // Atualizar lista de recentes COM MENSAGEM PARA LISTA VAZIA
         function updateRecentList() {
             const recentList = document.getElementById('recent-list');
+            const noRecentMessage = document.getElementById('no-recent-message');
+            const expandButton = document.getElementById('expand-recents');
             recentList.innerHTML = '';
             
             let recents = [...systemData.recent];
@@ -2760,46 +2864,59 @@
                 recents = recents.slice(0, 5);
             }
             
-            recents.forEach(recId => {
-                const item = systemData.items.find(i => i.id === recId);
-                if (!item) return;
-                
-                const recentItem = document.createElement('li');
-                recentItem.className = 'recent-item';
-                recentItem.innerHTML = `
-                    <svg class="recent-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                    <span class="recent-name">${item.name}</span>
-                    <div class="recent-actions">
-                        <svg class="action-icon remove-recent" data-id="${item.id}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </div>
-                `;
-                
-                recentItem.addEventListener('click', function() {
-                    openItem(item.id);
-                });
-                
-                const removeBtn = recentItem.querySelector('.remove-recent');
-                removeBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    removeRecent(item.id);
-                });
-                
-                recentList.appendChild(recentItem);
-            });
-            
-            // Atualizar botão de expansão
-            const expandButton = document.getElementById('expand-recents');
-            if (systemData.recent.length > 5) {
-                expandButton.style.display = 'block';
-                expandButton.textContent = systemData.recentExpanded ? 'Ver menos' : 'Ver todos';
-            } else {
+            if (recents.length === 0) {
+                noRecentMessage.style.display = 'block';
                 expandButton.style.display = 'none';
+            } else {
+                noRecentMessage.style.display = 'none';
+                
+                recents.forEach(recId => {
+                    const item = systemData.items.find(i => i.id === recId);
+                    if (!item) return;
+                    
+                    const recentItem = document.createElement('li');
+                    recentItem.className = 'recent-item';
+                    recentItem.innerHTML = `
+                        <svg class="recent-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span class="recent-name">${item.name}</span>
+                        <div class="recent-actions">
+                            <svg class="action-icon remove-recent" data-id="${item.id}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </div>
+                    `;
+                    
+                    recentItem.addEventListener('click', function(e) {
+                        // Verificar se é clique do botão direito
+                        if (e.button === 2) return;
+                        openItem(item.id);
+                    });
+                    
+                    // Permitir menu de contexto padrão
+                    recentItem.addEventListener('contextmenu', function(e) {
+                        return true;
+                    });
+                    
+                    const removeBtn = recentItem.querySelector('.remove-recent');
+                    removeBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        removeRecent(item.id);
+                    });
+                    
+                    recentList.appendChild(recentItem);
+                });
+                
+                // Atualizar botão de expansão
+                if (systemData.recent.length > 5) {
+                    expandButton.style.display = 'block';
+                    expandButton.textContent = systemData.recentExpanded ? 'Ver menos' : 'Ver todos';
+                } else {
+                    expandButton.style.display = 'none';
+                }
             }
         }
         

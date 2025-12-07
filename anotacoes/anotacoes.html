@@ -27,7 +27,7 @@
     margin:0;
     padding:18px;
     color:#111;
-    overflow-x: hidden; /* Remover barra horizontal */
+    overflow-x: hidden;
   }
   .wrap{max-width:1120px;margin:0 auto}
   h1{margin:0 0 8px 0;font-size:22px;color:var(--accent)}
@@ -149,7 +149,6 @@
     background: #dcfce7;
   }
 
-  /* Botões de ação específicos */
   .btn-pdf {
     background: #fff7f0 !important;
     border-color: #fed7aa !important;
@@ -183,7 +182,6 @@
     border-color: #fca5a5 !important;
   }
 
-  /* Layout para conteúdo com subtópicos */
   .conteudo-com-subtopicos {
     display: grid;
     grid-template-columns: 250px 1fr;
@@ -277,11 +275,11 @@
     animation: fadeIn 0.3s ease;
   }
 
-  /* Estilos para o conteúdo carregado dos arquivos externos */
   .conteudo-carregado {
     animation: fadeIn 0.3s ease;
   }
 
+  /* REMOVIDO: .conteudo-carregado h2::before - que adicionava o ponto */
   .conteudo-carregado h2 {
     color: var(--ink-strong);
     margin: 24px 0 12px 0;
@@ -293,12 +291,6 @@
 
   .conteudo-carregado h2:first-child {
     margin-top: 0;
-  }
-
-  .conteudo-carregado h2::before {
-    content: "•";
-    color: var(--azul);
-    font-size: 24px;
   }
 
   .conteudo-carregado h3 {
@@ -445,7 +437,6 @@
     height: 18px;
   }
 
-  /* Botões da toolbar */
   .btn-toolbar {
     display: flex;
     align-items: center;
@@ -492,7 +483,6 @@
     background: #e0f2fe;
   }
 
-  /* Botão de fechar tópico */
   .btn-fechar-topico {
     background: #fef2f2;
     border: 1px solid #fecaca;
@@ -511,7 +501,6 @@
     border-color: #ef4444;
   }
 
-  /* Resultados da busca - ÁREA DELIMITADA */
   .resultados-busca {
     margin-top: 16px;
     display: none;
@@ -560,7 +549,6 @@
     color: var(--muted);
   }
 
-  /* Estilos para imagens no conteúdo */
   .conteudo-carregado img {
     max-width: 100%;
     height: auto;
@@ -574,7 +562,6 @@
     transform: scale(1.02);
   }
 
-  /* Estado vazio */
   .estado-vazio {
     text-align: center;
     padding: 60px 20px;
@@ -588,7 +575,6 @@
     margin-bottom: 16px;
   }
 
-  /* Botões de ação para salvar/impressão */
   .btn-impressao {
     display: flex;
     align-items: center;
@@ -612,27 +598,6 @@
     border-color: var(--borda-ativa);
   }
 
-  .btn-pdf {
-    background: #fff7f0;
-    border-color: #fed7aa;
-    color: var(--warn);
-  }
-
-  .btn-pdf:hover {
-    background: #ffedd5;
-  }
-
-  .btn-imprimir {
-    background: #f0f9ff;
-    border-color: #bae6fd;
-    color: var(--azul);
-  }
-
-  .btn-imprimir:hover {
-    background: #e0f2fe;
-  }
-
-  /* Container para botões de seleção */
   .selecao-botoes-container {
     display: none;
     gap: 8px;
@@ -652,10 +617,15 @@
 
   .selecao-botoes-linha .btn-impressao {
     margin-bottom: 0;
-    flex: 1;
   }
 
-  /* Estilos de impressão */
+  /* BOTÃO SELECIONAR TODOS NOVO ESTILO */
+  .btn-selecionar-todos {
+    width: 100% !important;
+    grid-column: 1 / -1;
+    margin-bottom: 8px !important;
+  }
+
   @media print {
     body * {
       visibility: hidden;
@@ -679,7 +649,6 @@
       display: none;
     }
     
-    /* Evitar quebra de página no meio de um tópico */
     .conteudo-carregado h2 {
       page-break-before: auto;
       page-break-after: avoid;
@@ -689,12 +658,10 @@
       page-break-after: auto;
     }
     
-    /* Garantir que os tópicos não fiquem isolados no final da página */
     .conteudo-carregado h2 {
       break-inside: avoid;
     }
     
-    /* Se um tópico começar perto do final da página, mover para a próxima */
     .conteudo-carregado h2:first-child {
       break-before: auto;
     }
@@ -703,13 +670,12 @@
       break-before: avoid;
     }
     
-    /* Ajustar margens para melhor aproveitamento do espaço */
     @page {
       margin: 1cm;
     }
   }
 
-  /* Menu Sidebar - OCULTO INICIALMENTE */
+  /* MENU SIDEBAR CORRIGIDO */
   .menu-sidebar {
     position: fixed;
     top: 0;
@@ -821,7 +787,6 @@
     display: block;
   }
 
-  /* Popup personalizado */
   .popup-overlay {
     position: fixed;
     top: 0;
@@ -916,7 +881,6 @@
     background: var(--accent);
   }
 
-  /* Modo de impressão direto */
   .impressao-direta {
     position: fixed;
     top: 0;
@@ -1198,6 +1162,9 @@
   </div>
 </div>
 
+<!-- Iframe para impressão PDF -->
+<iframe id="pdf-iframe" style="display: none;"></iframe>
+
 <script>
 // Classe principal para gerenciar as anotações
 class GerenciadorAnotacoes {
@@ -1328,6 +1295,14 @@ class GerenciadorAnotacoes {
           </div>
           <div class="selecao-botoes-container" id="selecao-botoes-container">
             <div class="selecao-botoes-linha">
+              <button class="btn-impressao btn-selecionar-todos" id="btn-selecionar-todos">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                  <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                </svg>
+                Selecionar todos
+              </button>
+            </div>
+            <div class="selecao-botoes-linha">
               <button class="btn-impressao btn-pdf" id="btn-pdf-selecionados">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -1344,12 +1319,6 @@ class GerenciadorAnotacoes {
               </button>
             </div>
             <div class="selecao-botoes-linha">
-              <button class="btn-impressao" id="btn-selecionar-todos">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                  <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-                </svg>
-                Selecionar todos
-              </button>
               <button class="btn-impressao btn-fechar" id="btn-cancelar-selecao">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
                   <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -1762,23 +1731,19 @@ class GerenciadorAnotacoes {
         @media print {
           body { margin: 20px; }
           
-          /* Evitar quebra de página no meio de um tópico */
           h2 {
             page-break-before: auto;
             page-break-after: avoid;
           }
           
-          /* Garantir que os tópicos não fiquem isolados no final da página */
           h2 {
             break-inside: avoid;
           }
           
-          /* Se um tópico começar perto do final da página, mover para a próxima */
           h2:not(:first-child) {
             break-before: avoid;
           }
           
-          /* Ajustar margens para melhor aproveitamento do espaço */
           @page {
             margin: 1cm;
           }
@@ -1804,24 +1769,44 @@ class GerenciadorAnotacoes {
     `;
 
     if (formato === 'pdf') {
-      // Usar a API de impressão do navegador para PDF
-      const janela = window.open('', '_blank');
-      janela.document.write(htmlCompleto);
-      janela.document.close();
-      
-      // Aguardar carregamento e imprimir
-      setTimeout(() => {
-        janela.print();
-        // Fechar após um tempo se o usuário não cancelar
-        setTimeout(() => {
-          if (!janela.closed) janela.close();
-        }, 1000);
-      }, 500);
-      
+      // Gerar PDF e fazer download automaticamente
+      this.gerarPDF(htmlCompleto, titulo);
     } else if (formato === 'imprimir') {
       // Mostrar no site para impressão direta
       this.mostrarImpressaoDireta(htmlCompleto, titulo);
     }
+  }
+
+  // Nova função para gerar PDF com download automático
+  gerarPDF(htmlCompleto, titulo) {
+    const iframe = document.getElementById('pdf-iframe');
+    const blob = new Blob([htmlCompleto], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    
+    iframe.src = url;
+    
+    // Forçar download após o iframe carregar
+    iframe.onload = () => {
+      try {
+        iframe.contentWindow.print();
+        
+        // Criar link para download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${titulo.replace(/\s+/g, '_')}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        // Limpar URL após um tempo
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+        }, 1000);
+      } catch (e) {
+        console.error('Erro ao gerar PDF:', e);
+        this.mostrarPopup('Erro ao gerar PDF. Tente novamente.', 'Erro');
+      }
+    };
   }
 
   mostrarImpressaoDireta(conteudo, titulo) {
@@ -1981,7 +1966,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.location.href = '../index.html';
   });
 
-  // Eventos para o menu sidebar
+  // Eventos para o menu sidebar - CORRIGIDO
   document.getElementById('btn-menu').addEventListener('click', function() {
     document.getElementById('menu-sidebar').classList.add('ativo');
     document.getElementById('menu-overlay').classList.add('ativo');

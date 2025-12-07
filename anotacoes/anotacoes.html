@@ -165,6 +165,7 @@
     top: 20px;
     max-height: 500px;
     overflow-y: auto;
+    overflow-x: hidden; /* Remover barra horizontal */
   }
 
   .lista-subtopicos h3 {
@@ -188,6 +189,7 @@
     justify-content: space-between;
     border: 1px solid transparent;
     border-bottom: 1px solid var(--borda);
+    word-break: break-word; /* Para quebrar palavras longas */
   }
 
   .subtopico-item:last-child {
@@ -209,6 +211,7 @@
     margin-right: 8px;
     width: 16px;
     height: 16px;
+    cursor: pointer;
   }
 
   .subtopico-acoes {
@@ -442,7 +445,7 @@
 
   .btn-fechar:hover {
     background: #fee2e2;
-    border-color: #ef4444;
+    border-color: var(--danger);
   }
 
   .btn-menu {
@@ -565,6 +568,9 @@
     transition: all 0.2s ease;
     font-size: 12px;
     font-weight: 500;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 8px;
   }
 
   .btn-impressao:hover {
@@ -592,8 +598,9 @@
     background: #e0f2fe;
   }
 
-  /* Seletor de tópicos */
+  /* Seletor de tópicos - AGORA OCULTO INICIALMENTE */
   .selecao-topicos {
+    display: none; /* Oculto inicialmente */
     margin-bottom: 16px;
     padding: 12px;
     background: #f8fafc;
@@ -715,6 +722,118 @@
       margin: 1cm;
     }
   }
+
+  /* Menu Sidebar */
+  .menu-sidebar {
+    position: fixed;
+    top: 0;
+    left: -320px;
+    width: 320px;
+    height: 100vh;
+    background: var(--card);
+    border-right: 1px solid var(--borda);
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    transition: left 0.3s ease;
+    z-index: 1000;
+    padding: 20px;
+  }
+
+  .menu-sidebar.ativo {
+    left: 0;
+  }
+
+  .menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--borda);
+  }
+
+  .menu-header h3 {
+    margin: 0;
+    color: var(--ink-strong);
+    font-size: 18px;
+  }
+
+  .btn-fechar-sidebar {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    padding: 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .btn-fechar-sidebar:hover {
+    background: #fef2f2;
+    color: var(--danger);
+  }
+
+  .btn-fechar-sidebar svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .menu-secao {
+    margin-bottom: 24px;
+  }
+
+  .menu-secao h4 {
+    font-size: 14px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--borda);
+  }
+
+  .menu-opcao {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 6px;
+    text-decoration: none;
+    color: var(--ink);
+  }
+
+  .menu-opcao:hover {
+    background: #f3f8ff;
+  }
+
+  .menu-opcao .codigo {
+    background: var(--azul);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 40px;
+    text-align: center;
+  }
+
+  .menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 999;
+  }
+
+  .menu-overlay.ativo {
+    display: block;
+  }
 </style>
 </head>
 <body>
@@ -813,27 +932,104 @@
   </div>
 </div>
 
-<!-- Menu Hamburger -->
-<div class="menu-overlay" id="menu-overlay">
-  <div class="menu-content">
-    <h3>
+<!-- Menu Sidebar -->
+<div class="menu-overlay" id="menu-overlay"></div>
+<div class="menu-sidebar" id="menu-sidebar">
+  <div class="menu-header">
+    <h3>Navegação</h3>
+    <button class="btn-fechar-sidebar" id="btn-fechar-sidebar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
       </svg>
-      Menu
-    </h3>
-    <p>Funcionalidades em desenvolvimento. Em breve novas opções estarão disponíveis.</p>
-    <button class="btn-fechar-menu" id="btn-fechar-menu">Fechar</button>
+    </button>
+  </div>
+  
+  <div class="menu-secao">
+    <h4>MACS</h4>
+    <a href="../mac77.html" class="menu-opcao">
+      <div class="codigo">77</div>
+      <span>MAC Bairro São Geraldo</span>
+    </a>
+    <a href="../mac78.html" class="menu-opcao">
+      <div class="codigo">78</div>
+      <span>MAC Bairro Planalto</span>
+    </a>
+    <a href="../mac79.html" class="menu-opcao">
+      <div class="codigo">79</div>
+      <span>MAC Romeu Duarte</span>
+    </a>
+    <a href="../mac80.html" class="menu-opcao">
+      <div class="codigo">80</div>
+      <span>MAC Rua São Geraldo / Centro 2</span>
+    </a>
+    <a href="../mac277.html" class="menu-opcao">
+      <div class="codigo">277</div>
+      <span>MAC Matriz</span>
+    </a>
+    <a href="../mac853.html" class="menu-opcao">
+      <div class="codigo">853</div>
+      <span>MAC Concesso</span>
+    </a>
+    <a href="../mac1249.html" class="menu-opcao">
+      <div class="codigo">1249</div>
+      <span>MAC Jardim do Lago</span>
+    </a>
+    <a href="../mac989.html" class="menu-opcao">
+      <div class="codigo">989</div>
+      <span>MAC Araújos</span>
+    </a>
+  </div>
+  
+  <div class="menu-secao">
+    <h4>São José</h4>
+    <a href="../saojose.html" class="menu-opcao">
+      <span>Pedido São José</span>
+    </a>
+    <a href="../paototal.html" class="menu-opcao">
+      <span>Pedido Pão Total</span>
+    </a>
+  </div>
+  
+  <div class="menu-secao">
+    <h4>Tabelas</h4>
+    <a href="../pdfs/Tabela 2025 Geral.pdf" class="menu-opcao" target="_blank">
+      <span>Tabela de Preços Geral</span>
+    </a>
+    <a href="../pdfs/Tabela 2025 Empresa.pdf" class="menu-opcao" target="_blank">
+      <span>Tabela de Preços Empresa</span>
+    </a>
+    <a href="https://github.com/henriteodoro/paratestes/releases/download/v1.0/Catalogo.Sao.Jose.2025.AT03.pdf" class="menu-opcao" target="_blank">
+      <span>Catálogo de Produtos</span>
+    </a>
+  </div>
+  
+  <div class="menu-secao">
+    <h4>Ferramentas</h4>
+    <a href="../processadordepedidos.html" class="menu-opcao">
+      <span>Processador de Pedidos</span>
+    </a>
+    <a href="../ods.html" class="menu-opcao">
+      <span>Visualizar Planilhas</span>
+    </a>
+    <a href="../simularpedido.html" class="menu-opcao">
+      <span>Simulador de Pedido</span>
+    </a>
+    <a href="anotacoes.html" class="menu-opcao">
+      <span>Anotações</span>
+    </a>
+    <a href="../planilhaautocontrole.html" class="menu-opcao">
+      <span>Planilhas de Autocontrole</span>
+    </a>
   </div>
 </div>
 
 <!-- Lightbox para imagens -->
-<div class="image-lightbox" id="image-lightbox">
-  <div class="lightbox-content">
-    <button class="lightbox-close" id="lightbox-close">×</button>
-    <img id="lightbox-image" src="" alt="">
-    <a class="lightbox-download" id="lightbox-download" download>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+<div class="image-lightbox" id="image-lightbox" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center;">
+  <div class="lightbox-content" style="position: relative; max-width: 90%; max-height: 90%;">
+    <button class="lightbox-close" id="lightbox-close" style="position: absolute; top: -40px; right: 0; background: none; border: none; color: white; font-size: 30px; cursor: pointer;">×</button>
+    <img id="lightbox-image" src="" alt="" style="max-width: 100%; max-height: 80vh; border-radius: 8px;">
+    <a class="lightbox-download" id="lightbox-download" download style="display: block; text-align: center; margin-top: 10px; color: white; text-decoration: none; background: var(--azul); padding: 10px; border-radius: 6px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; vertical-align: middle;">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
       </svg>
       Salvar Imagem
@@ -850,11 +1046,13 @@ class GerenciadorAnotacoes {
     this.cache = new Map();
     this.conteudoAtual = null;
     this.tipoSalvarAtual = null;
+    this.modoSelecao = false; // Novo: controla se está no modo de seleção
   }
 
   async carregarTopico(arquivo) {
     this.topicoAtual = arquivo;
     this.subtopicoAtual = null;
+    this.modoSelecao = false; // Resetar modo de seleção ao carregar novo tópico
     
     const item = document.querySelector(`[data-arquivo="${arquivo}"]`);
     const nomeTopico = item.textContent.trim();
@@ -943,8 +1141,7 @@ class GerenciadorAnotacoes {
       return `
         <div class="subtopico-item" data-subtopico="${subtopico.id}" data-index="${index}">
           <div style="display: flex; align-items: center; flex: 1;">
-            <input type="checkbox" class="subtopico-checkbox" id="check-${index}" data-index="${index}">
-            <label for="check-${index}" style="margin-left: 8px; cursor: pointer; flex: 1;">${subtopico.titulo}</label>
+            <label style="cursor: pointer; flex: 1;">${subtopico.titulo}</label>
           </div>
         </div>
       `;
@@ -954,16 +1151,18 @@ class GerenciadorAnotacoes {
       <div class="conteudo-com-subtopicos">
         <div class="lista-subtopicos">
           <h3>TÓPICOS</h3>
-          <div class="selecao-topicos">
-            <div class="selecao-header">
-              <h4>Selecionar tópicos</h4>
-              <button class="btn-selecionar-todos" id="btn-selecionar-todos">Selecionar todos</button>
-            </div>
-            <div class="selecao-topicos-lista">
-              ${menuSubtopicos}
-            </div>
+          <div class="lista-subtopicos-conteudo" id="lista-subtopicos-conteudo">
+            ${menuSubtopicos}
           </div>
-          <div style="display: flex; gap: 8px; margin-top: 12px;">
+          <div style="margin-top: 12px;">
+            <button class="btn-impressao" id="btn-selecionar-topicos">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+              </svg>
+              Selecionar tópicos
+            </button>
+          </div>
+          <div style="display: none; gap: 8px; margin-top: 12px;" id="container-botoes-selecao">
             <button class="btn-impressao btn-pdf" id="btn-pdf-selecionados">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -1010,8 +1209,14 @@ class GerenciadorAnotacoes {
   adicionarEventosSubtopicos() {
     document.querySelectorAll('.subtopico-item').forEach(item => {
       item.addEventListener('click', (e) => {
-        // Não mostrar o conteúdo ao clicar no checkbox
-        if (e.target.type === 'checkbox') return;
+        // Se estiver no modo de seleção, não mostrar o conteúdo ao clicar
+        if (this.modoSelecao) {
+          const checkbox = item.querySelector('.subtopico-checkbox');
+          if (checkbox) {
+            checkbox.checked = !checkbox.checked;
+          }
+          return;
+        }
         
         const index = parseInt(item.getAttribute('data-index'));
         this.mostrarSubtopico(index);
@@ -1020,17 +1225,9 @@ class GerenciadorAnotacoes {
   }
 
   adicionarEventosSelecao() {
-    // Selecionar todos os tópicos
-    document.getElementById('btn-selecionar-todos').addEventListener('click', () => {
-      const checkboxes = document.querySelectorAll('.subtopico-checkbox');
-      const todosSelecionados = Array.from(checkboxes).every(cb => cb.checked);
-      
-      checkboxes.forEach(cb => {
-        cb.checked = !todosSelecionados;
-      });
-      
-      document.getElementById('btn-selecionar-todos').textContent = 
-        todosSelecionados ? 'Selecionar todos' : 'Desmarcar todos';
+    // Botão "Selecionar tópicos"
+    document.getElementById('btn-selecionar-topicos').addEventListener('click', () => {
+      this.ativarModoSelecao();
     });
 
     // PDF dos selecionados
@@ -1041,6 +1238,68 @@ class GerenciadorAnotacoes {
     // Imprimir selecionados
     document.getElementById('btn-imprimir-selecionados').addEventListener('click', () => {
       this.salvarSubtopicosSelecionados('imprimir');
+    });
+  }
+
+  ativarModoSelecao() {
+    this.modoSelecao = true;
+    const container = document.getElementById('lista-subtopicos-conteudo');
+    const botoesSelecao = document.getElementById('container-botoes-selecao');
+    const btnSelecionarTopicos = document.getElementById('btn-selecionar-topicos');
+    
+    // Gerar a lista com checkboxes
+    const listaComCheckboxes = this.conteudoAtual.subtopicos.map((subtopico, index) => {
+      return `
+        <div class="subtopico-item" data-index="${index}">
+          <div style="display: flex; align-items: center; flex: 1;">
+            <input type="checkbox" class="subtopico-checkbox" id="check-${index}" data-index="${index}">
+            <label for="check-${index}" style="margin-left: 8px; cursor: pointer; flex: 1;">${subtopico.titulo}</label>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    container.innerHTML = listaComCheckboxes;
+    botoesSelecao.style.display = 'flex';
+    btnSelecionarTopicos.style.display = 'none';
+    
+    // Adicionar evento para selecionar todos
+    this.adicionarEventoSelecionarTodos();
+  }
+
+  adicionarEventoSelecionarTodos() {
+    // Criar um container para o botão "Selecionar todos"
+    const container = document.getElementById('lista-subtopicos-conteudo');
+    const selecionarTodosBtn = document.createElement('button');
+    selecionarTodosBtn.className = 'btn-impressao';
+    selecionarTodosBtn.id = 'btn-selecionar-todos';
+    selecionarTodosBtn.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+        <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+      </svg>
+      Selecionar todos
+    `;
+    
+    // Adicionar antes da lista
+    container.parentNode.insertBefore(selecionarTodosBtn, container);
+    
+    selecionarTodosBtn.addEventListener('click', () => {
+      const checkboxes = document.querySelectorAll('.subtopico-checkbox');
+      const todosSelecionados = Array.from(checkboxes).every(cb => cb.checked);
+      
+      checkboxes.forEach(cb => {
+        cb.checked = !todosSelecionados;
+      });
+      
+      selecionarTodosBtn.innerHTML = todosSelecionados ? 
+        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+          <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+        Selecionar todos` :
+        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/>
+        </svg>
+        Desmarcar todos`;
     });
   }
 
@@ -1063,7 +1322,7 @@ class GerenciadorAnotacoes {
       item.classList.remove('ativo');
     });
     
-    document.querySelector(`[data-index="${index}"]`).classList.add('ativo');
+    document.querySelector(`[data-index="${index}"]`)?.classList.add('ativo');
     this.adicionarEventosImagens();
   }
 
@@ -1113,6 +1372,7 @@ class GerenciadorAnotacoes {
     this.topicoAtual = null;
     this.subtopicoAtual = null;
     this.conteudoAtual = null;
+    this.modoSelecao = false;
     
     document.querySelectorAll('.topico-item').forEach(item => {
       item.classList.remove('ativo');
@@ -1603,18 +1863,20 @@ document.addEventListener('DOMContentLoaded', function() {
     window.location.href = '../index.html';
   });
 
+  // Eventos para o menu sidebar
   document.getElementById('btn-menu').addEventListener('click', function() {
-    document.getElementById('menu-overlay').style.display = 'flex';
+    document.getElementById('menu-sidebar').classList.add('ativo');
+    document.getElementById('menu-overlay').classList.add('ativo');
   });
 
-  document.getElementById('btn-fechar-menu').addEventListener('click', function() {
-    document.getElementById('menu-overlay').style.display = 'none';
+  document.getElementById('btn-fechar-sidebar').addEventListener('click', function() {
+    document.getElementById('menu-sidebar').classList.remove('ativo');
+    document.getElementById('menu-overlay').classList.remove('ativo');
   });
 
-  document.getElementById('menu-overlay').addEventListener('click', function(e) {
-    if (e.target === this) {
-      this.style.display = 'none';
-    }
+  document.getElementById('menu-overlay').addEventListener('click', function() {
+    document.getElementById('menu-sidebar').classList.remove('ativo');
+    document.getElementById('menu-overlay').classList.remove('ativo');
   });
 
   // Eventos para a busca

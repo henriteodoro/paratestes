@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Clientes por Rotas - Distribuição</title>
+<title>Clientes por Rotas</title>
 <style>
   :root{
     --azul:#007BFF;
@@ -42,30 +42,25 @@
   }
   h2 {
     color: var(--ink-strong);
-    margin: 24px 0 16px 0;
+    margin: 30px 0 16px 0;
     font-size: 20px;
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 10px 0;
-    border-bottom: 1px solid var(--borda);
+    border-bottom: 2px solid var(--borda);
   }
   h2::before {
     content: "•";
     color: var(--azul);
     font-size: 28px;
   }
-  .segunda h2::before { color: #4CAF50; }
-  .terca h2::before { color: #FF9800; }
-  .quarta h2::before { color: #9C27B0; }
-  .quinta h2::before { color: #2196F3; }
-  .sexta h2::before { color: #F44336; }
   
   h3 {
     color: var(--ink-strong);
-    margin: 20px 0 12px 0;
+    margin: 24px 0 12px 0;
     font-size: 17px;
-    padding-left: 0;
+    padding-left: 16px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -75,27 +70,21 @@
     color: var(--azul);
     font-size: 20px;
   }
-  .rotas-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 20px;
-    margin: 20px 0;
-  }
-  .rota {
+  
+  .clientes-container {
     background: #f8f9fa;
-    padding: 16px;
+    padding: 16px 20px;
     border-radius: 10px;
     border-left: 4px solid var(--azul);
+    margin: 12px 0 24px 0;
     box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-    max-height: 400px;
-    overflow-y: auto;
   }
-  .rota-jovi { border-left-color: #4CAF50; }
-  .rota-salsicha { border-left-color: #FF9800; }
-  .rota-guilherme { border-left-color: #2196F3; }
-  .rota-nelio { border-left-color: #9C27B0; }
-  .rota-stenio { border-left-color: #795548; }
-  .rota-bh { border-left-color: #607D8B; }
+  
+  .rota-jovi .clientes-container { border-left-color: #4CAF50; }
+  .rota-salsicha .clientes-container { border-left-color: #FF9800; }
+  .rota-guilherme .clientes-container { border-left-color: #2196F3; }
+  .rota-nelio .clientes-container { border-left-color: #9C27B0; }
+  .rota-stenio .clientes-container { border-left-color: #9C27B0; }
   
   .cliente-item {
     padding: 6px 0;
@@ -127,132 +116,29 @@
     text-align: center;
     box-shadow: 0 2px 4px rgba(0,123,255,0.3);
   }
-  .dias-navegacao {
-    display: flex;
-    gap: 10px;
-    margin: 20px 0 30px 0;
-    flex-wrap: wrap;
-  }
-  .dia-btn {
-    padding: 10px 18px;
-    background: white;
-    border: 1px solid var(--borda);
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s;
-    flex: 1;
-    min-width: 120px;
-    text-align: center;
-  }
-  .dia-btn:hover {
-    background: var(--fundo);
-    transform: translateY(-2px);
-  }
-  .dia-btn.ativo {
-    background: var(--azul);
-    color: white;
-    border-color: var(--accent);
-    box-shadow: 0 4px 8px rgba(11,94,215,0.2);
-  }
-  .secao-dia {
-    display: none;
-    animation: fadeIn 0.5s ease;
-  }
-  .secao-dia.ativo {
-    display: block;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .header-info {
-    background: #f0f7ff;
-    padding: 14px 18px;
-    border-radius: 10px;
-    margin-bottom: 24px;
-    border-left: 4px solid var(--azul);
-    font-size: 15px;
-  }
-  .legenda {
-    display: flex;
-    gap: 15px;
-    margin: 20px 0;
-    padding: 12px;
-    background: #f9f9f9;
-    border-radius: 8px;
-    flex-wrap: wrap;
+  
+  .total-clientes {
+    background: #f5f5f5;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin: 16px 0;
     font-size: 14px;
-  }
-  .legenda-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .legenda-cor {
-    width: 16px;
-    height: 16px;
-    border-radius: 4px;
-  }
-  .motorista-jovi { background-color: #4CAF50; }
-  .motorista-salsicha { background-color: #FF9800; }
-  .motorista-guilherme { background-color: #2196F3; }
-  .motorista-nelio { background-color: #9C27B0; }
-  .motorista-stenio { background-color: #795548; }
-  .motorista-bh { background-color: #607D8B; }
-  
-  .rota-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #e0e0e0;
-  }
-  .rota-titulo {
-    font-weight: 600;
-    color: var(--ink-strong);
-    font-size: 16px;
-  }
-  .rota-contador {
-    background: #e0e0e0;
-    color: #555;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: bold;
-  }
-  
-  /* Estilos para rolagem personalizada */
-  .rota::-webkit-scrollbar {
-    width: 6px;
-  }
-  .rota::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-  }
-  .rota::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 10px;
-  }
-  .rota::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
+    color: #666;
+    border-left: 3px solid #ccc;
   }
   
   /* Ajustes para telas menores */
   @media (max-width: 768px) {
-    .rotas-container {
-      grid-template-columns: 1fr;
-    }
-    .dias-navegacao {
-      justify-content: center;
-    }
-    .dia-btn {
-      min-width: 100px;
-      flex: none;
-    }
     .container {
       padding: 16px;
+    }
+    .cliente-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+    .codigo-container {
+      align-self: flex-end;
     }
   }
 </style>
@@ -261,56 +147,15 @@
 <div class="container">
   <h1>Clientes por Rotas</h1>
   
-  <div class="header-info">
-    Este documento organiza os clientes por dias da semana e rotas de entrega. Use os botões abaixo para navegar entre os dias.
-  </div>
-  
-  <div class="dias-navegacao">
-    <div class="dia-btn ativo" data-dia="segunda">Segunda-feira</div>
-    <div class="dia-btn" data-dia="terca">Terça-feira</div>
-    <div class="dia-btn" data-dia="quarta">Quarta-feira</div>
-    <div class="dia-btn" data-dia="quinta">Quinta-feira</div>
-    <div class="dia-btn" data-dia="sexta">Sexta-feira</div>
-  </div>
-  
-  <div class="legenda">
-    <div class="legenda-item">
-      <div class="legenda-cor motorista-jovi"></div>
-      <span>Jovi</span>
-    </div>
-    <div class="legenda-item">
-      <div class="legenda-cor motorista-salsicha"></div>
-      <span>Salsicha</span>
-    </div>
-    <div class="legenda-item">
-      <div class="legenda-cor motorista-guilherme"></div>
-      <span>Guilherme</span>
-    </div>
-    <div class="legenda-item">
-      <div class="legenda-cor motorista-nelio"></div>
-      <span>Nelio</span>
-    </div>
-    <div class="legenda-item">
-      <div class="legenda-cor motorista-stenio"></div>
-      <span>Stênio</span>
-    </div>
-    <div class="legenda-item">
-      <div class="legenda-cor motorista-bh"></div>
-      <span>BH</span>
-    </div>
-  </div>
-  
   <!-- SEGUNDA-FEIRA -->
-  <div id="segunda" class="secao-dia segunda ativo">
+  <div class="segunda">
     <h2>Segunda-feira</h2>
     
-    <div class="rotas-container">
-      <!-- Rota Jovi -->
-      <div class="rota rota-jovi">
-        <div class="rota-header">
-          <div class="rota-titulo">Jovi</div>
-          <div class="rota-contador">22 clientes</div>
-        </div>
+    <div class="total-clientes">62 clientes</div>
+    
+    <div class="rota-jovi">
+      <h3>Rota Jovi (22 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item"><span class="cliente-nome">Comercial Almeida Peixoto</span></div>
         <div class="cliente-item"><span class="cliente-nome">Galeana</span></div>
         <div class="cliente-item"><span class="cliente-nome">Juvenal</span></div>
@@ -334,13 +179,11 @@
         <div class="cliente-item"><span class="cliente-nome">Caramel</span></div>
         <div class="cliente-item"><span class="cliente-nome">Panificadora Pai Nosso</span></div>
       </div>
-      
-      <!-- Rota Salsicha -->
-      <div class="rota rota-salsicha">
-        <div class="rota-header">
-          <div class="rota-titulo">Salsicha</div>
-          <div class="rota-contador">25 clientes</div>
-        </div>
+    </div>
+    
+    <div class="rota-salsicha">
+      <h3>Rota Salsicha (25 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item"><span class="cliente-nome">Douglas Manedio</span></div>
         <div class="cliente-item"><span class="cliente-nome">Fabiana Lopes</span></div>
         <div class="cliente-item"><span class="cliente-nome">Laeci</span></div>
@@ -377,13 +220,11 @@
         <div class="cliente-item"><span class="cliente-nome">Vanessa Isabel</span></div>
         <div class="cliente-item"><span class="cliente-nome">Gutte Delicatesse</span></div>
       </div>
-      
-      <!-- Rota Guilherme -->
-      <div class="rota rota-guilherme">
-        <div class="rota-header">
-          <div class="rota-titulo">Guilherme</div>
-          <div class="rota-contador">15 clientes</div>
-        </div>
+    </div>
+    
+    <div class="rota-guilherme">
+      <h3>Rota Guilherme (15 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item"><span class="cliente-nome">Comercial Nunes & Felicio</span></div>
         <div class="cliente-item"><span class="cliente-nome">Genivaldo</span></div>
         <div class="cliente-item"><span class="cliente-nome">Rosilene</span></div>
@@ -409,16 +250,14 @@
   </div>
   
   <!-- TERÇA-FEIRA -->
-  <div id="terca" class="secao-dia terca">
+  <div class="terca">
     <h2>Terça-feira</h2>
     
-    <div class="rotas-container">
-      <!-- Rota Jovi -->
-      <div class="rota rota-jovi">
-        <div class="rota-header">
-          <div class="rota-titulo">Jovi</div>
-          <div class="rota-contador">25 clientes</div>
-        </div>
+    <div class="total-clientes">53 clientes</div>
+    
+    <div class="rota-jovi">
+      <h3>Rota Jovi (25 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item">
           <span class="cliente-nome">EIFA</span>
           <div class="codigo-container">
@@ -460,13 +299,11 @@
         <div class="cliente-item"><span class="cliente-nome">Bruno Alexandre</span></div>
         <div class="cliente-item"><span class="cliente-nome">Super Moura</span></div>
       </div>
-      
-      <!-- Rota Guilherme -->
-      <div class="rota rota-guilherme">
-        <div class="rota-header">
-          <div class="rota-titulo">Guilherme</div>
-          <div class="rota-contador">15 clientes</div>
-        </div>
+    </div>
+    
+    <div class="rota-guilherme">
+      <h3>Rota Guilherme (15 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item"><span class="cliente-nome">Ana Lucia</span></div>
         <div class="cliente-item"><span class="cliente-nome">Denia Avelino</span></div>
         <div class="cliente-item"><span class="cliente-nome">Mercearia Havana</span></div>
@@ -493,13 +330,11 @@
         </div>
         <div class="cliente-item"><span class="cliente-nome">Lanchonete e Restaurante Fernandes</span></div>
       </div>
-      
-      <!-- Rota Salsicha -->
-      <div class="rota rota-salsicha">
-        <div class="rota-header">
-          <div class="rota-titulo">Salsicha</div>
-          <div class="rota-contador">8 clientes</div>
-        </div>
+    </div>
+    
+    <div class="rota-salsicha">
+      <h3>Rota Salsicha (8 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item"><span class="cliente-nome">Andre de Menezes</span></div>
         <div class="cliente-item"><span class="cliente-nome">Mislene</span></div>
         <div class="cliente-item">
@@ -539,13 +374,11 @@
           </div>
         </div>
       </div>
-      
-      <!-- Rota Stênio/Nelio -->
-      <div class="rota rota-stenio">
-        <div class="rota-header">
-          <div class="rota-titulo">Stênio/Nelio</div>
-          <div class="rota-contador">5 clientes</div>
-        </div>
+    </div>
+    
+    <div class="rota-nelio">
+      <h3>Rota Stênio/Nelio (5 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item"><span class="cliente-nome">Vovó Bene</span></div>
         <div class="cliente-item"><span class="cliente-nome">Irmão Diamantino</span></div>
         <div class="cliente-item"><span class="cliente-nome">Casa de Quitanda</span></div>
@@ -556,16 +389,14 @@
   </div>
   
   <!-- QUARTA-FEIRA -->
-  <div id="quarta" class="secao-dia quarta">
+  <div class="quarta">
     <h2>Quarta-feira</h2>
     
-    <div class="rotas-container">
-      <!-- Rota Salsicha -->
-      <div class="rota rota-salsicha">
-        <div class="rota-header">
-          <div class="rota-titulo">Salsicha</div>
-          <div class="rota-contador">40 clientes</div>
-        </div>
+    <div class="total-clientes">76 clientes</div>
+    
+    <div class="rota-salsicha">
+      <h3>Rota Salsicha (40 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item"><span class="cliente-nome">Claudia Maria</span></div>
         <div class="cliente-item"><span class="cliente-nome">Edson Jose</span></div>
         <div class="cliente-item"><span class="cliente-nome">ITC</span></div>
@@ -606,13 +437,11 @@
         <div class="cliente-item"><span class="cliente-nome">Panificadora Feito a Mão</span></div>
         <div class="cliente-item"><span class="cliente-nome">Zimbo</span></div>
       </div>
-      
-      <!-- Rota Nelio -->
-      <div class="rota rota-nelio">
-        <div class="rota-header">
-          <div class="rota-titulo">Nelio</div>
-          <div class="rota-contador">13 clientes</div>
-        </div>
+    </div>
+    
+    <div class="rota-jovi">
+      <h3>Rota Jovi (13 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item"><span class="cliente-nome">Ricart</span></div>
         <div class="cliente-item"><span class="cliente-nome">Katia Torquato</span></div>
         <div class="cliente-item"><span class="cliente-nome">João Paulo</span></div>
@@ -627,13 +456,11 @@
         <div class="cliente-item"><span class="cliente-nome">Engenharia do Pão</span></div>
         <div class="cliente-item"><span class="cliente-nome">Cristiane Geralda</span></div>
       </div>
-      
-      <!-- Rota Guilherme -->
-      <div class="rota rota-guilherme">
-        <div class="rota-header">
-          <div class="rota-titulo">Guilherme</div>
-          <div class="rota-contador">16 clientes</div>
-        </div>
+    </div>
+    
+    <div class="rota-guilherme">
+      <h3>Rota Guilherme (16 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item"><span class="cliente-nome">Kit Santo Antonio</span></div>
         <div class="cliente-item"><span class="cliente-nome">Josildo Loja 1</span></div>
         <div class="cliente-item"><span class="cliente-nome">Josildo Loja 2</span></div>
@@ -651,13 +478,11 @@
         <div class="cliente-item"><span class="cliente-nome">Na Padoca do Eli</span></div>
         <div class="cliente-item"><span class="cliente-nome">Valeria Maria</span></div>
       </div>
-      
-      <!-- Rota Stênio/Nelio -->
-      <div class="rota rota-stenio">
-        <div class="rota-header">
-          <div class="rota-titulo">Stênio/Nelio</div>
-          <div class="rota-contador">7 clientes</div>
-        </div>
+    </div>
+    
+    <div class="rota-nelio">
+      <h3>Rota Stênio/Nelio (7 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item"><span class="cliente-nome">Cabral Loja 1</span></div>
         <div class="cliente-item"><span class="cliente-nome">Cabral Loja 2</span></div>
         <div class="cliente-item"><span class="cliente-nome">Katia Maria</span></div>
@@ -670,16 +495,14 @@
   </div>
   
   <!-- QUINTA-FEIRA -->
-  <div id="quinta" class="secao-dia quinta">
+  <div class="quinta">
     <h2>Quinta-feira</h2>
     
-    <div class="rotas-container">
-      <!-- Rota Salsicha -->
-      <div class="rota rota-salsicha">
-        <div class="rota-header">
-          <div class="rota-titulo">Salsicha</div>
-          <div class="rota-contador">24 clientes</div>
-        </div>
+    <div class="total-clientes">70 clientes</div>
+    
+    <div class="rota-salsicha">
+      <h3>Rota Salsicha (24 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item">
           <span class="cliente-nome">Comercial Nogueira Cunha</span>
           <div class="codigo-container">
@@ -721,13 +544,11 @@
         <div class="cliente-item"><span class="cliente-nome">Mercearia Havana</span></div>
         <div class="cliente-item"><span class="cliente-nome">Rosileia da Silva</span></div>
       </div>
-      
-      <!-- Rota Jovi (Arcos/São Sebastião do Oeste/Iguatama) -->
-      <div class="rota rota-jovi">
-        <div class="rota-header">
-          <div class="rota-titulo">Jovi - Arcos/SSO/Iguatama</div>
-          <div class="rota-contador">11 clientes</div>
-        </div>
+    </div>
+    
+    <div class="rota-jovi">
+      <h3>Rota Jovi - Arcos/SSO/Iguatama (11 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item"><span class="cliente-nome">Supermercado Iguasuper</span></div>
         <div class="cliente-item"><span class="cliente-nome">Mercearia Recanto Nordestino</span></div>
         <div class="cliente-item"><span class="cliente-nome">Urbana Café II</span></div>
@@ -740,13 +561,11 @@
         <div class="cliente-item"><span class="cliente-nome">TB Sorvetes</span></div>
         <div class="cliente-item"><span class="cliente-nome">Marcos Vinicius</span></div>
       </div>
-      
-      <!-- Rota Jovi (Dores do Indaiá) -->
-      <div class="rota rota-jovi">
-        <div class="rota-header">
-          <div class="rota-titulo">Jovi - Dores do Indaiá</div>
-          <div class="rota-contador">11 clientes</div>
-        </div>
+    </div>
+    
+    <div class="rota-jovi">
+      <h3>Rota Jovi - Dores do Indaiá (11 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item"><span class="cliente-nome">Supermercado Alves Moura</span></div>
         <div class="cliente-item"><span class="cliente-nome">Kit Pão Luz</span></div>
         <div class="cliente-item"><span class="cliente-nome">Casa Fidelis</span></div>
@@ -759,13 +578,11 @@
         <div class="cliente-item"><span class="cliente-nome">Mario Jose</span></div>
         <div class="cliente-item"><span class="cliente-nome">SR Comercio</span></div>
       </div>
-      
-      <!-- Rota Guilherme -->
-      <div class="rota rota-guilherme">
-        <div class="rota-header">
-          <div class="rota-titulo">Guilherme</div>
-          <div class="rota-contador">14 clientes</div>
-        </div>
+    </div>
+    
+    <div class="rota-guilherme">
+      <h3>Rota Guilherme (14 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item"><span class="cliente-nome">Cristiane</span></div>
         <div class="cliente-item"><span class="cliente-nome">Ozeias de Paula</span></div>
         <div class="cliente-item">
@@ -806,13 +623,11 @@
         <div class="cliente-item"><span class="cliente-nome">Supermercado Catalão</span></div>
         <div class="cliente-item"><span class="cliente-nome">Cleiton</span></div>
       </div>
-      
-      <!-- Rota Nelio -->
-      <div class="rota rota-nelio">
-        <div class="rota-header">
-          <div class="rota-titulo">Nelio</div>
-          <div class="rota-contador">10 clientes</div>
-        </div>
+    </div>
+    
+    <div class="rota-nelio">
+      <h3>Rota Nelio (10 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item"><span class="cliente-nome">Mercearia Três Irmãos</span></div>
         <div class="cliente-item"><span class="cliente-nome">Lanchonete e Padaria do Mauricio</span></div>
         <div class="cliente-item">
@@ -848,16 +663,14 @@
   </div>
   
   <!-- SEXTA-FEIRA -->
-  <div id="sexta" class="secao-dia sexta">
+  <div class="sexta">
     <h2>Sexta-feira</h2>
     
-    <div class="rotas-container">
-      <!-- Rota Jovi -->
-      <div class="rota rota-jovi">
-        <div class="rota-header">
-          <div class="rota-titulo">Jovi</div>
-          <div class="rota-contador">23 clientes</div>
-        </div>
+    <div class="total-clientes">53 clientes</div>
+    
+    <div class="rota-jovi">
+      <h3>Rota Jovi (23 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item"><span class="cliente-nome">Alexandre da Fonseca</span></div>
         <div class="cliente-item"><span class="cliente-nome">Antonio Carlos</span></div>
         <div class="cliente-item"><span class="cliente-nome">Café e Cia Mercearia e Padaria (Breno)</span></div>
@@ -902,13 +715,11 @@
         </div>
         <div class="cliente-item"><span class="cliente-nome">Mercearia Compre Mais (Elias)</span></div>
       </div>
-      
-      <!-- Rota Guilherme -->
-      <div class="rota rota-guilherme">
-        <div class="rota-header">
-          <div class="rota-titulo">Guilherme</div>
-          <div class="rota-contador">13 clientes</div>
-        </div>
+    </div>
+    
+    <div class="rota-guilherme">
+      <h3>Rota Guilherme (13 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item"><span class="cliente-nome">Zimbo</span></div>
         <div class="cliente-item"><span class="cliente-nome">Allan</span></div>
         <div class="cliente-item"><span class="cliente-nome">Luiz Gustavo</span></div>
@@ -930,13 +741,11 @@
         <div class="cliente-item"><span class="cliente-nome">Alice <span style="font-size:12px;color:#666;">(só de vez em quando)</span></span></div>
         <div class="cliente-item"><span class="cliente-nome">Lanchonete e Restaurante Fernandes (Sandra) <span style="font-size:12px;color:#666;">depende</span></span></div>
       </div>
-      
-      <!-- Rota Salsicha -->
-      <div class="rota rota-salsicha">
-        <div class="rota-header">
-          <div class="rota-titulo">Salsicha</div>
-          <div class="rota-contador">8 clientes</div>
-        </div>
+    </div>
+    
+    <div class="rota-salsicha">
+      <h3>Rota Salsicha (8 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item">
           <span class="cliente-nome">MAC</span>
           <div class="codigo-container">
@@ -976,13 +785,11 @@
         <div class="cliente-item"><span class="cliente-nome">Marcio Magalhaes</span></div>
         <div class="cliente-item"><span class="cliente-nome">Helenilda</span></div>
       </div>
-      
-      <!-- Rota BH -->
-      <div class="rota rota-bh">
-        <div class="rota-header">
-          <div class="rota-titulo">BH</div>
-          <div class="rota-contador">9 clientes</div>
-        </div>
+    </div>
+    
+    <div class="rota-nelio">
+      <h3>Rota BH (9 clientes)</h3>
+      <div class="clientes-container">
         <div class="cliente-item">
           <span class="cliente-nome">Comercial Michael</span>
           <div class="codigo-container">
@@ -1008,28 +815,7 @@
 </div>
 
 <script>
-  // Navegação entre os dias
-  document.querySelectorAll('.dia-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      // Remove a classe ativo de todos os botões
-      document.querySelectorAll('.dia-btn').forEach(b => b.classList.remove('ativo'));
-      
-      // Adiciona a classe ativo ao botão clicado
-      this.classList.add('ativo');
-      
-      // Remove a classe ativo de todas as seções
-      document.querySelectorAll('.secao-dia').forEach(sec => sec.classList.remove('ativo'));
-      
-      // Adiciona a classe ativo à seção correspondente
-      const dia = this.getAttribute('data-dia');
-      document.getElementById(dia).classList.add('ativo');
-      
-      // Rola para o topo da seção
-      document.getElementById(dia).scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  });
-  
-  // Destacar códigos ao passar o mouse
+  // Função simples para destacar códigos ao passar o mouse
   document.querySelectorAll('.codigo-box').forEach(codigo => {
     codigo.addEventListener('mouseenter', function() {
       this.style.transform = 'scale(1.1)';

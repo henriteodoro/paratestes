@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Clientes por Rotas - Distribuição</title>
+<style>
+  :root{
+    --azul:#007BFF;
+    --accent:#0b5ed7;
+    --fundo:#f7fbff;
+    --card:#ffffff;
+    --muted:#6b7280;
+    --borda:#e6eefc;
+    --borda-ativa:#cfe0ff;
+    --ink:#0b3b6b;
+    --ink-strong:#0b4fa0;
+  }
+  body{
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: var(--fundo);
+    margin: 0;
+    padding: 20px;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--card);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(11,78,167,.06);
+    border: 1px solid var(--borda);
+  }
+  h1 {
+    color: var(--accent);
+    margin-bottom: 8px;
+    font-size: 22px;
+    border-bottom: 2px solid var(--borda);
+    padding-bottom: 12px;
+  }
+  h2 {
+    color: var(--ink-strong);
+    margin: 24px 0 16px 0;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--borda);
+  }
+  h2::before {
+    content: "•";
+    color: var(--azul);
+    font-size: 28px;
+  }
+  .segunda h2::before { color: #4CAF50; }
+  .terca h2::before { color: #FF9800; }
+  .quarta h2::before { color: #9C27B0; }
+  .quinta h2::before { color: #2196F3; }
+  .sexta h2::before { color: #F44336; }
+  
+  h3 {
+    color: var(--ink-strong);
+    margin: 20px 0 12px 0;
+    font-size: 17px;
+    padding-left: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  h3::before {
+    content: "•";
+    color: var(--azul);
+    font-size: 20px;
+  }
+  .rotas-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+  }
+  .rota {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 10px;
+    border-left: 4px solid var(--azul);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  .rota-jovi { border-left-color: #4CAF50; }
+  .rota-salsicha { border-left-color: #FF9800; }
+  .rota-guilherme { border-left-color: #2196F3; }
+  .rota-nelio { border-left-color: #9C27B0; }
+  .rota-stenio { border-left-color: #795548; }
+  .rota-bh { border-left-color: #607D8B; }
+  
+  .cliente-item {
+    padding: 6px 0;
+    border-bottom: 1px dotted #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .cliente-item:last-child {
+    border-bottom: none;
+  }
+  .cliente-nome {
+    flex-grow: 1;
+    font-size: 14.5px;
+  }
+  .codigo-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .codigo-box {
+    background: var(--azul);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    min-width: 40px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,123,255,0.3);
+  }
+  .dias-navegacao {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0 30px 0;
+    flex-wrap: wrap;
+  }
+  .dia-btn {
+    padding: 10px 18px;
+    background: white;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+  }
+  .dia-btn:hover {
+    background: var(--fundo);
+    transform: translateY(-2px);
+  }
+  .dia-btn.ativo {
+    background: var(--azul);
+    color: white;
+    border-color: var(--accent);
+    box-shadow: 0 4px 8px rgba(11,94,215,0.2);
+  }
+  .secao-dia {
+    display: none;
+    animation: fadeIn 0.5s ease;
+  }
+  .secao-dia.ativo {
+    display: block;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .header-info {
+    background: #f0f7ff;
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 24px;
+    border-left: 4px solid var(--azul);
+    font-size: 15px;
+  }
+  .legenda {
+    display: flex;
+    gap: 15px;
+    margin: 20px 0;
+    padding: 12px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    flex-wrap: wrap;
+    font-size: 14px;
+  }
+  .legenda-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legenda-cor {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+  }
+  .motorista-jovi { background-color: #4CAF50; }
+  .motorista-salsicha { background-color: #FF9800; }
+  .motorista-guilherme { background-color: #2196F3; }
+  .motorista-nelio { background-color: #9C27B0; }
+  .motorista-stenio { background-color: #795548; }
+  .motorista-bh { background-color: #607D8B; }
+  
+  .rota-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  .rota-titulo {
+    font-weight: 600;
+    color: var(--ink-strong);
+    font-size: 16px;
+  }
+  .rota-contador {
+    background: #e0e0e0;
+    color: #555;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  
+  /* Estilos para rolagem personalizada */
+  .rota::-webkit-scrollbar {
+    width: 6px;
+  }
+  .rota::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  .rota::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+  }
+  .rota::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+  
+  /* Ajustes para telas menores */
+  @media (max-width: 768px) {
+    .rotas-container {
+      grid-template-columns: 1fr;
+    }
+    .dias-navegacao {
+      justify-content: center;
+    }
+    .dia-btn {
+      min-width: 100px;
+      flex: none;
+    }
+    .container {
+      padding: 16px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Clientes por Rotas</h1>
+  
+  <div class="header-info">
+    Este documento organiza os clientes por dias da semana e rotas de entrega. Use os botões abaixo para navegar entre os dias.
+  </div>
+  
+  <div class="dias-navegacao">
+    <div class="dia-btn ativo" data-dia="segunda">Segunda-feira</div>
+    <div class="dia-btn" data-dia="terca">Terça-feira</div>
+    <div class="dia-btn" data-dia="quarta">Quarta-feira</div>
+    <div class="dia-btn" data-dia="quinta">Quinta-feira</div>
+    <div class="dia-btn" data-dia="sexta">Sexta-feira</div>
+  </div>
+  
+  <div class="legenda">
+    <div class="legenda-item">
+      <div class="legenda-cor motorista-jovi"></div>
+      <span>Jovi</span>
+    </div>
+    <div class="legenda-item">
+      <div class="legenda-cor motorista-salsicha"></div>
+      <span>Salsicha</span>
+    </div>
+    <div class="legenda-item">
+      <div class="legenda-cor motorista-guilherme"></div>
+      <span>Guilherme</span>
+    </div>
+    <div class="legenda-item">
+      <div class="legenda-cor motorista-nelio"></div>
+      <span>Nelio</span>
+    </div>
+    <div class="legenda-item">
+      <div class="legenda-cor motorista-stenio"></div>
+      <span>Stênio</span>
+    </div>
+    <div class="legenda-item">
+      <div class="legenda-cor motorista-bh"></div>
+      <span>BH</span>
+    </div>
+  </div>
+  
+  <!-- SEGUNDA-FEIRA -->
+  <div id="segunda" class="secao-dia segunda ativo">
+    <h2>Segunda-feira</h2>
+    
+    <div class="rotas-container">
+      <!-- Rota Jovi -->
+      <div class="rota rota-jovi">
+        <div class="rota-header">
+          <div class="rota-titulo">Jovi</div>
+          <div class="rota-contador">22 clientes</div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Comercial Almeida Peixoto</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Galeana</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Juvenal</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Maria de Fátima</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercadinho e Mercearia Nossa Senhora Piedade</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercearia Real</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Renato Barbosa</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Liber Comercio de Produtos</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Adriana Cristina</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Biscoiteria e Mercearia Vovó Fia</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Elizabeth</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Super Mais</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercearia Frei Galvão</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Panif Gonçalves Aleci</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Nossa Sen de Fátima</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Maria Cristiane</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Jessica Franciele</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Sabor de Minas</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercadinho e Mercearia 2024</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Tatiane Nunes</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Caramel</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Pai Nosso</span></div>
+      </div>
+      
+      <!-- Rota Salsicha -->
+      <div class="rota rota-salsicha">
+        <div class="rota-header">
+          <div class="rota-titulo">Salsicha</div>
+          <div class="rota-contador">25 clientes</div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Douglas Manedio</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Fabiana Lopes</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Laeci</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Sempre Mais (MBM)</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado 2000</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Santa Edwirges</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercearia Torneiros</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Rafael Vinícius</span></div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Souza Melo</span>
+          <div class="codigo-container">
+            <span class="codigo-box">123</span>
+          </div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Igaratinga</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Antonio Marcos Peixoto</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Agro Alimentos Ferreira</span></div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Souza Melo</span>
+          <div class="codigo-container">
+            <span class="codigo-box">327</span>
+          </div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Jorge Lopes</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Jardim Piteiras</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora e Lanchonete Rodrigues</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Bianca de Oliveira Almeida</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado HT</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Curitiba Levi</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Igo Justino</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Alvorada Alvimar</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Adriana Ribeiro</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Gustavo Ferreira</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Vanessa Isabel</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Gutte Delicatesse</span></div>
+      </div>
+      
+      <!-- Rota Guilherme -->
+      <div class="rota rota-guilherme">
+        <div class="rota-header">
+          <div class="rota-titulo">Guilherme</div>
+          <div class="rota-contador">15 clientes</div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Comercial Nunes & Felicio</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Genivaldo</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Rosilene</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Zimbo</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Derlon</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Allan</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Sidney</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Lanchonete do Moza</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Veli</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria e Lanchonete São Sebastião</span></div>
+        <div class="cliente-item">
+          <span class="cliente-nome">MAC</span>
+          <div class="codigo-container">
+            <span class="codigo-box">989</span>
+          </div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Lanchonete Ki Delicia</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Ezequiel Robert</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Tiska</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Paulo Ricardo</span></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- TERÇA-FEIRA -->
+  <div id="terca" class="secao-dia terca">
+    <h2>Terça-feira</h2>
+    
+    <div class="rotas-container">
+      <!-- Rota Jovi -->
+      <div class="rota rota-jovi">
+        <div class="rota-header">
+          <div class="rota-titulo">Jovi</div>
+          <div class="rota-contador">25 clientes</div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">EIFA</span>
+          <div class="codigo-container">
+            <span class="codigo-box">33</span>
+          </div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Gilmara Batista</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Hotel Magnum</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Kit Real</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Leonardo Jose Liduario</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Lusmarina</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Marcos Antônio</span></div>
+        <div class="cliente-item">
+          <span class="cliente-nome">M.X.A Comércio e Serviços</span>
+          <div class="codigo-container">
+            <span class="codigo-box">296</span>
+          </div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Quitandas da Tia Nenem</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Cleiton</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Nossa Senhora de Fátima</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria e Confeitaria Trigo</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Rogério Rander</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Carlos Damião</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Tatiane Merces</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Rei dos Pães</span></div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Ester Amaral Pães & Cia</span>
+          <div class="codigo-container">
+            <span class="codigo-box">854</span>
+          </div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">José Maria</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Reginaldo Amaral</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Chico Mineiro</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Ana Paula Rodrigues</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Kit Nova Fortaleza</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Lucas Mateus Rocha</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Bruno Alexandre</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Super Moura</span></div>
+      </div>
+      
+      <!-- Rota Guilherme -->
+      <div class="rota rota-guilherme">
+        <div class="rota-header">
+          <div class="rota-titulo">Guilherme</div>
+          <div class="rota-contador">15 clientes</div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Ana Lucia</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Denia Avelino</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercearia Havana</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Marcileia</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Nilson Jose</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Priscyla</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Tuainy</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Giovanni</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Mondialy</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Mylene</span></div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Bar e Restaurante do Gaucho</span>
+          <div class="codigo-container">
+            <span class="codigo-box">1054</span>
+          </div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Tamirys</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Padre Libério (Andre Felipe)</span></div>
+        <div class="cliente-item">
+          <span class="cliente-nome">MAC</span>
+          <div class="codigo-container">
+            <span class="codigo-box">1249</span>
+          </div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Lanchonete e Restaurante Fernandes</span></div>
+      </div>
+      
+      <!-- Rota Salsicha -->
+      <div class="rota rota-salsicha">
+        <div class="rota-header">
+          <div class="rota-titulo">Salsicha</div>
+          <div class="rota-contador">8 clientes</div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Andre de Menezes</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Mislene</span></div>
+        <div class="cliente-item">
+          <span class="cliente-nome">MAC</span>
+          <div class="codigo-container">
+            <span class="codigo-box">77</span>
+          </div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">MAC</span>
+          <div class="codigo-container">
+            <span class="codigo-box">78</span>
+          </div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">MAC</span>
+          <div class="codigo-container">
+            <span class="codigo-box">79</span>
+          </div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">MAC</span>
+          <div class="codigo-container">
+            <span class="codigo-box">80</span>
+          </div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">MAC</span>
+          <div class="codigo-container">
+            <span class="codigo-box">277</span>
+          </div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">MAC</span>
+          <div class="codigo-container">
+            <span class="codigo-box">853</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Rota Stênio/Nelio -->
+      <div class="rota rota-stenio">
+        <div class="rota-header">
+          <div class="rota-titulo">Stênio/Nelio</div>
+          <div class="rota-contador">5 clientes</div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Vovó Bene</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Irmão Diamantino</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Casa de Quitanda</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Luciana Buriti</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Diego Sirlon</span></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- QUARTA-FEIRA -->
+  <div id="quarta" class="secao-dia quarta">
+    <h2>Quarta-feira</h2>
+    
+    <div class="rotas-container">
+      <!-- Rota Salsicha -->
+      <div class="rota rota-salsicha">
+        <div class="rota-header">
+          <div class="rota-titulo">Salsicha</div>
+          <div class="rota-contador">40 clientes</div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Claudia Maria</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Edson Jose</span></div>
+        <div class="cliente-item"><span class="cliente-nome">ITC</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Irene Gomes</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Jania Maria</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Luiz Carlos</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Luiz Gustavo</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Neves Lima</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora DSP</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Poliane Gonçalves</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Thais Cristina</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Restaurante e Lanchonete Teco</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Erlane</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Andreia da Consolação (ITC com nota)</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Novo Supermercado</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Catarina Ines</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Bia Cardoso</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Robertinho</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Walisson</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Sandra Cristina</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Celi Aparecida</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Quitandas Gemac</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Gabriele</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Geraldo Magela Lemos</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Tradições de Maria</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria M e P</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Joana Angelica</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Aliane</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Fernanda Martins de Souza</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Sueli Trégues Santos</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Gicele</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Quitandas da Cida</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Santa Cruz Panificadora Ramon</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Pedro Henrique (Vantuir)</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Leandro Araujo</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Ariana Padaria e Café Silva</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Esquina</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Feito a Mão</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Zimbo</span></div>
+      </div>
+      
+      <!-- Rota Nelio -->
+      <div class="rota rota-nelio">
+        <div class="rota-header">
+          <div class="rota-titulo">Nelio</div>
+          <div class="rota-contador">13 clientes</div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Ricart</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Katia Torquato</span></div>
+        <div class="cliente-item"><span class="cliente-nome">João Paulo</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Carlos Vicente</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Prado</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Ponto do Café</span></div>
+        <div class="cliente-item"><span class="cliente-nome">O Ponto do Pão de Queijo</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Ivani Amaral</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Pão Nosso Rubia</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Palace Motel MG 170</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Ramon Alves</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Engenharia do Pão</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Cristiane Geralda</span></div>
+      </div>
+      
+      <!-- Rota Guilherme -->
+      <div class="rota rota-guilherme">
+        <div class="rota-header">
+          <div class="rota-titulo">Guilherme</div>
+          <div class="rota-contador">16 clientes</div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Kit Santo Antonio</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Josildo Loja 1</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Josildo Loja 2</span></div>
+        <div class="cliente-item"><span class="cliente-nome">JJ Frei Galvão</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Super 10</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Kit Ribeiro</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Império dos Pães</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Santo Expedito</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Vinicius Guimaraes</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Livia Maria</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercado Bem Mineiro</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Izauro</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Kit Oliveira</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Empório da Roça</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Na Padoca do Eli</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Valeria Maria</span></div>
+      </div>
+      
+      <!-- Rota Stênio/Nelio -->
+      <div class="rota rota-stenio">
+        <div class="rota-header">
+          <div class="rota-titulo">Stênio/Nelio</div>
+          <div class="rota-contador">7 clientes</div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Cabral Loja 1</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Cabral Loja 2</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Katia Maria</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Marcio Francisco</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Nirlene</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Aleciane</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Anderson Costa Magalhaes</span></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- QUINTA-FEIRA -->
+  <div id="quinta" class="secao-dia quinta">
+    <h2>Quinta-feira</h2>
+    
+    <div class="rotas-container">
+      <!-- Rota Salsicha -->
+      <div class="rota rota-salsicha">
+        <div class="rota-header">
+          <div class="rota-titulo">Salsicha</div>
+          <div class="rota-contador">24 clientes</div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Comercial Nogueira Cunha</span>
+          <div class="codigo-container">
+            <span class="codigo-box">29</span>
+          </div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Comercial Nogueira Cunha</span>
+          <div class="codigo-container">
+            <span class="codigo-box">30</span>
+          </div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Leandro Fonseca</span></div>
+        <div class="cliente-item"><span class="cliente-nome">MBM Supermercado</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Pão Nosso Cajuru</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Sergio Gomes</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Rei do Frango</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercadinho Central</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Comercio de Alimentos Teixeira Rabelo</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Cicero</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Silvana Maria Rabelo</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Ibis</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Thais Aparecida</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Roberto Candido</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Confeitaria Sabor de Minas</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria e Lanchonete Serranense (Marcilei)</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Antonio Pinto</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Angelica Gonçalves</span></div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Restaurante e Lanchonete do Gaucho</span>
+          <div class="codigo-container">
+            <span class="codigo-box">1174</span>
+          </div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Jose de Assis</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Gutemberg Palace</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Edienia</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Patricia Mariel</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercearia Havana</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Rosileia da Silva</span></div>
+      </div>
+      
+      <!-- Rota Jovi (Arcos/São Sebastião do Oeste/Iguatama) -->
+      <div class="rota rota-jovi">
+        <div class="rota-header">
+          <div class="rota-titulo">Jovi - Arcos/SSO/Iguatama</div>
+          <div class="rota-contador">11 clientes</div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Iguasuper</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercearia Recanto Nordestino</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Urbana Café II</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Josiane</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Angela Maria</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Marcelo Martins Ferreira</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Arte do Sabor</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Jean Carlos</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Hotel Dona Ligia</span></div>
+        <div class="cliente-item"><span class="cliente-nome">TB Sorvetes</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Marcos Vinicius</span></div>
+      </div>
+      
+      <!-- Rota Jovi (Dores do Indaiá) -->
+      <div class="rota rota-jovi">
+        <div class="rota-header">
+          <div class="rota-titulo">Jovi - Dores do Indaiá</div>
+          <div class="rota-contador">11 clientes</div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Alves Moura</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Kit Pão Luz</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Casa Fidelis</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Belo Pão</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Juliana</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Felix e Silva</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Ilez</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria e Lanc Tigrão</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercado Padrão</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Mario Jose</span></div>
+        <div class="cliente-item"><span class="cliente-nome">SR Comercio</span></div>
+      </div>
+      
+      <!-- Rota Guilherme -->
+      <div class="rota rota-guilherme">
+        <div class="rota-header">
+          <div class="rota-titulo">Guilherme</div>
+          <div class="rota-contador">14 clientes</div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Cristiane</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Ozeias de Paula</span></div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Somar</span>
+          <div class="codigo-container">
+            <span class="codigo-box">782</span>
+          </div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Kit do Adriano</span>
+          <div class="codigo-container">
+            <span class="codigo-box">793</span>
+          </div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Kit 2 Irmãos</span>
+          <div class="codigo-container">
+            <span class="codigo-box">794</span>
+          </div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Somar</span>
+          <div class="codigo-container">
+            <span class="codigo-box">795</span>
+          </div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Somar</span>
+          <div class="codigo-container">
+            <span class="codigo-box">797</span>
+          </div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Adolfo Henrique</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria e Conveniencia Padre Eustaquio (Wayne)</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Quitandas Maria (Ewerton)</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria e Cafeteria O MG</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Torre Gourmet</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Catalão</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Cleiton</span></div>
+      </div>
+      
+      <!-- Rota Nelio -->
+      <div class="rota rota-nelio">
+        <div class="rota-header">
+          <div class="rota-titulo">Nelio</div>
+          <div class="rota-contador">10 clientes</div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Mercearia Três Irmãos</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Lanchonete e Padaria do Mauricio</span></div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Supermercado Faria de Itapecerica</span>
+          <div class="codigo-container">
+            <span class="codigo-box">1010</span>
+          </div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Supermercado Faria de Itapecerica</span>
+          <div class="codigo-container">
+            <span class="codigo-box">1012</span>
+          </div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Jumar</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Marcelo Alves Ferreira</span></div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Comercial Nutrimais</span>
+          <div class="codigo-container">
+            <span class="codigo-box">1055</span>
+          </div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Andre Luiz</span></div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Aldo Supermercado</span>
+          <div class="codigo-container">
+            <span class="codigo-box">1075</span>
+          </div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Lamounier e Rodrigues Supermercado</span></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- SEXTA-FEIRA -->
+  <div id="sexta" class="secao-dia sexta">
+    <h2>Sexta-feira</h2>
+    
+    <div class="rotas-container">
+      <!-- Rota Jovi -->
+      <div class="rota rota-jovi">
+        <div class="rota-header">
+          <div class="rota-titulo">Jovi</div>
+          <div class="rota-contador">23 clientes</div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Alexandre da Fonseca</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Antonio Carlos</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Café e Cia Mercearia e Padaria (Breno)</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Girlene Maria</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercearia Bryth Center</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Rodrigues & Costa</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Tamara</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Jose Vilson</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Fabricio Eustaquio</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Tia Helaine</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Sabor & Café</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Geraldo Magela da Silva</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Quitandas Caseiras</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Vovó Rute</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Valdeci</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Sabor & Café Loja 2</span></div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Casa Fidelis</span>
+          <div class="codigo-container">
+            <span class="codigo-box">914</span>
+          </div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Casa Fidelis</span>
+          <div class="codigo-container">
+            <span class="codigo-box">971</span>
+          </div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Delicias Caseiras</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Novo Sabor</span></div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Casa Fidelis</span>
+          <div class="codigo-container">
+            <span class="codigo-box">1088</span>
+          </div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Fidelis Supermercados</span>
+          <div class="codigo-container">
+            <span class="codigo-box">1089</span>
+          </div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Mercearia Compre Mais (Elias)</span></div>
+      </div>
+      
+      <!-- Rota Guilherme -->
+      <div class="rota rota-guilherme">
+        <div class="rota-header">
+          <div class="rota-titulo">Guilherme</div>
+          <div class="rota-contador">13 clientes</div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Zimbo</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Allan</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Luiz Gustavo</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Somar Perdigão</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Mondialy</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Nilson José</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Waliton</span></div>
+        <div class="cliente-item"><span class="cliente-nome">MAC Jardim do Lago</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Sabor e Arte</span></div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Bar e Restaurante do Gaucho</span>
+          <div class="codigo-container">
+            <span class="codigo-box">1054</span>
+            <span style="font-size:12px;color:#666;margin-left:4px;">depende</span>
+          </div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Almir <span style="font-size:12px;color:#666;">(de vez em quando)</span></span></div>
+        <div class="cliente-item"><span class="cliente-nome">Tamires <span style="font-size:12px;color:#666;">(só quando quer que entrega)</span></span></div>
+        <div class="cliente-item"><span class="cliente-nome">Alice <span style="font-size:12px;color:#666;">(só de vez em quando)</span></span></div>
+        <div class="cliente-item"><span class="cliente-nome">Lanchonete e Restaurante Fernandes (Sandra) <span style="font-size:12px;color:#666;">depende</span></span></div>
+      </div>
+      
+      <!-- Rota Salsicha -->
+      <div class="rota rota-salsicha">
+        <div class="rota-header">
+          <div class="rota-titulo">Salsicha</div>
+          <div class="rota-contador">8 clientes</div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">MAC</span>
+          <div class="codigo-container">
+            <span class="codigo-box">77</span>
+          </div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">MAC</span>
+          <div class="codigo-container">
+            <span class="codigo-box">78</span>
+          </div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">MAC</span>
+          <div class="codigo-container">
+            <span class="codigo-box">79</span>
+          </div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">MAC</span>
+          <div class="codigo-container">
+            <span class="codigo-box">80</span>
+          </div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">MAC</span>
+          <div class="codigo-container">
+            <span class="codigo-box">277</span>
+          </div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">MAC</span>
+          <div class="codigo-container">
+            <span class="codigo-box">853</span>
+          </div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">Marcio Magalhaes</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Helenilda</span></div>
+      </div>
+      
+      <!-- Rota BH -->
+      <div class="rota rota-bh">
+        <div class="rota-header">
+          <div class="rota-titulo">BH</div>
+          <div class="rota-contador">9 clientes</div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Comercial Michael</span>
+          <div class="codigo-container">
+            <span class="codigo-box">328</span>
+          </div>
+        </div>
+        <div class="cliente-item">
+          <span class="cliente-nome">Comercial Michael</span>
+          <div class="codigo-container">
+            <span class="codigo-box">335</span>
+          </div>
+        </div>
+        <div class="cliente-item"><span class="cliente-nome">BR Produtos</span></div>
+        <div class="cliente-item"><span class="cliente-nome">EBA</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Cravo e Canela</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Santa Rita</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Refinaria do Sabor</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Ana Luiza</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Delicia do Pão</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Navegação entre os dias
+  document.querySelectorAll('.dia-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      // Remove a classe ativo de todos os botões
+      document.querySelectorAll('.dia-btn').forEach(b => b.classList.remove('ativo'));
+      
+      // Adiciona a classe ativo ao botão clicado
+      this.classList.add('ativo');
+      
+      // Remove a classe ativo de todas as seções
+      document.querySelectorAll('.secao-dia').forEach(sec => sec.classList.remove('ativo'));
+      
+      // Adiciona a classe ativo à seção correspondente
+      const dia = this.getAttribute('data-dia');
+      document.getElementById(dia).classList.add('ativo');
+      
+      // Rola para o topo da seção
+      document.getElementById(dia).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+  
+  // Destacar códigos ao passar o mouse
+  document.querySelectorAll('.codigo-box').forEach(codigo => {
+    codigo.addEventListener('mouseenter', function() {
+      this.style.transform = 'scale(1.1)';
+      this.style.transition = 'transform 0.2s';
+    });
+    codigo.addEventListener('mouseleave', function() {
+      this.style.transform = 'scale(1)';
+    });
+  });
+</script>
+</body>
+</html>

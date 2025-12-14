@@ -1482,6 +1482,9 @@
   </div>
 </div>
 
+<!-- Iframe para impressão PDF (ADICIONADO) -->
+<iframe id="pdf-iframe" style="display: none;"></iframe>
+
 <script>
 // Classe principal para gerenciar as anotações
 class GerenciadorAnotacoes {
@@ -1950,7 +1953,7 @@ class GerenciadorAnotacoes {
     `;
   }
 
-  // MÉTODOS PARA SALVAR/IMPRIMIR
+  // MÉTODOS PARA SALVAR/IMPRIMIR - MODIFICADOS PARA FUNCIONAR COMO NO SEGUNDO CÓDIGO
   salvarTopicoCompleto(formato) {
     let conteudoCompleto = this.conteudoAtual.html;
     
@@ -2134,7 +2137,7 @@ class GerenciadorAnotacoes {
     `;
 
     if (formato === 'pdf') {
-      // Gerar PDF e fazer download automaticamente
+      // MODIFICADO: Usar iframe para gerar PDF igual ao segundo código
       this.gerarPDF(htmlCompleto, titulo);
     } else if (formato === 'imprimir') {
       // Mostrar no site para impressão direta
@@ -2142,23 +2145,36 @@ class GerenciadorAnotacoes {
     }
   }
 
-  // Nova função para gerar PDF com download automático
+  // MODIFICADO: Função gerarPDF atualizada para funcionar como no segundo código
   gerarPDF(htmlCompleto, titulo) {
+    const iframe = document.getElementById('pdf-iframe');
     const blob = new Blob([htmlCompleto], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     
-    // Criar link para download
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${titulo.replace(/\s+/g, '_')}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    iframe.src = url;
     
-    // Limpar URL após um tempo
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-    }, 1000);
+    // Forçar download após o iframe carregar
+    iframe.onload = () => {
+      try {
+        iframe.contentWindow.print();
+        
+        // Criar link para download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${titulo.replace(/\s+/g, '_')}.html`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        // Limpar URL após um tempo
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+        }, 1000);
+      } catch (e) {
+        console.error('Erro ao gerar PDF:', e);
+        this.mostrarPopup('Erro ao gerar PDF. Tente novamente.', 'Erro');
+      }
+    };
   }
 
   mostrarImpressaoDireta(conteudo, titulo) {

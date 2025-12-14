@@ -126,6 +126,14 @@
     display: block;
     margin: 0 auto;
     border-radius: 4px;
+    max-height: 400px;
+    object-fit: contain;
+  }
+  .image-container .fallback {
+    display: none;
+    background: #e0e0e0;
+    padding: 40px 20px;
+    border-radius: 4px;
   }
   .transportadores {
     display: grid;
@@ -171,7 +179,8 @@
   </div>
   
   <div class="image-container">
-    <img src="anotacoes/lancamento-pedidos imagens/Imagem3.png" alt="Processar Agenda Manual">
+    <img src="anotacoes/lancamento-pedidos%20imagens/Imagem3.png" alt="Processar Agenda Manual" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="fallback">Imagem 3: Processar Agenda Manual<br>Caminho: anotacoes/lancamento-pedidos imagens/Imagem3.png</div>
     <p>Processar Agenda Manual</p>
   </div>
 
@@ -200,7 +209,8 @@
   </div>
   
   <div class="image-container">
-    <img src="anotacoes/lancamento-pedidos imagens/Imagem12.png" alt="Inserir Cliente">
+    <img src="anotacoes/lancamento-pedidos%20imagens/Imagem12.png" alt="Inserir Cliente" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="fallback">Imagem 12: Inserir Cliente<br>Caminho: anotacoes/lancamento-pedidos imagens/Imagem12.png</div>
     <p>Inserir Cliente</p>
   </div>
 
@@ -245,12 +255,14 @@
   </div>
   
   <div class="image-container">
-    <img src="anotacoes/lancamento-pedidos imagens/Imagem13.png" alt="Lançar Pedido">
+    <img src="anotacoes/lancamento-pedidos%20imagens/Imagem13.png" alt="Lançar Pedido" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="fallback">Imagem 13: Selecionar Produtos para o Pedido<br>Caminho: anotacoes/lancamento-pedidos imagens/Imagem13.png</div>
     <p>Selecionar Produtos para o Pedido</p>
   </div>
   
   <div class="image-container">
-    <img src="anotacoes/lancamento-pedidos imagens/Imagem9.png" alt="Gerar Pedido">
+    <img src="anotacoes/lancamento-pedidos%20imagens/Imagem9.png" alt="Gerar Pedido" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="fallback">Imagem 9: Gerar Pedido - Escolher Prefixo e Prazo<br>Caminho: anotacoes/lancamento-pedidos imagens/Imagem9.png</div>
     <p>Gerar Pedido - Escolher Prefixo e Prazo</p>
   </div>
   
@@ -295,17 +307,20 @@
   </div>
   
   <div class="image-container">
-    <img src="anotacoes/lancamento-pedidos imagens/Imagem8.png" alt="Editar Pedidos">
+    <img src="anotacoes/lancamento-pedidos%20imagens/Imagem8.png" alt="Editar Pedidos" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="fallback">Imagem 8: Tela de Edição de Pedidos<br>Caminho: anotacoes/lancamento-pedidos imagens/Imagem8.png</div>
     <p>Tela de Edição de Pedidos</p>
   </div>
   
   <div class="image-container">
-    <img src="anotacoes/lancamento-pedidos imagens/Imagem18.png" alt="Adicionar Item ao Pedido">
+    <img src="anotacoes/lancamento-pedidos%20imagens/Imagem18.png" alt="Adicionar Item ao Pedido" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="fallback">Imagem 18: Adicionar Novo Item ao Pedido<br>Caminho: anotacoes/lancamento-pedidos imagens/Imagem18.png</div>
     <p>Adicionar Novo Item ao Pedido</p>
   </div>
   
   <div class="image-container">
-    <img src="anotacoes/lancamento-pedidos imagens/Imagem16.png" alt="Editar Item do Pedido">
+    <img src="anotacoes/lancamento-pedidos%20imagens/Imagem16.png" alt="Editar Item do Pedido" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="fallback">Imagem 16: Editar Item do Pedido<br>Caminho: anotacoes/lancamento-pedidos imagens/Imagem16.png</div>
     <p>Editar Item do Pedido</p>
   </div>
 
@@ -331,7 +346,8 @@
   </div>
   
   <div class="image-container">
-    <img src="anotacoes/lancamento-pedidos imagens/Imagem10.png" alt="Liberação Pedido Comercial">
+    <img src="anotacoes/lancamento-pedidos%20imagens/Imagem10.png" alt="Liberação Pedido Comercial" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="fallback">Imagem 10: Liberação Pedido Comercial<br>Caminho: anotacoes/lancamento-pedidos imagens/Imagem10.png</div>
     <p>Liberação Pedido Comercial</p>
   </div>
 
@@ -368,7 +384,8 @@
   </div>
   
   <div class="image-container">
-    <img src="anotacoes/lancamento-pedidos imagens/Imagem15.png" alt="Liberação de Pedidos no Financeiro">
+    <img src="anotacoes/lancamento-pedidos%20imagens/Imagem15.png" alt="Liberação de Pedidos no Financeiro" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="fallback">Imagem 15: Liberação de Pedidos no Módulo Financeiro<br>Caminho: anotacoes/lancamento-pedidos imagens/Imagem15.png</div>
     <p>Liberação de Pedidos no Módulo Financeiro</p>
   </div>
 
@@ -429,12 +446,14 @@
   </div>
   
   <div class="image-container">
-    <img src="anotacoes/lancamento-pedidos imagens/Imagem14.png" alt="Gerar Romaneio de Carga">
+    <img src="anotacoes/lancamento-pedidos%20imagens/Imagem14.png" alt="Gerar Romaneio de Carga" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="fallback">Imagem 14: Tela de Gerar Romaneio de Carga<br>Caminho: anotacoes/lancamento-pedidos imagens/Imagem14.png</div>
     <p>Tela de Gerar Romaneio de Carga</p>
   </div>
   
   <div class="image-container">
-    <img src="anotacoes/lancamento-pedidos imagens/Imagem4.png" alt="Inserir Pedidos no Romaneio">
+    <img src="anotacoes/lancamento-pedidos%20imagens/Imagem4.png" alt="Inserir Pedidos no Romaneio" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="fallback">Imagem 4: Inserir Pedidos no Romaneio<br>Caminho: anotacoes/lancamento-pedidos imagens/Imagem4.png</div>
     <p>Inserir Pedidos no Romaneio</p>
   </div>
   
@@ -569,7 +588,8 @@
   </div>
   
   <div class="image-container">
-    <img src="anotacoes/lancamento-pedidos imagens/Imagem2.png" alt="Faturamento de Pedidos">
+    <img src="anotacoes/lancamento-pedidos%20imagens/Imagem2.png" alt="Faturamento de Pedidos" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="fallback">Imagem 2: Tela de Faturamento<br>Caminho: anotacoes/lancamento-pedidos imagens/Imagem2.png</div>
     <p>Tela de Faturamento</p>
   </div>
   
@@ -587,12 +607,14 @@
   </div>
   
   <div class="image-container">
-    <img src="anotacoes/lancamento-pedidos imagens/Imagem11.png" alt="Faturar Pedidos com Romaneio">
+    <img src="anotacoes/lancamento-pedidos%20imagens/Imagem11.png" alt="Faturar Pedidos com Romaneio" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="fallback">Imagem 11: Faturar Pedidos com Romaneio<br>Caminho: anotacoes/lancamento-pedidos imagens/Imagem11.png</div>
     <p>Faturar Pedidos com Romaneio</p>
   </div>
   
   <div class="image-container">
-    <img src="anotacoes/lancamento-pedidos imagens/Imagem6.png" alt="Conferir Romaneio">
+    <img src="anotacoes/lancamento-pedidos%20imagens/Imagem6.png" alt="Conferir Romaneio" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="fallback">Imagem 6: Conferir Romaneio<br>Caminho: anotacoes/lancamento-pedidos imagens/Imagem6.png</div>
     <p>Conferir Romaneio</p>
   </div>
 
@@ -621,7 +643,8 @@
   </div>
   
   <div class="image-container">
-    <img src="anotacoes/lancamento-pedidos imagens/Imagem17.png" alt="Gerar Notas Fiscais">
+    <img src="anotacoes/lancamento-pedidos%20imagens/Imagem17.png" alt="Gerar Notas Fiscais" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="fallback">Imagem 17: Gerenciador de Documentos Fiscais Eletrônicos<br>Caminho: anotacoes/lancamento-pedidos imagens/Imagem17.png</div>
     <p>Gerenciador de Documentos Fiscais Eletrônicos</p>
   </div>
 
@@ -819,7 +842,8 @@
   </div>
   
   <div class="image-container">
-    <img src="anotacoes/lancamento-pedidos imagens/Imagem1.png" alt="Alterar Prazo de Nota Fiscal">
+    <img src="anotacoes/lancamento-pedidos%20imagens/Imagem1.png" alt="Alterar Prazo de Nota Fiscal" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="fallback">Imagem 1: Alterar Prazo de Nota Fiscal<br>Caminho: anotacoes/lancamento-pedidos imagens/Imagem1.png</div>
     <p>Alterar Prazo de Nota Fiscal</p>
   </div>
 
@@ -848,12 +872,14 @@
   </div>
   
   <div class="image-container">
-    <img src="anotacoes/lancamento-pedidos imagens/Imagem5.png" alt="Cadastrar Cliente Novo">
+    <img src="anotacoes/lancamento-pedidos%20imagens/Imagem5.png" alt="Cadastrar Cliente Novo" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="fallback">Imagem 5: Cadastro de Cliente - Dados Principais<br>Caminho: anotacoes/lancamento-pedidos imagens/Imagem5.png</div>
     <p>Cadastro de Cliente - Dados Principais</p>
   </div>
   
   <div class="image-container">
-    <img src="anotacoes/lancamento-pedidos imagens/Imagem7.png" alt="Configurações de Faturamento do Cliente">
+    <img src="anotacoes/lancamento-pedidos%20imagens/Imagem7.png" alt="Configurações de Faturamento do Cliente" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="fallback">Imagem 7: Configurações de Faturamento do Cliente<br>Caminho: anotacoes/lancamento-pedidos imagens/Imagem7.png</div>
     <p>Configurações de Faturamento do Cliente</p>
   </div>
 

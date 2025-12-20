@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Anotações - Fechamento de Caixa e Baixa de Títulos</title>
+<style>
+  :root{
+    --azul:#007BFF;
+    --accent:#0b5ed7;
+    --fundo:#f7fbff;
+    --card:#ffffff;
+    --muted:#6b7280;
+    --borda:#e6eefc;
+    --borda-ativa:#cfe0ff;
+    --ink:#0b3b6b;
+    --ink-strong:#0b4fa0;
+  }
+  body{
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: var(--fundo);
+    margin: 0;
+    padding: 20px;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--card);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(11,78,167,.06);
+    border: 1px solid var(--borda);
+  }
+  h1 {
+    color: var(--accent);
+    margin-bottom: 8px;
+    font-size: 22px;
+    border-bottom: 2px solid var(--borda);
+    padding-bottom: 12px;
+  }
+  h2 {
+    color: var(--ink-strong);
+    margin: 24px 0 12px 0;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  h2::before {
+    content: "•";
+    color: var(--azul);
+    font-size: 24px;
+  }
+  h3 {
+    color: var(--ink-strong);
+    margin: 20px 0 8px 0;
+    font-size: 16px;
+    padding-left: 16px;
+  }
+  p {
+    margin: 8px 0;
+    padding-left: 16px;
+  }
+  ul {
+    margin: 8px 0;
+    padding-left: 32px;
+  }
+  li {
+    margin: 6px 0;
+  }
+  .destaque {
+    background: #f0f7ff;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid var(--azul);
+    margin: 12px 0;
+  }
+  .info-box {
+    background: #fff7f0;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid var(--warn, #f59e0b);
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .passo-a-passo {
+    background: #f7fff0;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--borda);
+    margin: 16px 0;
+  }
+  .passo {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 8px 0;
+  }
+  .passo-num {
+    background: var(--azul);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .image-container {
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    margin: 16px 0;
+    color: var(--muted);
+  }
+  .image-container img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 4px;
+    max-height: 400px;
+    object-fit: contain;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Anotações - Fechamento de Caixa e Baixa de Títulos</h1>
+
+  <h2>Orientações Gerais para Fechamento de Caixa</h2>
+  <div class="destaque">
+    <strong>Anotações importantes:</strong> Ao fechar caixas e conferir um cliente, sempre anote quando houver alguma informação relevante para referência futura.
+  </div>
+  <ul>
+    <li>Valor pago em cheque</li>
+    <li>Valor pago a mais ou a menos do que o esperado</li>
+    <li>Alguns clientes pagam NF à vista – anotar para dar baixa posteriormente</li>
+  </ul>
+  <p>Caso o dinheiro de algum cliente venha diferente e não haja nada anotado, deixe separado para o final e feche os outros clientes primeiro. Se não houver diferença em outros clientes, conferir com o motorista ou anotar para a próxima entrega.</p>
+
+  <h2>Conferir Dinheiro</h2>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Utilize a máquina de contar dinheiro.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Para contar notas de 5 e 2: pressione a tecla Menu, depois as três teclas acima de Menu e Menu novamente.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Use o botão para aumentar a quantidade de notas e coloque o dinheiro.</div>
+    </div>
+  </div>
+
+  <h2>Cadastrar Cheques</h2>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Utilize o pendrive e abra a planilha "cheques".</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Insira o número do banco (ex: 756 - Sicoob). A célula ao lado puxará automaticamente o nome do banco.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Preencha: número da conta, número do cheque, data do cheque (ao lado da cidade), nome no cheque, pré-datado (número geralmente abaixo; se não houver, repita a data do cheque), quem deu o cheque.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Caso use algum cheque de cliente para repassar: tire foto e imprima ou tire xerox para dar baixa na planilha.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">5</div>
+      <div>Pule a próxima coluna após a última preenchida; nela, coloque o fornecedor para quem o cheque foi repassado.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">6</div>
+      <div>Filtre para mostrar apenas células vazias e use Ctrl+L para procurar o valor do cheque. É possível pesquisar por qualquer campo preenchido (nome do cheque, número do cheque, número da conta).</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">7</div>
+      <div>Escreva o fornecedor, tire o filtro e finalize.</div>
+    </div>
+  </div>
+
+  <h2>Dar Baixa nos Relatórios</h2>
+  <div class="info-box">
+    <strong>Observação:</strong> Antes de dar baixa nos relatórios, refaça as notinhas caso necessário.
+  </div>
+
+  <h3>Baixa por Lote (Vários de Uma Vez)</h3>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>No Acesso Remoto, vá no Módulo Financeiro → Movimentos → Baixa → Baixa por Lote.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Altere a data de Vencto Inicial para mais antiga e Vencto Final para mais à frente.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Para notinhas: a setinha do Modo deve estar em vermelho. Para notas fiscais: a setinha deve ficar verde. Clique em Renovar para atualizar a lista.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Para ordenar em ordem alfabética: atualize, clique no nome da coluna até ficar em ordem, desça a rolagem até o final e clique no nome novamente.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">5</div>
+      <div>Selecione os pedidos clicando nas caixinhas da primeira coluna.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">6</div>
+      <div>Clique em Baixar. Para notinha: em Banco/Caixa coloque 1; para nota fiscal coloque 7. Pressione Tab até o final.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">7</div>
+      <div>Data da Baixa e Data do Crédito: coloque conforme o dia do pagamento. Em Juros coloque 0 e Avançar.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">8</div>
+      <div>Para notinha: em Tipo Baixa, troque Cheque por Dinheiro e marque a caixinha Disp. Juros. Para nota fiscal: apenas marque Disp. Juros.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">9</div>
+      <div>Avançar, Avançar, Avançar, Sim, OK. Se quiser imprimir: Sim, selecione impressora Laser e Confirmar. Imprimir Recibo: Não.</div>
+    </div>
+  </div>
+  <div class="destaque">
+    <strong>Atenção:</strong> Não dê baixa em vários relatórios juntos ou notinhas diferentes de uma vez, caso algum dia precise cancelar a baixa.
+  </div>
+
+  <h3>Baixa Individual</h3>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>No Acesso Remoto, vá no Módulo Financeiro → Movimentos → Baixa → Baixa Individual.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Clique em Tít. Aberto. Insira os dados para achar o pedido e desmarque a caixinha Modo para ver as notinhas. Atualize.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Selecione o pedido e Confirme.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Data Baixa: coloque o dia do pagamento (parcial ou total). Pressione Tab.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">5</div>
+      <div>Em N° coloque 1, Tipo de Baixa coloque Dinheiro e Valor da Baixa o valor pago. Clique em Dispensar Juros.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">6</div>
+      <div>Banco/Caixa coloque 1 e pressione Tab até o final. Clique na seta de Confirmar. Na próxima tela, Confirme novamente e feche.</div>
+    </div>
+  </div>
+
+  <h2>Colocar Valor a Mais a Cobrar</h2>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>No Acesso Remoto, vá no Módulo Financeiro → Movimentos → Contas a Receber.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Clique na lupa. Em Nr Título coloque o número da notinha e desmarque a caixinha Modo. Selecione e Confirme.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Pressione Tab até chegar em Juros. Em Juros coloque o valor a mais a ser cobrado.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Pressione Tab até o Total Líquido mudar. Clique na setinha de Confirmar. Confirme novamente e feche.</div>
+    </div>
+    <div class="destaque">
+    <strong>Observação:</strong> Para retirar o valor cobrado a mais, repita o processo e retire o valor dos juros.
+    </div>
+  </div>
+
+  <h2>Cancelar Baixa</h2>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>No Acesso Remoto, vá no Módulo Financeiro → Movimentos → Baixa → Consulta Aviso.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Em Portador coloque 1 e coloque a data da baixa.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Na primeira coluna, clique na baixa que deseja visualizar ou deletar. Clique em Títulos para verificar e achar a baixa.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Após achar, clique em Deletar.</div>
+    </div>
+  </div>
+
+  <h2>Visualizar Baixa</h2>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>No Acesso Remoto, vá no Módulo Financeiro → Movimentos → Baixa → Consulta Aviso.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Em Portador coloque 1 e coloque a data da baixa.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Na primeira coluna, clique na baixa que deseja visualizar e imprimir.</div>
+    </div>
+  </div>
+
+  <h2>Observações sobre Notas Fiscais à Vista</h2>
+  <div class="info-box">
+    <p><strong>Notas fiscais à vista:</strong> Confirme primeiro se foi dinheiro ou PIX/transferência.</p>
+    <ul>
+      <li><strong>Dinheiro:</strong> Baixa normal como caixa, tipo dinheiro.</li>
+      <li><strong>PIX/Transferência:</strong> Baixa como banco (7), tipo Boleto/Depósito.</li>
+    </ul>
+    <p>É recomendável dar baixa separadamente nessas notas fiscais à vista.</p>
+  </div>
+
+  <h3>Baixa por Lote para PIX</h3>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Selecione o pedido e clique em Baixar. Em Banco/Caixa coloque 7 (banco).</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Coloque a data do pagamento do PIX. Em Juros coloque 0 e Avançar.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Em Tipo Baixa troque Cheque por Boleto/Depósito e marque Disp. Juros.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Avançar, Avançar, Avançar, Sim, OK. Imprimir: Sim, impressora Laser, Confirmar. Imprimir Recibo: Não.</div>
+    </div>
+  </div>
+
+  <h3>Baixa Individual para PIX</h3>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Vá em Tít. Aberto. Insira os dados para achar o pedido e deixe a caixinha Modo ativada para ver notas fiscais. Selecione o pedido e Confirme.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Data Baixa: dia do pagamento do PIX. Em N° coloque 1, Tipo de Baixa: Boleto/Depósito, Valor da Baixa: valor pago. Marque Dispensar Juros.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Banco/Caixa coloque 7 e pressione Tab até o final. Clique na seta de Confirmar. Confirme novamente e feche.</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

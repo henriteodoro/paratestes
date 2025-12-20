@@ -1,1 +1,685 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Anotações Gerais de Processos</title>
+<style>
+  :root{
+    --azul:#007BFF;
+    --accent:#0b5ed7;
+    --fundo:#f7fbff;
+    --card:#ffffff;
+    --muted:#6b7280;
+    --borda:#e6eefc;
+    --borda-ativa:#cfe0ff;
+    --ink:#0b3b6b;
+    --ink-strong:#0b4fa0;
+    --verde-suave: #f0fff4;
+    --verde-borda: #38a169;
+  }
+  body{
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: var(--fundo);
+    margin: 0;
+    padding: 20px;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--card);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(11,78,167,.06);
+    border: 1px solid var(--borda);
+  }
+  h1 {
+    color: var(--accent);
+    margin-bottom: 8px;
+    font-size: 22px;
+    border-bottom: 2px solid var(--borda);
+    padding-bottom: 12px;
+  }
+  h2 {
+    color: var(--ink-strong);
+    margin: 24px 0 12px 0;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  h2::before {
+    content: "•";
+    color: var(--azul);
+    font-size: 24px;
+  }
+  h3 {
+    color: var(--ink-strong);
+    margin: 20px 0 8px 0;
+    font-size: 16px;
+    padding-left: 16px;
+  }
+  p {
+    margin: 8px 0;
+    padding-left: 16px;
+  }
+  ul {
+    margin: 8px 0;
+    padding-left: 32px;
+  }
+  li {
+    margin: 6px 0;
+  }
+  .destaque {
+    background: #f0f7ff;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid var(--azul);
+    margin: 12px 0;
+  }
+  .info-box {
+    background: #fff7f0;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid var(--warn, #f59e0b);
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .ferias-box {
+    background: var(--verde-suave);
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid var(--verde-borda);
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .passo-a-passo {
+    background: #f7fff0;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--borda);
+    margin: 16px 0;
+  }
+  .passo {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 8px 0;
+  }
+  .passo-num {
+    background: var(--azul);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .image-container {
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    margin: 16px 0;
+    color: var(--muted);
+  }
+  .image-container img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 4px;
+    max-height: 400px;
+    object-fit: contain;
+  }
+  .dados-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .dado-item {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid var(--azul);
+  }
+  
+  /* Estilos para tabelas */
+  .tabela-container {
+    overflow-x: auto;
+    margin: 16px 0;
+    border-radius: 8px;
+    border: 1px solid var(--borda);
+  }
+  .tabela-melhorada {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+  }
+  .tabela-melhorada thead {
+    background: var(--azul);
+    color: white;
+  }
+  .tabela-melhorada th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid var(--accent);
+  }
+  .tabela-melhorada tbody tr {
+    border-bottom: 1px solid var(--borda);
+  }
+  .tabela-melhorada td {
+    padding: 12px 16px;
+    vertical-align: top;
+  }
+  .tabela-melhorada tbody tr:nth-child(even) {
+    background: #fafcff;
+  }
+  
+  /* Layout para nota promissória - estilo mais parecido com o original */
+  .nota-promissoria-section {
+    margin: 20px 0;
+  }
+  .dado-linha {
+    display: flex;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--borda);
+  }
+  .dado-rotulo {
+    font-weight: 600;
+    min-width: 200px;
+    color: var(--ink-strong);
+  }
+  .dado-valor {
+    color: var(--ink);
+  }
+  
+  /* Multiplicador badge */
+  .badge-multiplicador {
+    display: inline-block;
+    background: var(--azul);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-right: 8px;
+  }
+  
+  /* Transportadores - mantendo do original */
+  .transportadores {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .transportador {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid var(--azul);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Anotações Gerais de Processos</h1>
 
+  <!-- SEÇÃO DA NOTA PROMISSÓRIA ATUALIZADA (do segundo código) -->
+  <h2>Nota Promissória Azevedo</h2>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>João manda a foto da promissória no número do Adeilton ou da Gleyce</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Acesse o site <a href="https://nota-promissoria.com/" target="_blank">https://nota-promissoria.com/</a></div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Preencha os seguintes dados:</div>
+    </div>
+  </div>
+
+  <h3>Dados da Nota Promissória</h3>
+  <div class="dados-grid">
+    <div class="dado-item">
+      <strong>Quantidade de Notas Promissórias:</strong><br>1
+    </div>
+    <div class="dado-item">
+      <strong>Data do 1° Vencimento:</strong><br>Data que tiver na promissória
+    </div>
+    <div class="dado-item">
+      <strong>Pagável em (Cidade/Estado):</strong><br>PERDIGÃO/MG
+    </div>
+    <div class="dado-item">
+      <strong>Valor da Parcela:</strong><br>Valor que tiver na promissória
+    </div>
+  </div>
+
+  <h3>Dados do Credor</h3>
+  <div class="dados-grid">
+    <div class="dado-item">
+      <strong>Nome do Credor:</strong><br>COMERCIAL AZEVEDO LTDA
+    </div>
+    <div class="dado-item">
+      <strong>CPF/CNPJ do Credor:</strong><br>19.411.560/0001-67
+    </div>
+  </div>
+
+  <h3>Dados do Devedor</h3>
+  <div class="dados-grid">
+    <div class="dado-item">
+      <strong>Nome do Devedor:</strong><br>PÃO DE OURO INDÚSTRIA E COMÉRCIO LTDA
+    </div>
+    <div class="dado-item">
+      <strong>CPF/CNPJ do Devedor:</strong><br>34.865.933/0001-63
+    </div>
+    <div class="dado-item">
+      <strong>Endereço Completo do Devedor:</strong><br>AVENIDA OURO PRETO, 738
+    </div>
+  </div>
+
+  <h2>Pedido da São José</h2>
+  <p>Da São José os pedidos são entregues em dia de segunda e sexta (reajustado somente quando feriado).</p>
+  
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Na segunda: pedir as listas ao Vinícius (Ilha São José) e a Shay (Pão Total)</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Na quinta (para entregar na sexta): pedir as listas ao Vinícius (Ilha São José e pedir a lista com a Renata) e a Sabrina (Pão Total)</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Quando tiverem mandado o pedido, fazer as listas com os itens</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Imprimir três cópias de cada (uma fica guardada)</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">5</div>
+      <div>Passar para embalagem</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">6</div>
+      <div>No site acesse "Pedido São José" ou "Pedido Pão Total" para fazer as listas</div>
+    </div>
+  </div>
+  
+  <h3>Multiplicadores para Faturamento</h3>
+  <p>Alguns itens são enviados em embalagens de 7kg ao invés de 1kg. Na hora de faturar, multiplicar conforme abaixo:</p>
+  
+  <div class="tabela-container">
+    <table class="tabela-melhorada">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Multiplicador</th>
+          <th>Cliente</th>
+          <th>Observação</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Biscoito Doce</td>
+          <td><span class="badge-multiplicador">×7</span></td>
+          <td>São José & Pão Total</td>
+          <td>Pode variar conforme pedido</td>
+        </tr>
+        <tr>
+          <td>Broa de Fubá Grande</td>
+          <td><span class="badge-multiplicador">×10</span></td>
+          <td>São José</td>
+          <td>Broa Doce Grande no Pão Total</td>
+        </tr>
+        <tr>
+          <td>Meia Lua</td>
+          <td><span class="badge-multiplicador">×7</span></td>
+          <td>Apenas São José</td>
+          <td>Exclusivo São José</td>
+        </tr>
+        <tr>
+          <td>Pão de Queijo Grande</td>
+          <td><span class="badge-multiplicador">×7</span></td>
+          <td>São José & Pão Total</td>
+          <td>Embalagem 7kg</td>
+        </tr>
+        <tr>
+          <td>Pão de Queijo Recheado Grande</td>
+          <td><span class="badge-multiplicador">×6</span></td>
+          <td>São José & Pão Total</td>
+          <td>Embalagem 7kg</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="destaque">
+    <strong>Sempre aumentar:</strong> 10-15 pães de sal de acordo com a quantidade pedida. Pão de queijo também pode aumentar mais 5 unidades.
+  </div>
+  
+  <div class="ferias-box">
+    <strong>Caso Mirlene pedir nota, deixar para fazer depois quando chegar.</strong>
+  </div>
+  
+  <div class="ferias-box">
+    <strong>Se quiser, pode só deixar as listas guardadas com as alterações e com os itens que pegarem a mais.</strong>
+  </div>
+
+  <h2>Cheques Início e Final de Mês</h2>
+  
+  <h3>Cheques para Início do Mês</h3>
+  <p>A partir do primeiro dia útil do mês:</p>
+  
+  <div class="tabela-container">
+    <table class="tabela-melhorada">
+      <thead>
+        <tr>
+          <th>Valor</th>
+          <th>Beneficiário</th>
+          <th>Finalidade</th>
+          <th>Observação</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>R$ 700,00</td>
+          <td>Edmilson Antônio da Costa</td>
+          <td>Aluguel Galpão</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>R$ 166,66</td>
+          <td>Edmilson Antônio da Costa</td>
+          <td>Aluguel Roça</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>R$ 166,66</td>
+          <td>Fernando Teodoro da Costa</td>
+          <td>Aluguel Roça</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>R$ 166,66</td>
+          <td>Evaldo Teodoro da Costa</td>
+          <td>Aluguel Roça</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>R$ 1.351,02</td>
+          <td>Edmilson Antônio da Costa</td>
+          <td>Pró-labore</td>
+          <td>Confirmar o valor antes de fazer o cheque</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Cheques para Final do Mês</h3>
+  <p>A partir do dia 20 de cada mês:</p>
+  
+  <div class="tabela-container">
+    <table class="tabela-melhorada">
+      <thead>
+        <tr>
+          <th>Valor</th>
+          <th>Beneficiário</th>
+          <th>Finalidade</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>R$ 686,97</td>
+          <td>Frango Machado (Sérgio Antônio Machado)</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Comprovante de Recebimento</h2>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Confirmar se pode pagar quando alguém vier pegar algum valor sem notinha</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Acessar o arquivo de comprovante de recebimento</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Alterar dados conforme necessário: nome da pessoa/empresa, CPF se precisar, valor e valor por extenso, finalidade do pagamento</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Imprimir e deixar guardado</div>
+    </div>
+  </div>
+
+  <h2>Holerite</h2>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Quando alguém da fábrica quiser pegar um vale ou fazer notinha de algum produto</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>No holerite, colocar a descrição (vale, produto, etc.)</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Colocar os valores (tanto na parte de desconto também se precisar)</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Colocar a data no campo da data</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">5</div>
+      <div>Imprimir e pedir para a pessoa assinar</div>
+    </div>
+  </div>
+
+  <div class="destaque">
+    <strong>Produtos da produção:</strong> Sempre que alguém da produção pegar algum produto da embalagem de 1kg ou 7kg, deixar anotado para depois poder faturar como consumidor final.
+  </div>
+
+  <h2>Planilhas de Autocontrole</h2>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Todo início de mês imprimir as planilhas de autocontrole</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Total são 8 setores: pão de sal, pães doce, salgados e biscoitos, pré pesagem, embalagem, estoque, limpeza e manutenção</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Imprimir e entregar para o responsável de cada setor</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Pedir para levarem no escritório as planilhas do mês anterior para guardar</div>
+    </div>
+  </div>
+
+  <h2>Conversas com o Setor de Compras</h2>
+  <p>Quando ligam para conversar com o setor de compras, geralmente são sobre:</p>
+  <ul>
+    <li>Produtos de limpeza</li>
+    <li>Maquinários</li>
+    <li>Produtos tipo matéria prima (queijo, farinhas)</li>
+  </ul>
+  
+  <div class="tabela-container">
+    <table class="tabela-melhorada">
+      <thead>
+        <tr>
+          <th>Responsável</th>
+          <th>Área</th>
+          <th>Responsabilidades</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Marina</td>
+          <td>Limpeza e Serviços</td>
+          <td>Produtos de limpeza, serviços prestados à empresa</td>
+        </tr>
+        <tr>
+          <td>Barão</td>
+          <td>Equipamentos</td>
+          <td>Maquinários</td>
+        </tr>
+        <tr>
+          <td>Evaldo</td>
+          <td>Matéria Prima</td>
+          <td>Produtos tipo matéria prima (queijo, farinhas)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="destaque">
+    <strong>Observação:</strong> Caso quem venha receber algum valor e a pessoa levar o papel embora, sempre colocar um "PG" na notinha para que a pessoa não venha cobrando de novo ou rasgar assinatura.
+  </div>
+
+  <!-- SEÇÃO "Atendimento a Clientes" REMOVIDA -->
+
+  <h2>Cobranças</h2>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Acessar o banco, clicar em Cobrança</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Na parte de consultas, clicar em Movimentação</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Trocar o tipo de consulta e mudar o período</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Exportar e imprimir</div>
+    </div>
+  </div>
+
+  <h2>Imprimir PDF do Célio</h2>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Acessar <a href="https://www.ilovepdf.com/pt/pdf_para_jpg" target="_blank">https://www.ilovepdf.com/pt/pdf_para_jpg</a></div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Clicar em Selecionar arquivo, converter em JPG e baixar as imagens JPG</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Acessar <a href="https://www.photopea.com/" target="_blank">https://www.photopea.com/</a></div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Clicar em Abrir do computador</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">5</div>
+      <div>Na parte de baixo (abaixo de Camadas), clicar em Nova Camada (do lado da lixeira e da pasta)</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">6</div>
+      <div>Na barra lateral da esquerda, selecionar Seleção Retangular (tecla M) e delimitar como vai ficar a impressão de cada parte</div>
+    </div>
+  </div>
+
+  <!-- ÚNICA IMAGEM QUE DEVE FICAR -->
+  <div class="image-container">
+    <img src="" alt="Processo de divisão de PDF">
+    <p>Divisão de PDF para impressão</p>
+  </div>
+
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">7</div>
+      <div>Selecionar Ferramenta de Corte (tecla C), arrastar os quadradinhos nas bordas para as delimitações</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">8</div>
+      <div>Quando pronto, clicar em Mover (tecla V)</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">9</div>
+      <div>Ir em Arquivo → Exportar como PDF e salvar</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">10</div>
+      <div>Ctrl+Z e repetir com os outros trechos</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">11</div>
+      <div>Imprimir tudo</div>
+    </div>
+  </div>
+
+  <h2>Documentos Obra</h2>
+  <p>Como está tendo a obra do Barão, pessoal vem receber da obra dele.</p>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Confirmar com o Célio ou o Barão se está tudo certo</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Efetuar o pagamento</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Deixar separado para depois anotar e arquivar</div>
+    </div>
+  </div>
+
+  <h2>Café Produção à Tarde e Final de Semana</h2>
+  <p>Geralmente na semana, algum setor da produção fica depois do horário.</p>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Confirmar se vai precisar café</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Setores que geralmente ficam: embalagem e algumas vezes setor do Ceará</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Enviar mensagem pelo número do Adeilton para pedir os cafés</div>
+    </div>
+  </div>
+
+  <h2>Roupas Japona e Calça Térmica (Embalagem)</h2>
+  <div class="destaque">
+    <strong>Troca de roupas:</strong> Deixamos marcado para a troca de roupas serem sempre nas quartas, para poder manter o controle e evitar mau cheiro.
+  </div>
+
+</div>
+</body>
+</html>

@@ -111,6 +111,15 @@
     font-weight: bold;
     flex-shrink: 0;
   }
+  .pix-info {
+    background: #f8f0ff;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid #8a2be2;
+    margin: 12px 0;
+    font-family: monospace;
+    font-size: 14px;
+  }
 </style>
 </head>
 <body>
@@ -118,63 +127,58 @@
   <h1>Fornecedores</h1>
 
   <h2>Dia de Recebimentos</h2>
-  <p>Dia de recebimentos de notinhas para fornecedores da cidade geralmente são na quarta feira e quinta feira</p>
+  <p>Dia de recebimentos de notinhas para fornecedores da cidade geralmente são na quarta e quinta feira</p>
 
-  <h2>Sanú (queijo)</h2>
-  <p>Sanú vem geralmente na segunda. Para saber se é com nota ou sem:</p>
-  
+  <h2>Sanú</h2>
+  <p>Sanú traz e ele mesmo faz as contas, eu passo cheque e uma diferencinha em dinheiro e entrego pra ele.</p>
+
+  <h2>Tarick</h2>
+  <p>Tarick faz duas entregas na semana, na terça e na quinta. Ele geralmente faz nota fiscal, só uma vez no mês que ele entrega sem nota.</p>
+
   <div class="passo-a-passo">
+    <strong>Processo com Nota Fiscal:</strong>
     <div class="passo">
       <div class="passo-num">1</div>
-      <div>Vá no sistema web em Núcleo → Gestão de Materiais → Gestão de Estoque → Movimentos → Consultas → Consultar Saldo do Estoque</div>
+      <div>Ele manda a nota e eu peço o Barão para fazer o PIX</div>
     </div>
     <div class="passo">
       <div class="passo-num">2</div>
-      <div>Na parte do produto, clique na lupa e procure <strong>Queijo Meia Cura (Cód 11060006)</strong></div>
+      <div>Envio o comprovante pra ele</div>
     </div>
     <div class="passo">
       <div class="passo-num">3</div>
-      <div>Clique no lápis (editar)</div>
+      <div>No dia que ele faz a entrega e traz a notinha:</div>
     </div>
     <div class="passo">
       <div class="passo-num">4</div>
-      <div>Na parte de cima tem o modo: quando tem uma estrela é fiscal (com nota) e quando tem duas estrelas é gerencial (sem nota)</div>
+      <div>Pego o valor total dos pesos e multiplico</div>
     </div>
     <div class="passo">
       <div class="passo-num">5</div>
-      <div>Olhe qual que está com menos na parte de pronta entrega</div>
+      <div>Subtraio com o valor da nota</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">6</div>
+      <div>Pago a diferença</div>
     </div>
   </div>
-  
+
   <div class="destaque">
-    <strong>Observação:</strong> Quando é com nota ele multiplica o peso por dois valores e depois faz a diferença.
+    <strong>Observação:</strong> Quando ele manda as notas, eu mando pro Barão pra fazer o PIX, olho no nome de quem está a nota e mando o PIX referente a pessoa da nota fiscal.
   </div>
 
-  <h2>Tarick (queijo)</h2>
-  <p>Tarick agora tá fazendo duas entregas na semana, na terça e na quinta.</p>
-  
   <div class="info-box">
-    <strong>Nota Fiscal:</strong> Ele geralmente faz nota fiscal, só uma vez no mês que ele entrega sem nota.
-  </div>
-  
-  <p><strong>Processo:</strong></p>
-  <ul>
-    <li>Ele manda a nota na segunda</li>
-    <li>Peço o Barão para fazer o PIX</li>
-    <li>Envio o comprovante pra ele</li>
-    <li>No dia que ele faz a entrega e traz a notinha:</li>
-    <ul>
-      <li>Pego o valor total dos pesos e multiplico</li>
-      <li>Subtraio com o valor da nota</li>
-      <li>Pago a diferença</li>
-    </ul>
-  </ul>
-  
-  <div class="destaque">
     <strong>Caso a nota tenha sido maior:</strong> Se o valor da nota for maior do que o valor total dos pesos, ele me devolve em dinheiro a diferença.
   </div>
 
-  <h2>João Vittor (queijo)</h2>
+  <div class="pix-info">
+    <strong>Chaves PIX Tarick:</strong><br>
+    Adenildo: 37988299642<br>
+    Welington: 10390056677<br>
+    Hyago dos Reis: 37988515732
+  </div>
+
+  <h2>João Vittor</h2>
   <p>João Vittor faz viagens pra buscar queijo no meio da semana.</p>
   
   <ul>
@@ -188,13 +192,13 @@
     </ul>
   </ul>
 
-  <h2>Alemão (queijo)</h2>
-  <p>Alemão traz e é só multiplicar o valor do peso por 30 e entregar ele o dinheiro</p>
+  <h2>Alemão</h2>
+  <p>Alemão traz e é só multiplicar o valor do peso por 30 e entregar ele o dinheiro.</p>
 
-  <h2>Paulo (requeijão e mussarela)</h2>
+  <h2>Paulo (Requeijão e Mussarela)</h2>
   <p>Paulo traz geralmente duas notinhas, uma de requeijão e uma de mussarela.</p>
   <div class="destaque">
-    <strong>Importante:</strong> Antes eu pergunto se é nota fiscal.
+    <strong>Importante:</strong> Antes eu confirmo com Luiz se é nota fiscal. Caso for, eu só faço o cheque e passo pra ele.
   </div>
 
   <h2>Marcoplast</h2>
@@ -204,9 +208,38 @@
     <li>O moço vem pra receber</li>
     <li>Eles mandam o arquivo no email pra gente imprimir e pagar</li>
     <li>É um arquivo na horizontal que tem um valor escrito mais embaixo</li>
+    <li>Geralmente tem que fazer cheque de dois arquivos que eles mandam: o CT-e e um outro</li>
   </ul>
+  
+  <div class="info-box">
+    <strong>Observação:</strong> Já teve alguns meses que eles não estavam mandando.
+  </div>
 
-  <h2>Célio (pagamentos e pix)</h2>
+  <h2>Michel (Eduardo Ovos)</h2>
+  <p>Michel geralmente vem no dia de quarta entregar ovo.</p>
+  
+  <ul>
+    <li>Quando é sem nota: faço a soma dos valores dos ovos e passo em notas menores (20, 10 e 5).</li>
+    <li>Quando é nota: ele faz a nota e manda pra gente e aí fazemos o cheque no valor da nota.</li>
+  </ul>
+  
+  <div class="destaque">
+    <strong>Observação:</strong> O valor da nota geralmente não é do total. É só de uma parte do pedido.
+  </div>
+
+  <h2>Varejão</h2>
+  <p>Do varejão eles deixam a mercadoria durante a semana e na quinta eles vem para acertar.</p>
+  
+  <ul>
+    <li>A carne quando vem com nota: eu faço o cheque referente a nota e passo pra eles.</li>
+    <li>Tem vez que tira nota de pimentão e cebola separado com nome de outro fornecedor na nota. Quando é assim eu faço o cheque referente as notas e guardo pra passar para outros fornecedores, e quando eles chegam pra receber, eu pago o valor total da notinha mesmo.</li>
+  </ul>
+  
+  <div class="info-box">
+    <strong>Importante:</strong> Para notas fiscais eles não conseguem emitir boleto.
+  </div>
+
+  <h2>Célio (Pagamentos e PIX)</h2>
   <p>Do Célio toda semana, ele e os ajudantes dele recebem toda semana.</p>
   
   <ul>
@@ -233,9 +266,18 @@
   <div class="info-box">
     <strong>Observação:</strong> Algumas vezes pode vir o moço da doação também, ai nós pagamos aqui mesmo e a gente cobra a mais dele esse valor.
   </div>
+  
+  <div class="destaque">
+    <strong>Limite PIX:</strong> Para PIX de cliente, o valor que o Célio deixou fazer pra ele na semana é de R$ 1.500,00
+  </div>
+  
+  <div class="pix-info">
+    <strong>Chave PIX Célio:</strong><br>
+    Célio Xavier: 37999715380
+  </div>
 
-  <h2>Marciel (pagamentos e pix)</h2>
-  <p>Do Marciel pessoal também faz PIX pra ele.</p>
+  <h2>Marciel (Pagamentos e PIX)</h2>
+  <p>Do Marciel pessoal também faz PIX pra ele, mas geralmente só quando o PIX do Célio já chegou ou está perto do limite ou quando é valor bem maior.</p>
   
   <div class="passo-a-passo">
     <strong>Processo similar ao Célio:</strong>
@@ -252,6 +294,60 @@
   <div class="destaque">
     <strong>Acertos:</strong> Acertos com ele geralmente é o Barão.
   </div>
+  
+  <div class="pix-info">
+    <strong>Chave PIX Marciel:</strong><br>
+    Marciel Rodrigues: 31983318410
+  </div>
+
+  <h2>Jardel</h2>
+  <p>Do Jardel como está tendo a obra do Barão, ele vem pegar dinheiro aqui na fábrica.</p>
+  
+  <div class="passo-a-passo">
+    <strong>Processo:</strong>
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Ele me manda o valor na sexta</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Eu separo e faço o recibo e guardo</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>O recibo que eu uso é o comprovante de recebimento, é só alterar o nome e colocar o dele, o valor e colocar que é referente a obra do Barão</div>
+    </div>
+  </div>
+
+  <h2>Roberto</h2>
+  <p>Do Roberto geralmente ele vem acertar aqui.</p>
+  
+  <ul>
+    <li>Quando é notinha: pago em cheque de cliente normal ou dinheiro mesmo</li>
+    <li>Quando é nota fiscal: dá pra fazer o cheque referente a nota certinho ou pedir o Barão para fazer o PIX</li>
+  </ul>
+  
+  <div class="info-box">
+    <strong>Observação:</strong> Ele não consegue emitir boleto.
+  </div>
+  
+  <div class="pix-info">
+    <strong>Chaves PIX Roberto:</strong><br>
+    Vitalina: 32.490.535/0001-84 - Gregorio Produtos Alimenticios<br>
+    Sadelle: 36.697.699/0001-38 - Distribuidora Dias Ltda
+  </div>
+
+  <h2>Embrapan (Helbert)</h2>
+  <p>Caso o Helbert venha buscar qualquer acerto, conferir tudo antes se é notinha ou nota fiscal, porque geralmente as informações chegam até a gente meio confusas.</p>
+  
+  <div class="destaque">
+    <strong>Importante:</strong> Melhor conferir tudo antes pra não correr risco de sair errado.
+  </div>
+  
+  <ul>
+    <li>Caso seja acerto de notinha: passo cheque de cliente à vista até a data em que estou pagando ele</li>
+    <li>Cheque da empresa eu passo também, mas só passo se tiver sem nominal</li>
+  </ul>
 
 </div>
 </body>

@@ -308,6 +308,14 @@
     animation: fadeIn 0.3s ease;
   }
 
+  .conteudo-carregado h1 {
+    color: var(--accent);
+    margin-bottom: 8px;
+    font-size: 22px;
+    border-bottom: 2px solid var(--borda);
+    padding-bottom: 12px;
+  }
+
   .conteudo-carregado h2 {
     color: var(--ink-strong);
     margin: 24px 0 12px 0;
@@ -317,8 +325,10 @@
     gap: 8px;
   }
 
-  .conteudo-carregado h2:first-child {
-    margin-top: 0;
+  .conteudo-carregado h2::before {
+    content: "•";
+    color: var(--azul);
+    font-size: 24px;
   }
 
   .conteudo-carregado h3 {
@@ -387,6 +397,16 @@
     font-size: 14px;
     font-weight: bold;
     flex-shrink: 0;
+  }
+
+  .pix-info {
+    background: #f8f0ff;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid #8a2be2;
+    margin: 12px 0;
+    font-family: monospace;
+    font-size: 14px;
   }
 
   @keyframes fadeIn {
@@ -1150,7 +1170,6 @@
         Lançamentos Pedidos
       </div>
       
-      <!-- ADICIONANDO NOVO TÓPICO: MONTAGEM ROTAS -->
       <div class="topico-item" data-arquivo="montagem-rotas.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
@@ -1392,30 +1411,46 @@ class GerenciadorAnotacoes {
   }
 
   processarConteudo(html, arquivo) {
+    // Criar um elemento temporário para processar o HTML
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
     
-    const tituloPrincipal = (tempDiv.querySelector('h1')?.textContent || 
+    // Remover elementos desnecessários como scripts e styles
+    tempDiv.querySelectorAll('script, style, link, meta, title, head').forEach(el => el.remove());
+    
+    // Extrair o conteúdo do body se existir, caso contrário usar o conteúdo completo
+    const body = tempDiv.querySelector('body');
+    const conteudoHTML = body ? body.innerHTML : tempDiv.innerHTML;
+    
+    // Criar outro elemento para processar o conteúdo limpo
+    const tempDiv2 = document.createElement('div');
+    tempDiv2.innerHTML = conteudoHTML;
+    
+    // Remover novamente scripts e styles que possam ter ficado
+    tempDiv2.querySelectorAll('script, style').forEach(el => el.remove());
+    
+    const tituloPrincipal = (tempDiv2.querySelector('h1')?.textContent || 
                            document.querySelector(`[data-arquivo="${arquivo}"]`).textContent.trim())
                            .replace('| °', '').trim();
     
-    const subtopicos = Array.from(tempDiv.querySelectorAll('h2'));
+    // Extrair todos os h2 como subtópicos
+    const subtopicos = Array.from(tempDiv2.querySelectorAll('h2'));
     
     this.conteudoAtual = {
-      html: tempDiv.innerHTML,
+      html: tempDiv2.innerHTML,
       titulo: tituloPrincipal,
       subtopicos: subtopicos.map(h2 => ({
         titulo: h2.textContent.replace('| °', '').trim(),
         id: this.criarId(h2.textContent),
         elemento: h2,
-        conteudo: this.extrairConteudoSubtopico(h2, tempDiv)
+        conteudo: this.extrairConteudoSubtopico(h2, tempDiv2)
       }))
     };
 
     if (subtopicos.length > 0) {
       this.criarInterfaceComSubtopicos();
     } else {
-      this.mostrarConteudoDireto();
+      this.mostrarConteudoDireto(tempDiv2);
     }
 
     this.adicionarEventosImagens();
@@ -1425,6 +1460,7 @@ class GerenciadorAnotacoes {
     let conteudo = '';
     let elementoAtual = elementoH2.nextElementSibling;
     
+    // Coletar todos os elementos até encontrar o próximo h2
     while (elementoAtual && elementoAtual.tagName !== 'H2') {
       conteudo += elementoAtual.outerHTML;
       elementoAtual = elementoAtual.nextElementSibling;
@@ -1506,10 +1542,8 @@ class GerenciadorAnotacoes {
     this.adicionarEventosSelecao();
   }
 
-  mostrarConteudoDireto() {
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = this.conteudoAtual.html;
-    
+  mostrarConteudoDireto(tempDiv) {
+    // Remover o h1 se existir
     const h1 = tempDiv.querySelector('h1');
     if (h1) h1.remove();
     
@@ -1538,29 +1572,44 @@ class GerenciadorAnotacoes {
 
   adicionarEventosSelecao() {
     // Botão "Selecionar tópicos" (ícone)
-    document.getElementById('btn-selecionar-topicos').addEventListener('click', () => {
-      this.ativarModoSelecao();
-    });
+    const btnSelecionar = document.getElementById('btn-selecionar-topicos');
+    if (btnSelecionar) {
+      btnSelecionar.addEventListener('click', () => {
+        this.ativarModoSelecao();
+      });
+    }
 
     // PDF dos selecionados
-    document.getElementById('btn-pdf-selecionados').addEventListener('click', () => {
-      this.salvarSubtopicosSelecionados('pdf');
-    });
+    const btnPdfSelecionados = document.getElementById('btn-pdf-selecionados');
+    if (btnPdfSelecionados) {
+      btnPdfSelecionados.addEventListener('click', () => {
+        this.salvarSubtopicosSelecionados('pdf');
+      });
+    }
 
     // Imprimir selecionados
-    document.getElementById('btn-imprimir-selecionados').addEventListener('click', () => {
-      this.salvarSubtopicosSelecionados('imprimir');
-    });
+    const btnImprimirSelecionados = document.getElementById('btn-imprimir-selecionados');
+    if (btnImprimirSelecionados) {
+      btnImprimirSelecionados.addEventListener('click', () => {
+        this.salvarSubtopicosSelecionados('imprimir');
+      });
+    }
 
     // Selecionar todos
-    document.getElementById('btn-selecionar-todos').addEventListener('click', () => {
-      this.selecionarTodosTopicos();
-    });
+    const btnSelecionarTodos = document.getElementById('btn-selecionar-todos');
+    if (btnSelecionarTodos) {
+      btnSelecionarTodos.addEventListener('click', () => {
+        this.selecionarTodosTopicos();
+      });
+    }
 
     // Cancelar seleção (ícone X)
-    document.getElementById('btn-cancelar-selecao').addEventListener('click', () => {
-      this.desativarModoSelecao();
-    });
+    const btnCancelarSelecao = document.getElementById('btn-cancelar-selecao');
+    if (btnCancelarSelecao) {
+      btnCancelarSelecao.addEventListener('click', () => {
+        this.desativarModoSelecao();
+      });
+    }
   }
 
   ativarModoSelecao() {
@@ -1568,6 +1617,8 @@ class GerenciadorAnotacoes {
     const container = document.getElementById('lista-subtopicos-conteudo');
     const botoesSelecao = document.getElementById('selecao-botoes-container');
     const btnSelecionarTopicos = document.getElementById('btn-selecionar-topicos');
+    
+    if (!container || !botoesSelecao || !btnSelecionarTopicos) return;
     
     // Gerar a lista com checkboxes
     const listaComCheckboxes = this.conteudoAtual.subtopicos.map((subtopico, index) => {
@@ -1608,6 +1659,8 @@ class GerenciadorAnotacoes {
     const botoesSelecao = document.getElementById('selecao-botoes-container');
     const btnSelecionarTopicos = document.getElementById('btn-selecionar-topicos');
     
+    if (!container || !botoesSelecao || !btnSelecionarTopicos) return;
+    
     // Restaurar a lista sem checkboxes
     const listaNormal = this.conteudoAtual.subtopicos.map((subtopico, index) => {
       return `
@@ -1628,6 +1681,8 @@ class GerenciadorAnotacoes {
 
   selecionarTodosTopicos() {
     const checkboxes = document.querySelectorAll('.subtopico-checkbox');
+    if (checkboxes.length === 0) return;
+    
     const todosSelecionados = Array.from(checkboxes).every(cb => cb.checked);
     
     checkboxes.forEach(cb => {
@@ -1641,11 +1696,21 @@ class GerenciadorAnotacoes {
     });
     
     const btnSelecionarTodos = document.getElementById('btn-selecionar-todos');
-    btnSelecionarTodos.textContent = todosSelecionados ? 'Selecionar todos' : 'Desmarcar todos';
+    if (btnSelecionarTodos) {
+      btnSelecionarTodos.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+          ${todosSelecionados ? '<path d="M9 11l3 3 7-7"/>' : ''}
+        </svg>
+        ${todosSelecionados ? 'Selecionar todos' : 'Desmarcar todos'}
+      `;
+    }
   }
 
   mostrarSubtopico(index) {
     const container = document.getElementById('conteudo-subtopico');
+    if (!container || !this.conteudoAtual || !this.conteudoAtual.subtopicos[index]) return;
+    
     const subtopico = this.conteudoAtual.subtopicos[index];
     this.subtopicoAtual = index;
     this.conteudoSubtopicoAtual = subtopico.conteudo;
@@ -1656,8 +1721,17 @@ class GerenciadorAnotacoes {
       item.classList.remove('ativo');
     });
     
-    document.querySelector(`[data-index="${index}"]`)?.classList.add('ativo');
+    const itemAtual = document.querySelector(`[data-index="${index}"]`);
+    if (itemAtual) {
+      itemAtual.classList.add('ativo');
+    }
+    
     this.adicionarEventosImagens();
+    
+    // Scroll para o topo do conteúdo
+    if (container) {
+      container.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   adicionarEventosImagens() {
@@ -1673,6 +1747,8 @@ class GerenciadorAnotacoes {
     const lightboxImg = document.getElementById('lightbox-image');
     const downloadBtn = document.getElementById('lightbox-download');
     
+    if (!lightbox || !lightboxImg || !downloadBtn) return;
+    
     lightboxImg.src = src;
     downloadBtn.href = src;
     downloadBtn.download = src.split('/').pop() || 'imagem.png';
@@ -1680,7 +1756,10 @@ class GerenciadorAnotacoes {
   }
 
   fecharLightbox() {
-    document.getElementById('image-lightbox').style.display = 'none';
+    const lightbox = document.getElementById('image-lightbox');
+    if (lightbox) {
+      lightbox.style.display = 'none';
+    }
   }
 
   criarId(texto) {
@@ -1864,6 +1943,13 @@ class GerenciadorAnotacoes {
             page-break-before: auto;
           }
           
+          h2::before {
+            content: "•";
+            color: #007BFF;
+            font-size: 24px;
+            margin-right: 8px;
+          }
+          
           h3 {
             color: #0b4fa0;
             margin: 20px 0 8px 0;
@@ -1885,6 +1971,17 @@ class GerenciadorAnotacoes {
             border-radius: 8px;
             border-left: 4px solid #f59e0b; 
             margin: 15px 0;
+            page-break-inside: avoid;
+          }
+          
+          .pix-info {
+            background: #f8f0ff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border-left: 4px solid #8a2be2;
+            margin: 12px 0;
+            font-family: monospace;
+            font-size: 14px;
             page-break-inside: avoid;
           }
           
@@ -2035,7 +2132,7 @@ class GerenciadorAnotacoes {
               break-before: avoid;
             }
             
-            .image-container {
+            .image-container, .destaque, .info-box, .pix-info, .passo-a-passo {
               break-inside: avoid;
             }
             
@@ -2120,13 +2217,18 @@ class GerenciadorAnotacoes {
     const popupTitulo = document.getElementById('popup-titulo');
     const popupConteudo = document.getElementById('popup-conteudo');
     
+    if (!popup || !popupTitulo || !popupConteudo) return;
+    
     popupTitulo.textContent = titulo;
     popupConteudo.textContent = mensagem;
     popup.classList.add('ativo');
   }
 
   fecharPopup() {
-    document.getElementById('popup-overlay').classList.remove('ativo');
+    const popup = document.getElementById('popup-overlay');
+    if (popup) {
+      popup.classList.remove('ativo');
+    }
   }
 
   buscarConteudo(termo) {
@@ -2195,6 +2297,7 @@ class GerenciadorAnotacoes {
 
   exibirResultadosBusca(resultados, termo) {
     const container = document.getElementById('resultados-busca');
+    if (!container) return;
     
     if (resultados.length === 0) {
       container.innerHTML = '<div class="sem-resultados">Nenhum resultado encontrado para "' + termo + '"</div>';
@@ -2272,20 +2375,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Eventos para a busca
   const searchInput = document.getElementById('campo-busca');
-  searchInput.addEventListener('input', function(e) {
-    gerenciador.buscarConteudo(e.target.value);
-  });
+  if (searchInput) {
+    searchInput.addEventListener('input', function(e) {
+      gerenciador.buscarConteudo(e.target.value);
+    });
+  }
 
   // Eventos para o lightbox de imagens
-  document.getElementById('lightbox-close').addEventListener('click', function() {
-    gerenciador.fecharLightbox();
-  });
-
-  document.getElementById('image-lightbox').addEventListener('click', function(e) {
-    if (e.target === this) {
+  const lightboxClose = document.getElementById('lightbox-close');
+  if (lightboxClose) {
+    lightboxClose.addEventListener('click', function() {
       gerenciador.fecharLightbox();
-    }
-  });
+    });
+  }
+
+  const imageLightbox = document.getElementById('image-lightbox');
+  if (imageLightbox) {
+    imageLightbox.addEventListener('click', function(e) {
+      if (e.target === this) {
+        gerenciador.fecharLightbox();
+      }
+    });
+  }
 
   // Eventos para popup
   document.getElementById('popup-fechar').addEventListener('click', function() {
@@ -2300,6 +2411,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Eventos delegados para ações dinâmicas
   document.addEventListener('click', function(e) {
+    // Fechar tópico
     if (e.target.id === 'btn-fechar-topico' || e.target.closest('#btn-fechar-topico')) {
       gerenciador.fecharTopico();
     }

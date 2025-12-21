@@ -649,20 +649,43 @@
 
   .btn-selecionar-todos {
     flex: 1;
-    background: #f0f9ff;
-    border-color: #bae6fd;
-    color: var(--azul);
+    background: #f0f9ff !important;
+    border-color: #bae6fd !important;
+    color: var(--azul) !important;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .btn-selecionar-todos:hover {
+    background: #e0f2fe !important;
   }
 
   .btn-cancelar-selecao {
-    background: #fef2f2;
-    border-color: #fecaca;
-    color: var(--danger);
-    padding: 8px;
+    background: #fef2f2 !important;
+    border-color: #fecaca !important;
+    color: var(--danger) !important;
+    padding: 8px 12px;
     min-width: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 1px solid;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .btn-cancelar-selecao:hover {
+    background: #fee2e2 !important;
   }
 
   @media print {
@@ -961,6 +984,95 @@
   .conteudo-header h2::after {
     content: none;
   }
+
+  /* ESTILOS PARA IMAGENS COM LEGENDA */
+  .image-container {
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    margin: 16px 0;
+    color: var(--muted);
+  }
+  
+  .image-container img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 4px;
+    max-height: 400px;
+    object-fit: contain;
+  }
+  
+  .image-container p {
+    margin: 8px 0 0 0;
+    padding: 0;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* ESTILOS PARA CLIENTES POR ROTA */
+  .conteudo-carregado .cliente-item {
+    padding: 6px 0;
+    border-bottom: 1px dotted #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .conteudo-carregado .cliente-item:last-child {
+    border-bottom: none;
+  }
+  
+  .conteudo-carregado .cliente-nome {
+    flex-grow: 1;
+    font-size: 14.5px;
+  }
+  
+  .conteudo-carregado .codigo-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .conteudo-carregado .codigo-box {
+    background: var(--azul);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    min-width: 40px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,123,255,0.3);
+  }
+  
+  .conteudo-carregado .total-clientes {
+    background: #f5f5f5;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin: 16px 0;
+    font-size: 14px;
+    color: #666;
+    border-left: 3px solid #ccc;
+  }
+  
+  .conteudo-carregado .clientes-container {
+    background: #f8f9fa;
+    padding: 16px 20px;
+    border-radius: 10px;
+    border-left: 4px solid var(--azul);
+    margin: 12px 0 24px 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  }
+  
+  .conteudo-carregado .rota-jovi .clientes-container { border-left-color: #4CAF50; }
+  .conteudo-carregado .rota-salsicha .clientes-container { border-left-color: #FF9800; }
+  .conteudo-carregado .rota-guilherme .clientes-container { border-left-color: #2196F3; }
+  .conteudo-carregado .rota-nelio .clientes-container { border-left-color: #9C27B0; }
+  .conteudo-carregado .rota-stenio .clientes-container { border-left-color: #9C27B0; }
 </style>
 </head>
 <body>
@@ -1036,6 +1148,15 @@
           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
         </svg>
         Lançamentos Pedidos
+      </div>
+      
+      <!-- ADICIONANDO NOVO TÓPICO: MONTAGEM ROTAS -->
+      <div class="topico-item" data-arquivo="montagem-rotas.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+        </svg>
+        Montagem Rotas
       </div>
       
       <div class="resultados-busca" id="resultados-busca">
@@ -1265,6 +1386,9 @@ class GerenciadorAnotacoes {
       console.error('Erro ao carregar arquivo:', error);
       this.mostrarErro(arquivo);
     }
+    
+    // SCROLL PARA O TOPO AO CARREGAR NOVO TÓPICO
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   processarConteudo(html, arquivo) {
@@ -1284,7 +1408,6 @@ class GerenciadorAnotacoes {
         titulo: h2.textContent.replace('| °', '').trim(),
         id: this.criarId(h2.textContent),
         elemento: h2,
-        // Extrair o conteúdo completo do subtópico
         conteudo: this.extrairConteudoSubtopico(h2, tempDiv)
       }))
     };
@@ -1338,6 +1461,9 @@ class GerenciadorAnotacoes {
           <div class="selecao-botoes-container" id="selecao-botoes-container">
             <div class="selecao-botoes-linha">
               <button class="btn-selecionar-todos" id="btn-selecionar-todos">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M9 11l3 3 7-7"/>
+                </svg>
                 Selecionar todos
               </button>
               <button class="btn-cancelar-selecao" id="btn-cancelar-selecao" title="Cancelar">
@@ -1348,9 +1474,17 @@ class GerenciadorAnotacoes {
             </div>
             <div class="selecao-botoes-linha">
               <button class="btn-impressao btn-pdf" id="btn-pdf-selecionados">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                </svg>
                 PDF
               </button>
               <button class="btn-impressao btn-imprimir" id="btn-imprimir-selecionados">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                  <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                  <rect x="6" y="14" width="12" height="8"/>
+                </svg>
                 Imprimir
               </button>
             </div>
@@ -1597,9 +1731,11 @@ class GerenciadorAnotacoes {
         <p>Selecione um tópico para visualizar o conteúdo</p>
       </div>
     `;
+    
+    // SCROLL PARA O TOPO AO FECHAR TÓPICO
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // NOVOS MÉTODOS PARA SALVAR SUBTÓPICO ATUAL
   salvarSubtopicoAtual(formato) {
     if (!this.conteudoSubtopicoAtual) {
       this.mostrarPopup('Selecione um subtópico primeiro.', 'Atenção');
@@ -1642,7 +1778,7 @@ class GerenciadorAnotacoes {
     this.gerarSaida(conteudoCompleto, this.conteudoAtual.titulo, formato);
   }
 
-  gerarSaida(conteudo, titulo, formato) {
+  async gerarSaida(conteudo, titulo, formato) {
     // Função para converter imagens para base64
     const converterImagensParaBase64 = async (htmlString) => {
       const tempDiv = document.createElement('div');
@@ -1650,26 +1786,43 @@ class GerenciadorAnotacoes {
       const imagens = tempDiv.querySelectorAll('img');
       
       for (const img of imagens) {
-        const src = img.src;
-        if (src.startsWith('http') || src.startsWith('data:')) {
-          continue;
-        }
+        const src = img.src || img.getAttribute('src');
+        if (!src) continue;
+        
+        // Se já for base64, não converter
+        if (src.startsWith('data:')) continue;
         
         try {
-          // Tentar carregar a imagem e converter para base64
-          const response = await fetch(src);
+          // Tentar carregar a imagem
+          let imageUrl = src;
+          
+          // Se for um caminho relativo, tentar resolver
+          if (!src.startsWith('http') && !src.startsWith('data:')) {
+            // Usar a localização atual como base
+            const baseUrl = window.location.href;
+            const url = new URL(src, baseUrl);
+            imageUrl = url.href;
+          }
+          
+          const response = await fetch(imageUrl);
+          if (!response.ok) {
+            console.warn('Não foi possível carregar imagem:', src);
+            continue;
+          }
+          
           const blob = await response.blob();
           const reader = new FileReader();
           
-          await new Promise((resolve) => {
+          await new Promise((resolve, reject) => {
             reader.onloadend = () => {
               img.src = reader.result;
               resolve();
             };
+            reader.onerror = reject;
             reader.readAsDataURL(blob);
           });
         } catch (error) {
-          console.error('Erro ao converter imagem:', error);
+          console.error('Erro ao converter imagem:', error, src);
           // Se não conseguir converter, manter o src original
         }
       }
@@ -1677,8 +1830,9 @@ class GerenciadorAnotacoes {
       return tempDiv.innerHTML;
     };
 
-    // Processar as imagens antes de gerar o HTML
-    converterImagensParaBase64(conteudo).then((conteudoComImagens) => {
+    try {
+      const conteudoComImagens = await converterImagensParaBase64(conteudo);
+      
       const estilos = `
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -1708,6 +1862,12 @@ class GerenciadorAnotacoes {
             font-size: 18px;
             page-break-after: avoid;
             page-break-before: auto;
+          }
+          
+          h3 {
+            color: #0b4fa0;
+            margin: 20px 0 8px 0;
+            font-size: 16px;
           }
           
           .destaque { 
@@ -1766,11 +1926,88 @@ class GerenciadorAnotacoes {
             margin: 8px 0;
           }
           
-          img {
+          /* ESTILOS PARA IMAGENS COM LEGENDA */
+          .image-container {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            margin: 16px 0;
+            color: #6b7280;
+            page-break-inside: avoid;
+          }
+          
+          .image-container img {
             max-width: 100%;
             height: auto;
-            border-radius: 8px;
-            margin: 12px 0;
+            display: block;
+            margin: 0 auto;
+            border-radius: 4px;
+            max-height: 400px;
+            object-fit: contain;
+          }
+          
+          .image-container p {
+            margin: 8px 0 0 0;
+            padding: 0;
+            font-size: 13px;
+            color: #6b7280;
+          }
+          
+          /* ESTILOS PARA CLIENTES POR ROTA */
+          .cliente-item {
+            padding: 6px 0;
+            border-bottom: 1px dotted #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          }
+          
+          .cliente-item:last-child {
+            border-bottom: none;
+          }
+          
+          .cliente-nome {
+            flex-grow: 1;
+            font-size: 14.5px;
+          }
+          
+          .codigo-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+          }
+          
+          .codigo-box {
+            background: #007BFF;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            min-width: 40px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,123,255,0.3);
+          }
+          
+          .total-clientes {
+            background: #f5f5f5;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 16px 0;
+            font-size: 14px;
+            color: #666;
+            border-left: 3px solid #ccc;
+          }
+          
+          .clientes-container {
+            background: #f8f9fa;
+            padding: 16px 20px;
+            border-radius: 10px;
+            border-left: 4px solid #007BFF;
+            margin: 12px 0 24px 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
           }
           
           .rodape {
@@ -1796,6 +2033,10 @@ class GerenciadorAnotacoes {
             
             h2:not(:first-child) {
               break-before: avoid;
+            }
+            
+            .image-container {
+              break-inside: avoid;
             }
             
             @page {
@@ -1828,7 +2069,10 @@ class GerenciadorAnotacoes {
       } else if (formato === 'pdf') {
         this.downloadHTML(htmlCompleto, titulo);
       }
-    });
+    } catch (error) {
+      console.error('Erro ao gerar saída:', error);
+      this.mostrarPopup('Erro ao processar imagens. Verifique os caminhos das imagens.', 'Erro');
+    }
   }
 
   abrirImpressao(htmlCompleto) {
@@ -1860,7 +2104,7 @@ class GerenciadorAnotacoes {
     const a = document.createElement('a');
     
     a.href = url;
-    a.download = `${titulo.replace(/\s+/g, '_')}.html`;
+    a.download = `${titulo.replace(/\s+/g, '_').replace(/[^\w\s]/gi, '')}.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

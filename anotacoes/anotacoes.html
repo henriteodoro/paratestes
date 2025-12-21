@@ -19,6 +19,8 @@
     --warn:#f59e0b;
     --success:#10b981;
     --danger:#ef4444;
+    --verde-suave: #f0fff4;
+    --verde-borda: #38a169;
   }
   body{
     font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
@@ -370,6 +372,15 @@
     font-size: 14px;
   }
 
+  .ferias-box {
+    background: var(--verde-suave);
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid var(--verde-borda);
+    margin: 12px 0;
+    font-size: 14px;
+  }
+
   .passo-a-passo {
     background: #f7fff0;
     padding: 16px;
@@ -407,6 +418,104 @@
     margin: 12px 0;
     font-family: monospace;
     font-size: 14px;
+  }
+
+  /* Estilos específicos para o arquivo GERAL */
+  .conteudo-carregado .dados-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+    margin: 12px 0 24px 0;
+    padding-left: 16px;
+  }
+
+  .conteudo-carregado .dado-item {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid var(--azul);
+  }
+
+  .conteudo-carregado .tabela-container {
+    overflow-x: auto;
+    margin: 16px 0;
+    border-radius: 8px;
+    border: 1px solid var(--borda);
+    padding-left: 16px;
+  }
+
+  .conteudo-carregado .tabela-melhorada {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+  }
+
+  .conteudo-carregado .tabela-melhorada thead {
+    background: var(--azul);
+    color: white;
+  }
+
+  .conteudo-carregado .tabela-melhorada th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid var(--accent);
+  }
+
+  .conteudo-carregado .tabela-melhorada tbody tr {
+    border-bottom: 1px solid var(--borda);
+  }
+
+  .conteudo-carregado .tabela-melhorada td {
+    padding: 12px 16px;
+    vertical-align: top;
+  }
+
+  .conteudo-carregado .tabela-melhorada tbody tr:nth-child(even) {
+    background: #fafcff;
+  }
+
+  .conteudo-carregado .badge-multiplicador {
+    display: inline-block;
+    background: var(--azul);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-right: 8px;
+  }
+
+  .conteudo-carregado .transportadores {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+    margin: 12px 0 24px 0;
+    padding-left: 16px;
+  }
+
+  .conteudo-carregado .transportador {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid var(--azul);
+  }
+
+  .conteudo-carregado .dado-linha {
+    display: flex;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--borda);
+  }
+
+  .conteudo-carregado .dado-rotulo {
+    font-weight: 600;
+    min-width: 200px;
+    color: var(--ink-strong);
+  }
+
+  .conteudo-carregado .dado-valor {
+    color: var(--ink);
   }
 
   @keyframes fadeIn {
@@ -1006,7 +1115,7 @@
   }
 
   /* ESTILOS PARA IMAGENS COM LEGENDA */
-  .image-container {
+  .conteudo-carregado .image-container {
     background-color: #f5f5f5;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -1016,7 +1125,7 @@
     color: var(--muted);
   }
   
-  .image-container img {
+  .conteudo-carregado .image-container img {
     max-width: 100%;
     height: auto;
     display: block;
@@ -1026,7 +1135,7 @@
     object-fit: contain;
   }
   
-  .image-container p {
+  .conteudo-carregado .image-container p {
     margin: 8px 0 0 0;
     padding: 0;
     font-size: 13px;
@@ -1974,6 +2083,15 @@ class GerenciadorAnotacoes {
             page-break-inside: avoid;
           }
           
+          .ferias-box {
+            background: #f0fff4;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border-left: 4px solid #38a169;
+            margin: 15px 0;
+            page-break-inside: avoid;
+          }
+          
           .pix-info {
             background: #f8f0ff;
             padding: 12px 16px;
@@ -2015,15 +2133,83 @@ class GerenciadorAnotacoes {
             flex-shrink: 0;
           }
           
-          ul, ol {
-            padding-left: 24px;
+          .dados-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 12px;
+            margin: 12px 0 24px 0;
           }
           
-          li {
-            margin: 8px 0;
+          .dado-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #007BFF;
           }
           
-          /* ESTILOS PARA IMAGENS COM LEGENDA */
+          .tabela-container {
+            overflow-x: auto;
+            margin: 16px 0;
+            border-radius: 8px;
+            border: 1px solid #e6eefc;
+          }
+          
+          .tabela-melhorada {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+          }
+          
+          .tabela-melhorada thead {
+            background: #007BFF;
+            color: white;
+          }
+          
+          .tabela-melhorada th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #0b5ed7;
+          }
+          
+          .tabela-melhorada tbody tr {
+            border-bottom: 1px solid #e6eefc;
+          }
+          
+          .tabela-melhorada td {
+            padding: 12px 16px;
+            vertical-align: top;
+          }
+          
+          .tabela-melhorada tbody tr:nth-child(even) {
+            background: #fafcff;
+          }
+          
+          .badge-multiplicador {
+            display: inline-block;
+            background: #007BFF;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            margin-right: 8px;
+          }
+          
+          .transportadores {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 12px;
+            margin: 12px 0 24px 0;
+          }
+          
+          .transportador {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #007BFF;
+          }
+          
           .image-container {
             background-color: #f5f5f5;
             border: 1px solid #ddd;
@@ -2052,7 +2238,6 @@ class GerenciadorAnotacoes {
             color: #6b7280;
           }
           
-          /* ESTILOS PARA CLIENTES POR ROTA */
           .cliente-item {
             padding: 6px 0;
             border-bottom: 1px dotted #e0e0e0;
@@ -2132,7 +2317,11 @@ class GerenciadorAnotacoes {
               break-before: avoid;
             }
             
-            .image-container, .destaque, .info-box, .pix-info, .passo-a-passo {
+            .image-container, .destaque, .info-box, .ferias-box, .pix-info, .passo-a-passo, .tabela-container {
+              break-inside: avoid;
+            }
+            
+            .tabela-melhorada {
               break-inside: avoid;
             }
             

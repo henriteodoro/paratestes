@@ -229,6 +229,37 @@
     border-radius: 8px;
     border-left: 4px solid var(--azul);
   }
+  
+  /* Estilos para as novas seções */
+  .informacao-extra {
+    background: #fff9f0;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #ffd8b2;
+    margin: 16px 0;
+  }
+  .informacao-extra h4 {
+    color: var(--ink-strong);
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .informacao-extra h4::before {
+    content: "•";
+    color: var(--azul);
+    font-size: 24px;
+  }
+  .info-list {
+    margin: 0;
+    padding-left: 24px;
+  }
+  .info-list li {
+    margin: 6px 0;
+    padding-left: 4px;
+  }
 </style>
 </head>
 <body>
@@ -297,7 +328,7 @@
   <div class="passo-a-passo">
     <div class="passo">
       <div class="passo-num">1</div>
-      <div>Na segunda: pedir as listas ao Vinícius (Ilha São José) e a Shay (Pão Total)</div>
+      <div>Na segunda: pedir as listas ao Vinícius (Ilha São José e pedir a lista com a Renata) e a Shay (Pão Total)</div>
     </div>
     <div class="passo">
       <div class="passo-num">2</div>
@@ -309,15 +340,15 @@
     </div>
     <div class="passo">
       <div class="passo-num">4</div>
-      <div>Imprimir três cópias de cada (uma fica guardada)</div>
+      <div>No site acesse <a href="saojose.html">Pedido São José</a> ou <a href="paototal.html">Pedido Pão Total</a> para fazer as listas</div>
     </div>
     <div class="passo">
       <div class="passo-num">5</div>
-      <div>Passar para embalagem</div>
+      <div>Imprimir três cópias de cada, duas ficam para a embalagem e uma fica guardada</div>
     </div>
     <div class="passo">
       <div class="passo-num">6</div>
-      <div>No site acesse "Pedido São José" ou "Pedido Pão Total" para fazer as listas</div>
+      <div>Passar para embalagem na segunda e na quinta deixar junto com as rotas de sexta</div>
     </div>
   </div>
   
@@ -339,7 +370,7 @@
           <td>Biscoito Doce</td>
           <td><span class="badge-multiplicador">×7</span></td>
           <td>São José & Pão Total</td>
-          <td>Pode variar conforme pedido</td>
+          <td>Pode variar conforme pedido (Pão Total)</td>
         </tr>
         <tr>
           <td>Broa de Fubá Grande</td>
@@ -371,6 +402,40 @@
   
   <div class="destaque">
     <strong>Sempre aumentar:</strong> 10-15 pães de sal de acordo com a quantidade pedida. Pão de queijo também pode aumentar mais 5 unidades.
+  </div>
+  
+  <div class="informacao-extra">
+    <h4>Informações Adicionais</h4>
+    <ul class="info-list">
+      <li>Perto do fim do expediente, tem que pegar os itens que faltaram, com o Kauan, Luis ou pedir para alguém trazer no escritório</li>
+      <li>Caso pessoal da São José precise de algum produto a mais, eu peço pra alguém levar e deixo anotado pra quando for faturar</li>
+      <li>Se precisarem de produtos de terça a quinta, eu jogo no pedido de sexta</li>
+      <li>Caso no final de semana peguem algo a mais ou na segunda mesmo antes do pedido, eu jogo esses no pedido de segunda</li>
+      <li>Caso algum dos motoristas peguem algum produto lá na padaria, deixamos anotado também</li>
+      <li>Caso apareça algum recibo ou algo que precise descontar da São José, então deixo anotado e guardado para descontar</li>
+    </ul>
+  </div>
+  
+  <div class="informacao-extra">
+    <h4>Processo de Faturamento</h4>
+    <ul class="info-list">
+      <li>Sempre deixo pra faturar os pedidos na terça-feira</li>
+      <li>Eu lanço e faturo na terça e arrumo o acerto e mando para o Evaldo</li>
+      <li>Todos os passos anteriores servem apenas para faturamento</li>
+    </ul>
+  </div>
+  
+  <div class="informacao-extra">
+    <h4>Acerto Final</h4>
+    <ul class="info-list">
+      <li>Na hora que acabar de lançar, faturar os pedidos e tudo certinho, tem que fazer o acerto para mandar para Evaldo</li>
+      <li>No Excel coloque "restante foto *data" e o valor na frente</li>
+      <li>Embaixo coloque pedido da sexta e valor</li>
+      <li>Embaixo coloque pedido da segunda</li>
+      <li>Caso precise, vai colocando alguns descontos ou qualquer coisa que precise de adicionar na soma</li>
+      <li>Depois soma e coloque o total</li>
+      <li>Só mandar para Evaldo</li>
+    </ul>
   </div>
   
   <div class="ferias-box">
@@ -457,7 +522,7 @@
   <div class="passo-a-passo">
     <div class="passo">
       <div class="passo-num">1</div>
-      <div>Confirmar se pode pagar quando alguém vier pegar algum valor sem notinha</div>
+      <div>Caso alguém venha pegar algum pagamento sem notinha: confirmar se pode pagar, e caso autorizado, vai precisar fazer um comprovante de recebimento</div>
     </div>
     <div class="passo">
       <div class="passo-num">2</div>
@@ -481,7 +546,7 @@
     </div>
     <div class="passo">
       <div class="passo-num">2</div>
-      <div>No holerite, colocar a descrição (vale, produto, etc.)</div>
+      <div>No holerite, colocar a descrição (vale, produto, etc.). Caso seja vale, confirmo primeiro com o Adeilton se pode fazer para a pessoa</div>
     </div>
     <div class="passo">
       <div class="passo-num">3</div>
@@ -517,6 +582,10 @@
     </div>
     <div class="passo">
       <div class="passo-num">4</div>
+      <div>No site acesse Planilhas de Autocontrole e ao clicar a pessoa vai ser redirecionado para a página</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">5</div>
       <div>Pedir para levarem no escritório as planilhas do mês anterior para guardar</div>
     </div>
   </div>
@@ -561,8 +630,6 @@
   <div class="destaque">
     <strong>Observação:</strong> Caso quem venha receber algum valor e a pessoa levar o papel embora, sempre colocar um "PG" na notinha para que a pessoa não venha cobrando de novo ou rasgar assinatura.
   </div>
-
-  <!-- SEÇÃO "Atendimento a Clientes" REMOVIDA -->
 
   <h2>Cobranças</h2>
   <div class="passo-a-passo">
@@ -612,9 +679,8 @@
     </div>
   </div>
 
-  <!-- ÚNICA IMAGEM QUE DEVE FICAR -->
   <div class="image-container">
-    <img src="" alt="Processo de divisão de PDF">
+    <img src="anotacoes/geral%20imagens/Imagem1.png" alt="Processo de divisão de PDF">
     <p>Divisão de PDF para impressão</p>
   </div>
 

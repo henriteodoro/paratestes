@@ -308,6 +308,19 @@
 
   .conteudo-carregado {
     animation: fadeIn 0.3s ease;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Estilos específicos para conteúdo de clientes.html */
+  .conteudo-carregado .container {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
   }
 
   .conteudo-carregado h1 {
@@ -1202,6 +1215,34 @@
   .conteudo-carregado .rota-guilherme .clientes-container { border-left-color: #2196F3; }
   .conteudo-carregado .rota-nelio .clientes-container { border-left-color: #9C27B0; }
   .conteudo-carregado .rota-stenio .clientes-container { border-left-color: #9C27B0; }
+
+  /* ESTILOS ESPECÍFICOS PARA O ARQUIVO clientes.html */
+  .conteudo-carregado .produtos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+    margin-bottom: 16px;
+    padding-left: 16px;
+  }
+  
+  .conteudo-carregado .produto-item {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid var(--azul);
+  }
+  
+  .conteudo-carregado .produto-nome {
+    font-weight: bold;
+    color: var(--ink-strong);
+    margin-bottom: 4px;
+  }
+  
+  .conteudo-carregado .produto-detalhe {
+    font-size: 14px;
+    color: var(--muted);
+  }
 </style>
 </head>
 <body>
@@ -1529,7 +1570,13 @@ class GerenciadorAnotacoes {
     
     // Extrair o conteúdo do body se existir, caso contrário usar o conteúdo completo
     const body = tempDiv.querySelector('body');
-    const conteudoHTML = body ? body.innerHTML : tempDiv.innerHTML;
+    let conteudoHTML = body ? body.innerHTML : tempDiv.innerHTML;
+    
+    // Para o arquivo clientes.html, remover a tag .container que causa problemas de estilização
+    if (arquivo === 'clientes.html') {
+      // Substituir a classe container por uma div comum
+      conteudoHTML = conteudoHTML.replace(/class="container"/g, 'class="conteudo-clientes"');
+    }
     
     // Criar outro elemento para processar o conteúdo limpo
     const tempDiv2 = document.createElement('div');
@@ -2292,6 +2339,33 @@ class GerenciadorAnotacoes {
             box-shadow: 0 4px 8px rgba(0,0,0,0.05);
           }
           
+          /* Estilos específicos para clientes.html */
+          .produtos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+            margin-bottom: 16px;
+          }
+          
+          .produto-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #007BFF;
+          }
+          
+          .produto-nome {
+            font-weight: bold;
+            color: #0b4fa0;
+            margin-bottom: 4px;
+          }
+          
+          .produto-detalhe {
+            font-size: 14px;
+            color: #6b7280;
+          }
+          
           .rodape {
             margin-top: 40px;
             padding-top: 20px;
@@ -2317,7 +2391,7 @@ class GerenciadorAnotacoes {
               break-before: avoid;
             }
             
-            .image-container, .destaque, .info-box, .ferias-box, .pix-info, .passo-a-passo, .tabela-container {
+            .image-container, .destaque, .info-box, .ferias-box, .pix-info, .passo-a-passo, .tabela-container, .produtos-grid {
               break-inside: avoid;
             }
             

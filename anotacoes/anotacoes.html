@@ -1243,6 +1243,14 @@
     font-size: 14px;
     color: var(--muted);
   }
+
+  /* Estilo para destaque de termos na busca */
+  mark {
+    background-color: #ffeb3b;
+    color: #000;
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
 </style>
 </head>
 <body>
@@ -1454,7 +1462,7 @@
     <img id="lightbox-image" src="" alt="" style="max-width: 100%; max-height: 80vh; border-radius: 8px;">
     <a class="lightbox-download" id="lightbox-download" download style="display: block; text-align: center; margin-top: 10px; color: white; text-decoration: none; background: var(--azul); padding: 10px; border-radius: 6px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; vertical-align: middle;">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2 2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
       </svg>
       Salvar Imagem
     </a>
@@ -1493,9 +1501,19 @@ class GerenciadorAnotacoes {
     this.modoSelecao = false;
     this.topicosSelecionados = new Set();
     this.conteudoSubtopicoAtual = null;
+    this.resultadoBuscaAtual = null;
+    this.htmlFiles = [
+      'fechamento-caixas.html',
+      'fornecedores.html',
+      'geral.html',
+      'clientes.html',
+      'clientes-rota.html',
+      'lancamento-pedidos.html',
+      'montagem-rotas.html'
+    ];
   }
 
-  async carregarTopico(arquivo) {
+  async carregarTopico(arquivo, scrollTo = null) {
     this.topicoAtual = arquivo;
     this.subtopicoAtual = null;
     this.conteudoSubtopicoAtual = null;
@@ -1540,7 +1558,7 @@ class GerenciadorAnotacoes {
 
     try {
       if (this.cache.has(arquivo)) {
-        this.processarConteudo(this.cache.get(arquivo), arquivo);
+        this.processarConteudo(this.cache.get(arquivo), arquivo, scrollTo);
         return;
       }
 
@@ -1549,7 +1567,7 @@ class GerenciadorAnotacoes {
       
       const html = await response.text();
       this.cache.set(arquivo, html);
-      this.processarConteudo(html, arquivo);
+      this.processarConteudo(html, arquivo, scrollTo);
       
     } catch (error) {
       console.error('Erro ao carregar arquivo:', error);
@@ -1560,7 +1578,7 @@ class GerenciadorAnotacoes {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  processarConteudo(html, arquivo) {
+  processarConteudo(html, arquivo, scrollTo = null) {
     // Criar um elemento temporário para processar o HTML
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
@@ -1610,6 +1628,13 @@ class GerenciadorAnotacoes {
     }
 
     this.adicionarEventosImagens();
+
+    // Se houver algo para rolar após o carregamento
+    if (scrollTo) {
+      setTimeout(() => {
+        this.rolarParaElemento(scrollTo);
+      }, 300);
+    }
   }
 
   extrairConteudoSubtopico(elementoH2, container) {
@@ -2366,15 +2391,6 @@ class GerenciadorAnotacoes {
             color: #6b7280;
           }
           
-          .rodape {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #e6eefc;
-            font-size: 12px;
-            color: #6b7280;
-            text-align: center;
-          }
-          
           @media print {
             body { margin: 20px; }
             
@@ -2416,9 +2432,6 @@ class GerenciadorAnotacoes {
         </head>
         <body>
           ${conteudoComImagens}
-          <div class="rodape">
-            Gerado em ${new Date().toLocaleString()} | Sistema de Anotações
-          </div>
         </body>
         </html>
       `;
@@ -2494,7 +2507,7 @@ class GerenciadorAnotacoes {
     }
   }
 
-  buscarConteudo(termo) {
+  async buscarConteudo(termo) {
     if (!termo.trim()) {
       document.getElementById('resultados-busca').style.display = 'none';
       document.querySelectorAll('.topico-item').forEach(item => {
@@ -2506,6 +2519,7 @@ class GerenciadorAnotacoes {
     const resultados = [];
     const termoLower = termo.toLowerCase();
 
+    // Buscar nos títulos dos tópicos
     document.querySelectorAll('.topico-item').forEach(item => {
       const titulo = item.textContent.toLowerCase();
       const arquivo = item.getAttribute('data-arquivo');
@@ -2520,40 +2534,85 @@ class GerenciadorAnotacoes {
       }
     });
 
-    this.cache.forEach((html, arquivo) => {
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = html;
-      
-      const subtitulos = tempDiv.querySelectorAll('h2');
-      subtitulos.forEach(h2 => {
-        const texto = h2.textContent.toLowerCase();
-        if (texto.includes(termoLower)) {
-          const topico = document.querySelector(`[data-arquivo="${arquivo}"]`).textContent.trim();
-          resultados.push({
-            tipo: 'subtopico',
-            titulo: h2.textContent.trim(),
-            topico: topico,
-            arquivo: arquivo,
-            trecho: texto
-          });
+    // Buscar em todos os arquivos HTML disponíveis
+    for (const arquivo of this.htmlFiles) {
+      try {
+        let html;
+        
+        if (this.cache.has(arquivo)) {
+          html = this.cache.get(arquivo);
+        } else {
+          // Carregar o arquivo se não estiver em cache
+          const response = await fetch(arquivo);
+          if (!response.ok) continue;
+          html = await response.text();
+          this.cache.set(arquivo, html);
         }
-      });
+        
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        
+        // Remover scripts e styles
+        tempDiv.querySelectorAll('script, style, link, meta, title, head').forEach(el => el.remove());
+        
+        // Buscar subtópicos (h2)
+        const subtitulos = tempDiv.querySelectorAll('h2');
+        subtitulos.forEach(h2 => {
+          const texto = h2.textContent.toLowerCase();
+          if (texto.includes(termoLower)) {
+            const topico = document.querySelector(`[data-arquivo="${arquivo}"]`)?.textContent.trim() || arquivo;
+            resultados.push({
+              tipo: 'subtopico',
+              titulo: h2.textContent.trim(),
+              topico: topico,
+              arquivo: arquivo,
+              id: this.criarId(h2.textContent),
+              trecho: texto,
+              posicao: 'h2'
+            });
+          }
+        });
 
-      const paragrafos = tempDiv.querySelectorAll('p');
-      paragrafos.forEach(p => {
-        const texto = p.textContent.toLowerCase();
-        if (texto.includes(termoLower)) {
-          const topico = document.querySelector(`[data-arquivo="${arquivo}"]`).textContent.trim();
-          resultados.push({
-            tipo: 'conteudo',
-            titulo: p.textContent.substring(0, 50) + '...',
-            topico: topico,
-            arquivo: arquivo,
-            trecho: texto
-          });
-        }
-      });
-    });
+        // Buscar em parágrafos
+        const paragrafos = tempDiv.querySelectorAll('p');
+        paragrafos.forEach(p => {
+          const texto = p.textContent.toLowerCase();
+          if (texto.includes(termoLower)) {
+            const topico = document.querySelector(`[data-arquivo="${arquivo}"]`)?.textContent.trim() || arquivo;
+            resultados.push({
+              tipo: 'conteudo',
+              titulo: p.textContent.substring(0, 50) + '...',
+              topico: topico,
+              arquivo: arquivo,
+              textoCompleto: p.textContent,
+              trecho: texto,
+              posicao: 'p'
+            });
+          }
+        });
+
+        // Buscar em listas
+        const itensLista = tempDiv.querySelectorAll('li');
+        itensLista.forEach(li => {
+          const texto = li.textContent.toLowerCase();
+          if (texto.includes(termoLower)) {
+            const topico = document.querySelector(`[data-arquivo="${arquivo}"]`)?.textContent.trim() || arquivo;
+            resultados.push({
+              tipo: 'conteudo',
+              titulo: li.textContent.substring(0, 50) + '...',
+              topico: topico,
+              arquivo: arquivo,
+              textoCompleto: li.textContent,
+              trecho: texto,
+              posicao: 'li'
+            });
+          }
+        });
+
+      } catch (error) {
+        console.error('Erro ao buscar no arquivo:', arquivo, error);
+      }
+    }
 
     this.exibirResultadosBusca(resultados, termo);
   }
@@ -2566,7 +2625,9 @@ class GerenciadorAnotacoes {
       container.innerHTML = '<div class="sem-resultados">Nenhum resultado encontrado para "' + termo + '"</div>';
     } else {
       const html = resultados.map(resultado => `
-        <div class="resultado-item" data-arquivo="${resultado.arquivo}" data-tipo="${resultado.tipo}">
+        <div class="resultado-item" data-arquivo="${resultado.arquivo}" data-tipo="${resultado.tipo}" 
+             data-id="${resultado.id || ''}" data-texto="${resultado.textoCompleto ? resultado.textoCompleto.replace(/"/g, '&quot;') : ''}"
+             data-posicao="${resultado.posicao || ''}">
           <div class="resultado-topico">${resultado.tipo === 'topico' ? 'Tópico' : 'Em: ' + resultado.topico}</div>
           <div class="resultado-titulo">${resultado.titulo}</div>
           <div class="resultado-trecho">${this.destacarTermo(resultado.trecho, termo)}</div>
@@ -2585,7 +2646,19 @@ class GerenciadorAnotacoes {
     document.querySelectorAll('.resultado-item').forEach(item => {
       item.addEventListener('click', () => {
         const arquivo = item.getAttribute('data-arquivo');
-        this.carregarTopico(arquivo);
+        const tipo = item.getAttribute('data-tipo');
+        const id = item.getAttribute('data-id');
+        const texto = item.getAttribute('data-texto');
+        const posicao = item.getAttribute('data-posicao');
+        
+        let scrollTo = null;
+        if (tipo === 'subtopico' && id) {
+          scrollTo = { tipo: 'id', valor: id };
+        } else if (tipo === 'conteudo' && texto) {
+          scrollTo = { tipo: 'texto', valor: texto, posicao: posicao };
+        }
+        
+        this.carregarTopico(arquivo, scrollTo);
         container.style.display = 'none';
         document.querySelectorAll('.topico-item').forEach(i => {
           i.style.display = 'flex';
@@ -2598,6 +2671,61 @@ class GerenciadorAnotacoes {
   destacarTermo(texto, termo) {
     const regex = new RegExp(`(${termo})`, 'gi');
     return texto.replace(regex, '<mark>$1</mark>').substring(0, 100) + '...';
+  }
+
+  rolarParaElemento(dados) {
+    if (!dados) return;
+    
+    setTimeout(() => {
+      if (dados.tipo === 'id') {
+        // Procurar por elemento com ID
+        let elemento = document.getElementById(dados.valor);
+        if (!elemento) {
+          // Tentar encontrar por atributo data-subtopico
+          elemento = document.querySelector(`[data-subtopico="${dados.valor}"]`);
+          if (elemento) {
+            // Clicar no subtópico para carregar o conteúdo
+            elemento.click();
+            setTimeout(() => {
+              const container = document.getElementById('conteudo-subtopico');
+              if (container) {
+                container.scrollTop = 0;
+              }
+            }, 300);
+          }
+        } else {
+          elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          this.destacarElemento(elemento);
+        }
+      } else if (dados.tipo === 'texto') {
+        // Procurar por elemento que contenha o texto
+        const seletor = dados.posicao || 'p, li, h2, h3, h4';
+        const elementos = document.querySelectorAll(`#conteudo-dinamico ${seletor}`);
+        
+        for (let elemento of elementos) {
+          if (elemento.textContent.includes(dados.valor)) {
+            elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            this.destacarElemento(elemento);
+            break;
+          }
+        }
+      }
+    }, 500);
+  }
+
+  destacarElemento(elemento) {
+    elemento.style.transition = 'background-color 1s';
+    elemento.style.backgroundColor = '#fff7c0';
+    elemento.style.padding = '8px';
+    elemento.style.borderRadius = '4px';
+    elemento.style.margin = '4px 0';
+    
+    setTimeout(() => {
+      elemento.style.backgroundColor = '';
+      elemento.style.padding = '';
+      elemento.style.borderRadius = '';
+      elemento.style.margin = '';
+    }, 3000);
   }
 }
 
@@ -2639,8 +2767,25 @@ document.addEventListener('DOMContentLoaded', function() {
   // Eventos para a busca
   const searchInput = document.getElementById('campo-busca');
   if (searchInput) {
+    let timeout;
     searchInput.addEventListener('input', function(e) {
-      gerenciador.buscarConteudo(e.target.value);
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        gerenciador.buscarConteudo(e.target.value);
+      }, 300);
+    });
+    
+    // Fechar resultados ao clicar fora
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.search') && !e.target.closest('.resultados-busca')) {
+        const resultados = document.getElementById('resultados-busca');
+        if (resultados) {
+          resultados.style.display = 'none';
+          document.querySelectorAll('.topico-item').forEach(item => {
+            item.style.display = 'flex';
+          });
+        }
+      }
     });
   }
 
@@ -2669,6 +2814,15 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('popup-overlay').addEventListener('click', function(e) {
     if (e.target === this) {
       gerenciador.fecharPopup();
+    }
+  });
+
+  // Evento para tecla ESC cancelar seleção
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      if (gerenciador.modoSelecao) {
+        gerenciador.desativarModoSelecao();
+      }
     }
   });
 

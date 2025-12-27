@@ -197,7 +197,6 @@
             border-radius: 14px;
             padding: 20px;
             box-shadow: 0 10px 30px rgba(11, 78, 167, .06);
-            /* Removido min-height para que se ajuste ao conteúdo */
             position: relative;
         }
 
@@ -487,6 +486,117 @@
             display: block;
         }
 
+        /* Modal de impressão */
+        .print-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .print-modal.ativo {
+            display: flex;
+        }
+
+        .print-container {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .print-header {
+            padding: 20px;
+            background: var(--azul);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .print-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .print-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .print-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .print-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .print-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            min-height: 500px;
+        }
+
+        .print-tools {
+            padding: 16px 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .print-loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: var(--ink);
+        }
+
+        .print-loading svg {
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -512,6 +622,17 @@
             
             .arquivo-botoes {
                 flex-direction: column;
+            }
+            
+            .print-modal {
+                padding: 10px;
+            }
+            
+            .print-container {
+                width: 100%;
+                height: 100%;
+                max-height: 100%;
+                border-radius: 0;
             }
         }
     </style>
@@ -599,7 +720,7 @@
                                     </svg>
                                     Baixar PDF
                                 </a>
-                                <button class="print-btn" onclick="window.open('pdfs/Planilhas de Autocontrole - Pão de Ouro Atualizadas.pdf'); window.print();">
+                                <button class="print-btn" data-pdf="pdfs/Planilhas de Autocontrole - Pão de Ouro Atualizadas.pdf" data-titulo="PDF Original - Planilhas de Autocontrole">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
                                     </svg>
@@ -632,6 +753,43 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de impressão -->
+    <div class="print-modal" id="print-modal">
+        <div class="print-container">
+            <div class="print-header">
+                <h3 id="print-titulo">Imprimindo PDF</h3>
+                <button class="print-close" id="print-close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="print-content">
+                <div class="print-loading" id="print-loading">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                    </svg>
+                    <p>Carregando PDF para impressão...</p>
+                </div>
+                <iframe class="print-iframe" id="print-iframe"></iframe>
+            </div>
+            <div class="print-tools">
+                <button class="btn-toolbar" id="print-now">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+                    </svg>
+                    Imprimir Agora
+                </button>
+                <button class="btn-toolbar btn-fechar" id="print-cancel">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                    Cancelar
+                </button>
             </div>
         </div>
     </div>
@@ -740,6 +898,15 @@
             const btnFecharSidebar = document.getElementById('btn-fechar-sidebar');
             const campoBusca = document.getElementById('campo-busca');
             
+            // Elementos do modal de impressão
+            const printModal = document.getElementById('print-modal');
+            const printIframe = document.getElementById('print-iframe');
+            const printLoading = document.getElementById('print-loading');
+            const printTitulo = document.getElementById('print-titulo');
+            const printClose = document.getElementById('print-close');
+            const printNow = document.getElementById('print-now');
+            const printCancel = document.getElementById('print-cancel');
+            
             // Dados de TODOS os arquivos para busca global
             const todosArquivos = [
                 // Arquivos Originais
@@ -808,6 +975,79 @@
                 }
             ];
 
+            // Função para abrir o modal de impressão
+            function abrirImpressao(pdfUrl, titulo) {
+                printTitulo.textContent = `Imprimindo: ${titulo}`;
+                printModal.classList.add('ativo');
+                printLoading.style.display = 'flex';
+                printIframe.style.display = 'none';
+                
+                // Carregar o PDF no iframe
+                printIframe.src = pdfUrl;
+                
+                // Quando o iframe carregar, mostrar o conteúdo
+                printIframe.onload = function() {
+                    printLoading.style.display = 'none';
+                    printIframe.style.display = 'block';
+                    
+                    // Tentar focar no iframe para permitir impressão direta
+                    try {
+                        printIframe.contentWindow.focus();
+                    } catch (e) {
+                        console.log("Não foi possível focar no iframe:", e);
+                    }
+                };
+                
+                // Se houver erro no carregamento
+                printIframe.onerror = function() {
+                    printLoading.innerHTML = `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <p>Erro ao carregar o PDF. Verifique se o arquivo existe.</p>
+                    `;
+                };
+            }
+
+            // Função para imprimir o conteúdo do iframe
+            function imprimirIframe() {
+                try {
+                    if (printIframe.contentWindow) {
+                        printIframe.contentWindow.print();
+                    } else {
+                        alert("Não foi possível acessar o conteúdo do PDF para impressão.");
+                    }
+                } catch (e) {
+                    console.error("Erro ao imprimir:", e);
+                    alert("Erro ao tentar imprimir. Tente baixar o PDF e imprimir manualmente.");
+                }
+            }
+
+            // Função para fechar o modal de impressão
+            function fecharImpressao() {
+                printModal.classList.remove('ativo');
+                printIframe.src = '';
+            }
+
+            // Eventos para o modal de impressão
+            printClose.addEventListener('click', fecharImpressao);
+            printCancel.addEventListener('click', fecharImpressao);
+            printNow.addEventListener('click', imprimirIframe);
+
+            // Fechar modal com ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && printModal.classList.contains('ativo')) {
+                    fecharImpressao();
+                }
+            });
+
+            // Fechar modal clicando fora
+            printModal.addEventListener('click', function(e) {
+                if (e.target === printModal) {
+                    fecharImpressao();
+                }
+            });
+
             // Função para gerar o HTML de um arquivo
             function gerarCardArquivo(arquivo) {
                 const tipoIcon = arquivo.tipo === 'pdf' ? 'pdf' : 'docx';
@@ -816,7 +1056,7 @@
                 
                 // Botão de imprimir apenas para PDFs
                 const botaoImprimir = arquivo.tipo === 'pdf' ? 
-                    `<button class="print-btn" onclick="window.open('${arquivo.arquivo}'); window.print();">
+                    `<button class="print-btn" data-pdf="${arquivo.arquivo}" data-titulo="${tituloSetor} - ${arquivo.descricao || 'Planilha do setor'}">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
                         </svg>
@@ -893,6 +1133,17 @@
                             </svg>
                             <p>Nenhum arquivo nesta categoria</p>
                         </div>`;
+                
+                // Adicionar eventos aos botões de impressão recém-criados
+                setTimeout(() => {
+                    document.querySelectorAll('.print-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const pdfUrl = this.getAttribute('data-pdf');
+                            const titulo = this.getAttribute('data-titulo');
+                            abrirImpressao(pdfUrl, titulo);
+                        });
+                    });
+                }, 100);
             }
 
             // Eventos para as categorias
@@ -952,6 +1203,26 @@
                             </svg>
                             <p>Nenhum resultado encontrado para "${termo}"</p>
                         </div>`;
+                
+                // Adicionar eventos aos botões de impressão dos resultados da busca
+                setTimeout(() => {
+                    document.querySelectorAll('.print-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const pdfUrl = this.getAttribute('data-pdf');
+                            const titulo = this.getAttribute('data-titulo');
+                            abrirImpressao(pdfUrl, titulo);
+                        });
+                    });
+                }, 100);
+            });
+
+            // Adicionar eventos aos botões de impressão iniciais
+            document.querySelectorAll('.print-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const pdfUrl = this.getAttribute('data-pdf');
+                    const titulo = this.getAttribute('data-titulo');
+                    abrirImpressao(pdfUrl, titulo);
+                });
             });
         });
     </script>

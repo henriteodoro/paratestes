@@ -125,6 +125,7 @@
     align-items: center;
     gap: 10px;
     border: 1px solid transparent;
+    position: relative;
   }
 
   .dia-item:hover {
@@ -157,6 +158,14 @@
   .dia-item.sem-expediente {
     background: #f8f9fa;
     color: var(--muted);
+  }
+
+  .checkbox-dia {
+    position: absolute;
+    right: 12px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
   }
 
   .conteudo-area {
@@ -352,6 +361,12 @@
     line-height: 1.5;
   }
 
+  .legenda-item.destaque {
+    background: #f0f7ff;
+    border-color: var(--azul);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.1);
+  }
+
   /* TAREFAS DO DIA */
   .tarefas-dia {
     display: grid;
@@ -541,6 +556,45 @@
     height: 18px;
   }
 
+  .resultados-busca {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    margin-top: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 100;
+    display: none;
+  }
+
+  .resultado-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--borda);
+    transition: background 0.2s ease;
+  }
+
+  .resultado-item:hover {
+    background: #f3f8ff;
+  }
+
+  .resultado-data {
+    font-weight: 600;
+    color: var(--ink-strong);
+    margin-bottom: 4px;
+  }
+
+  .resultado-tarefa {
+    font-size: 13px;
+    color: var(--ink);
+    margin-left: 8px;
+  }
+
   /* ANIMAÇÕES */
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
@@ -606,140 +660,83 @@
     height: 20px;
   }
 
-  /* MODAL DE IMPRESSÃO */
-  .modal-impressao {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.7);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
+  /* IMPRESSÃO */
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    
+    .tabela-impressao,
+    .tabela-impressao * {
+      visibility: visible;
+    }
+    
+    .tabela-impressao {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      background: white;
+    }
+    
+    .no-print {
+      display: none !important;
+    }
+    
+    @page {
+      margin: 1cm;
+      size: landscape;
+    }
+    
+    .pagina-impressao {
+      page-break-after: always;
+    }
+    
+    .pagina-impressao:last-child {
+      page-break-after: avoid;
+    }
   }
 
-  .modal-impressao.aberto {
-    display: flex;
-  }
-
-  .modal-conteudo {
-    background: white;
-    width: 95%;
-    max-width: 1400px;
-    max-height: 90vh;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .modal-cabecalho {
-    padding: 20px;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .modal-cabecalho h3 {
-    margin: 0;
-    color: var(--ink-strong);
-    font-size: 20px;
-  }
-
-  .modal-corpo {
-    padding: 20px;
-    overflow-y: auto;
-    flex: 1;
-  }
-
-  .modal-rodape {
-    padding: 20px;
-    border-top: 1px solid #eee;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
-
-  .fechar-modal {
-    background: #f8f9fa;
-    border: 1px solid #ddd;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  .fechar-modal:hover {
-    background: #e9ecef;
-  }
-
-  /* TABELA DE IMPRESSÃO - ESTILO DO SITE */
-  .tabela-impressao-site {
+  /* ESTILOS DE IMPRESSÃO ESPECÍFICOS */
+  .tabela-impressao {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 30px;
-    font-size: 14px;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
   }
 
-  .tabela-impressao-site th {
+  .tabela-impressao th {
     background-color: #4a6491;
     color: white;
-    padding: 12px 15px;
+    padding: 10px;
     text-align: center;
-    font-weight: 600;
+    font-weight: bold;
     border: 1px solid #3a5379;
     vertical-align: top;
   }
 
-  .tabela-impressao-site td {
-    padding: 10px 12px;
+  .tabela-impressao td {
+    padding: 8px;
     border: 1px solid #dee2e6;
     vertical-align: top;
-    background-color: white;
-  }
-
-  .tabela-impressao-site .semana-header {
-    background-color: #2c3e50;
-    color: white;
-    text-align: center;
-    font-size: 16px;
-    padding: 15px;
-  }
-
-  .tabela-impressao-site .dia-header {
-    background-color: #4a6491;
-    color: white;
-    text-align: center;
-    font-weight: bold;
-    padding: 10px;
-    font-size: 14px;
-  }
-
-  .tabela-impressao-site .dia-header.feriado {
-    background-color: #e53935 !important;
-  }
-
-  .tabela-impressao-site .dia-header.sem-expediente {
-    background-color: #78909c !important;
+    height: 120px;
   }
 
   .tarefa-impressao {
-    margin-bottom: 8px;
-    padding: 8px;
+    margin-bottom: 6px;
+    padding: 6px;
     border-left: 3px solid #4a6491;
     background-color: #f8f9fa;
     border-radius: 4px;
-    font-size: 13px;
-  }
-
-  .tarefa-impressao:last-child {
-    margin-bottom: 0;
+    font-size: 11px;
+    page-break-inside: avoid;
   }
 
   .tarefa-titulo-impressao {
     font-weight: 600;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
     color: #333;
   }
 
@@ -749,31 +746,30 @@
     color: #1565c0;
     padding: 2px 6px;
     border-radius: 10px;
-    font-size: 11px;
-    margin-top: 4px;
+    font-size: 10px;
+    margin-top: 3px;
   }
 
   .sem-tarefas-impressao {
     color: #888;
     font-style: italic;
     text-align: center;
-    padding: 20px;
-    font-size: 13px;
+    padding: 10px;
+    font-size: 11px;
   }
 
   .categoria-badge {
     display: inline-block;
     padding: 2px 6px;
     border-radius: 4px;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     color: white;
-    margin-right: 5px;
+    margin-top: 4px;
   }
 
-  /* LEGENDA IMPRESSÃO */
   .legenda-impressao {
-    margin-top: 30px;
+    margin-top: 20px;
     padding: 15px;
     background-color: #f8f9fa;
     border-radius: 8px;
@@ -781,36 +777,37 @@
   }
 
   .legenda-impressao h4 {
-    margin: 0 0 15px 0;
+    margin: 0 0 10px 0;
     color: #2c3e50;
     text-align: center;
+    font-size: 14px;
   }
 
   .legenda-grid-impressao {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
   }
 
   .legenda-item-impressao {
     display: flex;
     align-items: center;
-    padding: 8px;
+    padding: 6px;
     background: white;
-    border-radius: 6px;
+    border-radius: 4px;
     border-left: 4px solid #4a6491;
   }
 
   .legenda-cor-impressao {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    margin-right: 10px;
+    margin-right: 8px;
     flex-shrink: 0;
   }
 
   .legenda-texto-impressao {
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .legenda-texto-impressao strong {
@@ -818,46 +815,20 @@
     margin-bottom: 2px;
   }
 
-  /* IMPRESSÃO DIRETA */
-  @media print {
-    body * {
-      visibility: hidden;
-    }
-    
-    .modal-conteudo, .modal-conteudo * {
-      visibility: visible;
-    }
-    
-    .modal-conteudo {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      max-width: none;
-      max-height: none;
-      box-shadow: none;
-      border: none;
-      padding: 0;
-      margin: 0;
-      background: white;
-    }
-    
-    .modal-cabecalho, .modal-rodape {
-      display: none;
-    }
-    
-    .tabela-impressao-site {
-      page-break-inside: avoid;
-    }
-    
-    .tarefa-impressao {
-      page-break-inside: avoid;
-    }
-    
-    @page {
-      margin: 0.5cm;
-      size: landscape;
-    }
+  .titulo-impressao {
+    text-align: center;
+    margin: 0 0 20px 0;
+    color: #2c3e50;
+    font-size: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #4a6491;
+  }
+
+  .data-impressao {
+    font-size: 10px;
+    color: #666;
+    text-align: center;
+    margin-bottom: 20px;
   }
 </style>
 </head>
@@ -868,7 +839,7 @@
     <p class="lead">Sistema organizado de rotinas por dia da semana - Dezembro 2025 a Janeiro 2026</p>
   </header>
 
-  <div class="toolbar">
+  <div class="toolbar no-print">
     <div class="search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -883,9 +854,16 @@
       </svg>
       Imprimir Tudo
     </button>
+    <button class="btn-toolbar" id="btn-imprimir-selecionados">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+        <rect x="6" y="14" width="12" height="8"/>
+      </svg>
+      Imprimir Selecionados
+    </button>
   </div>
 
-  <div class="legenda-container">
+  <div class="legenda-container no-print">
     <div class="legenda-header" id="legenda-toggle">
       <h3>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -907,95 +885,7 @@
 
   <div class="rotinas-container">
     <div class="dias-sidebar">
-      <div class="periodo-secao">
-        <h3>31/12/2025 - 02/01/2026</h3>
-        <div class="dia-item" data-data="31/12/2025">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
-          </svg>
-          31/12 - Quarta-feira
-        </div>
-        <div class="dia-item feriado" data-data="01/01/2026">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-          </svg>
-          01/01 - Quinta-feira
-        </div>
-        <div class="dia-item sem-expediente" data-data="02/01/2026">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-          </svg>
-          02/01 - Sexta-feira
-        </div>
-      </div>
-
-      <div class="periodo-secao">
-        <h3>05/01/2026 - 09/01/2026</h3>
-        <div class="dia-item" data-data="05/01/2026">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
-          </svg>
-          05/01 - Segunda-feira
-        </div>
-        <div class="dia-item" data-data="06/01/2026">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
-          </svg>
-          06/01 - Terça-feira
-        </div>
-        <div class="dia-item" data-data="07/01/2026">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
-          </svg>
-          07/01 - Quarta-feira
-        </div>
-        <div class="dia-item" data-data="08/01/2026">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
-          </svg>
-          08/01 - Quinta-feira
-        </div>
-        <div class="dia-item" data-data="09/01/2026">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
-          </svg>
-          09/01 - Sexta-feira
-        </div>
-      </div>
-
-      <div class="periodo-secao">
-        <h3>12/01/2026 - 16/01/2026</h3>
-        <div class="dia-item" data-data="12/01/2026">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
-          </svg>
-          12/01 - Segunda-feira
-        </div>
-        <div class="dia-item" data-data="13/01/2026">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
-          </svg>
-          13/01 - Terça-feira
-        </div>
-        <div class="dia-item" data-data="14/01/2026">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
-          </svg>
-          14/01 - Quarta-feira
-        </div>
-        <div class="dia-item" data-data="15/01/2026">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
-          </svg>
-          15/01 - Quinta-feira
-        </div>
-        <div class="dia-item" data-data="16/01/2026">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
-          </svg>
-          16/01 - Sexta-feira
-        </div>
-      </div>
+      <!-- Dias serão carregados dinamicamente -->
     </div>
 
     <div class="conteudo-area">
@@ -1029,30 +919,7 @@
   </div>
 </div>
 
-<!-- Modal para impressão -->
-<div class="modal-impressao" id="modal-impressao">
-  <div class="modal-conteudo">
-    <div class="modal-cabecalho">
-      <h3 id="modal-titulo">Impressão de Rotinas</h3>
-      <button class="fechar-modal" id="fechar-modal">&times;</button>
-    </div>
-    <div class="modal-corpo" id="modal-corpo">
-      <!-- A tabela de impressão será carregada aqui -->
-    </div>
-    <div class="modal-rodape">
-      <button class="btn-acao" id="btn-imprimir-modal">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-          <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-          <rect x="6" y="14" width="12" height="8"/>
-        </svg>
-        Imprimir
-      </button>
-      <button class="fechar-modal">Cancelar</button>
-    </div>
-  </div>
-</div>
-
-<button class="btn-voltar-topo" id="btn-voltar-topo">
+<button class="btn-voltar-topo no-print" id="btn-voltar-topo">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <polyline points="18 15 12 9 6 15"/>
   </svg>
@@ -1133,7 +1000,7 @@ const categorias = {
   }
 };
 
-// Dados das rotinas por data - ATUALIZADO COM OS DADOS DA IMAGEM
+// Dados das rotinas por data
 const rotinas = {
   "31/12/2025": {
     data: "31/12/2025",
@@ -1667,12 +1534,14 @@ class SistemaRotinas {
     this.termoBusca = "";
     this.buscaAtiva = false;
     this.legendaAberta = false;
+    this.diasSelecionados = new Set();
     
     this.init();
   }
   
   init() {
     this.carregarLegenda();
+    this.carregarSidebar();
     this.configurarEventos();
     this.verificarHoje();
   }
@@ -1703,13 +1572,62 @@ class SistemaRotinas {
     grid.innerHTML = html;
   }
   
+  carregarSidebar() {
+    const sidebar = document.querySelector(".dias-sidebar");
+    const semanas = this.agruparPorSemanas();
+    
+    let html = "";
+    
+    semanas.forEach((semana, index) => {
+      html += `<div class="periodo-secao">`;
+      html += `<h3>${semana.titulo}</h3>`;
+      
+      semana.dias.forEach(data => {
+        const dia = rotinas[data];
+        if (!dia) return;
+        
+        let classeExtra = "";
+        if (dia.feriado) classeExtra = "feriado";
+        if (dia.semExpediente && !dia.feriado) classeExtra = "sem-expediente";
+        
+        html += `
+          <div class="dia-item ${classeExtra}" data-data="${data}">
+            <input type="checkbox" class="checkbox-dia" data-data="${data}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <path d="M8 2v4M16 2v4M2 10h20"/>
+            </svg>
+            ${data.split('/')[0]}/${data.split('/')[1]} - ${dia.diaSemana}
+          </div>
+        `;
+      });
+      
+      html += `</div>`;
+    });
+    
+    sidebar.innerHTML = html;
+  }
+  
   configurarEventos() {
     // Dias da sidebar
-    document.querySelectorAll(".dia-item").forEach(item => {
-      item.addEventListener("click", () => {
-        const data = item.getAttribute("data-data");
+    document.addEventListener("click", (e) => {
+      const diaItem = e.target.closest(".dia-item");
+      if (diaItem && !e.target.classList.contains("checkbox-dia")) {
+        const data = diaItem.getAttribute("data-data");
         this.carregarDia(data);
-      });
+      }
+    });
+    
+    // Checkboxes
+    document.addEventListener("change", (e) => {
+      if (e.target.classList.contains("checkbox-dia")) {
+        const data = e.target.getAttribute("data-data");
+        if (e.target.checked) {
+          this.diasSelecionados.add(data);
+        } else {
+          this.diasSelecionados.delete(data);
+        }
+      }
     });
     
     // Toggle legenda
@@ -1740,22 +1658,9 @@ class SistemaRotinas {
       this.imprimirTudo();
     });
     
-    // Botão imprimir no modal
-    document.getElementById("btn-imprimir-modal").addEventListener("click", () => {
-      window.print();
-    });
-    
-    // Fechar modal
-    document.getElementById("fechar-modal").addEventListener("click", () => {
-      this.fecharModal();
-    });
-    
-    document.querySelectorAll(".fechar-modal").forEach(btn => {
-      if (btn.id !== "fechar-modal") {
-        btn.addEventListener("click", () => {
-          this.fecharModal();
-        });
-      }
+    // Botão imprimir selecionados
+    document.getElementById("btn-imprimir-selecionados").addEventListener("click", () => {
+      this.imprimirSelecionados();
     });
     
     // Botão voltar ao topo
@@ -1834,8 +1739,8 @@ class SistemaRotinas {
       tarefas = dia.tarefas.filter(tarefa => 
         tarefa.titulo.toLowerCase().includes(termo) ||
         (tarefa.pessoa && tarefa.pessoa.toLowerCase().includes(termo)) ||
-        (tarefa.categoria && categorias[tarefa.categoria].nome.toLowerCase().includes(termo)) ||
-        (tarefa.categoria && categorias[tarefa.categoria].descricao.toLowerCase().includes(termo))
+        (tarefa.categoria && categorias[tarefa.categoria]?.nome.toLowerCase().includes(termo)) ||
+        (tarefa.categoria && categorias[tarefa.categoria]?.descricao.toLowerCase().includes(termo))
       );
     }
     
@@ -1890,29 +1795,26 @@ class SistemaRotinas {
   realizarBuscaGlobal(termo) {
     const resultadosContainer = document.getElementById("resultados-busca");
     
-    if (!resultadosContainer) return;
-    
-    if (termo.trim().length === 0) {
+    if (!termo.trim()) {
       resultadosContainer.style.display = "none";
-      resultadosContainer.innerHTML = "";
       return;
     }
     
-    this.termoBusca = termo.toLowerCase();
+    this.termoBusca = termo;
     let resultadosHTML = "";
+    let encontrouResultados = false;
     
     // Buscar em todos os dias
     Object.entries(rotinas).forEach(([data, dia]) => {
-      if (dia.semExpediente && !dia.feriado) return;
-      
       const tarefasEncontradas = dia.tarefas.filter(tarefa => 
-        tarefa.titulo.toLowerCase().includes(this.termoBusca) ||
-        (tarefa.pessoa && tarefa.pessoa.toLowerCase().includes(this.termoBusca)) ||
-        (tarefa.categoria && categorias[tarefa.categoria].nome.toLowerCase().includes(this.termoBusca)) ||
-        (tarefa.categoria && categorias[tarefa.categoria].descricao.toLowerCase().includes(this.termoBusca))
+        tarefa.titulo.toLowerCase().includes(termo.toLowerCase()) ||
+        (tarefa.pessoa && tarefa.pessoa.toLowerCase().includes(termo.toLowerCase())) ||
+        (tarefa.categoria && categorias[tarefa.categoria]?.nome.toLowerCase().includes(termo.toLowerCase())) ||
+        (tarefa.categoria && categorias[tarefa.categoria]?.descricao.toLowerCase().includes(termo.toLowerCase()))
       );
       
       if (tarefasEncontradas.length > 0) {
+        encontrouResultados = true;
         resultadosHTML += `<div class="resultado-item" data-data="${data}">`;
         resultadosHTML += `<div class="resultado-data">${dia.data} - ${dia.diaSemana}</div>`;
         tarefasEncontradas.forEach(tarefa => {
@@ -1922,7 +1824,7 @@ class SistemaRotinas {
       }
     });
     
-    if (resultadosHTML) {
+    if (encontrouResultados) {
       resultadosContainer.innerHTML = resultadosHTML;
       resultadosContainer.style.display = "block";
       
@@ -1932,7 +1834,6 @@ class SistemaRotinas {
           const data = item.getAttribute("data-data");
           this.carregarDia(data);
           resultadosContainer.style.display = "none";
-          resultadosContainer.innerHTML = "";
           document.getElementById("campo-busca").value = "";
         });
       });
@@ -1943,40 +1844,44 @@ class SistemaRotinas {
   }
   
   mostrarCategoria(codigo) {
+    // Subir a página até o topo
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    
     // Abrir legenda se estiver fechada
     if (!this.legendaAberta) {
       this.toggleLegenda(true);
     }
     
-    // Rolar até a legenda
+    // Aguardar a abertura da legenda e rolar até o item
     setTimeout(() => {
-      document.getElementById("legenda-conteudo").scrollIntoView({ behavior: "smooth" });
+      const item = document.getElementById(`legenda-${codigo}`);
+      const conteudoLegenda = document.getElementById("legenda-conteudo");
       
-      // Destacar item
-      this.destacarLegendaItem(codigo);
+      if (item && conteudoLegenda) {
+        // Rolar o container da legenda até o item
+        const offsetTop = item.offsetTop - conteudoLegenda.offsetTop;
+        conteudoLegenda.scrollTop = offsetTop - 20;
+        
+        // Destacar o item
+        this.destacarLegendaItem(codigo);
+      }
     }, 100);
   }
   
   destacarLegendaItem(codigo) {
     // Remover destaque anterior
     document.querySelectorAll(".legenda-item").forEach(item => {
-      item.style.background = "";
-      item.style.borderColor = "";
-      item.style.boxShadow = "";
+      item.classList.remove("destaque");
     });
     
     // Destacar novo item
     const item = document.getElementById(`legenda-${codigo}`);
     if (item) {
-      item.style.background = "#f0f7ff";
-      item.style.borderColor = "var(--azul)";
-      item.style.boxShadow = "0 4px 12px rgba(0,0,0,0.05)";
+      item.classList.add("destaque");
       
       // Remover destaque após 3 segundos
       setTimeout(() => {
-        item.style.background = "";
-        item.style.borderColor = "";
-        item.style.boxShadow = "";
+        item.classList.remove("destaque");
       }, 3000);
     }
   }
@@ -2018,50 +1923,6 @@ class SistemaRotinas {
     }
   }
   
-  // Gerar tabela para impressão de um dia específico
-  gerarTabelaDia(dia) {
-    const semanas = this.agruparPorSemanas();
-    let html = `<h2>${dia.data} - ${dia.diaSemana}</h2>`;
-    
-    if (dia.semExpediente) {
-      html += `<p><strong>${dia.feriado ? dia.feriadoNome : "Sem expediente"}</strong></p>`;
-    } else if (dia.tarefas && dia.tarefas.length > 0) {
-      html += `<table class="tabela-impressao-site">`;
-      html += `<thead><tr><th colspan="2" class="dia-header">${dia.data} - ${dia.diaSemana}</th></tr></thead>`;
-      html += `<tbody>`;
-      
-      dia.tarefas.forEach(tarefa => {
-        const categoria = tarefa.categoria ? categorias[tarefa.categoria] : null;
-        
-        html += `<tr>`;
-        html += `<td width="70%">`;
-        html += `<div class="tarefa-impressao">`;
-        html += `<div class="tarefa-titulo-impressao">${tarefa.titulo}</div>`;
-        if (tarefa.descricao) {
-          html += `<div style="font-size: 12px; color: #666; margin-top: 4px;">${tarefa.descricao}</div>`;
-        }
-        if (tarefa.pessoa) {
-          html += `<div class="tarefa-pessoa-impressao">${tarefa.pessoa}</div>`;
-        }
-        html += `</div>`;
-        html += `</td>`;
-        html += `<td width="30%">`;
-        if (categoria) {
-          html += `<span class="categoria-badge" style="background-color: ${categoria.cor}">${tarefa.categoria}: ${categoria.nome}</span>`;
-        }
-        html += `</td>`;
-        html += `</tr>`;
-      });
-      
-      html += `</tbody></table>`;
-    } else {
-      html += `<div class="sem-tarefas-impressao">Nenhuma tarefa agendada para este dia.</div>`;
-    }
-    
-    return html;
-  }
-  
-  // Agrupar dias por semanas (como no site)
   agruparPorSemanas() {
     const semanas = [
       {
@@ -2081,30 +1942,126 @@ class SistemaRotinas {
     return semanas;
   }
   
-  // Gerar tabela completa para impressão (estilo do site)
-  gerarTabelaCompleta() {
-    const semanas = this.agruparPorSemanas();
-    let html = `<h2 style="text-align: center; margin-bottom: 30px;">Rotinas Completas - Dezembro 2025 a Janeiro 2026</h2>`;
+  imprimirDia() {
+    if (!this.diaAtual) {
+      alert("Selecione um dia para imprimir.");
+      return;
+    }
     
-    semanas.forEach((semana, indexSemana) => {
-      html += `<h3 style="text-align: center; margin: 30px 0 20px 0; color: #2c3e50;">${semana.titulo}</h3>`;
-      html += `<table class="tabela-impressao-site">`;
+    const dia = rotinas[this.diaAtual];
+    const categoriasUsadas = this.obterCategoriasDoDia(dia);
+    
+    const janela = window.open("", "_blank");
+    janela.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Rotina - ${dia.data} - ${dia.diaSemana}</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          h1, h2, h3 { text-align: center; }
+          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+          th { background-color: #f2f2f2; }
+          .legenda { margin-top: 30px; }
+          @media print {
+            @page { margin: 1cm; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Rotina Diária</h1>
+        <h2>${dia.data} - ${dia.diaSemana}</h2>
+        ${dia.feriado ? `<p><strong>Feriado: ${dia.feriadoNome}</strong></p>` : ''}
+        ${dia.semExpediente ? `<p><strong>Sem expediente</strong></p>` : ''}
+        
+        ${dia.tarefas.length > 0 ? `
+          <table>
+            <thead>
+              <tr>
+                <th>Tarefa</th>
+                <th>Categoria</th>
+                <th>Responsável</th>
+                <th>Descrição</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${dia.tarefas.map(tarefa => `
+                <tr>
+                  <td>${tarefa.titulo}</td>
+                  <td>${tarefa.categoria ? tarefa.categoria : ''}</td>
+                  <td>${tarefa.pessoa ? tarefa.pessoa : ''}</td>
+                  <td>${tarefa.descricao ? tarefa.descricao : ''}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        ` : '<p>Nenhuma tarefa agendada.</p>'}
+        
+        ${categoriasUsadas.length > 0 ? `
+          <div class="legenda">
+            <h3>Legenda das Categorias</h3>
+            <ul>
+              ${categoriasUsadas.map(cat => `
+                <li><strong>${cat.codigo}:</strong> ${cat.nome} - ${cat.descricao}</li>
+              `).join('')}
+            </ul>
+          </div>
+        ` : ''}
+      </body>
+      </html>
+    `);
+    
+    janela.document.close();
+    janela.print();
+  }
+  
+  imprimirTudo() {
+    const semanas = this.agruparPorSemanas();
+    const categoriasUsadas = this.obterCategoriasDeTodasTarefas();
+    
+    const janela = window.open("", "_blank");
+    let conteudo = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Rotinas Completas - Dezembro 2025 a Janeiro 2026</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          h1, h2, h3 { text-align: center; }
+          .semana { page-break-after: always; margin-bottom: 40px; }
+          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+          th { background-color: #f2f2f2; }
+          .legenda { margin-top: 30px; }
+          @media print {
+            @page { margin: 1cm; }
+            .semana { page-break-after: always; }
+            .semana:last-child { page-break-after: avoid; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Rotinas Completas</h1>
+        <h2>Dezembro 2025 a Janeiro 2026</h2>
+    `;
+    
+    semanas.forEach(semana => {
+      conteudo += `<div class="semana">`;
+      conteudo += `<h3>${semana.titulo}</h3>`;
+      conteudo += `<table class="tabela-impressao">`;
       
-      // Cabeçalho com dias da semana
-      html += `<thead><tr>`;
+      // Cabeçalho
+      conteudo += `<thead><tr>`;
       semana.dias.forEach(data => {
         const dia = rotinas[data];
         if (dia) {
-          let classeHeader = "dia-header";
-          if (dia.feriado) classeHeader += " feriado";
-          if (dia.semExpediente && !dia.feriado) classeHeader += " sem-expediente";
-          
-          html += `<th class="${classeHeader}">${dia.data}<br>${dia.diaSemana}</th>`;
+          conteudo += `<th>${dia.data}<br>${dia.diaSemana}</th>`;
         }
       });
-      html += `</tr></thead>`;
+      conteudo += `</tr></thead>`;
       
-      // Encontrar o número máximo de tarefas em qualquer dia desta semana
+      // Corpo - encontrar máximo de tarefas
       let maxTarefas = 0;
       semana.dias.forEach(data => {
         const dia = rotinas[data];
@@ -2113,107 +2070,185 @@ class SistemaRotinas {
         }
       });
       
-      // Corpo da tabela com tarefas
-      html += `<tbody>`;
+      conteudo += `<tbody>`;
       for (let i = 0; i < maxTarefas; i++) {
-        html += `<tr>`;
-        
+        conteudo += `<tr>`;
         semana.dias.forEach(data => {
           const dia = rotinas[data];
-          html += `<td>`;
-          
-          if (dia) {
-            if (dia.semExpediente) {
-              if (i === 0) {
-                html += `<div class="sem-tarefas-impressao">${dia.feriado ? dia.feriadoNome : "Sem expediente"}</div>`;
-              }
-            } else if (dia.tarefas && dia.tarefas[i]) {
-              const tarefa = dia.tarefas[i];
-              const categoria = tarefa.categoria ? categorias[tarefa.categoria] : null;
-              
-              html += `<div class="tarefa-impressao">`;
-              html += `<div class="tarefa-titulo-impressao">${tarefa.titulo}</div>`;
-              if (tarefa.descricao) {
-                html += `<div style="font-size: 12px; color: #666; margin-top: 4px;">${tarefa.descricao}</div>`;
-              }
-              if (tarefa.pessoa) {
-                html += `<div class="tarefa-pessoa-impressao">${tarefa.pessoa}</div>`;
-              }
-              if (categoria) {
-                html += `<div style="margin-top: 4px;"><span class="categoria-badge" style="background-color: ${categoria.cor}">${tarefa.categoria}</span></div>`;
-              }
-              html += `</div>`;
-            } else if (i === 0 && (!dia.tarefas || dia.tarefas.length === 0)) {
-              html += `<div class="sem-tarefas-impressao">Nenhuma tarefa</div>`;
-            }
+          conteudo += `<td>`;
+          if (dia && dia.tarefas && dia.tarefas[i]) {
+            const tarefa = dia.tarefas[i];
+            conteudo += `<strong>${tarefa.titulo}</strong><br>`;
+            if (tarefa.descricao) conteudo += `${tarefa.descricao}<br>`;
+            if (tarefa.pessoa) conteudo += `<em>${tarefa.pessoa}</em><br>`;
+            if (tarefa.categoria) conteudo += `<small>Categoria: ${tarefa.categoria}</small>`;
           }
-          
-          html += `</td>`;
+          conteudo += `</td>`;
         });
-        
-        html += `</tr>`;
+        conteudo += `</tr>`;
       }
-      html += `</tbody></table>`;
+      conteudo += `</tbody></table></div>`;
     });
     
-    // Adicionar legenda
-    html += this.gerarLegendaImpressao();
-    
-    return html;
-  }
-  
-  gerarLegendaImpressao() {
-    let html = `<div class="legenda-impressao">`;
-    html += `<h4>Legenda das Categorias</h4>`;
-    html += `<div class="legenda-grid-impressao">`;
-    
-    Object.entries(categorias).forEach(([codigo, categoria]) => {
-      html += `
-        <div class="legenda-item-impressao">
-          <div class="legenda-cor-impressao" style="background-color: ${categoria.cor}"></div>
-          <div class="legenda-texto-impressao">
-            <strong>${codigo}: ${categoria.nome}</strong>
-            <span>${categoria.descricao}</span>
-          </div>
-        </div>
-      `;
+    // Legenda
+    conteudo += `<div class="legenda">`;
+    conteudo += `<h3>Legenda das Categorias</h3>`;
+    conteudo += `<table>`;
+    conteudo += `<thead><tr><th>Código</th><th>Nome</th><th>Descrição</th></tr></thead>`;
+    conteudo += `<tbody>`;
+    categoriasUsadas.forEach(cat => {
+      conteudo += `<tr>`;
+      conteudo += `<td><strong>${cat.codigo}</strong></td>`;
+      conteudo += `<td>${cat.nome}</td>`;
+      conteudo += `<td>${cat.descricao}</td>`;
+      conteudo += `</tr>`;
     });
+    conteudo += `</tbody></table></div>`;
     
-    html += `</div></div>`;
-    return html;
-  }
-  
-  abrirModal(titulo, conteudo) {
-    document.getElementById("modal-titulo").textContent = titulo;
-    document.getElementById("modal-corpo").innerHTML = conteudo;
-    document.getElementById("modal-impressao").classList.add("aberto");
+    conteudo += `</body></html>`;
     
-    // Rolar para o topo do modal
-    document.getElementById("modal-corpo").scrollTop = 0;
+    janela.document.write(conteudo);
+    janela.document.close();
+    janela.print();
   }
   
-  fecharModal() {
-    document.getElementById("modal-impressao").classList.remove("aberto");
-  }
-  
-  imprimirDia() {
-    if (!this.diaAtual) {
-      alert("Selecione um dia para imprimir.");
+  imprimirSelecionados() {
+    if (this.diasSelecionados.size === 0) {
+      alert("Selecione pelo menos um dia para imprimir.");
       return;
     }
     
-    const dia = rotinas[this.diaAtual];
-    const titulo = `Rotina - ${dia.data} - ${dia.diaSemana}`;
-    const conteudo = this.gerarTabelaDia(dia);
+    const diasArray = Array.from(this.diasSelecionados).sort();
+    const categoriasUsadas = this.obterCategoriasDeDiasSelecionados(diasArray);
     
-    this.abrirModal(titulo, conteudo);
+    const janela = window.open("", "_blank");
+    let conteudo = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Rotinas Selecionadas</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          h1, h2, h3 { text-align: center; }
+          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+          th { background-color: #f2f2f2; }
+          .dia { page-break-after: always; margin-bottom: 40px; }
+          .legenda { margin-top: 30px; }
+          @media print {
+            @page { margin: 1cm; }
+            .dia { page-break-after: always; }
+            .dia:last-child { page-break-after: avoid; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Rotinas Selecionadas</h1>
+        <h2>${diasArray.length} dia(s) selecionado(s)</h2>
+    `;
+    
+    diasArray.forEach(data => {
+      const dia = rotinas[data];
+      if (dia) {
+        conteudo += `<div class="dia">`;
+        conteudo += `<h3>${dia.data} - ${dia.diaSemana}</h3>`;
+        
+        if (dia.semExpediente) {
+          conteudo += `<p><strong>${dia.feriado ? dia.feriadoNome : "Sem expediente"}</strong></p>`;
+        } else if (dia.tarefas.length > 0) {
+          conteudo += `<table>`;
+          conteudo += `<thead><tr><th>Tarefa</th><th>Categoria</th><th>Responsável</th><th>Descrição</th></tr></thead>`;
+          conteudo += `<tbody>`;
+          dia.tarefas.forEach(tarefa => {
+            conteudo += `<tr>`;
+            conteudo += `<td>${tarefa.titulo}</td>`;
+            conteudo += `<td>${tarefa.categoria || ''}</td>`;
+            conteudo += `<td>${tarefa.pessoa || ''}</td>`;
+            conteudo += `<td>${tarefa.descricao || ''}</td>`;
+            conteudo += `</tr>`;
+          });
+          conteudo += `</tbody></table>`;
+        } else {
+          conteudo += `<p>Nenhuma tarefa agendada.</p>`;
+        }
+        conteudo += `</div>`;
+      }
+    });
+    
+    // Legenda
+    if (categoriasUsadas.length > 0) {
+      conteudo += `<div class="legenda">`;
+      conteudo += `<h3>Legenda das Categorias</h3>`;
+      conteudo += `<table>`;
+      conteudo += `<thead><tr><th>Código</th><th>Nome</th><th>Descrição</th></tr></thead>`;
+      conteudo += `<tbody>`;
+      categoriasUsadas.forEach(cat => {
+        conteudo += `<tr>`;
+        conteudo += `<td><strong>${cat.codigo}</strong></td>`;
+        conteudo += `<td>${cat.nome}</td>`;
+        conteudo += `<td>${cat.descricao}</td>`;
+        conteudo += `</tr>`;
+      });
+      conteudo += `</tbody></table></div>`;
+    }
+    
+    conteudo += `</body></html>`;
+    
+    janela.document.write(conteudo);
+    janela.document.close();
+    janela.print();
   }
   
-  imprimirTudo() {
-    const titulo = "Rotinas Completas - Dezembro 2025 a Janeiro 2026";
-    const conteudo = this.gerarTabelaCompleta();
+  obterCategoriasDoDia(dia) {
+    const categoriasSet = new Set();
+    dia.tarefas.forEach(tarefa => {
+      if (tarefa.categoria && categorias[tarefa.categoria]) {
+        categoriasSet.add(tarefa.categoria);
+      }
+    });
     
-    this.abrirModal(titulo, conteudo);
+    return Array.from(categoriasSet).map(codigo => ({
+      codigo,
+      nome: categorias[codigo].nome,
+      descricao: categorias[codigo].descricao
+    }));
+  }
+  
+  obterCategoriasDeTodasTarefas() {
+    const categoriasSet = new Set();
+    Object.values(rotinas).forEach(dia => {
+      dia.tarefas.forEach(tarefa => {
+        if (tarefa.categoria && categorias[tarefa.categoria]) {
+          categoriasSet.add(tarefa.categoria);
+        }
+      });
+    });
+    
+    return Array.from(categoriasSet).map(codigo => ({
+      codigo,
+      nome: categorias[codigo].nome,
+      descricao: categorias[codigo].descricao
+    }));
+  }
+  
+  obterCategoriasDeDiasSelecionados(diasArray) {
+    const categoriasSet = new Set();
+    diasArray.forEach(data => {
+      const dia = rotinas[data];
+      if (dia) {
+        dia.tarefas.forEach(tarefa => {
+          if (tarefa.categoria && categorias[tarefa.categoria]) {
+            categoriasSet.add(tarefa.categoria);
+          }
+        });
+      }
+    });
+    
+    return Array.from(categoriasSet).map(codigo => ({
+      codigo,
+      nome: categorias[codigo].nome,
+      descricao: categorias[codigo].descricao
+    }));
   }
 }
 

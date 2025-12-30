@@ -21,6 +21,8 @@
     --danger:#ef4444;
     --verde-suave: #f0fff4;
     --verde-borda: #38a169;
+    --verde-escuro: #059669;
+    --verde-claro: #d1fae5;
   }
   body{
     font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
@@ -620,6 +622,7 @@
     transition: all 0.2s ease;
     font-size: 14px;
     font-weight: 500;
+    position: relative;
   }
 
   .btn-toolbar:hover {
@@ -651,6 +654,103 @@
 
   .btn-menu:hover {
     background: #e0f2fe;
+  }
+
+  /* Botão de Rotinas Férias */
+  .btn-ferias {
+    background: var(--verde-claro);
+    border-color: var(--verde-escuro);
+    color: var(--verde-escuro);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-ferias:hover {
+    background: #bbf7d0;
+    border-color: var(--verde-escuro);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(5, 150, 105, 0.2);
+  }
+
+  .btn-ferias svg {
+    animation: sunPulse 2s infinite alternate ease-in-out;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.1));
+  }
+
+  .btn-ferias::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
+  }
+
+  .btn-ferias:focus:not(:active)::after {
+    animation: ripple 1s ease-out;
+  }
+
+  .btn-ferias .tooltip-text {
+    visibility: hidden;
+    width: 140px;
+    background-color: #111;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -70px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 12px;
+    font-weight: normal;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  .btn-ferias .tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #111 transparent transparent transparent;
+  }
+
+  .btn-ferias:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  @keyframes sunPulse {
+    0% {
+      transform: scale(1) rotate(0deg);
+      filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.1));
+    }
+    100% {
+      transform: scale(1.1) rotate(10deg);
+      filter: drop-shadow(0 4px 6px rgba(5, 150, 105, 0.3));
+    }
+  }
+
+  @keyframes ripple {
+    0% {
+      transform: scale(0, 0);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(40, 40);
+      opacity: 0;
+    }
   }
 
   .btn-fechar-topico {
@@ -1266,6 +1366,27 @@
         <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
       </svg>
       Fechar
+    </button>
+    
+    <!-- Botão de Rotinas Férias -->
+    <button class="btn-toolbar btn-ferias" id="btn-ferias">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="5" fill="#f59e0b" stroke="none"/>
+        <circle cx="12" cy="12" r="4" fill="#fbbf24"/>
+        <line x1="12" y1="2" x2="12" y2="4" stroke="#f59e0b" stroke-width="1.5"/>
+        <line x1="12" y1="20" x2="12" y2="22" stroke="#f59e0b" stroke-width="1.5"/>
+        <line x1="4" y1="12" x2="2" y2="12" stroke="#f59e0b" stroke-width="1.5"/>
+        <line x1="22" y1="12" x2="20" y2="12" stroke="#f59e0b" stroke-width="1.5"/>
+        <line x1="5.64" y1="5.64" x2="4.22" y2="4.22" stroke="#f59e0b" stroke-width="1.5"/>
+        <line x1="19.78" y1="19.78" x2="18.36" y2="18.36" stroke="#f59e0b" stroke-width="1.5"/>
+        <line x1="5.64" y1="18.36" x2="4.22" y2="19.78" stroke="#f59e0b" stroke-width="1.5"/>
+        <line x1="19.78" y1="4.22" x2="18.36" y2="5.64" stroke="#f59e0b" stroke-width="1.5"/>
+        <path d="M8 12a1 1 0 1 0 2 0 1 1 0 1 0-2 0" fill="#7c2d12"/>
+        <path d="M14 12a1 1 0 1 0 2 0 1 1 0 1 0-2 0" fill="#7c2d12"/>
+        <path d="M10 15c1 1 2 1 2 1s1 0 2-1" stroke="#7c2d12" stroke-width="1.5" fill="none"/>
+      </svg>
+      <span class="tooltip-text">Abrir Rotinas de Férias</span>
+      Rotinas Férias
     </button>
     
     <button class="btn-toolbar btn-menu" id="btn-menu">
@@ -2747,6 +2868,11 @@ document.addEventListener('DOMContentLoaded', function() {
   // Eventos para os botões da toolbar
   document.getElementById('btn-fechar').addEventListener('click', function() {
     window.location.href = '../index.html';
+  });
+
+  // Evento para o botão de Rotinas Férias
+  document.getElementById('btn-ferias').addEventListener('click', function() {
+    window.location.href = '../rotinas.html';
   });
 
   // Eventos para o menu sidebar

@@ -1,0 +1,3434 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rotinas Diárias — MACs & Guias</title>
+<meta name="description" content="Sistema organizado de rotinas diárias por semana" />
+<style>
+  :root{
+    --azul:#007BFF;
+    --accent:#0b5ed7;
+    --fundo:#f7fbff;
+    --card:#ffffff;
+    --muted:#6b7280;
+    --borda:#e6eefc;
+    --borda-ativa:#cfe0ff;
+    --ink:#0b3b6b;
+    --ink-strong:#0b4fa0;
+    --warn:#f59e0b;
+    --success:#10b981;
+    --danger:#ef4444;
+    --verde-suave: #f0fff4;
+    --verde-borda: #38a169;
+    --roxo: #8a2be2;
+    --laranja: #fb8c00;
+    --teal: #00897b;
+    --cinza-escuro: #5d4037;
+  }
+  body{
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: linear-gradient(180deg, var(--fundo), #f3f7ff);
+    min-height:100vh;
+    margin:0;
+    padding:18px;
+    color:#111;
+  }
+  .wrap{max-width:1300px;margin:0 auto}
+  h1{margin:0 0 8px 0;font-size:22px;color:var(--accent)}
+  p.lead{margin:4px 0 16px 0;color:var(--muted);font-size:13px}
+
+  .toolbar{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+    background:var(--card);
+    border:1px solid var(--borda);
+    border-radius:12px;
+    padding:12px;
+    box-shadow: 0 10px 30px rgba(11,78,167,.06);
+    position:sticky;
+    top:14px;
+    z-index:60;
+    margin-bottom: 20px;
+  }
+
+  .btn-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .btn-toolbar:hover {
+    background: #f3f8ff;
+    border-color: var(--borda-ativa);
+  }
+
+  .btn-toolbar svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* LAYOUT PRINCIPAL */
+  .rotinas-container {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .dias-sidebar {
+    background: var(--card);
+    border: 1px solid var(--borda);
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 10px 30px rgba(11,78,167,.06);
+    height: fit-content;
+    position: sticky;
+    top: 90px;
+  }
+
+  .periodo-secao {
+    margin-bottom: 24px;
+  }
+
+  .periodo-secao h3 {
+    font-size: 14px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--borda);
+  }
+
+  .dia-item {
+    padding: 12px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid transparent;
+    position: relative;
+  }
+
+  .dia-item:hover {
+    background: #f3f8ff;
+    border-color: var(--borda-ativa);
+  }
+
+  .dia-item.ativo {
+    background: var(--azul);
+    color: white;
+  }
+
+  .dia-item svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .dia-item.hoje {
+    background: #fff7f0;
+    border-color: #fed7aa;
+    color: #f59e0b;
+  }
+
+  .dia-item.feriado {
+    background: #fff7f0;
+    border-color: #fed7aa;
+    color: #e67e22;
+  }
+
+  .dia-item.sem-expediente {
+    background: #f8f9fa;
+    color: var(--muted);
+  }
+
+  /* Checkbox personalizado */
+  .checkbox-container {
+    position: absolute;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .checkbox-custom {
+    display: none;
+  }
+
+  .checkbox-label {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--borda);
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    background: white;
+  }
+
+  .checkbox-label:hover {
+    border-color: var(--azul);
+    background: #f3f8ff;
+  }
+
+  .checkbox-custom:checked + .checkbox-label {
+    background: var(--azul);
+    border-color: var(--azul);
+  }
+
+  .checkbox-custom:checked + .checkbox-label::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .conteudo-area {
+    background: var(--card);
+    border: 1px solid var(--borda);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(11,78,167,.06);
+    min-height: 400px;
+    position: relative;
+  }
+
+  .conteudo-header {
+    border-bottom: 1px solid var(--borda);
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .conteudo-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--ink-strong);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .conteudo-header h2 svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .conteudo-header-acoes {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-acao {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--borda);
+    background: var(--card);
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .btn-acao:hover {
+    background: #f3f8ff;
+    border-color: var(--borda-ativa);
+  }
+
+  .btn-imprimir {
+    background: #f0f9ff !important;
+    border-color: #bae6fd !important;
+    color: var(--azul) !important;
+  }
+
+  .btn-imprimir:hover {
+    background: #e0f2fe !important;
+  }
+
+  /* LEGENDA */
+  .legenda-container {
+    background: var(--card);
+    border: 1px solid var(--borda);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(11,78,167,.06);
+    margin-bottom: 20px;
+  }
+
+  .legenda-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    cursor: pointer;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    border: 1px solid var(--borda);
+    transition: all 0.2s ease;
+  }
+
+  .legenda-header:hover {
+    background: #f3f8ff;
+    border-color: var(--borda-ativa);
+  }
+
+  .legenda-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--ink-strong);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .legenda-header h3 svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.3s ease;
+  }
+
+  .legenda-header.ativo h3 svg {
+    transform: rotate(180deg);
+  }
+
+  .legenda-conteudo {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .legenda-conteudo.ativo {
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .legenda-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    padding: 16px 0;
+  }
+
+  .legenda-item {
+    padding: 16px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    border: 1px solid var(--borda);
+    transition: all 0.2s ease;
+  }
+
+  .legenda-item:hover {
+    background: white;
+    border-color: var(--borda-ativa);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  .legenda-item-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .legenda-icone-grande {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .legenda-icone-grande svg {
+    width: 18px;
+    height: 18px;
+    color: white;
+  }
+
+  .legenda-titulo {
+    font-weight: 600;
+    color: var(--ink-strong);
+    font-size: 15px;
+  }
+
+  .legenda-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .legenda-detalhes {
+    margin-top: 12px;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    border-left: 4px solid var(--borda);
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+
+  .legenda-item.destaque {
+    background: #f0f7ff;
+    border-color: var(--azul);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.1);
+  }
+
+  /* TAREFAS DO DIA */
+  .tarefas-dia {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 16px;
+  }
+
+  .tarefa-card {
+    background: var(--fundo);
+    border: 1px solid var(--borda);
+    border-radius: 12px;
+    padding: 18px;
+    transition: all 0.2s ease;
+    border-left: 4px solid var(--azul);
+  }
+
+  .tarefa-card:hover {
+    border-color: var(--borda-ativa);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transform: translateY(-2px);
+  }
+
+  .tarefa-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+
+  .tarefa-titulo {
+    font-weight: 600;
+    color: var(--ink-strong);
+    font-size: 15px;
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  .tarefa-icone {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    flex-shrink: 0;
+    margin-left: 12px;
+  }
+
+  .tarefa-icone:hover {
+    transform: scale(1.1);
+    border-color: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  .tarefa-icone svg {
+    width: 16px;
+    height: 16px;
+    color: white;
+  }
+
+  .tarefa-desc {
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .tarefa-pessoa {
+    display: inline-block;
+    background: #e3f2fd;
+    color: var(--azul);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 8px;
+  }
+
+  .sem-tarefas {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+    grid-column: 1 / -1;
+  }
+
+  .sem-tarefas svg {
+    width: 64px;
+    height: 64px;
+    opacity: 0.5;
+    margin-bottom: 16px;
+  }
+
+  /* CATEGORIAS */
+  .categoria-N1 { border-left-color: var(--danger); }
+  .categoria-N2 { border-left-color: var(--azul); }
+  .categoria-N3 { border-left-color: var(--cinza-escuro); }
+  .categoria-N4 { border-left-color: var(--success); }
+  .categoria-N5 { border-left-color: var(--laranja); }
+  .categoria-N6 { border-left-color: var(--roxo); }
+  .categoria-N7 { border-left-color: #5d4037; }
+  .categoria-N8 { border-left-color: var(--teal); }
+  .categoria-N9 { border-left-color: #f4511e; }
+  .categoria-N10 { border-left-color: #00acc1; }
+
+  .categoria-N1 .tarefa-icone { background: var(--danger); }
+  .categoria-N2 .tarefa-icone { background: var(--azul); }
+  .categoria-N3 .tarefa-icone { background: var(--cinza-escuro); }
+  .categoria-N4 .tarefa-icone { background: var(--success); }
+  .categoria-N5 .tarefa-icone { background: var(--laranja); }
+  .categoria-N6 .tarefa-icone { background: var(--roxo); }
+  .categoria-N7 .tarefa-icone { background: #5d4037; }
+  .categoria-N8 .tarefa-icone { background: var(--teal); }
+  .categoria-N9 .tarefa-icone { background: #f4511e; }
+  .categoria-N10 .tarefa-icone { background: #00acc1; }
+
+  .legenda-N1 .legenda-icone-grande { background: var(--danger); }
+  .legenda-N2 .legenda-icone-grande { background: var(--azul); }
+  .legenda-N3 .legenda-icone-grande { background: var(--cinza-escuro); }
+  .legenda-N4 .legenda-icone-grande { background: var(--success); }
+  .legenda-N5 .legenda-icone-grande { background: var(--laranja); }
+  .legenda-N6 .legenda-icone-grande { background: var(--roxo); }
+  .legenda-N7 .legenda-icone-grande { background: #5d4037; }
+  .legenda-N8 .legenda-icone-grande { background: var(--teal); }
+  .legenda-N9 .legenda-icone-grande { background: #f4511e; }
+  .legenda-N10 .legenda-icone-grande { background: #00acc1; }
+
+  /* INFO BOXES */
+  .info-box {
+    background: #f0f7ff;
+    padding: 16px;
+    border-radius: 10px;
+    border-left: 4px solid var(--azul);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .info-box svg {
+    width: 24px;
+    height: 24px;
+    color: var(--azul);
+    flex-shrink: 0;
+  }
+
+  .info-box p {
+    margin: 0;
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .feriado-box {
+    background: #fff7f0;
+    border-left-color: var(--warn);
+  }
+
+  .feriado-box svg {
+    color: var(--warn);
+  }
+
+  /* SEARCH */
+  .search {
+    position: relative;
+    flex: 1 1 200px;
+  }
+
+  .search input {
+    width: 100%;
+    padding: 12px 40px 12px 40px;
+    border: 1px solid var(--borda);
+    border-radius: 12px;
+    background: #fbfdff;
+    color: var(--ink);
+    font-size: 14px;
+  }
+
+  .search svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+  }
+
+  .resultados-busca {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    margin-top: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 100;
+    display: none;
+  }
+
+  .resultado-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--borda);
+    transition: background 0.2s ease;
+  }
+
+  .resultado-item:hover {
+    background: #f3f8ff;
+  }
+
+  .resultado-data {
+    font-weight: 600;
+    color: var(--ink-strong);
+    margin-bottom: 4px;
+  }
+
+  .resultado-tarefa {
+    font-size: 13px;
+    color: var(--ink);
+    margin-left: 8px;
+  }
+
+  /* ANIMAÇÕES */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in {
+    animation: fadeIn 0.3s ease;
+  }
+
+  /* RESPONSIVO */
+  @media (max-width: 768px) {
+    .rotinas-container {
+      grid-template-columns: 1fr;
+    }
+    .dias-sidebar {
+      position: static;
+      margin-bottom: 20px;
+    }
+    .tarefas-dia {
+      grid-template-columns: 1fr;
+    }
+    .legenda-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* SCROLL TO TOP */
+  .btn-voltar-topo {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--azul);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+    transition: all 0.2s ease;
+    z-index: 50;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .btn-voltar-topo.visivel {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .btn-voltar-topo:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,123,255,0.4);
+  }
+
+  .btn-voltar-topo svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* MODAL DE VISUALIZAÇÃO/IMPRESSÃO */
+  .modal-visualizacao {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .modal-visualizacao.aberto {
+    display: flex;
+  }
+
+  .modal-conteudo {
+    background: white;
+    width: 95%;
+    max-width: 1400px;
+    height: 90vh;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+
+  .modal-cabecalho {
+    padding: 20px;
+    border-bottom: 1px solid var(--borda);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card);
+  }
+
+  .modal-cabecalho h3 {
+    margin: 0;
+    color: var(--ink-strong);
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .modal-cabecalho h3 svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .modal-opcoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    background: var(--fundo);
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--borda);
+  }
+
+  .btn-opcao-impressao {
+    padding: 10px 20px;
+    border: 1px solid var(--borda);
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .btn-opcao-impressao:hover {
+    background: #f3f8ff;
+    border-color: var(--borda-ativa);
+  }
+
+  .btn-opcao-impressao.ativo {
+    background: var(--azul);
+    color: white;
+    border-color: var(--azul);
+  }
+
+  .orientacao-opcoes {
+    display: flex;
+    gap: 5px;
+    margin-left: auto;
+  }
+
+  .btn-orientacao {
+    padding: 10px 15px;
+    border: 1px solid var(--borda);
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    font-size: 14px;
+  }
+
+  .btn-orientacao:hover {
+    background: #f3f8ff;
+    border-color: var(--borda-ativa);
+  }
+
+  .btn-orientacao.ativo {
+    background: var(--azul);
+    color: white;
+    border-color: var(--azul);
+  }
+
+  .modal-corpo {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+    background: white;
+  }
+
+  .modal-rodape {
+    padding: 20px;
+    border-top: 1px solid var(--borda);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    background: var(--card);
+  }
+
+  .fechar-modal {
+    padding: 10px 20px;
+    border: 1px solid var(--borda);
+    background: var(--fundo);
+    color: var(--ink);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .fechar-modal:hover {
+    background: #e9ecef;
+    border-color: var(--muted);
+  }
+
+  /* CONTEÚDO DE IMPRESSÃO */
+  .conteudo-impressao {
+    display: none;
+  }
+
+  .conteudo-impressao.ativo {
+    display: block;
+  }
+
+  /* ESTILO 1 - SIMPLES */
+  .impressao-simples {
+    font-family: Arial, sans-serif;
+  }
+
+  .impressao-simples .titulo {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 30px;
+    color: #2c3e50;
+    border-bottom: 2px solid #4a6491;
+    padding-bottom: 10px;
+  }
+
+  .impressao-simples .subtitulo {
+    text-align: center;
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 20px;
+  }
+
+  .impressao-simples table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+  }
+
+  .impressao-simples th {
+    background-color: #4a6491;
+    color: white;
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #3a5379;
+  }
+
+  .impressao-simples td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    vertical-align: top;
+  }
+
+  .impressao-simples .semana-secao {
+    page-break-inside: avoid;
+    margin-bottom: 40px;
+  }
+
+  .impressao-simples .semana-titulo {
+    background-color: #2c3e50;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+  }
+
+  /* ESTILO 2 - SITE */
+  .impressao-site {
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  .impressao-site .titulo {
+    text-align: center;
+    font-size: 22px;
+    margin-bottom: 10px;
+    color: var(--accent);
+  }
+
+  .impressao-site .subtitulo {
+    text-align: center;
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 30px;
+  }
+
+  .impressao-site .semana-secao {
+    page-break-inside: avoid;
+    margin-bottom: 40px;
+    background: var(--fundo);
+    border: 1px solid var(--borda);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(11,78,167,.06);
+  }
+
+  .impressao-site .semana-titulo {
+    font-size: 16px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--borda);
+  }
+
+  .impressao-site .tabela-dias {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 20px;
+  }
+
+  .impressao-site .dia-cabecalho {
+    background: var(--azul);
+    color: white;
+    padding: 12px;
+    text-align: center;
+    font-weight: 600;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .impressao-site .dia-feriado {
+    background: var(--warn) !important;
+  }
+
+  .impressao-site .dia-sem-expediente {
+    background: var(--muted) !important;
+  }
+
+  .impressao-site .dia-conteudo {
+    padding: 15px;
+    border: 1px solid var(--borda);
+    border-top: none;
+    min-height: 150px;
+    vertical-align: top;
+    background: white;
+  }
+
+  .impressao-site .tarefa-impressao {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-left: 4px solid var(--azul);
+    background: var(--fundo);
+    border-radius: 8px;
+  }
+
+  .impressao-site .tarefa-titulo {
+    font-weight: 600;
+    color: var(--ink-strong);
+    margin-bottom: 5px;
+  }
+
+  .impressao-site .tarefa-pessoa {
+    display: inline-block;
+    background: #e3f2fd;
+    color: var(--azul);
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    margin-top: 5px;
+  }
+
+  .impressao-site .categoria-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+    margin-top: 5px;
+  }
+
+  .impressao-site .sem-tarefas {
+    text-align: center;
+    color: var(--muted);
+    font-style: italic;
+    padding: 20px;
+  }
+
+  .impressao-site .legenda {
+    background: var(--fundo);
+    border: 1px solid var(--borda);
+    border-radius: 14px;
+    padding: 20px;
+    margin-top: 30px;
+  }
+
+  .impressao-site .legenda h4 {
+    margin: 0 0 15px 0;
+    color: var(--ink-strong);
+    text-align: center;
+  }
+
+  .impressao-site .legenda-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 10px;
+  }
+
+  .impressao-site .legenda-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: white;
+    border-radius: 8px;
+    border-left: 4px solid var(--azul);
+  }
+
+  .impressao-site .legenda-cor {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+
+  .impressao-site .legenda-texto {
+    font-size: 12px;
+  }
+
+  .impressao-site .legenda-texto strong {
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  /* ESTILO 3 - TABELA (NOVO) */
+  .impressao-tabela {
+    font-family: Arial, sans-serif;
+  }
+
+  .impressao-tabela .titulo {
+    text-align: center;
+    font-size: 22px;
+    margin-bottom: 10px;
+    color: #2c3e50;
+  }
+
+  .impressao-tabela .subtitulo {
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+  }
+
+  .impressao-tabela .tabela-impressao {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    font-size: 12px;
+  }
+
+  .impressao-tabela .tabela-impressao th {
+    background-color: #4a6491;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid #3a5379;
+    vertical-align: top;
+  }
+
+  .impressao-tabela .tabela-impressao td {
+    padding: 8px;
+    border: 1px solid #dee2e6;
+    vertical-align: top;
+    height: 120px;
+  }
+
+  .impressao-tabela .tarefa-impressao {
+    margin-bottom: 6px;
+    padding: 6px;
+    border-left: 3px solid #4a6491;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    font-size: 11px;
+    page-break-inside: avoid;
+  }
+
+  .impressao-tabela .tarefa-titulo {
+    font-weight: 600;
+    margin-bottom: 3px;
+    color: #333;
+  }
+
+  .impressao-tabela .tarefa-pessoa {
+    display: inline-block;
+    background-color: #e3f2fd;
+    color: #1565c0;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+    margin-top: 3px;
+  }
+
+  .impressao-tabela .sem-tarefas {
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    padding: 10px;
+    font-size: 11px;
+  }
+
+  .impressao-tabela .categoria-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    color: white;
+    margin-top: 4px;
+  }
+
+  .impressao-tabela .legenda {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+  }
+
+  .impressao-tabela .legenda h4 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .impressao-tabela .legenda-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+  }
+
+  .impressao-tabela .legenda-item {
+    display: flex;
+    align-items: center;
+    padding: 6px;
+    background: white;
+    border-radius: 4px;
+    border-left: 4px solid #4a6491;
+  }
+
+  .impressao-tabela .legenda-cor {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+
+  .impressao-tabela .legenda-texto {
+    font-size: 11px;
+  }
+
+  .impressao-tabela .legenda-texto strong {
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .impressao-tabela .data-impressao {
+    font-size: 10px;
+    color: #666;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .impressao-tabela .dia-feriado {
+    background-color: #fff7f0 !important;
+    color: #f59e0b;
+  }
+
+  .impressao-tabela .dia-sem-expediente {
+    background-color: #f8f9fa !important;
+    color: #6b7280;
+  }
+
+  /* IMPRESSÃO DIRETA - CORREÇÃO DO BUG */
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    
+    .modal-visualizacao,
+    .modal-conteudo,
+    .modal-conteudo * {
+      visibility: visible;
+    }
+    
+    .modal-visualizacao {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      padding: 0;
+      margin: 0;
+      display: flex !important;
+      z-index: 9999;
+    }
+    
+    .modal-conteudo {
+      width: 100%;
+      max-width: 100%;
+      height: 100%;
+      box-shadow: none;
+      border: none;
+      border-radius: 0;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .modal-cabecalho,
+    .modal-opcoes,
+    .modal-rodape {
+      display: none !important;
+    }
+    
+    .modal-corpo {
+      padding: 0;
+      margin: 0;
+      overflow: visible;
+      height: 100%;
+      width: 100%;
+    }
+    
+    .conteudo-impressao {
+      display: none !important;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .conteudo-impressao.ativo {
+      display: block !important;
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+    }
+    
+    /* Orientação da página */
+    .orientacao-paisagem {
+      size: landscape;
+    }
+    
+    .orientacao-retrato {
+      size: portrait;
+    }
+    
+    /* Quebra de página */
+    .semana-secao {
+      page-break-inside: avoid;
+      page-break-after: auto;
+    }
+    
+    .semana-secao:last-child {
+      page-break-after: avoid;
+    }
+    
+    /* Ajustes para o estilo tabela */
+    .impressao-tabela .tabela-impressao {
+      page-break-inside: auto;
+    }
+    
+    .impressao-tabela .tabela-impressao td {
+      height: auto;
+      min-height: 120px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Rotinas Diárias</h1>
+    <p class="lead">Sistema organizado de rotinas por dia da semana - Dezembro 2025 a Janeiro 2026</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="search" id="campo-busca" placeholder="Buscar nas rotinas..." />
+      <div class="resultados-busca" id="resultados-busca"></div>
+    </div>
+    <button class="btn-toolbar" id="btn-imprimir-tudo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+        <rect x="6" y="14" width="12" height="8"/>
+      </svg>
+      Imprimir Tudo
+    </button>
+    <button class="btn-toolbar" id="btn-imprimir-selecionados">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+        <rect x="6" y="14" width="12" height="8"/>
+      </svg>
+      Imprimir Selecionados
+    </button>
+  </div>
+
+  <div class="legenda-container">
+    <div class="legenda-header" id="legenda-toggle">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>
+        Legenda das Categorias
+      </h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    
+    <div class="legenda-conteudo" id="legenda-conteudo">
+      <div class="legenda-grid" id="legenda-grid">
+        <!-- A legenda será carregada aqui -->
+      </div>
+    </div>
+  </div>
+
+  <div class="rotinas-container">
+    <div class="dias-sidebar" id="dias-sidebar">
+      <!-- Dias serão carregados dinamicamente -->
+    </div>
+
+    <div class="conteudo-area">
+      <div class="conteudo-header">
+        <h2 id="dia-titulo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
+          </svg>
+          Selecione um dia
+        </h2>
+        <div class="conteudo-header-acoes">
+          <button class="btn-acao btn-imprimir" id="btn-imprimir-dia">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+            Imprimir Dia
+          </button>
+        </div>
+      </div>
+
+      <div id="conteudo-dinamico">
+        <div class="sem-tarefas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p>Selecione um dia na barra lateral para visualizar as rotinas</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de visualização/impressão -->
+<div class="modal-visualizacao" id="modal-visualizacao">
+  <div class="modal-conteudo" id="modal-conteudo">
+    <div class="modal-cabecalho">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+          <rect x="6" y="14" width="12" height="8"/>
+        </svg>
+        <span id="modal-titulo">Visualizar/Imprimir Rotinas</span>
+      </h3>
+      <button class="fechar-modal" id="fechar-modal">&times;</button>
+    </div>
+    
+    <div class="modal-opcoes">
+      <button class="btn-opcao-impressao ativo" data-estilo="simples">
+        Estilo Simples
+      </button>
+      <button class="btn-opcao-impressao" data-estilo="site">
+        Estilo do Site
+      </button>
+      <button class="btn-opcao-impressao" data-estilo="tabela">
+        Estilo Tabela
+      </button>
+      <div class="orientacao-opcoes">
+        <button class="btn-orientacao ativo" data-orientacao="paisagem">Paisagem</button>
+        <button class="btn-orientacao" data-orientacao="retrato">Retrato</button>
+      </div>
+    </div>
+    
+    <div class="modal-corpo">
+      <div class="conteudo-impressao ativo" id="impressao-simples">
+        <!-- Conteúdo do estilo simples será carregado aqui -->
+      </div>
+      <div class="conteudo-impressao" id="impressao-site">
+        <!-- Conteúdo do estilo do site será carregado aqui -->
+      </div>
+      <div class="conteudo-impressao" id="impressao-tabela">
+        <!-- Conteúdo do estilo tabela será carregado aqui -->
+      </div>
+    </div>
+    
+    <div class="modal-rodape">
+      <button class="fechar-modal">Cancelar</button>
+      <button class="btn-acao btn-imprimir" id="btn-imprimir-modal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+          <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+          <rect x="6" y="14" width="12" height="8"/>
+        </svg>
+        Imprimir
+      </button>
+    </div>
+  </div>
+</div>
+
+<button class="btn-voltar-topo" id="btn-voltar-topo">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polyline points="18 15 12 9 6 15"/>
+  </svg>
+</button>
+
+<script>
+// Dados das categorias com ícones SVG
+const categorias = {
+  "N1": {
+    nome: "Cobranças WhatsApp",
+    descricao: "Fazer cobranças no WhatsApp dos clientes",
+    detalhes: "Para fazer as cobranças, tire o relatório de cobranças (ver site anotações) e no WhatsApp, procure pelo cliente e mande a mensagem pronta de cobranças dos boletos. Caso tenha algum cliente que está devendo boleto a um tempo e que não foi a protesto ainda, cobrar comprovante também.",
+    icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"/></svg>`,
+    cor: "#ef4444"
+  },
+  "N2": {
+    nome: "Pedidos Clientes",
+    descricao: "Mandar mensagem para clientes pedindo pedido",
+    detalhes: "Na web do sistema, vá em telemarketing, olhe os clientes que ainda não tiveram pedidos gerados e peça pedindo para mandarem os pedidos. Horário: 9:00-9:30.",
+    icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`,
+    cor: "#007BFF"
+  },
+  "N3": {
+    nome: "Pedir Café",
+    descricao: "Pedir café para produção caso precise",
+    detalhes: "Confirmar na produção, geralmente na embalagem ou no setor do Ceará se precisa de café caso fiquem até mais tarde.",
+    icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>`,
+    cor: "#5d4037"
+  },
+  "N4": {
+    nome: "Montagem Rotas",
+    descricao: "Montagem das rotas de entrega",
+    detalhes: "Confira a seção de montagem rotas nas anotações do site para mais informações.",
+    icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
+    cor: "#10b981"
+  },
+  "N5": {
+    nome: "Lista Embalagem",
+    descricao: "Pegar lista da embalagem São José e Pão Total",
+    detalhes: "Pegar ou pedir para trazerem a lista no escritório. Caso eles tenham perdido ou esquecido de levar, perguntar ao Guilherme ou ao Kauan o que faltou para deixar anotado.",
+    icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
+    cor: "#fb8c00"
+  },
+  "N6": {
+    nome: "Fechamento Caixas",
+    descricao: "Fechamento de caixas (Barão)",
+    detalhes: "Confira a seção de fechamento caixas nas anotações do site para mais informações.",
+    icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M16 10v4"/><path d="M8 10v4"/><path d="M12 10v4"/><path d="M2 10h20"/></svg>`,
+    cor: "#8a2be2"
+  },
+  "N7": {
+    nome: "Café Sábado",
+    descricao: "Pedir café para sábado caso precise",
+    detalhes: "Caso tenha produção sábado, tem que pedir na padaria café para a quantidade de pessoas que virão e pedir para entregar na fábrica. Mas caso não der, tem que pedir para alguém buscar.",
+    icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>`,
+    cor: "#5d4037"
+  },
+  "N8": {
+    nome: "Acerto Célio",
+    descricao: "Acerto com o fornecedor Célio",
+    detalhes: "Confira o tópico Célio (pagamentos e pix) na seção fornecedores nas anotações do site para mais informações.",
+    icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+    cor: "#00897b"
+  },
+  "N9": {
+    nome: "Lista São José",
+    descricao: "Fazer lista da São José e Pão Total",
+    detalhes: "Confira o tópico São José na seção geral nas anotações do site para mais informações.",
+    icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
+    cor: "#f4511e"
+  },
+  "N10": {
+    nome: "Adiantamento Salarial",
+    descricao: "Adiantamento salarial no banco",
+    detalhes: "No banco vá em folha de pagamento, clique em cadastrar, coloque a data e selecione os funcionários. Escreva os valores e confirme. Depois no aplicativo do banco, vá na opção de 2 fatores e na web, procure o adiantamento que acabou de fazer e clique em processar. Escaneie o QR code, confirme no celular e depois na web coloque o código que aparece no celular. Confirmar e pronto.",
+    icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M16 10v4"/><path d="M8 10v4"/><path d="M12 10v4"/><path d="M2 10h20"/></svg>`,
+    cor: "#00acc1"
+  }
+};
+
+// Dados das rotinas por data
+const rotinas = {
+  "31/12/2025": {
+    data: "31/12/2025",
+    diaSemana: "Quarta-feira",
+    feriado: false,
+    semExpediente: false,
+    tarefas: [
+      {
+        titulo: "Fazer cobranças no WhatsApp",
+        categoria: "N1",
+        descricao: "",
+        pessoa: "Emillie"
+      },
+      {
+        titulo: "Mandar mensagem p/ clientes pedindo pedido",
+        categoria: "N2",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Pedir café para produção caso precise",
+        categoria: "N3",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Montagem rotas",
+        categoria: "N4",
+        descricao: "",
+        pessoa: ""
+      }
+    ]
+  },
+  "01/01/2026": {
+    data: "01/01/2026",
+    diaSemana: "Quinta-feira",
+    feriado: true,
+    feriadoNome: "Ano Novo",
+    semExpediente: true,
+    tarefas: []
+  },
+  "02/01/2026": {
+    data: "02/01/2026",
+    diaSemana: "Sexta-feira",
+    feriado: false,
+    semExpediente: true,
+    tarefas: []
+  },
+  "05/01/2026": {
+    data: "05/01/2026",
+    diaSemana: "Segunda-feira",
+    feriado: false,
+    semExpediente: false,
+    tarefas: [
+      {
+        titulo: "Fazer cobranças no WhatsApp",
+        categoria: "N1",
+        descricao: "",
+        pessoa: "Gleyce"
+      },
+      {
+        titulo: "Mandar mensagem p/ clientes pedindo pedido",
+        categoria: "N2",
+        descricao: "Horário: 9:00-9:30",
+        pessoa: ""
+      },
+      {
+        titulo: "Fazer lista da São José e Pão Total",
+        categoria: "N9",
+        descricao: "Entregar a embalagem",
+        pessoa: "Emillie"
+      },
+      {
+        titulo: "Fechamento de caixas",
+        categoria: "N6",
+        descricao: "",
+        pessoa: "Barão"
+      },
+      {
+        titulo: "Fazer cheques do início do mês",
+        categoria: null,
+        descricao: "",
+        pessoa: "Barão"
+      },
+      {
+        titulo: "Entregar planilhas de autocontrole",
+        categoria: null,
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Pegar a lista da embalagem da São José e Pão Total e guardar",
+        categoria: "N5",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Pedir café para produção caso precise",
+        categoria: "N3",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Baixa notinhas e relatórios",
+        categoria: null,
+        descricao: "",
+        pessoa: "Emillie"
+      },
+      {
+        titulo: "Montagem rotas",
+        categoria: "N4",
+        descricao: "",
+        pessoa: ""
+      }
+    ]
+  },
+  "06/01/2026": {
+    data: "06/01/2026",
+    diaSemana: "Terça-feira",
+    feriado: false,
+    semExpediente: false,
+    tarefas: [
+      {
+        titulo: "Fechamento de caixas",
+        categoria: "N6",
+        descricao: "",
+        pessoa: "Barão"
+      },
+      {
+        titulo: "Mandar mensagem p/ clientes pedindo pedido",
+        categoria: "N2",
+        descricao: "Horário: 9:00-9:30",
+        pessoa: ""
+      },
+      {
+        titulo: "Pedir café para produção caso precise",
+        categoria: "N3",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Baixa notinhas e relatórios",
+        categoria: null,
+        descricao: "",
+        pessoa: "Emillie"
+      },
+      {
+        titulo: "Montagem rotas",
+        categoria: "N4",
+        descricao: "",
+        pessoa: ""
+      }
+    ]
+  },
+  "07/01/2026": {
+    data: "07/01/2026",
+    diaSemana: "Quarta-feira",
+    feriado: false,
+    semExpediente: false,
+    tarefas: [
+      {
+        titulo: "Fazer cobranças no WhatsApp",
+        categoria: "N1",
+        descricao: "",
+        pessoa: "Gleyce"
+      },
+      {
+        titulo: "Mandar mensagem p/ clientes pedindo pedido",
+        categoria: "N2",
+        descricao: "Horário: 9:00-9:30",
+        pessoa: ""
+      },
+      {
+        titulo: "Fechamento de caixas",
+        categoria: "N6",
+        descricao: "",
+        pessoa: "Barão"
+      },
+      {
+        titulo: "Pedir café para produção caso precise",
+        categoria: "N3",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Baixa notinhas e relatórios",
+        categoria: null,
+        descricao: "",
+        pessoa: "Emillie"
+      },
+      {
+        titulo: "Montagem rotas",
+        categoria: "N4",
+        descricao: "",
+        pessoa: ""
+      }
+    ]
+  },
+  "08/01/2026": {
+    data: "08/01/2026",
+    diaSemana: "Quinta-feira",
+    feriado: false,
+    semExpediente: false,
+    tarefas: [
+      {
+        titulo: "Fechamento de caixas",
+        categoria: "N6",
+        descricao: "",
+        pessoa: "Barão"
+      },
+      {
+        titulo: "Mandar mensagem p/ clientes pedindo pedido",
+        categoria: "N2",
+        descricao: "Horário: 9:00-9:30",
+        pessoa: ""
+      },
+      {
+        titulo: "Pedir café para produção caso precise",
+        categoria: "N3",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Baixa notinhas e relatórios",
+        categoria: null,
+        descricao: "",
+        pessoa: "Emillie"
+      },
+      {
+        titulo: "Montagem rotas",
+        categoria: "N4",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Fazer lista da São José e Pão Total",
+        categoria: "N9",
+        descricao: "Deixar junto com os romaneios",
+        pessoa: "Emillie"
+      }
+    ]
+  },
+  "09/01/2026": {
+    data: "09/01/2026",
+    diaSemana: "Sexta-feira",
+    feriado: false,
+    semExpediente: false,
+    tarefas: [
+      {
+        titulo: "Fazer cobranças no WhatsApp",
+        categoria: "N1",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Mandar mensagem p/ clientes pedindo pedido",
+        categoria: "N2",
+        descricao: "Horário: 9:00-9:30",
+        pessoa: ""
+      },
+      {
+        titulo: "Fechamento de caixas",
+        categoria: "N6",
+        descricao: "",
+        pessoa: "Barão"
+      },
+      {
+        titulo: "Pegar a lista da embalagem da São José e Pão Total e guardar",
+        categoria: "N5",
+        descricao: "Até 11:00 ou 12:00",
+        pessoa: ""
+      },
+      {
+        titulo: "Pedir café para produção caso precise",
+        categoria: "N3",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Pedir café para sábado caso precise",
+        categoria: "N7",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Separar dinheiro caso tenha produção sábado",
+        categoria: null,
+        descricao: "",
+        pessoa: "Barão"
+      },
+      {
+        titulo: "Baixa notinhas e relatórios",
+        categoria: null,
+        descricao: "",
+        pessoa: "Emillie"
+      },
+      {
+        titulo: "Acerto Célio",
+        categoria: "N8",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Montagem rotas",
+        categoria: "N4",
+        descricao: "",
+        pessoa: ""
+      }
+    ]
+  },
+  "12/01/2026": {
+    data: "12/01/2026",
+    diaSemana: "Segunda-feira",
+    feriado: false,
+    semExpediente: false,
+    tarefas: [
+      {
+        titulo: "Fazer cobranças no WhatsApp",
+        categoria: "N1",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Mandar mensagem p/ clientes pedindo pedido",
+        categoria: "N2",
+        descricao: "Horário: 9:00-9:30",
+        pessoa: ""
+      },
+      {
+        titulo: "Fazer lista da São José e Pão Total",
+        categoria: "N9",
+        descricao: "Entregar a embalagem",
+        pessoa: "Emillie"
+      },
+      {
+        titulo: "Fechamento de caixas",
+        categoria: "N6",
+        descricao: "",
+        pessoa: "Barão"
+      },
+      {
+        titulo: "Pegar a lista da embalagem da São José e Pão Total e guardar",
+        categoria: "N5",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Pedir café para produção caso precise",
+        categoria: "N3",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Baixa notinhas e relatórios",
+        categoria: null,
+        descricao: "",
+        pessoa: "Emillie"
+      },
+      {
+        titulo: "Montagem rotas",
+        categoria: "N4",
+        descricao: "",
+        pessoa: ""
+      }
+    ]
+  },
+  "13/01/2026": {
+    data: "13/01/2026",
+    diaSemana: "Terça-feira",
+    feriado: false,
+    semExpediente: false,
+    tarefas: [
+      {
+        titulo: "Marina volta",
+        categoria: null,
+        descricao: "Retorno da funcionária Marina",
+        pessoa: ""
+      },
+      {
+        titulo: "Mandar mensagem p/ clientes pedindo pedido",
+        categoria: "N2",
+        descricao: "Horário: 9:00-9:30",
+        pessoa: ""
+      },
+      {
+        titulo: "Pedir café para produção caso precise",
+        categoria: "N3",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Montagem rotas",
+        categoria: "N4",
+        descricao: "",
+        pessoa: ""
+      }
+    ]
+  },
+  "14/01/2026": {
+    data: "14/01/2026",
+    diaSemana: "Quarta-feira",
+    feriado: false,
+    semExpediente: false,
+    tarefas: [
+      {
+        titulo: "Fazer cobranças no WhatsApp",
+        categoria: "N1",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Mandar mensagem p/ clientes pedindo pedido",
+        categoria: "N2",
+        descricao: "Horário: 9:00-9:30",
+        pessoa: ""
+      },
+      {
+        titulo: "Pedir café para produção caso precise",
+        categoria: "N3",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Montagem rotas",
+        categoria: "N4",
+        descricao: "",
+        pessoa: ""
+      }
+    ]
+  },
+  "15/01/2026": {
+    data: "15/01/2026",
+    diaSemana: "Quinta-feira",
+    feriado: false,
+    semExpediente: false,
+    tarefas: [
+      {
+        titulo: "Pedir café para produção caso precise",
+        categoria: "N3",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Mandar mensagem p/ clientes pedindo pedido",
+        categoria: "N2",
+        descricao: "Horário: 9:00-9:30",
+        pessoa: ""
+      },
+      {
+        titulo: "Adiantamento salarial no banco",
+        categoria: "N10",
+        descricao: "",
+        pessoa: "Marina"
+      },
+      {
+        titulo: "Montagem rotas",
+        categoria: "N4",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Fazer lista da São José e Pão Total",
+        categoria: "N9",
+        descricao: "Deixar junto com os romaneios",
+        pessoa: "Emillie"
+      }
+    ]
+  },
+  "16/01/2026": {
+    data: "16/01/2026",
+    diaSemana: "Sexta-feira",
+    feriado: false,
+    semExpediente: false,
+    tarefas: [
+      {
+        titulo: "Fazer cobranças no WhatsApp",
+        categoria: "N1",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Mandar mensagem p/ clientes pedindo pedido",
+        categoria: "N2",
+        descricao: "Horário: 9:00-9:30",
+        pessoa: ""
+      },
+      {
+        titulo: "Pegar a lista da embalagem da São José e Pão Total e guardar",
+        categoria: "N5",
+        descricao: "Até 11:00 ou 12:00",
+        pessoa: ""
+      },
+      {
+        titulo: "Pedir café para produção caso precise",
+        categoria: "N3",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Pedir café para sábado caso precise",
+        categoria: "N7",
+        descricao: "",
+        pessoa: ""
+      },
+      {
+        titulo: "Separar dinheiro caso tenha produção sábado",
+        categoria: null,
+        descricao: "",
+        pessoa: "Marina ou Barão"
+      },
+      {
+        titulo: "Acerto Célio",
+        categoria: "N8",
+        descricao: "",
+        pessoa: "Marina ou Barão"
+      },
+      {
+        titulo: "Montagem rotas",
+        categoria: "N4",
+        descricao: "",
+        pessoa: ""
+      }
+    ]
+  }
+};
+
+// Sistema principal
+class SistemaRotinas {
+  constructor() {
+    this.diaAtual = null;
+    this.termoBusca = "";
+    this.buscaAtiva = false;
+    this.legendaAberta = false;
+    this.diasSelecionados = new Set();
+    this.estiloImpressaoAtual = "simples";
+    this.orientacaoImpressao = "paisagem";
+    this.tipoImpressaoAtual = ""; // "dia", "tudo", "selecionados"
+    
+    this.init();
+  }
+  
+  init() {
+    this.carregarLegenda();
+    this.carregarSidebar();
+    this.configurarEventos();
+    this.verificarHoje();
+  }
+  
+  carregarLegenda() {
+    const grid = document.getElementById("legenda-grid");
+    let html = "";
+    
+    Object.entries(categorias).forEach(([codigo, categoria]) => {
+      html += `
+        <div class="legenda-item legenda-${codigo}" id="legenda-${codigo}">
+          <div class="legenda-item-header">
+            <div class="legenda-icone-grande">
+              ${categoria.icone}
+            </div>
+            <div>
+              <div class="legenda-titulo">${codigo}: ${categoria.nome}</div>
+              <div class="legenda-desc">${categoria.descricao}</div>
+            </div>
+          </div>
+          <div class="legenda-detalhes">
+            ${categoria.detalhes}
+          </div>
+        </div>
+      `;
+    });
+    
+    grid.innerHTML = html;
+  }
+  
+  carregarSidebar() {
+    const sidebar = document.getElementById("dias-sidebar");
+    const semanas = this.agruparPorSemanas();
+    
+    let html = "";
+    
+    semanas.forEach((semana, index) => {
+      html += `<div class="periodo-secao">`;
+      html += `<h3>${semana.titulo}</h3>`;
+      
+      semana.dias.forEach(data => {
+        const dia = rotinas[data];
+        if (!dia) return;
+        
+        let classeExtra = "";
+        if (dia.feriado) classeExtra = "feriado";
+        if (dia.semExpediente && !dia.feriado) classeExtra = "sem-expediente";
+        
+        html += `
+          <div class="dia-item ${classeExtra}" data-data="${data}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <path d="M8 2v4M16 2v4M2 10h20"/>
+            </svg>
+            ${data.split('/')[0]}/${data.split('/')[1]} - ${dia.diaSemana}
+            <div class="checkbox-container">
+              <input type="checkbox" class="checkbox-custom" id="check-${data.replace(/\//g, '-')}" data-data="${data}">
+              <label class="checkbox-label" for="check-${data.replace(/\//g, '-')}"></label>
+            </div>
+          </div>
+        `;
+      });
+      
+      html += `</div>`;
+    });
+    
+    sidebar.innerHTML = html;
+  }
+  
+  configurarEventos() {
+    // Dias da sidebar
+    document.addEventListener("click", (e) => {
+      const diaItem = e.target.closest(".dia-item");
+      if (diaItem && !e.target.classList.contains("checkbox-label") && !e.target.classList.contains("checkbox-custom")) {
+        const data = diaItem.getAttribute("data-data");
+        this.carregarDia(data);
+      }
+    });
+    
+    // Checkboxes
+    document.addEventListener("change", (e) => {
+      if (e.target.classList.contains("checkbox-custom")) {
+        const data = e.target.getAttribute("data-data");
+        if (e.target.checked) {
+          this.diasSelecionados.add(data);
+        } else {
+          this.diasSelecionados.delete(data);
+        }
+      }
+    });
+    
+    // Toggle legenda
+    document.getElementById("legenda-toggle").addEventListener("click", () => {
+      this.toggleLegenda();
+    });
+    
+    // Busca
+    document.getElementById("campo-busca").addEventListener("input", (e) => {
+      this.realizarBuscaGlobal(e.target.value);
+    });
+    
+    // Fechar resultados ao clicar fora
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".search")) {
+        const resultados = document.getElementById("resultados-busca");
+        if (resultados) resultados.style.display = "none";
+      }
+    });
+    
+    // Botão imprimir dia
+    document.getElementById("btn-imprimir-dia").addEventListener("click", () => {
+      if (!this.diaAtual) {
+        alert("Selecione um dia para imprimir.");
+        return;
+      }
+      this.tipoImpressaoAtual = "dia";
+      this.abrirModal(`Impressão de Dia - ${rotinas[this.diaAtual].data}`);
+    });
+    
+    // Botão imprimir tudo
+    document.getElementById("btn-imprimir-tudo").addEventListener("click", () => {
+      this.tipoImpressaoAtual = "tudo";
+      this.abrirModal("Impressão Completa");
+    });
+    
+    // Botão imprimir selecionados
+    document.getElementById("btn-imprimir-selecionados").addEventListener("click", () => {
+      if (this.diasSelecionados.size === 0) {
+        alert("Selecione pelo menos um dia para imprimir.");
+        return;
+      }
+      this.tipoImpressaoAtual = "selecionados";
+      this.abrirModal(`Impressão de ${this.diasSelecionados.size} Dias Selecionados`);
+    });
+    
+    // Opções de estilo de impressão
+    document.querySelectorAll(".btn-opcao-impressao").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        document.querySelectorAll(".btn-opcao-impressao").forEach(b => b.classList.remove("ativo"));
+        e.target.classList.add("ativo");
+        this.estiloImpressaoAtual = e.target.getAttribute("data-estilo");
+        this.gerarConteudoImpressao();
+      });
+    });
+    
+    // Opções de orientação
+    document.querySelectorAll(".btn-orientacao").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        document.querySelectorAll(".btn-orientacao").forEach(b => b.classList.remove("ativo"));
+        e.target.classList.add("ativo");
+        this.orientacaoImpressao = e.target.getAttribute("data-orientacao");
+        this.aplicarOrientacao();
+      });
+    });
+    
+    // Botão imprimir no modal
+    document.getElementById("btn-imprimir-modal").addEventListener("click", () => {
+      this.prepararImpressao();
+    });
+    
+    // Fechar modal
+    document.getElementById("fechar-modal").addEventListener("click", () => {
+      this.fecharModal();
+    });
+    
+    document.querySelectorAll(".fechar-modal").forEach(btn => {
+      if (btn.id !== "fechar-modal") {
+        btn.addEventListener("click", () => {
+          this.fecharModal();
+        });
+      }
+    });
+    
+    // Botão voltar ao topo
+    const btnTopo = document.getElementById("btn-voltar-topo");
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 300) {
+        btnTopo.classList.add("visivel");
+      } else {
+        btnTopo.classList.remove("visivel");
+      }
+    });
+    
+    btnTopo.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+  
+  carregarDia(data) {
+    this.diaAtual = data;
+    const dia = rotinas[data];
+    
+    if (!dia) return;
+    
+    // Atualizar seleção na sidebar
+    document.querySelectorAll(".dia-item").forEach(item => {
+      item.classList.remove("ativo");
+    });
+    
+    document.querySelector(`.dia-item[data-data="${data}"]`).classList.add("ativo");
+    
+    // Atualizar título
+    document.getElementById("dia-titulo").innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
+      </svg>
+      ${dia.data} - ${dia.diaSemana}
+      ${dia.feriado ? `<span style="color: var(--warn); font-size: 14px;"> (${dia.feriadoNome})</span>` : ""}
+      ${dia.semExpediente && !dia.feriado ? `<span style="color: var(--muted); font-size: 14px;"> (Sem expediente)</span>` : ""}
+    `;
+    
+    // Renderizar conteúdo
+    this.renderizarDia(dia);
+  }
+  
+  renderizarDia(dia) {
+    const container = document.getElementById("conteudo-dinamico");
+    
+    if (dia.semExpediente) {
+      container.innerHTML = `
+        <div class="info-box feriado-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p>${dia.feriado ? dia.feriadoNome : "Sem expediente"} - Nenhuma tarefa agendada para este dia.</p>
+        </div>
+      `;
+      return;
+    }
+    
+    if (!dia.tarefas || dia.tarefas.length === 0) {
+      container.innerHTML = `
+        <div class="sem-tarefas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p>Nenhuma tarefa agendada para este dia</p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Filtrar tarefas se houver busca
+    let tarefas = dia.tarefas;
+    if (this.buscaAtiva && this.termoBusca) {
+      const termo = this.termoBusca.toLowerCase();
+      tarefas = dia.tarefas.filter(tarefa => 
+        tarefa.titulo.toLowerCase().includes(termo) ||
+        (tarefa.pessoa && tarefa.pessoa.toLowerCase().includes(termo)) ||
+        (tarefa.categoria && categorias[tarefa.categoria]?.nome.toLowerCase().includes(termo)) ||
+        (tarefa.categoria && categorias[tarefa.categoria]?.descricao.toLowerCase().includes(termo))
+      );
+    }
+    
+    if (tarefas.length === 0) {
+      container.innerHTML = `
+        <div class="sem-tarefas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p>Nenhuma tarefa encontrada com o termo "${this.termoBusca}"</p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Renderizar tarefas
+    let html = `<div class="tarefas-dia">`;
+    
+    tarefas.forEach((tarefa, index) => {
+      const categoria = tarefa.categoria ? categorias[tarefa.categoria] : null;
+      const classeCategoria = tarefa.categoria ? ` categoria-${tarefa.categoria}` : "";
+      
+      html += `
+        <div class="tarefa-card fade-in${classeCategoria}" style="animation-delay: ${index * 0.05}s">
+          <div class="tarefa-header">
+            <div class="tarefa-titulo">${tarefa.titulo}</div>
+            ${tarefa.categoria ? `
+              <div class="tarefa-icone" data-categoria="${tarefa.categoria}" title="Clique para ver detalhes da categoria">
+                ${categoria.icone}
+              </div>
+            ` : ""}
+          </div>
+          ${tarefa.descricao ? `<div class="tarefa-desc">${tarefa.descricao}</div>` : ""}
+          ${tarefa.pessoa ? `<div class="tarefa-pessoa">${tarefa.pessoa}</div>` : ""}
+        </div>
+      `;
+    });
+    
+    html += `</div>`;
+    container.innerHTML = html;
+    
+    // Adicionar eventos aos ícones
+    document.querySelectorAll(".tarefa-icone").forEach(icone => {
+      icone.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const categoria = icone.getAttribute("data-categoria");
+        this.mostrarCategoria(categoria);
+      });
+    });
+  }
+  
+  realizarBuscaGlobal(termo) {
+    const resultadosContainer = document.getElementById("resultados-busca");
+    
+    if (!termo.trim()) {
+      resultadosContainer.style.display = "none";
+      return;
+    }
+    
+    this.termoBusca = termo;
+    let resultadosHTML = "";
+    let encontrouResultados = false;
+    
+    // Buscar em todos os dias
+    Object.entries(rotinas).forEach(([data, dia]) => {
+      const tarefasEncontradas = dia.tarefas.filter(tarefa => 
+        tarefa.titulo.toLowerCase().includes(termo.toLowerCase()) ||
+        (tarefa.pessoa && tarefa.pessoa.toLowerCase().includes(termo.toLowerCase())) ||
+        (tarefa.categoria && categorias[tarefa.categoria]?.nome.toLowerCase().includes(termo.toLowerCase())) ||
+        (tarefa.categoria && categorias[tarefa.categoria]?.descricao.toLowerCase().includes(termo.toLowerCase()))
+      );
+      
+      if (tarefasEncontradas.length > 0) {
+        encontrouResultados = true;
+        resultadosHTML += `<div class="resultado-item" data-data="${data}">`;
+        resultadosHTML += `<div class="resultado-data">${dia.data} - ${dia.diaSemana}</div>`;
+        tarefasEncontradas.forEach(tarefa => {
+          resultadosHTML += `<div class="resultado-tarefa">${tarefa.titulo}</div>`;
+        });
+        resultadosHTML += `</div>`;
+      }
+    });
+    
+    if (encontrouResultados) {
+      resultadosContainer.innerHTML = resultadosHTML;
+      resultadosContainer.style.display = "block";
+      
+      // Adicionar evento de clique para cada resultado
+      document.querySelectorAll(".resultado-item").forEach(item => {
+        item.addEventListener("click", () => {
+          const data = item.getAttribute("data-data");
+          this.carregarDia(data);
+          resultadosContainer.style.display = "none";
+          document.getElementById("campo-busca").value = "";
+        });
+      });
+    } else {
+      resultadosContainer.innerHTML = '<div class="resultado-item">Nenhum resultado encontrado.</div>';
+      resultadosContainer.style.display = "block";
+    }
+  }
+  
+  mostrarCategoria(codigo) {
+    // Subir a página até o topo
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    
+    // Abrir legenda se estiver fechada
+    if (!this.legendaAberta) {
+      this.toggleLegenda(true);
+    }
+    
+    // Aguardar a abertura da legenda e rolar até o item
+    setTimeout(() => {
+      const item = document.getElementById(`legenda-${codigo}`);
+      const conteudoLegenda = document.getElementById("legenda-conteudo");
+      
+      if (item && conteudoLegenda) {
+        // Rolar o container da legenda até o item
+        const offsetTop = item.offsetTop - conteudoLegenda.offsetTop;
+        conteudoLegenda.scrollTop = offsetTop - 20;
+        
+        // Destacar o item
+        this.destacarLegendaItem(codigo);
+      }
+    }, 100);
+  }
+  
+  destacarLegendaItem(codigo) {
+    // Remover destaque anterior
+    document.querySelectorAll(".legenda-item").forEach(item => {
+      item.classList.remove("destaque");
+    });
+    
+    // Destacar novo item
+    const item = document.getElementById(`legenda-${codigo}`);
+    if (item) {
+      item.classList.add("destaque");
+      
+      // Remover destaque após 3 segundos
+      setTimeout(() => {
+        item.classList.remove("destaque");
+      }, 3000);
+    }
+  }
+  
+  toggleLegenda(forcarAbrir = false) {
+    const conteudo = document.getElementById("legenda-conteudo");
+    const toggle = document.getElementById("legenda-toggle");
+    
+    if (forcarAbrir && !this.legendaAberta) {
+      conteudo.classList.add("ativo");
+      toggle.classList.add("ativo");
+      this.legendaAberta = true;
+    } else {
+      conteudo.classList.toggle("ativo");
+      toggle.classList.toggle("ativo");
+      this.legendaAberta = conteudo.classList.contains("ativo");
+    }
+  }
+  
+  verificarHoje() {
+    const hoje = new Date();
+    const hojeFormatado = hoje.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    
+    // Verificar se hoje está nos dados
+    if (rotinas[hojeFormatado]) {
+      setTimeout(() => {
+        this.carregarDia(hojeFormatado);
+        
+        // Destacar item na sidebar
+        const itemHoje = document.querySelector(`.dia-item[data-data="${hojeFormatado}"]`);
+        if (itemHoje) {
+          itemHoje.classList.add("hoje");
+        }
+      }, 500);
+    }
+  }
+  
+  agruparPorSemanas() {
+    const semanas = [
+      {
+        titulo: "31/12/2025 - 02/01/2026",
+        dias: ["31/12/2025", "01/01/2026", "02/01/2026"]
+      },
+      {
+        titulo: "05/01/2026 - 09/01/2026",
+        dias: ["05/01/2026", "06/01/2026", "07/01/2026", "08/01/2026", "09/01/2026"]
+      },
+      {
+        titulo: "12/01/2026 - 16/01/2026",
+        dias: ["12/01/2026", "13/01/2026", "14/01/2026", "15/01/2026", "16/01/2026"]
+      }
+    ];
+    
+    return semanas;
+  }
+  
+  abrirModal(titulo) {
+    document.getElementById("modal-titulo").textContent = titulo;
+    document.getElementById("modal-visualizacao").classList.add("aberto");
+    
+    // Resetar para estilo padrão
+    this.estiloImpressaoAtual = "simples";
+    this.orientacaoImpressao = "paisagem";
+    
+    document.querySelectorAll(".btn-opcao-impressao").forEach(b => b.classList.remove("ativo"));
+    document.querySelector('.btn-opcao-impressao[data-estilo="simples"]').classList.add("ativo");
+    
+    document.querySelectorAll(".btn-orientacao").forEach(b => b.classList.remove("ativo"));
+    document.querySelector('.btn-orientacao[data-orientacao="paisagem"]').classList.add("ativo");
+    
+    this.aplicarOrientacao();
+    this.gerarConteudoImpressao();
+  }
+  
+  fecharModal() {
+    document.getElementById("modal-visualizacao").classList.remove("aberto");
+  }
+  
+  aplicarOrientacao() {
+    const modalConteudo = document.getElementById("modal-conteudo");
+    modalConteudo.classList.remove("orientacao-paisagem", "orientacao-retrato");
+    modalConteudo.classList.add(`orientacao-${this.orientacaoImpressao}`);
+  }
+  
+  prepararImpressao() {
+    // Adicionar classe de orientação ao body para impressão
+    document.body.classList.remove("orientacao-paisagem", "orientacao-retrato");
+    document.body.classList.add(`orientacao-${this.orientacaoImpressao}`);
+    
+    // Limpar qualquer conteúdo de impressão anterior
+    const oldPrintFrame = document.getElementById('print-frame');
+    if (oldPrintFrame) {
+      oldPrintFrame.remove();
+    }
+    
+    // Criar iframe para impressão
+    const printFrame = document.createElement('iframe');
+    printFrame.id = 'print-frame';
+    printFrame.style.position = 'absolute';
+    printFrame.style.width = '0';
+    printFrame.style.height = '0';
+    printFrame.style.border = 'none';
+    document.body.appendChild(printFrame);
+    
+    const printDocument = printFrame.contentWindow.document;
+    
+    // Obter o conteúdo ativo
+    let conteudo = "";
+    switch(this.estiloImpressaoAtual) {
+      case "simples":
+        conteudo = document.getElementById("impressao-simples").innerHTML;
+        break;
+      case "site":
+        conteudo = document.getElementById("impressao-site").innerHTML;
+        break;
+      case "tabela":
+        conteudo = document.getElementById("impressao-tabela").innerHTML;
+        break;
+    }
+    
+    // Adicionar orientação CSS
+    const orientacaoCSS = this.orientacaoImpressao === "paisagem" ? 
+      "@page { size: landscape; }" : 
+      "@page { size: portrait; }";
+    
+    printDocument.open();
+    printDocument.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Rotinas Diárias - Impressão</title>
+        <meta charset="utf-8">
+        <style>
+          ${orientacaoCSS}
+          body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            color: #000;
+          }
+          @media print {
+            @page {
+              margin: 0.5cm;
+            }
+            .semana-secao {
+              page-break-inside: avoid;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        ${conteudo}
+        <script>
+          window.onload = function() {
+            window.print();
+            setTimeout(function() {
+              window.close();
+            }, 100);
+          }
+        <\/script>
+      </body>
+      </html>
+    `);
+    printDocument.close();
+    
+    // Fechar modal após iniciar impressão
+    setTimeout(() => {
+      this.fecharModal();
+    }, 500);
+  }
+  
+  gerarConteudoImpressao() {
+    // Esconder todos os conteúdos primeiro
+    document.querySelectorAll(".conteudo-impressao").forEach(el => {
+      el.classList.remove("ativo");
+    });
+    
+    // Gerar conteúdo baseado no tipo de impressão e estilo
+    let conteudoSimples, conteudoSite, conteudoTabela;
+    
+    switch (this.tipoImpressaoAtual) {
+      case "dia":
+        conteudoSimples = this.gerarConteudoSimplesDia();
+        conteudoSite = this.gerarConteudoSiteDia();
+        conteudoTabela = this.gerarConteudoTabelaDia();
+        break;
+      case "tudo":
+        conteudoSimples = this.gerarConteudoSimplesTudo();
+        conteudoSite = this.gerarConteudoSiteTudo();
+        conteudoTabela = this.gerarConteudoTabelaTudo();
+        break;
+      case "selecionados":
+        conteudoSimples = this.gerarConteudoSimplesSelecionados();
+        conteudoSite = this.gerarConteudoSiteSelecionados();
+        conteudoTabela = this.gerarConteudoTabelaSelecionados();
+        break;
+    }
+    
+    // Atualizar os conteúdos
+    document.getElementById("impressao-simples").innerHTML = conteudoSimples;
+    document.getElementById("impressao-site").innerHTML = conteudoSite;
+    document.getElementById("impressao-tabela").innerHTML = conteudoTabela;
+    
+    // Mostrar o conteúdo ativo
+    const conteudoAtivo = `impressao-${this.estiloImpressaoAtual}`;
+    document.getElementById(conteudoAtivo).classList.add("ativo");
+  }
+  
+  gerarConteudoSimplesDia() {
+    const dia = rotinas[this.diaAtual];
+    const categoriasUsadas = this.obterCategoriasDoDia(dia);
+    
+    let html = `<div class="impressao-simples">`;
+    html += `<h1 class="titulo">Rotina Diária</h1>`;
+    html += `<h2 class="subtitulo">${dia.data} - ${dia.diaSemana}</h2>`;
+    
+    if (dia.feriado) {
+      html += `<p><strong>Feriado: ${dia.feriadoNome}</strong></p>`;
+    } else if (dia.semExpediente) {
+      html += `<p><strong>Sem expediente</strong></p>`;
+    }
+    
+    if (dia.tarefas.length > 0) {
+      html += `<table>`;
+      html += `<thead><tr><th>Tarefa</th><th>Categoria</th><th>Responsável</th><th>Descrição</th></tr></thead>`;
+      html += `<tbody>`;
+      
+      dia.tarefas.forEach(tarefa => {
+        const categoria = tarefa.categoria ? categorias[tarefa.categoria] : null;
+        html += `<tr>`;
+        html += `<td>${tarefa.titulo}</td>`;
+        html += `<td>${tarefa.categoria ? `${tarefa.categoria}: ${categoria.nome}` : ''}</td>`;
+        html += `<td>${tarefa.pessoa || ''}</td>`;
+        html += `<td>${tarefa.descricao || ''}</td>`;
+        html += `</tr>`;
+      });
+      
+      html += `</tbody></table>`;
+    } else {
+      html += `<p>Nenhuma tarefa agendada.</p>`;
+    }
+    
+    if (categoriasUsadas.length > 0) {
+      html += `<div class="legenda">`;
+      html += `<h3>Legenda das Categorias</h3>`;
+      html += `<table>`;
+      html += `<thead><tr><th>Código</th><th>Nome</th><th>Descrição</th></tr></thead>`;
+      html += `<tbody>`;
+      
+      categoriasUsadas.forEach(cat => {
+        html += `<tr>`;
+        html += `<td><strong>${cat.codigo}</strong></td>`;
+        html += `<td>${cat.nome}</td>`;
+        html += `<td>${cat.descricao}</td>`;
+        html += `</tr>`;
+      });
+      
+      html += `</tbody></table>`;
+      html += `</div>`;
+    }
+    
+    html += `</div>`;
+    return html;
+  }
+  
+  gerarConteudoSiteDia() {
+    const dia = rotinas[this.diaAtual];
+    const categoriasUsadas = this.obterCategoriasDoDia(dia);
+    
+    let html = `<div class="impressao-site">`;
+    html += `<h1 class="titulo">Rotina Diária</h1>`;
+    html += `<h2 class="subtitulo">${dia.data} - ${dia.diaSemana}</h2>`;
+    
+    html += `<div class="semana-secao">`;
+    html += `<div class="semana-titulo">${dia.data} - ${dia.diaSemana}</div>`;
+    
+    if (dia.feriado) {
+      html += `<div class="sem-tarefas"><strong>Feriado: ${dia.feriadoNome}</strong></div>`;
+    } else if (dia.semExpediente) {
+      html += `<div class="sem-tarefas"><strong>Sem expediente</strong></div>`;
+    } else if (dia.tarefas.length > 0) {
+      html += `<div class="tarefas-impressao">`;
+      
+      dia.tarefas.forEach(tarefa => {
+        const categoria = tarefa.categoria ? categorias[tarefa.categoria] : null;
+        const classeCategoria = tarefa.categoria ? `categoria-${tarefa.categoria}` : '';
+        
+        html += `<div class="tarefa-impressao ${classeCategoria}">`;
+        html += `<div class="tarefa-titulo">`;
+        html += `${tarefa.titulo}`;
+        html += `</div>`;
+        
+        if (tarefa.descricao) {
+          html += `<div class="tarefa-desc">${tarefa.descricao}</div>`;
+        }
+        
+        if (tarefa.pessoa) {
+          html += `<div class="tarefa-pessoa">${tarefa.pessoa}</div>`;
+        }
+        
+        if (tarefa.categoria) {
+          html += `<div class="categoria-badge" style="background-color: ${categoria.cor}">`;
+          html += `${tarefa.categoria}: ${categoria.nome}`;
+          html += `</div>`;
+        }
+        
+        html += `</div>`;
+      });
+      
+      html += `</div>`;
+    } else {
+      html += `<div class="sem-tarefas">Nenhuma tarefa agendada.</div>`;
+    }
+    
+    html += `</div>`;
+    
+    if (categoriasUsadas.length > 0) {
+      html += `<div class="legenda">`;
+      html += `<h4>Legenda das Categorias</h4>`;
+      html += `<div class="legenda-grid">`;
+      
+      categoriasUsadas.forEach(cat => {
+        html += `<div class="legenda-item">`;
+        html += `<div class="legenda-cor" style="background-color: ${cat.cor}"></div>`;
+        html += `<div class="legenda-texto">`;
+        html += `<strong>${cat.codigo}: ${cat.nome}</strong>`;
+        html += `<span>${cat.descricao}</span>`;
+        html += `</div>`;
+        html += `</div>`;
+      });
+      
+      html += `</div>`;
+      html += `</div>`;
+    }
+    
+    html += `</div>`;
+    return html;
+  }
+  
+  gerarConteudoTabelaDia() {
+    const dia = rotinas[this.diaAtual];
+    const categoriasUsadas = this.obterCategoriasDoDia(dia);
+    
+    let html = `<div class="impressao-tabela">`;
+    html += `<h1 class="titulo">Rotina Diária</h1>`;
+    html += `<div class="data-impressao">${dia.data} - ${dia.diaSemana}</div>`;
+    
+    if (dia.feriado) {
+      html += `<p><strong>Feriado: ${dia.feriadoNome}</strong></p>`;
+    } else if (dia.semExpediente) {
+      html += `<p><strong>Sem expediente</strong></p>`;
+    }
+    
+    if (dia.tarefas.length > 0) {
+      html += `<table class="tabela-impressao">`;
+      html += `<thead><tr><th>Tarefa</th><th>Responsável</th><th>Descrição</th><th>Categoria</th></tr></thead>`;
+      html += `<tbody>`;
+      
+      dia.tarefas.forEach(tarefa => {
+        const categoria = tarefa.categoria ? categorias[tarefa.categoria] : null;
+        html += `<tr>`;
+        html += `<td>${tarefa.titulo}</td>`;
+        html += `<td>${tarefa.pessoa || ''}</td>`;
+        html += `<td>${tarefa.descricao || ''}</td>`;
+        html += `<td>${tarefa.categoria ? `${tarefa.categoria}: ${categoria.nome}` : ''}</td>`;
+        html += `</tr>`;
+      });
+      
+      html += `</tbody></table>`;
+    } else {
+      html += `<p class="sem-tarefas">Nenhuma tarefa agendada.</p>`;
+    }
+    
+    if (categoriasUsadas.length > 0) {
+      html += this.gerarLegendaTabela(categoriasUsadas);
+    }
+    
+    html += `</div>`;
+    return html;
+  }
+  
+  gerarConteudoSimplesTudo() {
+    const semanas = this.agruparPorSemanas();
+    const categoriasUsadas = this.obterCategoriasDeTodasTarefas();
+    
+    let html = `<div class="impressao-simples">`;
+    html += `<h1 class="titulo">Rotinas Completas</h1>`;
+    html += `<h2 class="subtitulo">Dezembro 2025 a Janeiro 2026</h2>`;
+    
+    semanas.forEach(semana => {
+      html += `<div class="semana-secao">`;
+      html += `<div class="semana-titulo">${semana.titulo}</div>`;
+      html += `<table>`;
+      
+      // Cabeçalho
+      html += `<thead><tr>`;
+      semana.dias.forEach(data => {
+        const dia = rotinas[data];
+        if (dia) {
+          let classeCabecalho = "";
+          if (dia.feriado) classeCabecalho = "dia-feriado";
+          if (dia.semExpediente && !dia.feriado) classeCabecalho = "dia-sem-expediente";
+          
+          html += `<th class="${classeCabecalho}">${dia.data}<br>${dia.diaSemana}</th>`;
+        }
+      });
+      html += `</tr></thead>`;
+      
+      // Corpo - encontrar máximo de tarefas
+      let maxTarefas = 0;
+      semana.dias.forEach(data => {
+        const dia = rotinas[data];
+        if (dia && dia.tarefas) {
+          maxTarefas = Math.max(maxTarefas, dia.tarefas.length);
+        }
+      });
+      
+      html += `<tbody>`;
+      for (let i = 0; i < maxTarefas; i++) {
+        html += `<tr>`;
+        semana.dias.forEach(data => {
+          const dia = rotinas[data];
+          html += `<td>`;
+          
+          if (dia) {
+            if (dia.semExpediente && i === 0) {
+              html += `<strong>${dia.feriado ? dia.feriadoNome : "Sem expediente"}</strong>`;
+            } else if (dia.tarefas && dia.tarefas[i]) {
+              const tarefa = dia.tarefas[i];
+              const categoria = tarefa.categoria ? categorias[tarefa.categoria] : null;
+              
+              html += `<strong>${tarefa.titulo}</strong><br>`;
+              if (tarefa.descricao) html += `${tarefa.descricao}<br>`;
+              if (tarefa.pessoa) html += `<em>${tarefa.pessoa}</em><br>`;
+              if (tarefa.categoria) html += `<small>Categoria: ${tarefa.categoria}</small>`;
+            }
+          }
+          
+          html += `</td>`;
+        });
+        html += `</tr>`;
+      }
+      html += `</tbody></table></div>`;
+    });
+    
+    // Legenda
+    if (categoriasUsadas.length > 0) {
+      html += `<div class="legenda">`;
+      html += `<h3>Legenda das Categorias</h3>`;
+      html += `<table>`;
+      html += `<thead><tr><th>Código</th><th>Nome</th><th>Descrição</th></tr></thead>`;
+      html += `<tbody>`;
+      
+      categoriasUsadas.forEach(cat => {
+        html += `<tr>`;
+        html += `<td><strong>${cat.codigo}</strong></td>`;
+        html += `<td>${cat.nome}</td>`;
+        html += `<td>${cat.descricao}</td>`;
+        html += `</tr>`;
+      });
+      
+      html += `</tbody></table>`;
+      html += `</div>`;
+    }
+    
+    html += `</div>`;
+    return html;
+  }
+  
+  gerarConteudoSiteTudo() {
+    const semanas = this.agruparPorSemanas();
+    const categoriasUsadas = this.obterCategoriasDeTodasTarefas();
+    
+    let html = `<div class="impressao-site">`;
+    html += `<h1 class="titulo">Rotinas Completas</h1>`;
+    html += `<h2 class="subtitulo">Dezembro 2025 a Janeiro 2026</h2>`;
+    
+    semanas.forEach(semana => {
+      html += `<div class="semana-secao">`;
+      html += `<div class="semana-titulo">${semana.titulo}</div>`;
+      html += `<table class="tabela-dias">`;
+      
+      // Cabeçalho
+      html += `<thead><tr>`;
+      semana.dias.forEach(data => {
+        const dia = rotinas[data];
+        if (dia) {
+          let classeCabecalho = "dia-cabecalho";
+          if (dia.feriado) classeCabecalho += " dia-feriado";
+          if (dia.semExpediente && !dia.feriado) classeCabecalho += " dia-sem-expediente";
+          
+          html += `<th class="${classeCabecalho}">${dia.data}<br>${dia.diaSemana}</th>`;
+        }
+      });
+      html += `</tr></thead>`;
+      
+      // Corpo
+      html += `<tbody><tr>`;
+      semana.dias.forEach(data => {
+        const dia = rotinas[data];
+        html += `<td class="dia-conteudo">`;
+        
+        if (dia) {
+          if (dia.semExpediente) {
+            html += `<div class="sem-tarefas">`;
+            html += `<strong>${dia.feriado ? dia.feriadoNome : "Sem expediente"}</strong>`;
+            html += `</div>`;
+          } else if (dia.tarefas && dia.tarefas.length > 0) {
+            dia.tarefas.forEach(tarefa => {
+              const categoria = tarefa.categoria ? categorias[tarefa.categoria] : null;
+              const classeCategoria = tarefa.categoria ? `categoria-${tarefa.categoria}` : '';
+              
+              html += `<div class="tarefa-impressao ${classeCategoria}">`;
+              html += `<div class="tarefa-titulo">`;
+              html += `${tarefa.titulo}`;
+              html += `</div>`;
+              
+              if (tarefa.descricao) {
+                html += `<div class="tarefa-desc">${tarefa.descricao}</div>`;
+              }
+              
+              if (tarefa.pessoa) {
+                html += `<div class="tarefa-pessoa">${tarefa.pessoa}</div>`;
+              }
+              
+              html += `</div>`;
+            });
+          } else {
+            html += `<div class="sem-tarefas">Nenhuma tarefa</div>`;
+          }
+        }
+        
+        html += `</td>`;
+      });
+      html += `</tr></tbody></table></div>`;
+    });
+    
+    // Legenda
+    if (categoriasUsadas.length > 0) {
+      html += `<div class="legenda">`;
+      html += `<h4>Legenda das Categorias</h4>`;
+      html += `<div class="legenda-grid">`;
+      
+      categoriasUsadas.forEach(cat => {
+        html += `<div class="legenda-item">`;
+        html += `<div class="legenda-cor" style="background-color: ${cat.cor}"></div>`;
+        html += `<div class="legenda-texto">`;
+        html += `<strong>${cat.codigo}: ${cat.nome}</strong>`;
+        html += `<span>${cat.descricao}</span>`;
+        html += `</div>`;
+        html += `</div>`;
+      });
+      
+      html += `</div>`;
+      html += `</div>`;
+    }
+    
+    html += `</div>`;
+    return html;
+  }
+  
+  gerarConteudoTabelaTudo() {
+    const semanas = this.agruparPorSemanas();
+    const categoriasUsadas = this.obterCategoriasDeTodasTarefas();
+    
+    let html = `<div class="impressao-tabela">`;
+    html += `<h1 class="titulo">Rotinas Completas</h1>`;
+    html += `<div class="subtitulo">Dezembro 2025 a Janeiro 2026</div>`;
+    
+    semanas.forEach(semana => {
+      html += `<div class="semana-secao">`;
+      html += `<h3>${semana.titulo}</h3>`;
+      html += `<table class="tabela-impressao">`;
+      
+      // Cabeçalho com os dias
+      html += `<thead><tr>`;
+      semana.dias.forEach(data => {
+        const dia = rotinas[data];
+        if (dia) {
+          let estiloCabecalho = "";
+          if (dia.feriado) estiloCabecalho = "background-color: #f59e0b; color: white;";
+          else if (dia.semExpediente) estiloCabecalho = "background-color: #6b7280; color: white;";
+          else estiloCabecalho = "background-color: #4a6491; color: white;";
+          
+          html += `<th style="${estiloCabecalho}">${dia.data}<br>${dia.diaSemana}</th>`;
+        }
+      });
+      html += `</tr></thead>`;
+      
+      // Corpo - encontrar o máximo de tarefas em um dia dessa semana
+      let maxTarefas = 0;
+      semana.dias.forEach(data => {
+        const dia = rotinas[data];
+        if (dia && dia.tarefas) {
+          maxTarefas = Math.max(maxTarefas, dia.tarefas.length);
+        }
+      });
+      
+      html += `<tbody>`;
+      for (let i = 0; i < maxTarefas; i++) {
+        html += `<tr>`;
+        semana.dias.forEach(data => {
+          const dia = rotinas[data];
+          html += `<td>`;
+          if (dia && dia.tarefas && dia.tarefas[i]) {
+            const tarefa = dia.tarefas[i];
+            const categoria = tarefa.categoria ? categorias[tarefa.categoria] : null;
+            
+            html += `<div class="tarefa-impressao" style="border-left-color: ${categoria ? categoria.cor : '#4a6491'}">`;
+            html += `<div class="tarefa-titulo">${tarefa.titulo}</div>`;
+            if (tarefa.descricao) html += `<div>${tarefa.descricao}</div>`;
+            if (tarefa.pessoa) html += `<div class="tarefa-pessoa">${tarefa.pessoa}</div>`;
+            if (tarefa.categoria) html += `<div class="categoria-badge" style="background-color: ${categoria.cor}">${tarefa.categoria}</div>`;
+            html += `</div>`;
+          }
+          html += `</td>`;
+        });
+        html += `</tr>`;
+      }
+      html += `</tbody></table></div>`;
+    });
+    
+    if (categoriasUsadas.length > 0) {
+      html += this.gerarLegendaTabela(categoriasUsadas);
+    }
+    
+    html += `</div>`;
+    return html;
+  }
+  
+  gerarConteudoSimplesSelecionados() {
+    const diasArray = Array.from(this.diasSelecionados).sort();
+    const categoriasUsadas = this.obterCategoriasDeDiasSelecionados(diasArray);
+    
+    let html = `<div class="impressao-simples">`;
+    html += `<h1 class="titulo">Rotinas Selecionadas</h1>`;
+    html += `<h2 class="subtitulo">${diasArray.length} dia(s) selecionado(s)</h2>`;
+    
+    // Agrupar por semanas para melhor organização
+    const semanasSelecionadas = this.agruparDiasSelecionadosPorSemana(diasArray);
+    
+    semanasSelecionadas.forEach(semana => {
+      html += `<div class="semana-secao">`;
+      html += `<div class="semana-titulo">${semana.titulo}</div>`;
+      
+      semana.dias.forEach(data => {
+        const dia = rotinas[data];
+        if (dia) {
+          html += `<h3>${dia.data} - ${dia.diaSemana}</h3>`;
+          
+          if (dia.semExpediente) {
+            html += `<p><strong>${dia.feriado ? dia.feriadoNome : "Sem expediente"}</strong></p>`;
+          } else if (dia.tarefas.length > 0) {
+            html += `<table>`;
+            html += `<thead><tr><th>Tarefa</th><th>Categoria</th><th>Responsável</th><th>Descrição</th></tr></thead>`;
+            html += `<tbody>`;
+            
+            dia.tarefas.forEach(tarefa => {
+              const categoria = tarefa.categoria ? categorias[tarefa.categoria] : null;
+              html += `<tr>`;
+              html += `<td>${tarefa.titulo}</td>`;
+              html += `<td>${tarefa.categoria ? `${tarefa.categoria}: ${categoria.nome}` : ''}</td>`;
+              html += `<td>${tarefa.pessoa || ''}</td>`;
+              html += `<td>${tarefa.descricao || ''}</td>`;
+              html += `</tr>`;
+            });
+            
+            html += `</tbody></table>`;
+          } else {
+            html += `<p>Nenhuma tarefa agendada.</p>`;
+          }
+        }
+      });
+      html += `</div>`;
+    });
+    
+    // Legenda
+    if (categoriasUsadas.length > 0) {
+      html += `<div class="legenda">`;
+      html += `<h3>Legenda das Categorias</h3>`;
+      html += `<table>`;
+      html += `<thead><tr><th>Código</th><th>Nome</th><th>Descrição</th></tr></thead>`;
+      html += `<tbody>`;
+      
+      categoriasUsadas.forEach(cat => {
+        html += `<tr>`;
+        html += `<td><strong>${cat.codigo}</strong></td>`;
+        html += `<td>${cat.nome}</td>`;
+        html += `<td>${cat.descricao}</td>`;
+        html += `</tr>`;
+      });
+      
+      html += `</tbody></table>`;
+      html += `</div>`;
+    }
+    
+    html += `</div>`;
+    return html;
+  }
+  
+  gerarConteudoSiteSelecionados() {
+    const diasArray = Array.from(this.diasSelecionados).sort();
+    const categoriasUsadas = this.obterCategoriasDeDiasSelecionados(diasArray);
+    
+    let html = `<div class="impressao-site">`;
+    html += `<h1 class="titulo">Rotinas Selecionadas</h1>`;
+    html += `<h2 class="subtitulo">${diasArray.length} dia(s) selecionado(s)</h2>`;
+    
+    // Agrupar por semanas para melhor organização
+    const semanasSelecionadas = this.agruparDiasSelecionadosPorSemana(diasArray);
+    
+    semanasSelecionadas.forEach(semana => {
+      html += `<div class="semana-secao">`;
+      html += `<div class="semana-titulo">${semana.titulo}</div>`;
+      
+      semana.dias.forEach(data => {
+        const dia = rotinas[data];
+        if (dia) {
+          html += `<h3>${dia.data} - ${dia.diaSemana}</h3>`;
+          
+          if (dia.semExpediente) {
+            html += `<div class="sem-tarefas">`;
+            html += `<strong>${dia.feriado ? dia.feriadoNome : "Sem expediente"}</strong>`;
+            html += `</div>`;
+          } else if (dia.tarefas.length > 0) {
+            html += `<div class="tarefas-impressao">`;
+            
+            dia.tarefas.forEach(tarefa => {
+              const categoria = tarefa.categoria ? categorias[tarefa.categoria] : null;
+              const classeCategoria = tarefa.categoria ? `categoria-${tarefa.categoria}` : '';
+              
+              html += `<div class="tarefa-impressao ${classeCategoria}">`;
+              html += `<div class="tarefa-titulo">`;
+              html += `${tarefa.titulo}`;
+              html += `</div>`;
+              
+              if (tarefa.descricao) {
+                html += `<div class="tarefa-desc">${tarefa.descricao}</div>`;
+              }
+              
+              if (tarefa.pessoa) {
+                html += `<div class="tarefa-pessoa">${tarefa.pessoa}</div>`;
+              }
+              
+              if (tarefa.categoria) {
+                html += `<div class="categoria-badge" style="background-color: ${categoria.cor}">`;
+                html += `${tarefa.categoria}: ${categoria.nome}`;
+                html += `</div>`;
+              }
+              
+              html += `</div>`;
+            });
+            
+            html += `</div>`;
+          } else {
+            html += `<div class="sem-tarefas">Nenhuma tarefa agendada.</div>`;
+          }
+        }
+      });
+      html += `</div>`;
+    });
+    
+    // Legenda
+    if (categoriasUsadas.length > 0) {
+      html += `<div class="legenda">`;
+      html += `<h4>Legenda das Categorias</h4>`;
+      html += `<div class="legenda-grid">`;
+      
+      categoriasUsadas.forEach(cat => {
+        html += `<div class="legenda-item">`;
+        html += `<div class="legenda-cor" style="background-color: ${cat.cor}"></div>`;
+        html += `<div class="legenda-texto">`;
+        html += `<strong>${cat.codigo}: ${cat.nome}</strong>`;
+        html += `<span>${cat.descricao}</span>`;
+        html += `</div>`;
+        html += `</div>`;
+      });
+      
+      html += `</div>`;
+      html += `</div>`;
+    }
+    
+    html += `</div>`;
+    return html;
+  }
+  
+  gerarConteudoTabelaSelecionados() {
+    const diasArray = Array.from(this.diasSelecionados).sort();
+    const categoriasUsadas = this.obterCategoriasDeDiasSelecionados(diasArray);
+    
+    // Se for apenas um dia, mostrar detalhado
+    if (diasArray.length === 1) {
+      this.diaAtual = diasArray[0];
+      return this.gerarConteudoTabelaDia();
+    }
+    
+    let html = `<div class="impressao-tabela">`;
+    html += `<h1 class="titulo">Rotinas Selecionadas</h1>`;
+    html += `<div class="subtitulo">${diasArray.length} dia(s) selecionado(s)</div>`;
+    
+    // Criar tabela com os dias lado a lado
+    html += `<table class="tabela-impressao">`;
+    
+    // Cabeçalho com os dias
+    html += `<thead><tr>`;
+    diasArray.forEach(data => {
+      const dia = rotinas[data];
+      if (dia) {
+        let estiloCabecalho = "";
+        if (dia.feriado) estiloCabecalho = "background-color: #f59e0b; color: white;";
+        else if (dia.semExpediente) estiloCabecalho = "background-color: #6b7280; color: white;";
+        else estiloCabecalho = "background-color: #4a6491; color: white;";
+        
+        html += `<th style="${estiloCabecalho}">${dia.data}<br>${dia.diaSemana}</th>`;
+      }
+    });
+    html += `</tr></thead>`;
+    
+    // Corpo - encontrar o máximo de tarefas
+    let maxTarefas = 0;
+    diasArray.forEach(data => {
+      const dia = rotinas[data];
+      if (dia && dia.tarefas) {
+        maxTarefas = Math.max(maxTarefas, dia.tarefas.length);
+      }
+    });
+    
+    html += `<tbody>`;
+    for (let i = 0; i < maxTarefas; i++) {
+      html += `<tr>`;
+      diasArray.forEach(data => {
+        const dia = rotinas[data];
+        html += `<td>`;
+        if (dia && dia.tarefas && dia.tarefas[i]) {
+          const tarefa = dia.tarefas[i];
+          const categoria = tarefa.categoria ? categorias[tarefa.categoria] : null;
+          
+          html += `<div class="tarefa-impressao" style="border-left-color: ${categoria ? categoria.cor : '#4a6491'}">`;
+          html += `<div class="tarefa-titulo">${tarefa.titulo}</div>`;
+          if (tarefa.descricao) html += `<div>${tarefa.descricao}</div>`;
+          if (tarefa.pessoa) html += `<div class="tarefa-pessoa">${tarefa.pessoa}</div>`;
+          if (tarefa.categoria) html += `<div class="categoria-badge" style="background-color: ${categoria.cor}">${tarefa.categoria}</div>`;
+          html += `</div>`;
+        }
+        html += `</td>`;
+      });
+      html += `</tr>`;
+    }
+    html += `</tbody></table>`;
+    
+    if (categoriasUsadas.length > 0) {
+      html += this.gerarLegendaTabela(categoriasUsadas);
+    }
+    
+    html += `</div>`;
+    return html;
+  }
+  
+  gerarLegendaTabela(categoriasUsadas) {
+    let html = `<div class="legenda">`;
+    html += `<h4>Legenda das Categorias</h4>`;
+    html += `<div class="legenda-grid">`;
+    
+    categoriasUsadas.forEach(cat => {
+      html += `<div class="legenda-item">`;
+      html += `<div class="legenda-cor" style="background-color: ${cat.cor}"></div>`;
+      html += `<div class="legenda-texto">`;
+      html += `<strong>${cat.codigo}: ${cat.nome}</strong>`;
+      html += `<span>${cat.descricao}</span>`;
+      html += `</div>`;
+      html += `</div>`;
+    });
+    
+    html += `</div></div>`;
+    return html;
+  }
+  
+  agruparDiasSelecionadosPorSemana(diasArray) {
+    const semanas = this.agruparPorSemanas();
+    const semanasSelecionadas = [];
+    
+    semanas.forEach(semana => {
+      const diasSemana = semana.dias.filter(data => diasArray.includes(data));
+      if (diasSemana.length > 0) {
+        semanasSelecionadas.push({
+          titulo: semana.titulo,
+          dias: diasSemana
+        });
+      }
+    });
+    
+    return semanasSelecionadas;
+  }
+  
+  obterCategoriasDoDia(dia) {
+    const categoriasSet = new Set();
+    dia.tarefas.forEach(tarefa => {
+      if (tarefa.categoria && categorias[tarefa.categoria]) {
+        categoriasSet.add(tarefa.categoria);
+      }
+    });
+    
+    return Array.from(categoriasSet).map(codigo => ({
+      codigo,
+      nome: categorias[codigo].nome,
+      descricao: categorias[codigo].descricao,
+      cor: categorias[codigo].cor
+    }));
+  }
+  
+  obterCategoriasDeTodasTarefas() {
+    const categoriasSet = new Set();
+    Object.values(rotinas).forEach(dia => {
+      dia.tarefas.forEach(tarefa => {
+        if (tarefa.categoria && categorias[tarefa.categoria]) {
+          categoriasSet.add(tarefa.categoria);
+        }
+      });
+    });
+    
+    return Array.from(categoriasSet).map(codigo => ({
+      codigo,
+      nome: categorias[codigo].nome,
+      descricao: categorias[codigo].descricao,
+      cor: categorias[codigo].cor
+    }));
+  }
+  
+  obterCategoriasDeDiasSelecionados(diasArray) {
+    const categoriasSet = new Set();
+    diasArray.forEach(data => {
+      const dia = rotinas[data];
+      if (dia) {
+        dia.tarefas.forEach(tarefa => {
+          if (tarefa.categoria && categorias[tarefa.categoria]) {
+            categoriasSet.add(tarefa.categoria);
+          }
+        });
+      }
+    });
+    
+    return Array.from(categoriasSet).map(codigo => ({
+      codigo,
+      nome: categorias[codigo].nome,
+      descricao: categorias[codigo].descricao,
+      cor: categorias[codigo].cor
+    }));
+  }
+}
+
+// Inicializar quando o DOM estiver pronto
+document.addEventListener("DOMContentLoaded", () => {
+  new SistemaRotinas();
+});
+</script>
+</body>
+</html>

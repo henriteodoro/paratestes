@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Rotinas Diárias</title>
+<title>Rotinas Diárias — MACs & Guias</title>
 <meta name="description" content="Sistema organizado de rotinas diárias por semana" />
 <style>
   :root{
@@ -25,6 +25,7 @@
     --laranja: #fb8c00;
     --teal: #00897b;
     --cinza-escuro: #5d4037;
+    --verde-escuro: #2e7d32;
   }
   body{
     font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
@@ -82,7 +83,7 @@
   /* LAYOUT PRINCIPAL */
   .rotinas-container {
     display: grid;
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: 320px 1fr;
     gap: 20px;
     margin-top: 20px;
   }
@@ -96,10 +97,15 @@
     height: fit-content;
     position: sticky;
     top: 90px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
   }
 
   .periodo-secao {
-    margin-bottom: 24px;
+    margin-bottom: 0;
   }
 
   .periodo-secao h3 {
@@ -234,6 +240,156 @@
 
   .btn-imprimir:hover {
     background: #e0f2fe !important;
+  }
+
+  /* FILTRO DE CATEGORIAS */
+  .filtro-categorias {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid var(--borda);
+  }
+
+  .filtro-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    cursor: pointer;
+  }
+
+  .filtro-header h3 {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ink-strong);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .filtro-header h3 svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .filtro-conteudo {
+    max-height: 300px;
+    overflow-y: auto;
+    transition: max-height 0.3s ease;
+  }
+
+  .filtro-conteudo.recolhido {
+    max-height: 0;
+    overflow: hidden;
+  }
+
+  .categoria-filtro-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+  }
+
+  .categoria-filtro-item:hover {
+    background: white;
+    border-color: var(--borda);
+  }
+
+  .categoria-filtro-item.ativo {
+    background: white;
+    border-color: var(--borda-ativa);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .categoria-filtro-checkbox {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid var(--borda);
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .categoria-filtro-item.ativo .categoria-filtro-checkbox {
+    background: var(--azul);
+    border-color: var(--azul);
+  }
+
+  .categoria-filtro-checkbox svg {
+    width: 12px;
+    height: 12px;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .categoria-filtro-item.ativo .categoria-filtro-checkbox svg {
+    opacity: 1;
+  }
+
+  .categoria-filtro-cor {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .categoria-filtro-nome {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    flex: 1;
+  }
+
+  .contador-categoria {
+    font-size: 11px;
+    background: #e5e7eb;
+    color: #6b7280;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 24px;
+    text-align: center;
+  }
+
+  .botoes-filtro {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--borda);
+  }
+
+  .btn-filtro {
+    flex: 1;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid var(--borda);
+    background: white;
+    color: var(--ink);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .btn-filtro:hover {
+    background: #f3f8ff;
+    border-color: var(--borda-ativa);
+  }
+
+  .btn-filtro.ativo {
+    background: var(--azul);
+    color: white;
+    border-color: var(--azul);
   }
 
   /* LEGENDA */
@@ -473,6 +629,7 @@
   .categoria-N8 { border-left-color: var(--teal); }
   .categoria-N9 { border-left-color: #f4511e; }
   .categoria-N10 { border-left-color: #00acc1; }
+  .categoria-N11 { border-left-color: #2e7d32; }
 
   .categoria-N1 .tarefa-icone { background: var(--danger); }
   .categoria-N2 .tarefa-icone { background: var(--azul); }
@@ -484,6 +641,7 @@
   .categoria-N8 .tarefa-icone { background: var(--teal); }
   .categoria-N9 .tarefa-icone { background: #f4511e; }
   .categoria-N10 .tarefa-icone { background: #00acc1; }
+  .categoria-N11 .tarefa-icone { background: #2e7d32; }
 
   .legenda-N1 .legenda-icone-grande { background: var(--danger); }
   .legenda-N2 .legenda-icone-grande { background: var(--azul); }
@@ -495,6 +653,7 @@
   .legenda-N8 .legenda-icone-grande { background: var(--teal); }
   .legenda-N9 .legenda-icone-grande { background: #f4511e; }
   .legenda-N10 .legenda-icone-grande { background: #00acc1; }
+  .legenda-N11 .legenda-icone-grande { background: #2e7d32; }
 
   /* INFO BOXES */
   .info-box {
@@ -613,6 +772,7 @@
     .dias-sidebar {
       position: static;
       margin-bottom: 20px;
+      max-height: none;
     }
     .tarefas-dia {
       grid-template-columns: 1fr;
@@ -684,7 +844,8 @@
     .conteudo-header-acoes,
     .btn-voltar-topo,
     .search,
-    .btn-toolbar {
+    .btn-toolbar,
+    .filtro-categorias {
       display: none !important;
     }
     
@@ -878,7 +1039,33 @@
 
   <div class="rotinas-container">
     <div class="dias-sidebar">
-      <!-- Dias serão carregados dinamicamente -->
+      <!-- Filtro de categorias -->
+      <div class="filtro-categorias">
+        <div class="filtro-header" id="filtro-toggle">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            </svg>
+            Filtrar por Categoria
+          </h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+        <div class="filtro-conteudo" id="filtro-conteudo">
+          <!-- As categorias serão carregadas aqui -->
+        </div>
+        <div class="botoes-filtro">
+          <button class="btn-filtro" id="btn-selecionar-todas">Todas</button>
+          <button class="btn-filtro" id="btn-limpar-todas">Nenhuma</button>
+        </div>
+      </div>
+
+      <!-- Dias da semana -->
+      <div class="periodo-secao">
+        <h3>Dias</h3>
+        <!-- Dias serão carregados dinamicamente -->
+      </div>
     </div>
 
     <div class="conteudo-area">
@@ -946,7 +1133,7 @@ const categorias = {
     nome: "Montagem Rotas",
     descricao: "Montagem das rotas de entrega",
     detalhes: "Confira a seção de montagem rotas nas anotações do site para mais informações.",
-    icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
+    icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7 4a2 2 0 0 0 0 3.46l7 4A2 2 0 0 0 21 16z"/><path d="M11.29 4.46L8 6.73a2 2 0 0 0 0 3.46l3.29 2.27"/><path d="M11.29 19.46L8 17.19a2 2 0 0 1 0-3.46l3.29-2.27"/></svg>`,
     cor: "#10b981"
   },
   "N5": {
@@ -995,8 +1182,14 @@ const categorias = {
     nome: "Cheques Início do Mês",
     descricao: "Fazer cheques do início do mês",
     detalhes: "Confira o tópico Cheques Início e Final de Mês na seção geral nas anotações do site para mais informações.",
-    icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M16 10v4"/><path d="M8 10v4"/><path d="M12 10v4"/><path d="M2 10h20"/></svg>`,
-    cor: "#00acc1"
+    icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="2" y="4" width="20" height="16" rx="2"/>
+      <path d="M6 8h12"/>
+      <path d="M6 12h12"/>
+      <path d="M6 16h8"/>
+      <path d="M15 16h3"/>
+    </svg>`,
+    cor: "#2e7d32"
   }
 };
 
@@ -1017,7 +1210,7 @@ const rotinas = {
       {
         titulo: "Mandar mensagem p/ clientes pedindo pedido",
         categoria: "N2",
-        descricao: "Horário: 9:00-9:30",
+        descricao: "",
         pessoa: ""
       },
       {
@@ -1030,7 +1223,7 @@ const rotinas = {
         titulo: "Montagem rotas",
         categoria: "N4",
         descricao: "",
-        pessoa: "Adeilton e Luiz Felipe"
+        pessoa: ""
       }
     ]
   },
@@ -1098,7 +1291,7 @@ const rotinas = {
         pessoa: ""
       },
       {
-        titulo: "Pedir café para produção caso precise",
+        titulo: "Pedir café para produção caso preciso",
         categoria: "N3",
         descricao: "",
         pessoa: "Luiz Felipe"
@@ -1113,7 +1306,7 @@ const rotinas = {
         titulo: "Montagem rotas",
         categoria: "N4",
         descricao: "",
-        pessoa: "Adeilton e Emillie"
+        pessoa: ""
       }
     ]
   },
@@ -1151,7 +1344,7 @@ const rotinas = {
         titulo: "Montagem rotas",
         categoria: "N4",
         descricao: "",
-        pessoa: "Adeilton e Emillie"
+        pessoa: ""
       }
     ]
   },
@@ -1195,7 +1388,7 @@ const rotinas = {
         titulo: "Montagem rotas",
         categoria: "N4",
         descricao: "",
-        pessoa: "Adeilton e Emillie"
+        pessoa: ""
       }
     ]
   },
@@ -1233,7 +1426,7 @@ const rotinas = {
         titulo: "Montagem rotas",
         categoria: "N4",
         descricao: "",
-        pessoa: "Adeilton e Emillie"
+        pessoa: ""
       },
       {
         titulo: "Fazer lista da São José e Pão Total",
@@ -1307,7 +1500,7 @@ const rotinas = {
         titulo: "Montagem rotas",
         categoria: "N4",
         descricao: "",
-        pessoa: "Adeilton e Emillie"
+        pessoa: ""
       }
     ]
   },
@@ -1363,7 +1556,7 @@ const rotinas = {
         titulo: "Montagem rotas",
         categoria: "N4",
         descricao: "",
-        pessoa: "Adeilton e Luiz Felipe"
+        pessoa: ""
       }
     ]
   },
@@ -1395,7 +1588,7 @@ const rotinas = {
         titulo: "Montagem rotas",
         categoria: "N4",
         descricao: "",
-        pessoa: "Adeilton e Luiz Felipe"
+        pessoa: ""
       }
     ]
   },
@@ -1427,7 +1620,7 @@ const rotinas = {
         titulo: "Montagem rotas",
         categoria: "N4",
         descricao: "",
-        pessoa: "Adeilton e Luiz Felipe"
+        pessoa: ""
       }
     ]
   },
@@ -1459,7 +1652,7 @@ const rotinas = {
         titulo: "Montagem rotas",
         categoria: "N4",
         descricao: "",
-        pessoa: "Adeilton e Luiz Felipe"
+        pessoa: ""
       },
       {
         titulo: "Fazer lista da São José e Pão Total",
@@ -1521,7 +1714,7 @@ const rotinas = {
         titulo: "Montagem rotas",
         categoria: "N4",
         descricao: "",
-        pessoa: "Adeilton e Luiz Felipe"
+        pessoa: ""
       }
     ]
   }
@@ -1534,16 +1727,37 @@ class SistemaRotinas {
     this.termoBusca = "";
     this.buscaAtiva = false;
     this.legendaAberta = false;
+    this.filtroAberto = true;
     this.diasSelecionados = new Set();
+    this.categoriasSelecionadas = new Set();
+    this.contadoresCategorias = {};
     
     this.init();
   }
   
   init() {
+    this.calcularContadoresCategorias();
     this.carregarLegenda();
+    this.carregarFiltroCategorias();
     this.carregarSidebar();
     this.configurarEventos();
     this.verificarHoje();
+  }
+  
+  calcularContadoresCategorias() {
+    // Inicializar contadores
+    Object.keys(categorias).forEach(codigo => {
+      this.contadoresCategorias[codigo] = 0;
+    });
+    
+    // Contar ocorrências de cada categoria em todas as rotinas
+    Object.values(rotinas).forEach(dia => {
+      dia.tarefas.forEach(tarefa => {
+        if (tarefa.categoria && this.contadoresCategorias[tarefa.categoria] !== undefined) {
+          this.contadoresCategorias[tarefa.categoria]++;
+        }
+      });
+    });
   }
   
   carregarLegenda() {
@@ -1551,6 +1765,7 @@ class SistemaRotinas {
     let html = "";
     
     Object.entries(categorias).forEach(([codigo, categoria]) => {
+      const contador = this.contadoresCategorias[codigo] || 0;
       html += `
         <div class="legenda-item legenda-${codigo}" id="legenda-${codigo}">
           <div class="legenda-item-header">
@@ -1558,7 +1773,7 @@ class SistemaRotinas {
               ${categoria.icone}
             </div>
             <div>
-              <div class="legenda-titulo">${codigo}: ${categoria.nome}</div>
+              <div class="legenda-titulo">${codigo}: ${categoria.nome} <span style="color: var(--muted); font-size: 12px;">(${contador} tarefa${contador !== 1 ? 's' : ''})</span></div>
               <div class="legenda-desc">${categoria.descricao}</div>
             </div>
           </div>
@@ -1572,16 +1787,37 @@ class SistemaRotinas {
     grid.innerHTML = html;
   }
   
+  carregarFiltroCategorias() {
+    const conteudo = document.getElementById("filtro-conteudo");
+    let html = "";
+    
+    Object.entries(categorias).forEach(([codigo, categoria]) => {
+      const contador = this.contadoresCategorias[codigo] || 0;
+      const ativo = this.categoriasSelecionadas.has(codigo);
+      html += `
+        <div class="categoria-filtro-item ${ativo ? 'ativo' : ''}" data-categoria="${codigo}">
+          <div class="categoria-filtro-checkbox">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div class="categoria-filtro-cor" style="background: ${categoria.cor}"></div>
+          <div class="categoria-filtro-nome">${categoria.nome}</div>
+          <div class="contador-categoria">${contador}</div>
+        </div>
+      `;
+    });
+    
+    conteudo.innerHTML = html;
+  }
+  
   carregarSidebar() {
-    const sidebar = document.querySelector(".dias-sidebar");
+    const sidebar = document.querySelector(".periodo-secao");
     const semanas = this.agruparPorSemanas();
     
     let html = "";
     
     semanas.forEach((semana, index) => {
-      html += `<div class="periodo-secao">`;
-      html += `<h3>${semana.titulo}</h3>`;
-      
       semana.dias.forEach(data => {
         const dia = rotinas[data];
         if (!dia) return;
@@ -1601,11 +1837,9 @@ class SistemaRotinas {
           </div>
         `;
       });
-      
-      html += `</div>`;
     });
     
-    sidebar.innerHTML = html;
+    sidebar.innerHTML += html;
   }
   
   configurarEventos() {
@@ -1618,7 +1852,7 @@ class SistemaRotinas {
       }
     });
     
-    // Checkboxes
+    // Checkboxes de dias
     document.addEventListener("change", (e) => {
       if (e.target.classList.contains("checkbox-dia")) {
         const data = e.target.getAttribute("data-data");
@@ -1630,9 +1864,32 @@ class SistemaRotinas {
       }
     });
     
+    // Checkboxes de categorias (filtro)
+    document.addEventListener("click", (e) => {
+      const filtroItem = e.target.closest(".categoria-filtro-item");
+      if (filtroItem) {
+        const categoria = filtroItem.getAttribute("data-categoria");
+        this.toggleCategoriaFiltro(categoria);
+      }
+    });
+    
+    // Botões do filtro
+    document.getElementById("btn-selecionar-todas").addEventListener("click", () => {
+      this.selecionarTodasCategorias();
+    });
+    
+    document.getElementById("btn-limpar-todas").addEventListener("click", () => {
+      this.limparTodasCategorias();
+    });
+    
     // Toggle legenda
     document.getElementById("legenda-toggle").addEventListener("click", () => {
       this.toggleLegenda();
+    });
+    
+    // Toggle filtro
+    document.getElementById("filtro-toggle").addEventListener("click", () => {
+      this.toggleFiltro();
     });
     
     // Busca
@@ -1674,6 +1931,81 @@ class SistemaRotinas {
     document.getElementById("btn-imprimir-selecionados").addEventListener("click", () => {
       this.imprimirSelecionados();
     });
+  }
+  
+  toggleCategoriaFiltro(categoria) {
+    if (this.categoriasSelecionadas.has(categoria)) {
+      this.categoriasSelecionadas.delete(categoria);
+    } else {
+      this.categoriasSelecionadas.add(categoria);
+    }
+    
+    // Atualizar visual
+    const item = document.querySelector(`.categoria-filtro-item[data-categoria="${categoria}"]`);
+    if (item) {
+      item.classList.toggle("ativo");
+    }
+    
+    // Atualizar botões
+    this.atualizarBotoesFiltro();
+    
+    // Aplicar filtro se houver um dia carregado
+    if (this.diaAtual) {
+      this.carregarDia(this.diaAtual);
+    }
+  }
+  
+  selecionarTodasCategorias() {
+    Object.keys(categorias).forEach(codigo => {
+      this.categoriasSelecionadas.add(codigo);
+    });
+    
+    // Atualizar visual
+    document.querySelectorAll(".categoria-filtro-item").forEach(item => {
+      item.classList.add("ativo");
+    });
+    
+    // Atualizar botões
+    this.atualizarBotoesFiltro();
+    
+    // Aplicar filtro se houver um dia carregado
+    if (this.diaAtual) {
+      this.carregarDia(this.diaAtual);
+    }
+  }
+  
+  limparTodasCategorias() {
+    this.categoriasSelecionadas.clear();
+    
+    // Atualizar visual
+    document.querySelectorAll(".categoria-filtro-item").forEach(item => {
+      item.classList.remove("ativo");
+    });
+    
+    // Atualizar botões
+    this.atualizarBotoesFiltro();
+    
+    // Aplicar filtro se houver um dia carregado
+    if (this.diaAtual) {
+      this.carregarDia(this.diaAtual);
+    }
+  }
+  
+  atualizarBotoesFiltro() {
+    const btnTodas = document.getElementById("btn-selecionar-todas");
+    const btnNenhuma = document.getElementById("btn-limpar-todas");
+    const totalCategorias = Object.keys(categorias).length;
+    
+    if (this.categoriasSelecionadas.size === totalCategorias) {
+      btnTodas.classList.add("ativo");
+      btnNenhuma.classList.remove("ativo");
+    } else if (this.categoriasSelecionadas.size === 0) {
+      btnTodas.classList.remove("ativo");
+      btnNenhuma.classList.add("ativo");
+    } else {
+      btnTodas.classList.remove("ativo");
+      btnNenhuma.classList.remove("ativo");
+    }
   }
   
   carregarDia(data) {
@@ -1730,11 +2062,23 @@ class SistemaRotinas {
       return;
     }
     
-    // Filtrar tarefas se houver busca
+    // Filtrar tarefas por busca e por categoria
     let tarefas = dia.tarefas;
+    
+    // Aplicar filtro de categorias
+    if (this.categoriasSelecionadas.size > 0) {
+      tarefas = tarefas.filter(tarefa => {
+        // Se não tem categoria, não aparece no filtro
+        if (!tarefa.categoria) return false;
+        // Verificar se a categoria está selecionada
+        return this.categoriasSelecionadas.has(tarefa.categoria);
+      });
+    }
+    
+    // Aplicar filtro de busca
     if (this.buscaAtiva && this.termoBusca) {
       const termo = this.termoBusca.toLowerCase();
-      tarefas = dia.tarefas.filter(tarefa => 
+      tarefas = tarefas.filter(tarefa => 
         tarefa.titulo.toLowerCase().includes(termo) ||
         (tarefa.pessoa && tarefa.pessoa.toLowerCase().includes(termo)) ||
         (tarefa.categoria && categorias[tarefa.categoria]?.nome.toLowerCase().includes(termo)) ||
@@ -1743,12 +2087,19 @@ class SistemaRotinas {
     }
     
     if (tarefas.length === 0) {
+      let mensagem = "Nenhuma tarefa encontrada";
+      if (this.categoriasSelecionadas.size > 0) {
+        mensagem = `Nenhuma tarefa encontrada para as categorias selecionadas${this.termoBusca ? ` com o termo "${this.termoBusca}"` : ''}`;
+      } else if (this.termoBusca) {
+        mensagem = `Nenhuma tarefa encontrada com o termo "${this.termoBusca}"`;
+      }
+      
       container.innerHTML = `
         <div class="sem-tarefas">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
-          <p>Nenhuma tarefa encontrada com o termo "${this.termoBusca}"</p>
+          <p>${mensagem}</p>
         </div>
       `;
       return;
@@ -1795,15 +2146,22 @@ class SistemaRotinas {
     
     if (!termo.trim()) {
       resultadosContainer.style.display = "none";
+      this.buscaAtiva = false;
+      this.termoBusca = "";
+      if (this.diaAtual) {
+        this.carregarDia(this.diaAtual);
+      }
       return;
     }
     
     this.termoBusca = termo;
+    this.buscaAtiva = true;
     let resultadosHTML = "";
     let encontrouResultados = false;
     
     // Buscar em todos os dias
     Object.entries(rotinas).forEach(([data, dia]) => {
+      // Filtrar tarefas por busca
       const tarefasEncontradas = dia.tarefas.filter(tarefa => 
         tarefa.titulo.toLowerCase().includes(termo.toLowerCase()) ||
         (tarefa.pessoa && tarefa.pessoa.toLowerCase().includes(termo.toLowerCase())) ||
@@ -1833,6 +2191,8 @@ class SistemaRotinas {
           this.carregarDia(data);
           resultadosContainer.style.display = "none";
           document.getElementById("campo-busca").value = "";
+          this.buscaAtiva = false;
+          this.termoBusca = "";
         });
       });
     } else {
@@ -1899,6 +2259,15 @@ class SistemaRotinas {
     }
   }
   
+  toggleFiltro() {
+    const conteudo = document.getElementById("filtro-conteudo");
+    const toggle = document.getElementById("filtro-toggle");
+    
+    conteudo.classList.toggle("recolhido");
+    toggle.classList.toggle("ativo");
+    this.filtroAberto = !conteudo.classList.contains("recolhido");
+  }
+  
   verificarHoje() {
     const hoje = new Date();
     const hojeFormatado = hoje.toLocaleDateString('pt-BR', {
@@ -1940,7 +2309,7 @@ class SistemaRotinas {
     return semanas;
   }
   
-  // ========== SISTEMA DE IMPRESSÃO SIMPLIFICADO ==========
+  // ========== SISTEMA DE IMPRESSÃO ==========
   
   imprimirDia() {
     if (!this.diaAtual) {
@@ -1948,16 +2317,13 @@ class SistemaRotinas {
       return;
     }
     
-    // Simplesmente chama a impressão do navegador
     window.print();
   }
   
   imprimirTudo() {
-    // Salvar o conteúdo atual
     const conteudoOriginal = document.getElementById('conteudo-dinamico').innerHTML;
     const tituloOriginal = document.getElementById('dia-titulo').innerHTML;
     
-    // Gerar conteúdo para impressão
     let html = `
       <div style="text-align: center; margin-bottom: 30px;">
         <h1 style="font-size: 24px; margin-bottom: 10px;">Rotinas Completas</h1>
@@ -2041,7 +2407,6 @@ class SistemaRotinas {
         document.getElementById('conteudo-dinamico').innerHTML = conteudoOriginal;
         document.getElementById('dia-titulo').innerHTML = tituloOriginal;
         
-        // Se havia um dia selecionado, recarregar
         if (this.diaAtual) {
           this.carregarDia(this.diaAtual);
         }
@@ -2055,11 +2420,9 @@ class SistemaRotinas {
       return;
     }
     
-    // Salvar o conteúdo atual
     const conteudoOriginal = document.getElementById('conteudo-dinamico').innerHTML;
     const tituloOriginal = document.getElementById('dia-titulo').innerHTML;
     
-    // Gerar conteúdo para impressão
     let html = `
       <div style="text-align: center; margin-bottom: 30px;">
         <h1 style="font-size: 24px; margin-bottom: 10px;">Rotinas Selecionadas</h1>
@@ -2139,7 +2502,6 @@ class SistemaRotinas {
         document.getElementById('conteudo-dinamico').innerHTML = conteudoOriginal;
         document.getElementById('dia-titulo').innerHTML = tituloOriginal;
         
-        // Se havia um dia selecionado, recarregar
         if (this.diaAtual) {
           this.carregarDia(this.diaAtual);
         }

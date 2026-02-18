@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pedidos São José e Pão Total</title>
+<style>
+  :root{
+    --azul:#007BFF;
+    --accent:#0b5ed7;
+    --fundo:#f7fbff;
+    --card:#ffffff;
+    --muted:#6b7280;
+    --borda:#e6eefc;
+    --borda-ativa:#cfe0ff;
+    --ink:#0b3b6b;
+    --ink-strong:#0b4fa0;
+    --verde-suave: #f0fff4;
+    --verde-borda: #38a169;
+  }
+  body{
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: var(--fundo);
+    margin: 0;
+    padding: 20px;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--card);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(11,78,167,.06);
+    border: 1px solid var(--borda);
+  }
+  h1 {
+    color: var(--accent);
+    margin-bottom: 8px;
+    font-size: 22px;
+    border-bottom: 2px solid var(--borda);
+    padding-bottom: 12px;
+  }
+  h2 {
+    color: var(--ink-strong);
+    margin: 24px 0 12px 0;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  h2::before {
+    content: "•";
+    color: var(--azul);
+    font-size: 24px;
+  }
+  h3 {
+    color: var(--ink-strong);
+    margin: 20px 0 8px 0;
+    font-size: 16px;
+    padding-left: 16px;
+  }
+  p {
+    margin: 8px 0;
+    padding-left: 16px;
+  }
+  ul {
+    margin: 8px 0;
+    padding-left: 32px;
+  }
+  li {
+    margin: 6px 0;
+  }
+  .destaque {
+    background: #f0f7ff;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid var(--azul);
+    margin: 12px 0;
+  }
+  .info-box {
+    background: #fff7f0;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid var(--warn, #f59e0b);
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .ferias-box {
+    background: var(--verde-suave);
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid var(--verde-borda);
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .passo-a-passo {
+    background: #f7fff0;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--borda);
+    margin: 16px 0;
+  }
+  .passo {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 8px 0;
+  }
+  .passo-num {
+    background: var(--azul);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .image-container {
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    margin: 16px 0;
+    color: var(--muted);
+  }
+  .image-container img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 4px;
+    max-height: 400px;
+    object-fit: contain;
+  }
+  .dados-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .dado-item {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid var(--azul);
+  }
+  
+  /* Estilos para tabelas */
+  .tabela-container {
+    overflow-x: auto;
+    margin: 16px 0;
+    border-radius: 8px;
+    border: 1px solid var(--borda);
+  }
+  .tabela-melhorada {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+  }
+  .tabela-melhorada thead {
+    background: var(--azul);
+    color: white;
+  }
+  .tabela-melhorada th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid var(--accent);
+  }
+  .tabela-melhorada tbody tr {
+    border-bottom: 1px solid var(--borda);
+  }
+  .tabela-melhorada td {
+    padding: 12px 16px;
+    vertical-align: top;
+  }
+  .tabela-melhorada tbody tr:nth-child(even) {
+    background: #fafcff;
+  }
+  
+  /* Multiplicador badge */
+  .badge-multiplicador {
+    display: inline-block;
+    background: var(--azul);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-right: 8px;
+  }
+  
+  /* Informação extra */
+  .informacao-extra {
+    background: #fff9f0;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #ffd8b2;
+    margin: 16px 0;
+  }
+  .informacao-extra h4 {
+    color: var(--ink-strong);
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .informacao-extra h4::before {
+    content: "•";
+    color: var(--azul);
+    font-size: 24px;
+  }
+  .info-list {
+    margin: 0;
+    padding-left: 24px;
+  }
+  .info-list li {
+    margin: 6px 0;
+    padding-left: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Pedidos São José e Pão Total</h1>
+
+  <!-- Base 1 -->
+  <h2>Base 1 — Rotina de Pedidos</h2>
+  <p>Da São José os pedidos são entregues em dia de segunda e sexta (reajustado somente quando feriado).</p>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div><strong>Pedido de segunda:</strong> pedir as listas ao Vinícius (Ilha São José e Lista São José) e a Shay (Lista Pão Total).</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div><strong>Pedido de sexta:</strong> na quinta‑feira, pedir as listas ao Vinícius (Ilha São José e Lista São José) e a Sabrina (Lista Pão Total).</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Ao mandarem o pedido, fazer as listas com os itens. No site acesse <strong>Pedido São José</strong> ou <strong>Pedido Pão Total</strong> para fazê‑las.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Imprimir <strong>três cópias</strong> de cada lista. Duas cópias ficam para a embalagem e uma fica guardada com a gente.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">5</div>
+      <div>Passar as listas para embalagem: na segunda passar de manhã; na quinta deixar as listas junto com os romaneios.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">6</div>
+      <div>Perto do final do expediente, pegar as listas com a embalagem e guardar ou anotar alterações feitas (falta de produto no estoque).</div>
+    </div>
+  </div>
+
+  <!-- Pedidos fora de rota e acertos -->
+  <div class="informacao-extra">
+    <h4>Pedidos fora de rota e acertos</h4>
+    <ul class="info-list">
+      <li>Quando alguma padaria precisar de um produto não programado, nós levamos e anotamos para o faturamento.</li>
+      <li>Acertos e outros valores a descontar devem ser guardados para descontar ou acrescentar no acerto final.</li>
+      <li>Qualquer produto retirado das padarias para uso das rotas também deve ser anotado para desconto.</li>
+    </ul>
+  </div>
+
+  <!-- Base 2 — Faturamento -->
+  <h2>Base 2 — Faturamento</h2>
+  
+  <h3>Multiplicadores para Faturamento</h3>
+  <p>Alguns itens são enviados em embalagens de 7kg ao invés de 1kg. Na hora de faturar, multiplicar conforme abaixo:</p>
+
+  <h4>São José</h4>
+  <div class="tabela-container">
+    <table class="tabela-melhorada">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Multiplicador</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Biscoito Doce pequeno</td><td><span class="badge-multiplicador">×7</span></td></tr>
+        <tr><td>Broa de Fubá Grande</td><td><span class="badge-multiplicador">×10</span></td></tr>
+        <tr><td>Meia Lua</td><td><span class="badge-multiplicador">×7</span></td></tr>
+        <tr><td>Pão de Queijo Grande</td><td><span class="badge-multiplicador">×7</span></td></tr>
+        <tr><td>Pão de Queijo Recheado Grande</td><td><span class="badge-multiplicador">×6</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>Pão Total</h4>
+  <div class="tabela-container">
+    <table class="tabela-melhorada">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Multiplicador</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Biscoito Doce pequeno</td><td><span class="badge-multiplicador">×7</span></td></tr>
+        <tr><td>Pão de Queijo Grande</td><td><span class="badge-multiplicador">×7</span></td></tr>
+        <tr><td>Pão de Queijo Recheado Grande</td><td><span class="badge-multiplicador">×6</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Lançamento normal</h3>
+  <p>Lançar o pedido normalmente seguindo a lista já corrigida e conferida. Para as padarias, os pedidos vão com <strong>20% de desconto</strong>; confirmar se os preços estão indo corretamente.</p>
+
+  <h3>Lançamento fiscal (ocasional)</h3>
+  <div class="passo-a-passo">
+    <p>Às vezes a Mirlene / Evaldo pede nota fiscal apenas no nome da <strong>Pão Total</strong>. Os preços da Pão Total têm desconto de 20% para os produtos normais, e o Pão de Queijo Grande sai a <strong>R$ 12,74</strong> preço final. Quando ela pede nota, é preciso:</p>
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Tirar os descontos e faturar a nota com o valor normal. Depois, no acerto com o Evaldo, aplicar o desconto de 20%.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Para o Pão de Queijo Grande, deixar o valor de <strong>R$ 15,92</strong> na nota fiscal. No acerto, basta multiplicar o valor da nota por 20% para obter o desconto correto.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div><strong>Como retirar os descontos:</strong> vá em <em>Manutenção de Terceiros</em>, pesquise Pão Total, selecione o campo, clique em <em>Mais ações → Preço praticado</em>. Clique na lixeira em cada um para deletar os descontos.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Depois de retirar todos, gere no telemarketing normalmente, altere o Pão de Queijo Grande para R$ 15,92 e lance o pedido. Fatue normalmente.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">5</div>
+      <div><strong>Para adicionar os descontos novamente:</strong> no mesmo local (<em>Preço praticado</em>), clique em <em>Novo</em>, em <em>Tipo</em> escolha <strong>Grupo</strong> e pesquise o grupo (códigos de 2101 a 2109). Para produtos específicos, escolha <strong>Produto</strong> e localize o produto ou digite o código.</div>
+    </div>
+  </div>
+
+  <div class="destaque">
+    <strong>Observação:</strong> Caso ao lançar o pedido não esteja com desconto, delete a padaria do telemarketing e siga os passos acima (Núcleo → Essenciais → Tabelas → Manutenção de Terceiros → Preço praticado) para adicionar os descontos antes de gerar o pedido.
+  </div>
+
+  <!-- Base 3 — Acerto Final -->
+  <h2>Base 3 — Acerto Final</h2>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Quando todos os pedidos estiverem lançados / faturados e conferidos, faça o acerto para enviar ao Evaldo.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>No Excel, coloque <em>"restante foto *data"</em> e o valor na frente. Esse restante é o valor do último acerto realizado.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Coloque o valor dos pedidos lançados / faturados, descritos por dia do pedido, e eventuais descontos / acréscimos.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Some e coloque o total.</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">5</div>
+      <div>Encaminhe para o Evaldo.</div>
+    </div>
+  </div>
+
+  <div class="ferias-box">
+    <strong>Este passo não é necessário quando eu estiver de férias.</strong>
+  </div>
+
+</div>
+</body>
+</html>

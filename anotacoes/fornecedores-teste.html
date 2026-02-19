@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fornecedores e Acertos - Anotações</title>
+<style>
+  :root{
+    --azul:#007BFF;
+    --accent:#0b5ed7;
+    --fundo:#f7fbff;
+    --card:#ffffff;
+    --muted:#6b7280;
+    --borda:#e6eefc;
+    --borda-ativa:#cfe0ff;
+    --ink:#0b3b6b;
+    --ink-strong:#0b4fa0;
+  }
+  body{
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: var(--fundo);
+    margin: 0;
+    padding: 20px;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--card);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(11,78,167,.06);
+    border: 1px solid var(--borda);
+  }
+  h1 {
+    color: var(--accent);
+    margin-bottom: 8px;
+    font-size: 22px;
+    border-bottom: 2px solid var(--borda);
+    padding-bottom: 12px;
+  }
+  h2 {
+    color: var(--ink-strong);
+    margin: 24px 0 12px 0;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  h2::before {
+    content: "•";
+    color: var(--azul);
+    font-size: 24px;
+  }
+  h3 {
+    color: var(--ink-strong);
+    margin: 20px 0 8px 0;
+    font-size: 16px;
+    padding-left: 16px;
+  }
+  p {
+    margin: 8px 0;
+    padding-left: 16px;
+  }
+  ul {
+    margin: 8px 0;
+    padding-left: 32px;
+  }
+  li {
+    margin: 6px 0;
+  }
+  .destaque {
+    background: #f0f7ff;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid var(--azul);
+    margin: 12px 0;
+  }
+  .info-box {
+    background: #fff7f0;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid var(--warn, #f59e0b);
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .passo-a-passo {
+    background: #f7fff0;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--borda);
+    margin: 16px 0;
+  }
+  .passo {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 8px 0;
+  }
+  .passo-num {
+    background: var(--azul);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .pix-info {
+    background: #f8f0ff;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid #8a2be2;
+    margin: 12px 0;
+    font-family: monospace;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Fornecedores e Acertos</h1>
+
+  <h2>Dia de Recebimentos</h2>
+  <p>Dia de recebimentos de notinhas para fornecedores da cidade geralmente são na quarta e quinta feira</p>
+
+  <h2>Sanú</h2>
+  <p>Sanú traz e ele mesmo faz as contas, eu passo cheque e uma diferencinha em dinheiro e entrego pra ele.</p>
+
+  <h2>Tarick</h2>
+  <p>Tarick faz duas entregas na semana, na terça e na quinta. Ele geralmente faz nota fiscal, só uma vez no mês que ele entrega sem nota.</p>
+
+  <div class="passo-a-passo">
+    <strong>Processo com Nota Fiscal:</strong>
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Ele manda a nota e eu peço o Barão para fazer o PIX</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Envio o comprovante pra ele</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>No dia que ele faz a entrega e traz a notinha, pego o valor total dos pesos, multiplico e subtraio com o valor da nota</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Pago a diferença</div>
+    </div>
+  </div>
+
+  <div class="destaque">
+    <strong>Observação:</strong> Quando ele manda as notas, eu mando pro Barão pra fazer o PIX, olho no nome de quem está a nota e mando o PIX referente a pessoa da nota fiscal.
+  </div>
+
+  <div class="info-box">
+    <strong>Caso a nota tenha sido maior:</strong> Se o valor da nota for maior do que o valor total dos pesos, ele me devolve em dinheiro a diferença.
+  </div>
+
+  <div class="pix-info">
+    <strong>Chaves PIX Tarick:</strong><br>
+    Adenildo: 37988299642<br>
+    Welington: 10390056677<br>
+    Hyago dos Reis: 37988515732
+  </div>
+
+  <h2>João Vittor</h2>
+  <p>João Vittor faz viagens pra buscar queijo no meio da semana.</p>
+  
+  <ul>
+    <li>Ele pega <strong>R$ 15.718,00</strong> antes de viajar (referente a 542 kgs × R$ 29,00).</li>
+    <li>Quando ele traz a notinha:</li>
+    <ul>
+      <li>Pego o valor total dos pesos e multiplico por 30 (ou conforme o combinado).</li>
+      <li>Se o valor que ele pagou a mais na viagem for maior que o total da notinha, passo a diferença pra ele na hora.</li>
+      <li>Caso ele tenha pago a menos (o valor da notinha foi superior ao adiantamento), desconto a diferença dele no próximo acerto.</li>
+    </ul>
+  </ul>
+  <div class="info-box">
+    <strong>Observação:</strong> O adiantamento é sempre antes da viagem, e o acerto é feito quando ele retorna com a notinha.
+  </div>
+
+  <h2>Alemão</h2>
+  <p>Alemão traz e é só multiplicar o valor do peso por 30 e entregar ele o dinheiro.</p>
+
+  <h2>Paulo (Requeijão e Mussarela)</h2>
+  <p>Paulo traz geralmente duas notinhas, uma de requeijão e uma de mussarela.</p>
+  <div class="destaque">
+    <strong>Importante:</strong> Antes eu confirmo com Luiz se é nota fiscal. Caso for, eu só faço o cheque e passo pra ele.
+  </div>
+
+  <h2>Marcoplast</h2>
+  <p>Da Marcoplast geralmente eles sempre passam pra receber 1 vez por mês.</p>
+  
+  <ul>
+    <li>O moço vem pra receber</li>
+    <li>Eles mandam o arquivo no email pra gente imprimir e pagar</li>
+    <li>É um arquivo na horizontal que tem um valor escrito mais embaixo</li>
+    <li>Geralmente tem que fazer cheque de dois arquivos que eles mandam: o CT-e e um outro</li>
+  </ul>
+  
+  <div class="info-box">
+    <strong>Observação:</strong> Já teve alguns meses que eles não estavam mandando.
+  </div>
+
+  <h2>Michel (Eduardo Ovos)</h2>
+  <p>Michel geralmente vem no dia de quarta entregar ovo.</p>
+  
+  <ul>
+    <li>Quando é sem nota: faço a soma dos valores dos ovos e passo em notas menores (20, 10 e 5).</li>
+    <li>Quando é nota: ele faz a nota e manda pra gente e aí fazemos o cheque no valor da nota.</li>
+  </ul>
+  
+  <div class="destaque">
+    <strong>Observação:</strong> O valor da nota geralmente não é do total. É só de uma parte do pedido.
+  </div>
+
+  <h2>Varejão</h2>
+  <p>Do varejão eles deixam a mercadoria durante a semana e na quinta eles vem para acertar.</p>
+  
+  <ul>
+    <li>A carne quando vem com nota: eu faço o cheque referente a nota e passo pra eles.</li>
+    <li>Tem vez que tira nota de pimentão e cebola separado com nome de outro fornecedor na nota. Quando é assim eu faço o cheque referente as notas e guardo pra passar para outros fornecedores, e quando eles chegam pra receber, eu pago o valor total da notinha mesmo.</li>
+  </ul>
+  
+  <div class="info-box">
+    <strong>Importante:</strong> Para notas fiscais eles não conseguem emitir boleto.
+  </div>
+
+  <h2>Célio (Pagamentos e PIX)</h2>
+  <p>Do Célio toda semana, ele e os ajudantes dele recebem toda semana.</p>
+  
+  <ul>
+    <li>Ele manda o valor, a gente separa e passa pra ele</li>
+    <li>Como as vezes alguns clientes fazem PIX pro Célio, precisa descontar dele</li>
+  </ul>
+  
+  <div class="passo-a-passo">
+    <strong>Processo dos PIX:</strong>
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Sempre que tem PIX eu imprimo</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Deixo numa pasta escrita "Pagamentos Célio" na diretoria</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Uso para descontar dele</div>
+    </div>
+  </div>
+  
+  <div class="info-box">
+    <strong>Observação:</strong> Algumas vezes pode vir o moço da doação também, ai nós pagamos aqui mesmo e a gente cobra a mais dele esse valor.
+  </div>
+  
+  <div class="destaque">
+    <strong>Limite PIX:</strong> Para PIX de cliente, o valor que o Célio deixou fazer pra ele na semana é de R$ 1.500,00
+  </div>
+  
+  <div class="pix-info">
+    <strong>Chave PIX Célio:</strong><br>
+    Célio Xavier: 37999715380
+  </div>
+
+  <h2>Marciel (Pagamentos e PIX)</h2>
+  <p>Do Marciel pessoal também faz PIX pra ele, mas geralmente só quando o PIX do Célio já chegou ou está perto do limite ou quando é valor bem maior.</p>
+  
+  <div class="passo-a-passo">
+    <strong>Processo similar ao Célio:</strong>
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Imprimo os comprovantes de PIX</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Deixo guardado numa pasta na diretoria chamada "Pagamentos Marciel"</div>
+    </div>
+  </div>
+  
+  <div class="destaque">
+    <strong>Acertos:</strong> Acertos com ele geralmente é o Barão.
+  </div>
+  
+  <div class="pix-info">
+    <strong>Chave PIX Marciel:</strong><br>
+    Marciel Rodrigues: 31983318410
+  </div>
+
+  <h2>Diloça</h2>
+  <p>Diloça tem alguns juros e ele vem acertar de vez em quando. Ele passa de 6 em 6 meses, geralmente em junho e dezembro.</p>
+  <div class="passo-a-passo">
+    <strong>Como calcular:</strong>
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Pegue o valor total da dívida</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Multiplique por 1% e depois por 6 meses</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>O resultado é o valor dos juros a pagar</div>
+    </div>
+  </div>
+  <div class="destaque">
+    <strong>Registro:</strong> Após o pagamento, anotar na folha: "Pago juros até [dia do pagamento]".
+  </div>
+
+  <h2>Moisés</h2>
+  <p>O acerto do Moisés é feito junto com o do Célio. Nas duas primeiras semanas do mês, é preciso descontar R$ 199,20 do acerto dele, referente ao INSS.</p>
+  <div class="info-box">
+    <strong>Importante:</strong> Esse desconto deve ser aplicado sempre no início do mês, antes de repassar o valor.
+  </div>
+
+  <h2>Jardel</h2>
+  <p>Do Jardel como está tendo a obra do Barão, ele vem pegar dinheiro aqui na fábrica.</p>
+  
+  <div class="passo-a-passo">
+    <strong>Processo:</strong>
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Ele me manda o valor na sexta</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Eu separo e faço o recibo e guardo</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>O recibo que eu uso é o comprovante de recebimento, é só alterar o nome e colocar o dele, o valor e colocar que é referente a obra do Barão</div>
+    </div>
+  </div>
+
+  <h2>Roberto</h2>
+  <p>Do Roberto geralmente ele vem acertar aqui.</p>
+  
+  <ul>
+    <li>Quando é notinha: pago em cheque de cliente normal ou dinheiro mesmo</li>
+    <li>Quando é nota fiscal: dá pra fazer o cheque referente a nota certinho ou pedir o Barão para fazer o PIX</li>
+  </ul>
+  
+  <div class="info-box">
+    <strong>Observação:</strong> Ele não consegue emitir boleto.
+  </div>
+  
+  <div class="pix-info">
+    <strong>Chaves PIX Roberto:</strong><br>
+    Vitalina: 32.490.535/0001-84 - Gregorio Produtos Alimenticios<br>
+    Sadelle: 36.697.699/0001-38 - Distribuidora Dias Ltda
+  </div>
+
+  <h2>Embrapan (Helbert)</h2>
+  <p>Caso o Helbert venha buscar qualquer acerto, conferir tudo antes se é notinha ou nota fiscal, porque geralmente as informações chegam até a gente meio confusas.</p>
+  
+  <div class="destaque">
+    <strong>Importante:</strong> Melhor conferir tudo antes pra não correr risco de sair errado.
+  </div>
+  
+  <ul>
+    <li>Caso seja acerto de notinha: passo cheque de cliente à vista até a data em que estou pagando ele</li>
+    <li>Cheque da empresa eu passo também, mas só passo se tiver sem nominal</li>
+  </ul>
+
+</div>
+</body>
+</html>

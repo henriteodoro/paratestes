@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Horas Extras</title>
+    <style>
+        /* Estilos existentes, com pequenas adições */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f3f4f6;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #1f2937;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #4b5563;
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+        }
+
+        .names-container {
+            background: #f9fafb;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 1px dashed #d1d5db;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .name-input {
+            width: 100%;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            font-size: 1rem;
+            flex: 1 1 auto;
+        }
+
+        .btn-primary {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #d97706;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #1f2937;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .records-area {
+            margin-top: 2rem;
+        }
+
+        .records-area h2 {
+            color: #1f2937;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .records-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .record-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid #f59e0b;
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .record-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .record-date {
+            font-weight: 600;
+            color: #4b5563;
+            background: #f3f4f6;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+        }
+
+        .record-sector {
+            font-weight: 700;
+            color: #f59e0b;
+            background: #fffbeb;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+        }
+
+        .record-sector-none {
+            font-weight: 400;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-style: italic;
+        }
+
+        .record-names {
+            margin: 1rem 0;
+            flex-grow: 1;
+        }
+
+        .record-names p {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .record-names ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .record-names li {
+            background: #e5e7eb;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            color: #1f2937;
+        }
+
+        .record-names .no-names {
+            color: #9ca3af;
+            font-style: italic;
+            padding: 0.5rem 0;
+        }
+
+        .record-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .people-count {
+            background: #f59e0b;
+            color: white;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+        }
+
+        .btn-delete, .btn-print {
+            background: none;
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-print {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .btn-print:hover {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #9ca3af;
+            font-style: italic;
+            padding: 3rem 1rem;
+            background: #f9fafb;
+            border-radius: 1rem;
+            border: 2px dashed #d1d5db;
+        }
+
+        footer {
+            margin-top: 2rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+            text-align: center;
+        }
+
+        /* Estilos para impressão */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .print-area, .print-area * {
+                visibility: visible;
+            }
+            .print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 2rem;
+                background: white;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍞 Controle de Horas Extras</h1>
+        <p class="subtitle">Registre quem ficou além do horário por setor</p>
+
+        <!-- Card do formulário -->
+        <div class="form-card no-print">
+            <div class="form-group">
+                <label for="quantidade">Quantidade de pessoas</label>
+                <input type="number" id="quantidade" min="1" max="20" value="1">
+            </div>
+
+            <div class="form-group">
+                <label>Nomes (opcional - deixe em branco se não souber)</label>
+                <div id="namesContainer" class="names-container">
+                    <!-- Inputs serão gerados aqui pelo JavaScript -->
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="setor">Setor</label>
+                <select id="setor">
+                    <option value="">Nenhum (todos os setores)</option>
+                    <option value="Setor Pão de Sal">Setor Pão de Sal</option>
+                    <option value="Setor Pães Doce">Setor Pães Doce</option>
+                    <option value="Setor Salgado e Biscoitos">Setor Salgado e Biscoitos</option>
+                    <option value="Setor Pré-peságem">Setor Pré-peságem</option>
+                    <option value="Setor Embalagem">Setor Embalagem</option>
+                    <option value="Setor Estoque">Setor Estoque</option>
+                    <option value="Setor Limpeza">Setor Limpeza</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="data">Data</label>
+                <input type="date" id="data">
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" id="btnAdicionar">➕ Adicionar registro</button>
+                <button class="btn btn-secondary" id="btnLimparCampos">🔄 Limpar campos</button>
+                <button class="btn btn-danger" id="btnLimparTudo">🗑️ Limpar todos</button>
+            </div>
+        </div>
+
+        <!-- Área onde as "folhas" vão aparecer -->
+        <div class="records-area">
+            <h2>📋 Registros de hora extra</h2>
+            <div id="recordsGrid" class="records-grid">
+                <!-- Cards serão inseridos aqui -->
+            </div>
+        </div>
+        <footer class="no-print">Clique em "Adicionar registro" para gerar uma nova folha</footer>
+    </div>
+
+    <!-- Área oculta para impressão (será preenchida dinamicamente) -->
+    <div id="printContainer" style="display: none;"></div>
+
+    <script>
+        (function() {
+            // Array que armazenará todos os registros
+            let records = [];
+
+            // Elementos do DOM
+            const quantidadeInput = document.getElementById('quantidade');
+            const namesContainer = document.getElementById('namesContainer');
+            const setorSelect = document.getElementById('setor');
+            const dataInput = document.getElementById('data');
+            const btnAdicionar = document.getElementById('btnAdicionar');
+            const btnLimparCampos = document.getElementById('btnLimparCampos');
+            const btnLimparTudo = document.getElementById('btnLimparTudo');
+            const recordsGrid = document.getElementById('recordsGrid');
+            const printContainer = document.getElementById('printContainer');
+
+            // Função para gerar os inputs de nome conforme a quantidade
+            function gerarInputsNomes(quantidade) {
+                namesContainer.innerHTML = ''; // limpa
+                for (let i = 0; i < quantidade; i++) {
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'name-input';
+                    input.placeholder = `Nome da pessoa ${i + 1} (opcional)`;
+                    input.setAttribute('aria-label', `Nome da pessoa ${i + 1}`);
+                    namesContainer.appendChild(input);
+                }
+            }
+
+            // Função para definir a data atual no campo data
+            function setDataAtual() {
+                const hoje = new Date();
+                const ano = hoje.getFullYear();
+                const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+                const dia = String(hoje.getDate()).padStart(2, '0');
+                dataInput.value = `${ano}-${mes}-${dia}`;
+            }
+
+            // Função para renderizar os registros na tela
+            function renderizarRegistros() {
+                if (records.length === 0) {
+                    recordsGrid.innerHTML = `<div class="empty-message">Nenhum registro ainda. Adicione um novo registro acima.</div>`;
+                    return;
+                }
+
+                let html = '';
+                records.forEach((registro, index) => {
+                    // Determina a exibição do setor
+                    let sectorHtml = '';
+                    if (registro.setor && registro.setor !== '') {
+                        sectorHtml = `<span class="record-sector">🏷️ ${registro.setor}</span>`;
+                    } else {
+                        sectorHtml = `<span class="record-sector-none">🏷️ Todos os setores</span>`;
+                    }
+
+                    // Cria a lista de nomes
+                    let nomesHtml = '';
+                    if (registro.nomes.length > 0) {
+                        const nomesLi = registro.nomes.map(nome => `<li>${nome}</li>`).join('');
+                        nomesHtml = `<ul>${nomesLi}</ul>`;
+                    } else {
+                        nomesHtml = `<div class="no-names">Nenhum nome informado</div>`;
+                    }
+
+                    html += `
+                        <div class="record-card" data-index="${index}">
+                            <div class="record-header">
+                                <span class="record-date">📅 ${registro.data}</span>
+                                ${sectorHtml}
+                            </div>
+                            <div class="record-names">
+                                <p>👥 Pessoas (${registro.quantidade})</p>
+                                ${nomesHtml}
+                            </div>
+                            <div class="record-footer">
+                                <span class="people-count">${registro.quantidade} pessoa(s)</span>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button class="btn-print" data-index="${index}">🖨️ Imprimir</button>
+                                    <button class="btn-delete" data-index="${index}">Remover</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                recordsGrid.innerHTML = html;
+
+                // Adiciona eventos aos botões de deletar e imprimir
+                document.querySelectorAll('.btn-delete').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const index = this.getAttribute('data-index');
+                        if (index !== null) {
+                            removerRegistro(parseInt(index));
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.btn-print').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const index = this.getAttribute('data-index');
+                        if (index !== null) {
+                            imprimirRegistro(parseInt(index));
+                        }
+                    });
+                });
+            }
+
+            // Função para remover um registro específico
+            function removerRegistro(index) {
+                if (index >= 0 && index < records.length) {
+                    records.splice(index, 1);
+                    renderizarRegistros();
+                }
+            }
+
+            // Função para imprimir um registro
+            function imprimirRegistro(index) {
+                const registro = records[index];
+                if (!registro) return;
+
+                // Cria um conteúdo para impressão
+                const dataFormatada = registro.data; // já vem no formato dd/mm/aaaa
+                const setorTexto = registro.setor && registro.setor !== '' ? registro.setor : 'Todos os setores';
+                
+                // Gera linhas para os nomes
+                let linhasNomes = '';
+                for (let i = 0; i < registro.quantidade; i++) {
+                    const nome = registro.nomes[i] || '__________________________';
+                    linhasNomes += `<div style="margin-bottom: 0.75rem; border-bottom: 1px solid #ccc; padding: 0.25rem 0;">${i+1}. ${nome}</div>`;
+                }
+
+                const printContent = `
+                    <div class="print-area" style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem;">
+                        <h1 style="text-align: center; color: #333;">Hora Extra - ${dataFormatada}</h1>
+                        <p style="text-align: center; font-size: 1.2rem; margin-bottom: 2rem;"><strong>Setor:</strong> ${setorTexto}</p>
+                        <div style="margin-top: 2rem;">
+                            <h3>Pessoas que ficaram após o horário (${registro.quantidade}):</h3>
+                            <div style="margin-top: 1rem; font-size: 1.1rem;">
+                                ${linhasNomes}
+                            </div>
+                        </div>
+                        <div style="margin-top: 3rem; text-align: right;">
+                            <p>__________________________</p>
+                            <p>Assinatura do responsável</p>
+                        </div>
+                    </div>
+                `;
+
+                // Coloca o conteúdo em um elemento oculto e imprime
+                printContainer.innerHTML = printContent;
+                printContainer.style.display = 'block';
+
+                // Chama a impressão
+                window.print();
+
+                // Limpa e esconde após impressão (opcional)
+                setTimeout(() => {
+                    printContainer.innerHTML = '';
+                    printContainer.style.display = 'none';
+                }, 1000);
+            }
+
+            // Função para coletar os nomes preenchidos (mantém a quantidade de campos)
+            function coletarNomesEQuantidade() {
+                const inputs = document.querySelectorAll('.name-input');
+                const nomes = [];
+                inputs.forEach(input => {
+                    const nome = input.value.trim();
+                    nomes.push(nome); // pode ser vazio
+                });
+                return {
+                    nomes: nomes.filter(n => n !== ''), // apenas não vazios para exibição, mas guardamos a quantidade total
+                    quantidade: inputs.length
+                };
+            }
+
+            // Função para adicionar um novo registro
+            function adicionarRegistro() {
+                // Validar data
+                if (!dataInput.value) {
+                    alert('Por favor, selecione uma data.');
+                    return;
+                }
+
+                // Coletar nomes e quantidade
+                const { nomes, quantidade } = coletarNomesEQuantidade();
+
+                // Criar objeto registro (guardamos a quantidade original)
+                const novoRegistro = {
+                    data: dataInput.value.split('-').reverse().join('/'), // formato dd/mm/aaaa
+                    setor: setorSelect.value,
+                    nomes: nomes, // apenas os preenchidos
+                    quantidade: quantidade // total de campos (pessoas)
+                };
+
+                // Adicionar ao array
+                records.push(novoRegistro);
+
+                // Renderizar novamente
+                renderizarRegistros();
+
+                // Resetar os campos de nome para 1 input vazio (mantém setor e data)
+                quantidadeInput.value = 1;
+                gerarInputsNomes(1);
+            }
+
+            // Função para limpar apenas os campos do formulário
+            function limparCampos() {
+                quantidadeInput.value = 1;
+                gerarInputsNomes(1);
+                // Opcional: resetar setor para "Nenhum"
+                setorSelect.selectedIndex = 0;
+                // Data permanece a atual
+            }
+
+            // Função para limpar todos os registros
+            function limparTudo() {
+                if (records.length > 0 && confirm('Tem certeza que deseja apagar TODOS os registros?')) {
+                    records = [];
+                    renderizarRegistros();
+                    limparCampos();
+                }
+            }
+
+            // Eventos
+            quantidadeInput.addEventListener('input', function() {
+                const qtd = parseInt(this.value) || 1;
+                gerarInputsNomes(qtd);
+            });
+
+            btnAdicionar.addEventListener('click', adicionarRegistro);
+            btnLimparCampos.addEventListener('click', limparCampos);
+            btnLimparTudo.addEventListener('click', limparTudo);
+
+            // Inicialização
+            setDataAtual();
+            gerarInputsNomes(1); // começa com 1 input
+        })();
+    </script>
+</body>
+</html>

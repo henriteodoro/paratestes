@@ -15,6 +15,10 @@
     --borda-ativa:#cfe0ff;
     --ink:#0b3b6b;
     --ink-strong:#0b4fa0;
+    --verde:#28a745;
+    --laranja:#fd7e14;
+    --roxo:#6f42c1;
+    --cinza:#6c757d;
   }
   body{
     font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
@@ -85,6 +89,8 @@
   .rota-guilherme .clientes-container { border-left-color: #2196F3; }
   .rota-nelio .clientes-container { border-left-color: #9C27B0; }
   .rota-stenio .clientes-container { border-left-color: #9C27B0; }
+  .rota-bh .clientes-container { border-left-color: #9C27B0; }
+  .rota-avulsa .clientes-container { border-left-color: var(--cinza); }
   
   .cliente-item {
     padding: 6px 0;
@@ -106,7 +112,6 @@
     gap: 6px;
   }
   .codigo-box {
-    background: var(--azul);
     color: white;
     padding: 2px 8px;
     border-radius: 6px;
@@ -114,7 +119,17 @@
     font-weight: bold;
     min-width: 40px;
     text-align: center;
-    box-shadow: 0 2px 4px rgba(0,123,255,0.3);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+  }
+  .codigo-box.gerencial {
+    background-color: var(--verde);
+  }
+  .codigo-box.fiscal {
+    background-color: var(--laranja);
+  }
+  .codigo-box.alternado {
+    background-color: var(--roxo);
   }
   
   .total-clientes {
@@ -150,101 +165,85 @@
   <!-- SEGUNDA-FEIRA -->
   <div class="segunda">
     <h2>Segunda-feira</h2>
-    
     <div class="total-clientes">62 clientes</div>
     
     <div class="rota-jovi">
       <h3>Rota Jovi (22 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item"><span class="cliente-nome">Comercial Almeida Peixoto</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Galeana</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Juvenal</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Maria de Fátima</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Mercadinho e Mercearia Nossa Senhora Piedade</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Mercearia Real</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Renato Barbosa</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Liber Comercio de Produtos</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Adriana Cristina</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Biscoiteria e Mercearia Vovó Fia</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Elizabeth</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Supermercado Super Mais</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Mercearia Frei Galvão</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Panif Gonçalves Aleci</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Padaria Nossa Sen de Fátima</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Maria Cristiane</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Jessica Franciele</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Supermercado Sabor de Minas</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Mercadinho e Mercearia 2024</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Tatiane Nunes</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Caramel</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Panificadora Pai Nosso</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Comercial Almeida Peixoto</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Galeana</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Juvenal</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Maria de Fátima</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercadinho e Mercearia Nossa Senhora Piedade</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercearia Real</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Renato Barbosa</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Liber Comercio de Produtos</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Adriana Cristina</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Biscoiteria e Mercearia Vovó Fia</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Elizabeth</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Super Mais</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercearia Frei Galvão</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Panif Gonçalves Aleci</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Nossa Sen de Fátima</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Maria Cristiane</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Jessica Franciele</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Sabor de Minas</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercadinho e Mercearia 2024</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Tatiane Nunes</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Caramel</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Pai Nosso</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
       </div>
     </div>
     
     <div class="rota-salsicha">
       <h3>Rota Salsicha (25 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item"><span class="cliente-nome">Douglas Manedio</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Fabiana Lopes</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Laeci</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Supermercado Sempre Mais (MBM)</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Supermercado 2000</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Supermercado Santa Edwirges</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Mercearia Torneiros</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Rafael Vinícius</span></div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Souza Melo</span>
-          <div class="codigo-container">
-            <span class="codigo-box">123</span>
-          </div>
-        </div>
-        <div class="cliente-item"><span class="cliente-nome">Supermercado Igaratinga</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Antonio Marcos Peixoto</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Agro Alimentos Ferreira</span></div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Souza Melo</span>
-          <div class="codigo-container">
-            <span class="codigo-box">327</span>
-          </div>
-        </div>
-        <div class="cliente-item"><span class="cliente-nome">Jorge Lopes</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Jardim Piteiras</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Panificadora e Lanchonete Rodrigues</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Bianca de Oliveira Almeida</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Supermercado HT</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Padaria Curitiba Levi</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Igo Justino</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Padaria Alvorada Alvimar</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Adriana Ribeiro</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Gustavo Ferreira</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Vanessa Isabel</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Gutte Delicatesse</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Douglas Manedio</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Fabiana Lopes</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Laeci</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Sempre Mais (MBM)</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado 2000</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Santa Edwirges</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercearia Torneiros</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Rafael Vinícius</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Souza Melo</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Igaratinga</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Antonio Marcos Peixoto</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Agro Alimentos Ferreira</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Souza Melo</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Jorge Lopes</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Jardim Piteiras</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora e Lanchonete Rodrigues</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Bianca de Oliveira Almeida</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado HT</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Curitiba Levi</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Igo Justino</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Alvorada Alvimar</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Adriana Ribeiro</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Gustavo Ferreira</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Vanessa Isabel</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Gutte Delicatesse</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
       </div>
     </div>
     
     <div class="rota-guilherme">
       <h3>Rota Guilherme (15 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item"><span class="cliente-nome">Comercial Nunes & Felicio</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Genivaldo</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Rosilene</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Zimbo</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Derlon</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Allan</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Sidney</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Lanchonete do Moza</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Veli</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Padaria e Lanchonete São Sebastião</span></div>
-        <div class="cliente-item">
-          <span class="cliente-nome">MAC</span>
-          <div class="codigo-container">
-            <span class="codigo-box">989</span>
-          </div>
-        </div>
-        <div class="cliente-item"><span class="cliente-nome">Lanchonete Ki Delicia</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Ezequiel Robert</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Tiska</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Paulo Ricardo</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Comercial Nunes & Felicio</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Genivaldo</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Rosilene</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Zimbo</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Derlon</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Allan</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Sidney</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Lanchonete do Moza</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Veli</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria e Lanchonete São Sebastião</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">MAC (araújos)</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Lanchonete Ki Delicia</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Ezequiel Robert</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Tiska</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Paulo Ricardo</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
       </div>
     </div>
   </div>
@@ -252,138 +251,81 @@
   <!-- TERÇA-FEIRA -->
   <div class="terca">
     <h2>Terça-feira</h2>
-    
-    <div class="total-clientes">53 clientes</div>
+    <div class="total-clientes">52 clientes</div>
     
     <div class="rota-jovi">
       <h3>Rota Jovi (25 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item">
-          <span class="cliente-nome">EIFA</span>
-          <div class="codigo-container">
-            <span class="codigo-box">33</span>
-          </div>
-        </div>
-        <div class="cliente-item"><span class="cliente-nome">Gilmara Batista</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Hotel Magnum</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Kit Real</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Leonardo Jose Liduario</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Lusmarina</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Marcos Antônio</span></div>
-        <div class="cliente-item">
-          <span class="cliente-nome">M.X.A Comércio e Serviços</span>
-          <div class="codigo-container">
-            <span class="codigo-box">296</span>
-          </div>
-        </div>
-        <div class="cliente-item"><span class="cliente-nome">Quitandas da Tia Nenem</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Cleiton</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Supermercado Nossa Senhora de Fátima</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Padaria e Confeitaria Trigo</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Rogério Rander</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Carlos Damião</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Tatiane Merces</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Panificadora Rei dos Pães</span></div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Ester Amaral Pães & Cia</span>
-          <div class="codigo-container">
-            <span class="codigo-box">854</span>
-          </div>
-        </div>
-        <div class="cliente-item"><span class="cliente-nome">José Maria</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Reginaldo Amaral</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Padaria Chico Mineiro</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Ana Paula Rodrigues</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Kit Nova Fortaleza</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Lucas Mateus Rocha</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Bruno Alexandre</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Super Moura</span></div>
+        <div class="cliente-item"><span class="cliente-nome">EIFA</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Gilmara Batista</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Hotel Magnum</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Kit Real</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Leonardo Jose Liduario</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Lusmarina</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Marcos Antônio</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">M.X.A Comércio e Serviços</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Quitandas da Tia Nenem</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Cleiton</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Nossa Senhora de Fátima</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria e Confeitaria Trigo</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Rogério Rander</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Carlos Damião</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Tatiane Merces</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Rei dos Pães</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Ester Amaral Pães & Cia</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">José Maria</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Reginaldo Amaral</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Chico Mineiro</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Ana Paula Rodrigues</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Kit Nova Fortaleza</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Lucas Mateus Rocha</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Bruno Alexandre</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Super Moura</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
       </div>
     </div>
     
     <div class="rota-guilherme">
       <h3>Rota Guilherme (15 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item"><span class="cliente-nome">Ana Lucia</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Denia Avelino</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Mercearia Havana</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Marcileia</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Nilson Jose</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Priscyla</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Tuainy</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Giovanni</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Padaria Mondialy</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Mylene</span></div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Bar e Restaurante do Gaucho</span>
-          <div class="codigo-container">
-            <span class="codigo-box">1054</span>
-          </div>
-        </div>
-        <div class="cliente-item"><span class="cliente-nome">Tamirys</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Panificadora Padre Libério (Andre Felipe)</span></div>
-        <div class="cliente-item">
-          <span class="cliente-nome">MAC</span>
-          <div class="codigo-container">
-            <span class="codigo-box">1249</span>
-          </div>
-        </div>
-        <div class="cliente-item"><span class="cliente-nome">Lanchonete e Restaurante Fernandes</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Ana Lucia</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Denia Avelino</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercearia Havana</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Marcileia</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Nilson Jose</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Priscyla</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Tuainy</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Giovanni</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Mondialy</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Mylene</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Bar e Restaurante do Gaucho</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Tamirys</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Padre Libério (Andre Felipe)</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">MAC</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Josiane Aparecida Fonseca</span> <div class="codigo-container"><span class="codigo-box alternado" title="Alternado">A</span></div></div>
       </div>
     </div>
     
     <div class="rota-salsicha">
-      <h3>Rota Salsicha (8 clientes)</h3>
+      <h3>Rota Salsicha (7 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item"><span class="cliente-nome">Andre de Menezes</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Mislene</span></div>
-        <div class="cliente-item">
-          <span class="cliente-nome">MAC</span>
-          <div class="codigo-container">
-            <span class="codigo-box">77</span>
-          </div>
-        </div>
-        <div class="cliente-item">
-          <span class="cliente-nome">MAC</span>
-          <div class="codigo-container">
-            <span class="codigo-box">78</span>
-          </div>
-        </div>
-        <div class="cliente-item">
-          <span class="cliente-nome">MAC</span>
-          <div class="codigo-container">
-            <span class="codigo-box">79</span>
-          </div>
-        </div>
-        <div class="cliente-item">
-          <span class="cliente-nome">MAC</span>
-          <div class="codigo-container">
-            <span class="codigo-box">80</span>
-          </div>
-        </div>
-        <div class="cliente-item">
-          <span class="cliente-nome">MAC</span>
-          <div class="codigo-container">
-            <span class="codigo-box">277</span>
-          </div>
-        </div>
-        <div class="cliente-item">
-          <span class="cliente-nome">MAC</span>
-          <div class="codigo-container">
-            <span class="codigo-box">853</span>
-          </div>
-        </div>
+        <div class="cliente-item"><span class="cliente-nome">Mislene</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">MAC (bairro sao geraldo)</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">MAC (planalto)</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">MAC (romeu duarte)</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">MAC (rua sao geraldo / centro 2)</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">MAC (matriz)</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">MAC (concesso)</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
       </div>
     </div>
     
-    <div class="rota-nelio">
+    <div class="rota-stenio">
       <h3>Rota Stênio/Nelio (5 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item"><span class="cliente-nome">Vovó Bene</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Irmão Diamantino</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Casa de Quitanda</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Luciana Buriti</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Diego Sirlon</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Vovó Bene</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Irmão Diamantino</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Casa de Quitanda</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Luciana Buriti</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Diego Sirlon</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
       </div>
     </div>
   </div>
@@ -391,105 +333,102 @@
   <!-- QUARTA-FEIRA -->
   <div class="quarta">
     <h2>Quarta-feira</h2>
-    
-    <div class="total-clientes">76 clientes</div>
+    <div class="total-clientes">73 clientes</div>
     
     <div class="rota-salsicha">
-      <h3>Rota Salsicha (40 clientes)</h3>
+      <h3>Rota Salsicha (38 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item"><span class="cliente-nome">Claudia Maria</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Edson Jose</span></div>
-        <div class="cliente-item"><span class="cliente-nome">ITC</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Irene Gomes</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Jania Maria</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Luiz Carlos</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Luiz Gustavo</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Padaria Neves Lima</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Panificadora DSP</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Poliane Gonçalves</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Thais Cristina</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Restaurante e Lanchonete Teco</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Erlane</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Andreia da Consolação (ITC com nota)</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Novo Supermercado</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Catarina Ines</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Padaria Bia Cardoso</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Robertinho</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Walisson</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Sandra Cristina</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Celi Aparecida</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Quitandas Gemac</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Gabriele</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Geraldo Magela Lemos</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Panificadora Tradições de Maria</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Padaria M e P</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Joana Angelica</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Aliane</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Fernanda Martins de Souza</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Sueli Trégues Santos</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Gicele</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Quitandas da Cida</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Santa Cruz Panificadora Ramon</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Pedro Henrique (Vantuir)</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Leandro Araujo</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Ariana Padaria e Café Silva</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Padaria Esquina</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Panificadora Feito a Mão</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Zimbo</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Claudia Maria</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Edson Jose</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">ITC</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Irene Gomes</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Jania Maria</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Luiz Carlos</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Luiz Gustavo</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Neves Lima</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora DSP</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Poliane Gonçalves</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Thais Cristina</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Restaurante e Lanchonete Teco</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Erlane</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Andreia da Consolação (ITC com nota)</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Novo Supermercado</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Catarina Ines</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Bia Cardoso</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Robertinho</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Walisson</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Sandra Cristina</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Celi Aparecida</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Quitandas Gemac</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Gabriele</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Geraldo Magela Lemos</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Tradições de Maria</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria M e P</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Joana Angelica</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Aliane</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Fernanda Martins de Souza</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Sueli Trégues Santos</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Gicele</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Quitandas da Cida</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Santa Cruz Panificadora Ramon</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Pedro Henrique (Vantuir)</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Leandro Araujo</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Ariana Padaria e Café Silva</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Esquina</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Zimbo</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
       </div>
     </div>
     
     <div class="rota-jovi">
-      <h3>Rota Jovi (13 clientes)</h3>
+      <h3>Rota Jovi (12 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item"><span class="cliente-nome">Ricart</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Katia Torquato</span></div>
-        <div class="cliente-item"><span class="cliente-nome">João Paulo</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Carlos Vicente</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Panificadora Prado</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Ponto do Café</span></div>
-        <div class="cliente-item"><span class="cliente-nome">O Ponto do Pão de Queijo</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Ivani Amaral</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Panificadora Pão Nosso Rubia</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Palace Motel MG 170</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Ramon Alves</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Engenharia do Pão</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Cristiane Geralda</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Ricart</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Katia Torquato</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">João Paulo</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Carlos Vicente</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Prado</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Ponto do Café</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">O Ponto do Pão de Queijo</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Ivani Amaral</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Pão Nosso Rubia</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Palace Motel MG 170</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Ramon Alves</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Engenharia do Pão</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
       </div>
     </div>
     
     <div class="rota-guilherme">
       <h3>Rota Guilherme (16 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item"><span class="cliente-nome">Kit Santo Antonio</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Josildo Loja 1</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Josildo Loja 2</span></div>
-        <div class="cliente-item"><span class="cliente-nome">JJ Frei Galvão</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Super 10</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Kit Ribeiro</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Império dos Pães</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Santo Expedito</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Vinicius Guimaraes</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Livia Maria</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Mercado Bem Mineiro</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Izauro</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Kit Oliveira</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Empório da Roça</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Na Padoca do Eli</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Valeria Maria</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Kit Santo Antonio</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Josildo Loja 1</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Josildo Loja 2</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">JJ Frei Galvão</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Super 10</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Kit Ribeiro</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Império dos Pães</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Santo Expedito</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Vinicius Guimaraes</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Livia Maria</span> <div class="codigo-container"><span class="codigo-box alternado" title="Alternado">A</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercado Bem Mineiro</span> <div class="codigo-container"><span class="codigo-box alternado" title="Alternado">A</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Izauro</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Kit Oliveira</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Luziangela Manso da Fonseca</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Na Padoca do Eli</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Valeria Maria</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
       </div>
     </div>
     
-    <div class="rota-nelio">
+    <div class="rota-stenio">
       <h3>Rota Stênio/Nelio (7 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item"><span class="cliente-nome">Cabral Loja 1</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Cabral Loja 2</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Katia Maria</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Marcio Francisco</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Nirlene</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Aleciane</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Anderson Costa Magalhaes</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Cabral Loja 1</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Cabral Loja 2</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Katia Maria</span> <div class="codigo-container"><span class="codigo-box alternado" title="Alternado">A</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Marcio Francisco</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Nirlene</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Aleciane</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Anderson Costa Magalhaes</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
       </div>
     </div>
   </div>
@@ -497,167 +436,107 @@
   <!-- QUINTA-FEIRA -->
   <div class="quinta">
     <h2>Quinta-feira</h2>
-    
-    <div class="total-clientes">70 clientes</div>
+    <div class="total-clientes">72 clientes</div>
     
     <div class="rota-salsicha">
-      <h3>Rota Salsicha (24 clientes)</h3>
+      <h3>Rota Salsicha (26 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item">
-          <span class="cliente-nome">Comercial Nogueira Cunha</span>
-          <div class="codigo-container">
-            <span class="codigo-box">29</span>
-          </div>
-        </div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Comercial Nogueira Cunha</span>
-          <div class="codigo-container">
-            <span class="codigo-box">30</span>
-          </div>
-        </div>
-        <div class="cliente-item"><span class="cliente-nome">Leandro Fonseca</span></div>
-        <div class="cliente-item"><span class="cliente-nome">MBM Supermercado</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Pão Nosso Cajuru</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Sergio Gomes</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Supermercado Rei do Frango</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Mercadinho Central</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Comercio de Alimentos Teixeira Rabelo</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Supermercado Cicero</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Silvana Maria Rabelo</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Ibis</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Thais Aparecida</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Roberto Candido</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Confeitaria Sabor de Minas</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Padaria e Lanchonete Serranense (Marcilei)</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Antonio Pinto</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Angelica Gonçalves</span></div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Restaurante e Lanchonete do Gaucho</span>
-          <div class="codigo-container">
-            <span class="codigo-box">1174</span>
-          </div>
-        </div>
-        <div class="cliente-item"><span class="cliente-nome">Jose de Assis</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Gutemberg Palace</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Edienia</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Patricia Mariel</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Mercearia Havana</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Rosileia da Silva</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Comercial Nogueira Cunha</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Comercial Nogueira Cunha</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Leandro Fonseca</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">MBM Supermercado</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Pão Nosso Cajuru</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Sergio Gomes</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Rei do Frango</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercadinho Central</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Comercio de Alimentos Teixeira Rabelo</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Cicero</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Silvana Maria Rabelo</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Ibis</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Thais Aparecida</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Roberto Candido</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Confeitaria Sabor de Minas</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria e Lanchonete Serranense (Marcilei)</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Antonio Pinto</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Angelica Gonçalves</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Restaurante e Lanchonete do Gaucho</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Jose de Assis</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Gutemberg Palace</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Edienia</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Patricia Mariel</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercearia Paraná</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Rosileia da Silva</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">MAC (são gonçalo)</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
       </div>
     </div>
     
     <div class="rota-jovi">
       <h3>Rota Jovi - Arcos/SSO/Iguatama (11 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item"><span class="cliente-nome">Supermercado Iguasuper</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Mercearia Recanto Nordestino</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Urbana Café II</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Josiane</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Angela Maria</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Marcelo Martins Ferreira</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Arte do Sabor</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Jean Carlos</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Hotel Dona Ligia</span></div>
-        <div class="cliente-item"><span class="cliente-nome">TB Sorvetes</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Marcos Vinicius</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Iguasuper</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercearia Recanto Nordestino</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Urbana Café II</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Josiane</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Angela Maria</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Marcelo Martins Ferreira</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Arte do Sabor</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Jean Carlos</span> <div class="codigo-container"><span class="codigo-box alternado" title="Alternado">A</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Hotel Dona Ligia</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">TB Sorvetes</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Marcos Vinicius</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
       </div>
     </div>
     
     <div class="rota-jovi">
       <h3>Rota Jovi - Dores do Indaiá (11 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item"><span class="cliente-nome">Supermercado Alves Moura</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Kit Pão Luz</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Casa Fidelis</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Panificadora Belo Pão</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Padaria Juliana</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Felix e Silva</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Ilez</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Padaria e Lanc Tigrão</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Mercado Padrão</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Mario Jose</span></div>
-        <div class="cliente-item"><span class="cliente-nome">SR Comercio</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Alves Moura</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Kit Pão Luz</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Casa Fidelis</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Belo Pão</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Juliana</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Felix e Silva</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Ilez</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria e Lanc Tigrão</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercado Padrão</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Mario Jose</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">SR Comercio</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
       </div>
     </div>
     
     <div class="rota-guilherme">
       <h3>Rota Guilherme (14 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item"><span class="cliente-nome">Cristiane</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Ozeias de Paula</span></div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Somar</span>
-          <div class="codigo-container">
-            <span class="codigo-box">782</span>
-          </div>
-        </div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Kit do Adriano</span>
-          <div class="codigo-container">
-            <span class="codigo-box">793</span>
-          </div>
-        </div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Kit 2 Irmãos</span>
-          <div class="codigo-container">
-            <span class="codigo-box">794</span>
-          </div>
-        </div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Somar</span>
-          <div class="codigo-container">
-            <span class="codigo-box">795</span>
-          </div>
-        </div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Somar</span>
-          <div class="codigo-container">
-            <span class="codigo-box">797</span>
-          </div>
-        </div>
-        <div class="cliente-item"><span class="cliente-nome">Adolfo Henrique</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Padaria e Conveniencia Padre Eustaquio (Wayne)</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Quitandas Maria (Ewerton)</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Padaria e Cafeteria O MG</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Torre Gourmet</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Supermercado Catalão</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Cleiton</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Ozeias de Paula</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Somar</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Kit do Adriano</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Kit 2 Irmãos</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Somar</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Somar</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Adolfo Henrique</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria e Conveniencia Padre Eustaquio (Wayne)</span> <div class="codigo-container"><span class="codigo-box alternado" title="Alternado">A</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Quitandas Maria (Ewerton)</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria e Cafeteria O MG</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Torre Gourmet</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Catalão</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Cleiton</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Cristiane</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
       </div>
     </div>
     
     <div class="rota-nelio">
       <h3>Rota Nelio (10 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item"><span class="cliente-nome">Mercearia Três Irmãos</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Lanchonete e Padaria do Mauricio</span></div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Supermercado Faria de Itapecerica</span>
-          <div class="codigo-container">
-            <span class="codigo-box">1010</span>
-          </div>
-        </div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Supermercado Faria de Itapecerica</span>
-          <div class="codigo-container">
-            <span class="codigo-box">1012</span>
-          </div>
-        </div>
-        <div class="cliente-item"><span class="cliente-nome">Supermercado Jumar</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Marcelo Alves Ferreira</span></div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Comercial Nutrimais</span>
-          <div class="codigo-container">
-            <span class="codigo-box">1055</span>
-          </div>
-        </div>
-        <div class="cliente-item"><span class="cliente-nome">Andre Luiz</span></div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Aldo Supermercado</span>
-          <div class="codigo-container">
-            <span class="codigo-box">1075</span>
-          </div>
-        </div>
-        <div class="cliente-item"><span class="cliente-nome">Lamounier e Rodrigues Supermercado</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercearia Três Irmãos</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Lanchonete e Padaria do Mauricio</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Faria de Itapecerica</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Faria de Itapecerica</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Supermercado Jumar</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Marcelo Alves Ferreira</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Comercial Nutrimais</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Andre Luiz</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Aldo Supermercado</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Lamounier e Rodrigues Supermercado</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
       </div>
     </div>
   </div>
@@ -665,142 +544,98 @@
   <!-- SEXTA-FEIRA -->
   <div class="sexta">
     <h2>Sexta-feira</h2>
-    
-    <div class="total-clientes">53 clientes</div>
+    <div class="total-clientes">54 clientes</div>
     
     <div class="rota-jovi">
       <h3>Rota Jovi (23 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item"><span class="cliente-nome">Alexandre da Fonseca</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Antonio Carlos</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Café e Cia Mercearia e Padaria (Breno)</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Girlene Maria</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Mercearia Bryth Center</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Rodrigues & Costa</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Tamara</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Jose Vilson</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Fabricio Eustaquio</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Tia Helaine</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Sabor & Café</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Geraldo Magela da Silva</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Quitandas Caseiras</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Padaria Vovó Rute</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Valdeci</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Sabor & Café Loja 2</span></div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Casa Fidelis</span>
-          <div class="codigo-container">
-            <span class="codigo-box">914</span>
-          </div>
-        </div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Casa Fidelis</span>
-          <div class="codigo-container">
-            <span class="codigo-box">971</span>
-          </div>
-        </div>
-        <div class="cliente-item"><span class="cliente-nome">Panificadora Delicias Caseiras</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Panificadora Novo Sabor</span></div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Casa Fidelis</span>
-          <div class="codigo-container">
-            <span class="codigo-box">1088</span>
-          </div>
-        </div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Fidelis Supermercados</span>
-          <div class="codigo-container">
-            <span class="codigo-box">1089</span>
-          </div>
-        </div>
-        <div class="cliente-item"><span class="cliente-nome">Mercearia Compre Mais (Elias)</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Alexandre da Fonseca</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Antonio Carlos</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Café e Cia Mercearia e Padaria (Breno)</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Girlene Maria</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercearia Bryth Center</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Rodrigues & Costa</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Tamara</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Jose Vilson</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Fabricio Eustaquio</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Tia Helaine</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Sabor & Café</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Geraldo Magela da Silva</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Quitandas Caseiras</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Vovó Rute</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Valdeci</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Sabor & Café Loja 2</span> <div class="codigo-container"><span class="codigo-box alternado" title="Alternado">A</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Casa Fidelis</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Casa Fidelis</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Delicias Caseiras</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Novo Sabor</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Casa Fidelis</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Fidelis Supermercados</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Mercearia Compre Mais (Elias)</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
       </div>
     </div>
     
     <div class="rota-guilherme">
       <h3>Rota Guilherme (13 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item"><span class="cliente-nome">Zimbo</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Allan</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Luiz Gustavo</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Somar Perdigão</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Padaria Mondialy</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Nilson José</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Waliton</span></div>
-        <div class="cliente-item"><span class="cliente-nome">MAC Jardim do Lago</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Panificadora Sabor e Arte</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Tamires Nunes</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Lanchonete e Restaurante Fernandes (Sandra)</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Padaria e Lanchonete Sabor das Gerais</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Zimbo</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Allan</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Luiz Gustavo</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Somar Perdigão</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria Mondialy</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Nilson José</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Waliton</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">MAC Jardim do Lago</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Sabor e Arte</span> <div class="codigo-container"><span class="codigo-box alternado" title="Alternado">A</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Tamires Nunes</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Lanchonete e Restaurante Fernandes</span> <div class="codigo-container"><span class="codigo-box alternado" title="Alternado">A</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Padaria e Lanchonete Sabor das Gerais</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Lucilene da Silva</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
       </div>
     </div>
     
     <div class="rota-salsicha">
       <h3>Rota Salsicha (8 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item">
-          <span class="cliente-nome">MAC</span>
-          <div class="codigo-container">
-            <span class="codigo-box">77</span>
-          </div>
-        </div>
-        <div class="cliente-item">
-          <span class="cliente-nome">MAC</span>
-          <div class="codigo-container">
-            <span class="codigo-box">78</span>
-          </div>
-        </div>
-        <div class="cliente-item">
-          <span class="cliente-nome">MAC</span>
-          <div class="codigo-container">
-            <span class="codigo-box">79</span>
-          </div>
-        </div>
-        <div class="cliente-item">
-          <span class="cliente-nome">MAC</span>
-          <div class="codigo-container">
-            <span class="codigo-box">80</span>
-          </div>
-        </div>
-        <div class="cliente-item">
-          <span class="cliente-nome">MAC</span>
-          <div class="codigo-container">
-            <span class="codigo-box">277</span>
-          </div>
-        </div>
-        <div class="cliente-item">
-          <span class="cliente-nome">MAC</span>
-          <div class="codigo-container">
-            <span class="codigo-box">853</span>
-          </div>
-        </div>
-        <div class="cliente-item"><span class="cliente-nome">Marcio Magalhaes</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Helenilda</span></div>
+        <div class="cliente-item"><span class="cliente-nome">MAC</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">MAC</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">MAC</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">MAC</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">MAC</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">MAC</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Marcio Magalhaes</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Helenilda</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
       </div>
     </div>
     
-    <div class="rota-nelio">
-      <h3>Rota BH (9 clientes)</h3>
+    <div class="rota-bh">
+      <h3>Rota BH (10 clientes)</h3>
       <div class="clientes-container">
-        <div class="cliente-item">
-          <span class="cliente-nome">Comercial Michael</span>
-          <div class="codigo-container">
-            <span class="codigo-box">328</span>
-          </div>
-        </div>
-        <div class="cliente-item">
-          <span class="cliente-nome">Comercial Michael</span>
-          <div class="codigo-container">
-            <span class="codigo-box">335</span>
-          </div>
-        </div>
-        <div class="cliente-item"><span class="cliente-nome">BR Produtos</span></div>
-        <div class="cliente-item"><span class="cliente-nome">EBA</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Cravo e Canela</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Santa Rita</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Refinaria do Sabor</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Ana Luiza</span></div>
-        <div class="cliente-item"><span class="cliente-nome">Delicia do Pão</span></div>
+        <div class="cliente-item"><span class="cliente-nome">Comercial Michael</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Comercial Michael</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">BR Produtos</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">EBA</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Cravo e Canela</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Santa Rita</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Refinaria do Sabor</span> <div class="codigo-container"><span class="codigo-box fiscal" title="Fiscal">F</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Ana Luiza</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Delicia do Pão</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora do Chef</span> <div class="codigo-container"><span class="codigo-box alternado" title="Alternado">A</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENTREGAS AVULSAS -->
+  <div class="avulsas">
+    <h2>Entregas Avulsas</h2>
+    <div class="total-clientes">3 clientes</div>
+    
+    <div class="rota-avulsa">
+      <h3>Avulsos</h3>
+      <div class="clientes-container">
+        <div class="cliente-item"><span class="cliente-nome">Vicente de Paula (maravilhas)</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Comercial Maravilhas Festas (Jampier) (maravilhas)</span> <div class="codigo-container"><span class="codigo-box alternado" title="Alternado">A</span></div></div>
+        <div class="cliente-item"><span class="cliente-nome">Panificadora Boa Sorte (pompéu)</span> <div class="codigo-container"><span class="codigo-box gerencial" title="Gerencial">G</span></div></div>
       </div>
     </div>
   </div>

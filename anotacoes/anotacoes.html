@@ -314,7 +314,7 @@
     overflow-x: hidden;
   }
 
-  /* Estilos específicos para conteúdo de clientes.html */
+  /* Estilos específicos para conteúdo de uteis-clientes.html */
   .conteudo-carregado .container {
     max-width: 100% !important;
     margin: 0 !important;
@@ -1316,7 +1316,7 @@
   .conteudo-carregado .rota-nelio .clientes-container { border-left-color: #9C27B0; }
   .conteudo-carregado .rota-stenio .clientes-container { border-left-color: #9C27B0; }
 
-  /* ESTILOS ESPECÍFICOS PARA O ARQUIVO clientes.html */
+  /* ESTILOS ESPECÍFICOS PARA O ARQUIVO uteis-clientes.html */
   .conteudo-carregado .produtos-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -1428,14 +1428,14 @@
         Geral
       </div>
       
-      <div class="topico-item" data-arquivo="clientes.html">
+      <div class="topico-item" data-arquivo="uteis-clientes.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
         </svg>
         Informações Úteis Clientes
       </div>
       
-      <div class="topico-item" data-arquivo="clientes-rota.html">
+      <div class="topico-item" data-arquivo="clientes-por-rota.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 12h4l3 8 4-16 3 8h4"/>
         </svg>
@@ -1455,6 +1455,14 @@
           <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
         </svg>
         Montagem Rotas
+      </div>
+      
+      <!-- NOVA SEÇÃO: Pedidos São José e Pão Total -->
+      <div class="topico-item" data-arquivo="pedidos-sj-pt.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        Pedidos São José e Pão Total
       </div>
       
       <div class="resultados-busca" id="resultados-busca">
@@ -1623,14 +1631,17 @@ class GerenciadorAnotacoes {
     this.topicosSelecionados = new Set();
     this.conteudoSubtopicoAtual = null;
     this.resultadoBuscaAtual = null;
+    // Array atualizada com os novos arquivos
     this.htmlFiles = [
       'fechamento-caixas.html',
       'fornecedores.html',
       'geral.html',
-      'clientes.html',
-      'clientes-rota.html',
+      'uteis-clientes.html',
+      'clientes-por-rota.html',
       'lancamento-pedidos.html',
-      'montagem-rotas.html'
+      'montagem-rotas.html',
+      'pedidos-sj-pt.html',
+      'rotina-comercial-emillie.html'
     ];
   }
 
@@ -1711,8 +1722,8 @@ class GerenciadorAnotacoes {
     const body = tempDiv.querySelector('body');
     let conteudoHTML = body ? body.innerHTML : tempDiv.innerHTML;
     
-    // Para o arquivo clientes.html, remover a tag .container que causa problemas de estilização
-    if (arquivo === 'clientes.html') {
+    // Para o arquivo uteis-clientes.html, remover a tag .container que causa problemas de estilização
+    if (arquivo === 'uteis-clientes.html') {
       // Substituir a classe container por uma div comum
       conteudoHTML = conteudoHTML.replace(/class="container"/g, 'class="conteudo-clientes"');
     }
@@ -2485,7 +2496,7 @@ class GerenciadorAnotacoes {
             box-shadow: 0 4px 8px rgba(0,0,0,0.05);
           }
           
-          /* Estilos específicos para clientes.html */
+          /* Estilos específicos para uteis-clientes.html */
           .produtos-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rotinas Diárias (simplificado)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      background: #f5f9ff;
+      color: #1e293b;
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #0b4f8b;
+      margin-bottom: 0.25rem;
+      border-left: 6px solid #0b4f8b;
+      padding-left: 1rem;
+    }
+    .subtitulo {
+      color: #475569;
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+      margin-left: 1.2rem;
+    }
+    /* Legenda */
+    .legenda {
+      background: white;
+      border-radius: 20px;
+      padding: 1.2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 8px 20px rgba(0,60,120,0.08);
+      border: 1px solid #e2edff;
+    }
+    .legenda summary {
+      font-weight: 600;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #0b4f8b;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      list-style: none;
+    }
+    .legenda summary::-webkit-details-marker {
+      display: none;
+    }
+    .legenda summary::before {
+      content: '📋';
+      font-size: 1.4rem;
+    }
+    .legenda-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 1.2rem;
+    }
+    .legenda-item {
+      background: #f8fcff;
+      border-radius: 16px;
+      padding: 1rem;
+      border-left: 5px solid;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    .legenda-titulo {
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .legenda-titulo span {
+      font-size: 1.2rem;
+    }
+    .legenda-desc {
+      font-size: 0.95rem;
+      color: #334155;
+      margin-bottom: 0.5rem;
+    }
+    .legenda-detalhes {
+      font-size: 0.9rem;
+      background: white;
+      padding: 0.75rem;
+      border-radius: 12px;
+      border: 1px solid #dbeafe;
+      color: #1e3a5f;
+    }
+    /* Dias */
+    .dias-container {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .dia-card {
+      background: white;
+      border-radius: 24px;
+      padding: 1.5rem;
+      box-shadow: 0 8px 24px rgba(0,50,100,0.08);
+      border: 1px solid #e0edff;
+      transition: 0.2s;
+    }
+    .dia-card:hover {
+      box-shadow: 0 12px 28px rgba(0,80,150,0.12);
+    }
+    .dia-cabecalho {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.5rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px dashed #cbd5e1;
+    }
+    .dia-data {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0b4f8b;
+      background: #e8f0fe;
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      letter-spacing: 0.5px;
+    }
+    .dia-semana {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: #2c3e50;
+    }
+    .dia-observacao {
+      background: #fff3cd;
+      color: #856404;
+      padding: 0.3rem 1rem;
+      border-radius: 30px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      border: 1px solid #ffe69c;
+    }
+    /* Tarefas */
+    .tarefas-lista {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    .tarefa-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+      padding: 0.8rem 1rem;
+      background: #fafdff;
+      border-radius: 18px;
+      border-left: 6px solid;
+      transition: 0.1s;
+    }
+    .tarefa-item:hover {
+      background: #f1f9ff;
+    }
+    .tarefa-icone {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: #007BFF;
+      color: white;
+      font-size: 16px;
+    }
+    .tarefa-conteudo {
+      flex: 1;
+    }
+    .tarefa-titulo {
+      font-weight: 600;
+      font-size: 1.05rem;
+      margin-bottom: 0.2rem;
+    }
+    .tarefa-descricao {
+      font-size: 0.95rem;
+      color: #475569;
+    }
+    .tarefa-pessoa {
+      display: inline-block;
+      background: #dbeafe;
+      color: #0b4f8b;
+      padding: 0.2rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-top: 0.3rem;
+    }
+    .sem-tarefas {
+      font-style: italic;
+      color: #6b7280;
+      background: #f1f5f9;
+      padding: 1rem;
+      border-radius: 16px;
+      text-align: center;
+    }
+    .footer {
+      margin-top: 3rem;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.9rem;
+      border-top: 1px solid #cbd5e1;
+      padding-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>📅 Rotinas Diárias</h1>
+  <div class="subtitulo">31/12/2025 – 16/01/2026 · versão simplificada</div>
+
+  <!-- LEGENDA (expansível) -->
+  <details class="legenda" open>
+    <summary><span style="font-size:1.2rem;">📌</span> Legenda das categorias</summary>
+    <div class="legenda-grid" id="legendaContainer"></div>
+  </details>
+
+  <!-- DIAS COM TAREFAS -->
+  <div class="dias-container" id="diasContainer"></div>
+
+  <div class="footer">
+    ⚡ Dados fáceis de editar no código (arrays categorias e rotinas)
+  </div>
+</div>
+
+<script>
+(function() {
+  // ---------- DADOS DAS CATEGORIAS (fácil de editar) ----------
+  const categorias = {
+    N1: {
+      nome: "Cobranças WhatsApp",
+      descricao: "Fazer cobranças no WhatsApp dos clientes",
+      detalhes: "Tirar relatório de cobranças, procurar cliente no WhatsApp e mandar mensagem pronta. Cobrar comprovante se necessário.",
+      cor: "#ef4444",
+      icone: "💬"
+    },
+    N2: {
+      nome: "Pedidos Clientes",
+      descricao: "Mandar mensagem para clientes pedindo pedido",
+      detalhes: "Na web do sistema, vá em telemarketing, olhe clientes sem pedido e peça para enviarem. Horário: 9:00-9:30.",
+      cor: "#007BFF",
+      icone: "📦"
+    },
+    N3: {
+      nome: "Pedir Café",
+      descricao: "Pedir café para produção caso precise",
+      detalhes: "Confirmar na produção (embalagem ou setor Ceará) se precisa de café para quem fica até mais tarde.",
+      cor: "#5d4037",
+      icone: "☕"
+    },
+    N4: {
+      nome: "Montagem Rotas",
+      descricao: "Montagem das rotas de entrega",
+      detalhes: "Confira a seção de montagem rotas nas anotações do site.",
+      cor: "#10b981",
+      icone: "🗺️"
+    },
+    N5: {
+      nome: "Lista Embalagem",
+      descricao: "Pegar lista da embalagem São José e Pão Total",
+      detalhes: "Pegar ou pedir que tragam a lista. Se perderam, perguntar ao Guilherme ou Kauan o que faltou.",
+      cor: "#fb8c00",
+      icone: "📋"
+    },
+    N6: {
+      nome: "Fechamento Caixas",
+      descricao: "Fechamento de caixas (Barão)",
+      detalhes: "Confira a seção de fechamento caixas nas anotações do site.",
+      cor: "#8a2be2",
+      icone: "💰"
+    },
+    N7: {
+      nome: "Café Sábado",
+      descricao: "Pedir café para sábado caso precise",
+      detalhes: "Se tiver produção sábado, pedir café na padaria para o número de pessoas e solicitar entrega na fábrica.",
+      cor: "#5d4037",
+      icone: "☕"
+    },
+    N8: {
+      nome: "Acerto Célio",
+      descricao: "Acerto com o fornecedor Célio",
+      detalhes: "Confira o tópico Célio (pagamentos e pix) na seção fornecedores.",
+      cor: "#00897b",
+      icone: "🤝"
+    },
+    N9: {
+      nome: "Lista São José",
+      descricao: "Fazer lista da São José e Pão Total",
+      detalhes: "Confira o tópico São José na seção geral.",
+      cor: "#f4511e",
+      icone: "📝"
+    },
+    N10: {
+      nome: "Adiantamento Salarial",
+      descricao: "Adiantamento salarial no banco",
+      detalhes: "No banco: folha de pagamento → cadastrar → data, funcionários, valores. Depois processar com autenticação de dois fatores.",
+      cor: "#00acc1",
+      icone: "🏦"
+    },
+    N11: {
+      nome: "Cheques Início do Mês",
+      descricao: "Fazer cheques do início do mês",
+      detalhes: "Confira o tópico Cheques Início e Final de Mês na seção geral.",
+      cor: "#2e7d32",
+      icone: "📄"
+    }
+  };
+
+  // ---------- DADOS DAS ROTINAS POR DIA (fácil de editar) ----------
+  const rotinas = [
+    {
+      data: "31/12/2025",
+      diaSemana: "Quarta-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Fazer cobranças no WhatsApp", categoria: "N1", descricao: "", pessoa: "Gleyce" },
+        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "", pessoa: "" },
+        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+      ]
+    },
+    {
+      data: "01/01/2026",
+      diaSemana: "Quinta-feira",
+      feriado: true,
+      feriadoNome: "Ano Novo",
+      semExpediente: true,
+      tarefas: []
+    },
+    {
+      data: "02/01/2026",
+      diaSemana: "Sexta-feira",
+      feriado: false,
+      semExpediente: true,
+      tarefas: []
+    },
+    {
+      data: "05/01/2026",
+      diaSemana: "Segunda-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Fazer cobranças no WhatsApp", categoria: "N1", descricao: "", pessoa: "Gleyce" },
+        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
+        { titulo: "Fazer lista da São José e Pão Total", categoria: "N9", descricao: "Entregar a embalagem", pessoa: "Emillie" },
+        { titulo: "Fechamento de caixas", categoria: "N6", descricao: "", pessoa: "Barão" },
+        { titulo: "Fazer cheques do início do mês", categoria: "N11", descricao: "", pessoa: "Barão" },
+        { titulo: "Entregar planilhas de autocontrole", categoria: null, descricao: "", pessoa: "" },
+        { titulo: "Pegar a lista da embalagem da São José e Pão Total e guardar", categoria: "N5", descricao: "", pessoa: "" },
+        { titulo: "Pedir café para produção caso preciso", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Baixa notinhas e relatórios", categoria: null, descricao: "", pessoa: "Emillie" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+      ]
+    },
+    {
+      data: "06/01/2026",
+      diaSemana: "Terça-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Fechamento de caixas", categoria: "N6", descricao: "", pessoa: "Barão" },
+        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
+        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Baixa notinhas e relatórios", categoria: null, descricao: "", pessoa: "Emillie" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+      ]
+    },
+    {
+      data: "07/01/2026",
+      diaSemana: "Quarta-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Fazer cobranças no WhatsApp", categoria: "N1", descricao: "", pessoa: "Gleyce" },
+        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
+        { titulo: "Fechamento de caixas", categoria: "N6", descricao: "", pessoa: "Barão" },
+        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Baixa notinhas e relatórios", categoria: null, descricao: "", pessoa: "Emillie" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+      ]
+    },
+    {
+      data: "08/01/2026",
+      diaSemana: "Quinta-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Fechamento de caixas", categoria: "N6", descricao: "", pessoa: "Barão" },
+        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
+        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Baixa notinhas e relatórios", categoria: null, descricao: "", pessoa: "Emillie" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" },
+        { titulo: "Fazer lista da São José e Pão Total", categoria: "N9", descricao: "Deixar junto com os romaneios", pessoa: "Emillie" }
+      ]
+    },
+    {
+      data: "09/01/2026",
+      diaSemana: "Sexta-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Fazer cobranças no WhatsApp", categoria: "N1", descricao: "", pessoa: "Gleyce" },
+        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
+        { titulo: "Fechamento de caixas", categoria: "N6", descricao: "", pessoa: "Barão" },
+        { titulo: "Pegar a lista da embalagem da São José e Pão Total e guardar", categoria: "N5", descricao: "Até 11:00 ou 12:00", pessoa: "" },
+        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Pedir café para sábado caso precise", categoria: "N7", descricao: "", pessoa: "Adeilton e Luiz Felipe" },
+        { titulo: "Separar dinheiro caso tenha produção sábado", categoria: null, descricao: "", pessoa: "Barão" },
+        { titulo: "Baixa notinhas e relatórios", categoria: null, descricao: "", pessoa: "Emillie" },
+        { titulo: "Acerto Célio", categoria: "N8", descricao: "", pessoa: "Barão" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+      ]
+    },
+    {
+      data: "12/01/2026",
+      diaSemana: "Segunda-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Fazer cobranças no WhatsApp", categoria: "N1", descricao: "", pessoa: "Gleyce" },
+        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
+        { titulo: "Fazer lista da São José e Pão Total", categoria: "N9", descricao: "Entregar a embalagem", pessoa: "Emillie" },
+        { titulo: "Fechamento de caixas", categoria: "N6", descricao: "", pessoa: "Barão" },
+        { titulo: "Pegar a lista da embalagem da São José e Pão Total e guardar", categoria: "N5", descricao: "", pessoa: "" },
+        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Baixa notinhas e relatórios", categoria: null, descricao: "", pessoa: "Emillie" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+      ]
+    },
+    {
+      data: "13/01/2026",
+      diaSemana: "Terça-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Retorno Marina", categoria: null, descricao: "", pessoa: "" },
+        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
+        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+      ]
+    },
+    {
+      data: "14/01/2026",
+      diaSemana: "Quarta-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Fazer cobranças no WhatsApp", categoria: "N1", descricao: "", pessoa: "Gleyce" },
+        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
+        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+      ]
+    },
+    {
+      data: "15/01/2026",
+      diaSemana: "Quinta-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
+        { titulo: "Adiantamento salarial no banco", categoria: "N10", descricao: "", pessoa: "Marina" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" },
+        { titulo: "Fazer lista da São José e Pão Total", categoria: "N9", descricao: "Deixar junto com os romaneios", pessoa: "Emillie" }
+      ]
+    },
+    {
+      data: "16/01/2026",
+      diaSemana: "Sexta-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Fazer cobranças no WhatsApp", categoria: "N1", descricao: "", pessoa: "Gleyce" },
+        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
+        { titulo: "Pegar a lista da embalagem da São José e Pão Total e guardar", categoria: "N5", descricao: "Até 11:00 ou 12:00", pessoa: "" },
+        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Pedir café para sábado caso precise", categoria: "N7", descricao: "", pessoa: "Adeilton e Luiz Felipe" },
+        { titulo: "Separar dinheiro caso tenha produção sábado", categoria: null, descricao: "", pessoa: "Marina ou Barão" },
+        { titulo: "Acerto Célio", categoria: "N8", descricao: "", pessoa: "Marina ou Barão" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+      ]
+    }
+  ];
+
+  // ---------- FUNÇÃO PARA RENDERIZAR LEGENDA ----------
+  function renderLegenda() {
+    const container = document.getElementById('legendaContainer');
+    let html = '';
+    for (const [cod, cat] of Object.entries(categorias)) {
+      html += `
+        <div class="legenda-item" style="border-left-color: ${cat.cor};">
+          <div class="legenda-titulo">
+            <span>${cat.icone}</span> <strong>${cod}:</strong> ${cat.nome}
+          </div>
+          <div class="legenda-desc">${cat.descricao}</div>
+          <div class="legenda-detalhes">${cat.detalhes}</div>
+        </div>
+      `;
+    }
+    container.innerHTML = html;
+  }
+
+  // ---------- FUNÇÃO PARA RENDERIZAR DIAS ----------
+  function renderDias() {
+    const container = document.getElementById('diasContainer');
+    let html = '';
+
+    rotinas.forEach(dia => {
+      // Observação (feriado / sem expediente)
+      let obs = '';
+      if (dia.feriado) obs = `🎉 ${dia.feriadoNome}`;
+      else if (dia.semExpediente) obs = '🚫 Sem expediente';
+
+      html += `<div class="dia-card">`;
+      html += `<div class="dia-cabecalho">`;
+      html += `<span class="dia-data">${dia.data}</span>`;
+      html += `<span class="dia-semana">${dia.diaSemana}</span>`;
+      if (obs) html += `<span class="dia-observacao">${obs}</span>`;
+      html += `</div>`;
+
+      // Tarefas
+      if (dia.tarefas.length === 0) {
+        html += `<div class="sem-tarefas">Nenhuma tarefa agendada.</div>`;
+      } else {
+        html += `<div class="tarefas-lista">`;
+        dia.tarefas.forEach(tarefa => {
+          const cat = tarefa.categoria ? categorias[tarefa.categoria] : null;
+          const corFundo = cat ? cat.cor : '#94a3b8';
+          const icone = cat ? cat.icone : '📌';
+          const estiloBorda = `border-left-color: ${corFundo};`;
+
+          html += `<div class="tarefa-item" style="${estiloBorda}">`;
+          html += `<div class="tarefa-icone" style="background: ${corFundo};">${icone}</div>`;
+          html += `<div class="tarefa-conteudo">`;
+          html += `<div class="tarefa-titulo">${tarefa.titulo}</div>`;
+          if (tarefa.descricao) html += `<div class="tarefa-descricao">${tarefa.descricao}</div>`;
+          if (tarefa.pessoa) html += `<span class="tarefa-pessoa">👤 ${tarefa.pessoa}</span>`;
+          html += `</div></div>`;
+        });
+        html += `</div>`;
+      }
+      html += `</div>`;
+    });
+
+    container.innerHTML = html;
+  }
+
+  // Inicializar
+  renderLegenda();
+  renderDias();
+})();
+</script>
+</body>
+</html>

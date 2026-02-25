@@ -1,0 +1,1960 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rotinas Diárias — MACs & Guias</title>
+<meta name="description" content="Sistema organizado de rotinas diárias por semana" />
+<style>
+  /* Mantenha todo o CSS original aqui – não houve alterações */
+  :root{
+    --azul:#007BFF;
+    --accent:#0b5ed7;
+    --fundo:#f7fbff;
+    --card:#ffffff;
+    --muted:#6b7280;
+    --borda:#e6eefc;
+    --borda-ativa:#cfe0ff;
+    --ink:#0b3b6b;
+    --ink-strong:#0b4fa0;
+    --warn:#f59e0b;
+    --success:#10b981;
+    --danger:#ef4444;
+    --verde-suave: #f0fff4;
+    --verde-borda: #38a169;
+    --roxo: #8a2be2;
+    --laranja: #fb8c00;
+    --teal: #00897b;
+    --cinza-escuro: #5d4037;
+    --verde-escuro: #2e7d32;
+  }
+  body{
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: linear-gradient(180deg, var(--fundo), #f3f7ff);
+    min-height:100vh;
+    margin:0;
+    padding:18px;
+    color:#111;
+  }
+  .wrap{max-width:1300px;margin:0 auto}
+  h1{margin:0 0 8px 0;font-size:22px;color:var(--accent)}
+  p.lead{margin:4px 0 16px 0;color:var(--muted);font-size:13px}
+
+  .toolbar{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+    background:var(--card);
+    border:1px solid var(--borda);
+    border-radius:12px;
+    padding:12px;
+    box-shadow: 0 10px 30px rgba(11,78,167,.06);
+    position:sticky;
+    top:14px;
+    z-index:60;
+    margin-bottom: 20px;
+  }
+
+  .btn-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .btn-toolbar:hover {
+    background: #f3f8ff;
+    border-color: var(--borda-ativa);
+  }
+
+  .btn-toolbar svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* LAYOUT PRINCIPAL */
+  .rotinas-container {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .dias-sidebar {
+    background: var(--card);
+    border: 1px solid var(--borda);
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 10px 30px rgba(11,78,167,.06);
+    height: fit-content;
+    position: sticky;
+    top: 90px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+  }
+
+  .periodo-secao {
+    margin-bottom: 0;
+  }
+
+  .periodo-secao h3 {
+    font-size: 14px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--borda);
+  }
+
+  .dia-item {
+    padding: 12px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid transparent;
+    position: relative;
+  }
+
+  .dia-item:hover {
+    background: #f3f8ff;
+    border-color: var(--borda-ativa);
+  }
+
+  .dia-item.ativo {
+    background: var(--azul);
+    color: white;
+  }
+
+  .dia-item svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .dia-item.hoje {
+    background: #fff7f0;
+    border-color: #fed7aa;
+    color: #f59e0b;
+  }
+
+  .dia-item.feriado {
+    background: #fff7f0;
+    border-color: #fed7aa;
+    color: #e67e22;
+  }
+
+  .dia-item.sem-expediente {
+    background: #f8f9fa;
+    color: var(--muted);
+  }
+
+  .checkbox-dia {
+    position: absolute;
+    right: 12px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+
+  .conteudo-area {
+    background: var(--card);
+    border: 1px solid var(--borda);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(11,78,167,.06);
+    min-height: 400px;
+    position: relative;
+  }
+
+  .conteudo-header {
+    border-bottom: 1px solid var(--borda);
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .conteudo-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--ink-strong);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .conteudo-header h2 svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .conteudo-header-acoes {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-acao {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--borda);
+    background: var(--card);
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .btn-acao:hover {
+    background: #f3f8ff;
+    border-color: var(--borda-ativa);
+  }
+
+  .btn-imprimir {
+    background: #f0f9ff !important;
+    border-color: #bae6fd !important;
+    color: var(--azul) !important;
+  }
+
+  .btn-imprimir:hover {
+    background: #e0f2fe !important;
+  }
+
+  /* FILTRO DE CATEGORIAS */
+  .filtro-categorias {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid var(--borda);
+  }
+
+  .filtro-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    cursor: pointer;
+  }
+
+  .filtro-header h3 {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ink-strong);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .filtro-header h3 svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .filtro-conteudo {
+    max-height: 300px;
+    overflow-y: auto;
+    transition: max-height 0.3s ease;
+  }
+
+  .filtro-conteudo.recolhido {
+    max-height: 0;
+    overflow: hidden;
+  }
+
+  .categoria-filtro-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+  }
+
+  .categoria-filtro-item:hover {
+    background: white;
+    border-color: var(--borda);
+  }
+
+  .categoria-filtro-item.ativo {
+    background: white;
+    border-color: var(--borda-ativa);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .categoria-filtro-checkbox {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid var(--borda);
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .categoria-filtro-item.ativo .categoria-filtro-checkbox {
+    background: var(--azul);
+    border-color: var(--azul);
+  }
+
+  .categoria-filtro-checkbox svg {
+    width: 12px;
+    height: 12px;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .categoria-filtro-item.ativo .categoria-filtro-checkbox svg {
+    opacity: 1;
+  }
+
+  .categoria-filtro-cor {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .categoria-filtro-nome {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    flex: 1;
+  }
+
+  .contador-categoria {
+    font-size: 11px;
+    background: #e5e7eb;
+    color: #6b7280;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 24px;
+    text-align: center;
+  }
+
+  .botoes-filtro {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--borda);
+  }
+
+  .btn-filtro {
+    flex: 1;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid var(--borda);
+    background: white;
+    color: var(--ink);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .btn-filtro:hover {
+    background: #f3f8ff;
+    border-color: var(--borda-ativa);
+  }
+
+  .btn-filtro.ativo {
+    background: var(--azul);
+    color: white;
+    border-color: var(--azul);
+  }
+
+  /* LEGENDA */
+  .legenda-container {
+    background: var(--card);
+    border: 1px solid var(--borda);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(11,78,167,.06);
+    margin-bottom: 20px;
+  }
+
+  .legenda-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    cursor: pointer;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    border: 1px solid var(--borda);
+    transition: all 0.2s ease;
+  }
+
+  .legenda-header:hover {
+    background: #f3f8ff;
+    border-color: var(--borda-ativa);
+  }
+
+  .legenda-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--ink-strong);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .legenda-header h3 svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.3s ease;
+  }
+
+  .legenda-header.ativo h3 svg {
+    transform: rotate(180deg);
+  }
+
+  .legenda-conteudo {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .legenda-conteudo.ativo {
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .legenda-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    padding: 16px 0;
+  }
+
+  .legenda-item {
+    padding: 16px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    border: 1px solid var(--borda);
+    transition: all 0.2s ease;
+  }
+
+  .legenda-item:hover {
+    background: white;
+    border-color: var(--borda-ativa);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  .legenda-item-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .legenda-icone-grande {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .legenda-icone-grande svg {
+    width: 18px;
+    height: 18px;
+    color: white;
+  }
+
+  .legenda-titulo {
+    font-weight: 600;
+    color: var(--ink-strong);
+    font-size: 15px;
+  }
+
+  .legenda-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .legenda-detalhes {
+    margin-top: 12px;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    border-left: 4px solid var(--borda);
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+
+  .legenda-item.destaque {
+    background: #f0f7ff;
+    border-color: var(--azul);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.1);
+  }
+
+  /* TAREFAS DO DIA */
+  .tarefas-dia {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 16px;
+  }
+
+  .tarefa-card {
+    background: var(--fundo);
+    border: 1px solid var(--borda);
+    border-radius: 12px;
+    padding: 18px;
+    transition: all 0.2s ease;
+    border-left: 4px solid var(--azul);
+  }
+
+  .tarefa-card:hover {
+    border-color: var(--borda-ativa);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transform: translateY(-2px);
+  }
+
+  .tarefa-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+
+  .tarefa-titulo {
+    font-weight: 600;
+    color: var(--ink-strong);
+    font-size: 15px;
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  .tarefa-icone {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    flex-shrink: 0;
+    margin-left: 12px;
+  }
+
+  .tarefa-icone:hover {
+    transform: scale(1.1);
+    border-color: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  .tarefa-icone svg {
+    width: 16px;
+    height: 16px;
+    color: white;
+  }
+
+  .tarefa-desc {
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .tarefa-pessoa {
+    display: inline-block;
+    background: #e3f2fd;
+    color: var(--azul);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 8px;
+  }
+
+  .sem-tarefas {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+    grid-column: 1 / -1;
+  }
+
+  .sem-tarefas svg {
+    width: 64px;
+    height: 64px;
+    opacity: 0.5;
+    margin-bottom: 16px;
+  }
+
+  /* CATEGORIAS */
+  .categoria-N1 { border-left-color: var(--danger); }
+  .categoria-N2 { border-left-color: var(--azul); }
+  .categoria-N3 { border-left-color: var(--cinza-escuro); }
+  .categoria-N4 { border-left-color: var(--success); }
+  .categoria-N5 { border-left-color: var(--laranja); }
+  .categoria-N6 { border-left-color: var(--roxo); }
+  .categoria-N7 { border-left-color: #5d4037; }
+  .categoria-N8 { border-left-color: var(--teal); }
+  .categoria-N9 { border-left-color: #f4511e; }
+  .categoria-N10 { border-left-color: #00acc1; }
+  .categoria-N11 { border-left-color: #2e7d32; }
+
+  .categoria-N1 .tarefa-icone { background: var(--danger); }
+  .categoria-N2 .tarefa-icone { background: var(--azul); }
+  .categoria-N3 .tarefa-icone { background: var(--cinza-escuro); }
+  .categoria-N4 .tarefa-icone { background: var(--success); }
+  .categoria-N5 .tarefa-icone { background: var(--laranja); }
+  .categoria-N6 .tarefa-icone { background: var(--roxo); }
+  .categoria-N7 .tarefa-icone { background: #5d4037; }
+  .categoria-N8 .tarefa-icone { background: var(--teal); }
+  .categoria-N9 .tarefa-icone { background: #f4511e; }
+  .categoria-N10 .tarefa-icone { background: #00acc1; }
+  .categoria-N11 .tarefa-icone { background: #2e7d32; }
+
+  .legenda-N1 .legenda-icone-grande { background: var(--danger); }
+  .legenda-N2 .legenda-icone-grande { background: var(--azul); }
+  .legenda-N3 .legenda-icone-grande { background: var(--cinza-escuro); }
+  .legenda-N4 .legenda-icone-grande { background: var(--success); }
+  .legenda-N5 .legenda-icone-grande { background: var(--laranja); }
+  .legenda-N6 .legenda-icone-grande { background: var(--roxo); }
+  .legenda-N7 .legenda-icone-grande { background: #5d4037; }
+  .legenda-N8 .legenda-icone-grande { background: var(--teal); }
+  .legenda-N9 .legenda-icone-grande { background: #f4511e; }
+  .legenda-N10 .legenda-icone-grande { background: #00acc1; }
+  .legenda-N11 .legenda-icone-grande { background: #2e7d32; }
+
+  /* INFO BOXES */
+  .info-box {
+    background: #f0f7ff;
+    padding: 16px;
+    border-radius: 10px;
+    border-left: 4px solid var(--azul);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .info-box svg {
+    width: 24px;
+    height: 24px;
+    color: var(--azul);
+    flex-shrink: 0;
+  }
+
+  .info-box p {
+    margin: 0;
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .feriado-box {
+    background: #fff7f0;
+    border-left-color: var(--warn);
+  }
+
+  .feriado-box svg {
+    color: var(--warn);
+  }
+
+  /* SEARCH */
+  .search {
+    position: relative;
+    flex: 1 1 200px;
+  }
+
+  .search input {
+    width: 100%;
+    padding: 12px 40px 12px 40px;
+    border: 1px solid var(--borda);
+    border-radius: 12px;
+    background: #fbfdff;
+    color: var(--ink);
+    font-size: 14px;
+  }
+
+  .search svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+  }
+
+  .resultados-busca {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    margin-top: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 100;
+    display: none;
+  }
+
+  .resultado-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--borda);
+    transition: background 0.2s ease;
+  }
+
+  .resultado-item:hover {
+    background: #f3f8ff;
+  }
+
+  .resultado-data {
+    font-weight: 600;
+    color: var(--ink-strong);
+    margin-bottom: 4px;
+  }
+
+  .resultado-tarefa {
+    font-size: 13px;
+    color: var(--ink);
+    margin-left: 8px;
+  }
+
+  /* ANIMAÇÕES */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in {
+    animation: fadeIn 0.3s ease;
+  }
+
+  /* RESPONSIVO */
+  @media (max-width: 768px) {
+    .rotinas-container {
+      grid-template-columns: 1fr;
+    }
+    .dias-sidebar {
+      position: static;
+      margin-bottom: 20px;
+      max-height: none;
+    }
+    .tarefas-dia {
+      grid-template-columns: 1fr;
+    }
+    .legenda-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* SCROLL TO TOP */
+  .btn-voltar-topo {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--azul);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+    transition: all 0.2s ease;
+    z-index: 50;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .btn-voltar-topo.visivel {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .btn-voltar-topo:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,123,255,0.4);
+  }
+
+  .btn-voltar-topo svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* ESTILOS DE IMPRESSÃO */
+  @media print {
+    body {
+      background: white !important;
+      color: black !important;
+      font-family: Arial, sans-serif !important;
+      font-size: 12pt !important;
+      line-height: 1.4 !important;
+      margin: 0 !important;
+      padding: 10mm !important;
+    }
+    
+    .wrap {
+      max-width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    .toolbar,
+    .legenda-container,
+    .dias-sidebar,
+    .conteudo-header-acoes,
+    .btn-voltar-topo,
+    .search,
+    .btn-toolbar,
+    .filtro-categorias {
+      display: none !important;
+    }
+    
+    .rotinas-container {
+      display: block !important;
+      grid-template-columns: 1fr !important;
+      gap: 0 !important;
+      margin-top: 0 !important;
+    }
+    
+    .conteudo-area {
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      min-height: auto !important;
+    }
+    
+    .conteudo-header {
+      border-bottom: 2px solid #000 !important;
+      padding-bottom: 10px !important;
+      margin-bottom: 15px !important;
+    }
+    
+    .conteudo-header h2 {
+      font-size: 16pt !important;
+      color: black !important;
+    }
+    
+    .conteudo-header h2 svg {
+      display: none !important;
+    }
+    
+    .tarefas-dia {
+      grid-template-columns: 1fr !important;
+      gap: 10px !important;
+    }
+    
+    .tarefa-card {
+      page-break-inside: avoid !important;
+      border: 1px solid #ddd !important;
+      border-left: 4px solid #000 !important;
+      margin-bottom: 10px !important;
+      padding: 10px !important;
+    }
+    
+    .tarefa-titulo {
+      font-size: 12pt !important;
+      color: black !important;
+    }
+    
+    .tarefa-desc {
+      font-size: 11pt !important;
+    }
+    
+    .tarefa-icone {
+      display: none !important;
+    }
+    
+    .tarefa-pessoa {
+      background: none !important;
+      color: black !important;
+      border: 1px solid #ccc !important;
+      padding: 2px 6px !important;
+    }
+    
+    h1 {
+      font-size: 18pt !important;
+      margin-bottom: 5px !important;
+    }
+    
+    p.lead {
+      font-size: 11pt !important;
+      margin-bottom: 15px !important;
+    }
+    
+    /* Estilos para impressão de tudo/selecionados */
+    .impressao-tabela {
+      width: 100% !important;
+      border-collapse: collapse !important;
+      margin: 15px 0 !important;
+      font-size: 11pt !important;
+    }
+    
+    .impressao-tabela th,
+    .impressao-tabela td {
+      border: 1px solid #000 !important;
+      padding: 8px !important;
+      text-align: left !important;
+      vertical-align: top !important;
+    }
+    
+    .impressao-tabela th {
+      background-color: #f0f0f0 !important;
+      font-weight: bold !important;
+    }
+    
+    .impressao-tabela tr {
+      page-break-inside: avoid !important;
+    }
+    
+    .impressao-titulo {
+      font-size: 16pt !important;
+      font-weight: bold !important;
+      margin: 10px 0 !important;
+      text-align: center !important;
+    }
+    
+    .impressao-data {
+      font-size: 12pt !important;
+      margin-bottom: 20px !important;
+      text-align: center !important;
+    }
+    
+    .impressao-legenda {
+      margin-top: 25px !important;
+      padding: 15px !important;
+      border: 1px solid #000 !important;
+      page-break-inside: avoid !important;
+    }
+    
+    .impressao-legenda h3 {
+      margin-top: 0 !important;
+      font-size: 13pt !important;
+    }
+    
+    .impressao-legenda-item {
+      margin-bottom: 8px !important;
+      padding: 5px !important;
+      border-left: 3px solid #000 !important;
+      font-size: 10pt !important;
+    }
+    
+    @page {
+      margin: 15mm !important;
+      size: A4 !important;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Rotinas Diárias</h1>
+    <p class="lead">Sistema organizado de rotinas por dia da semana — Dados carregados de rotina-cronograma.html</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="search" id="campo-busca" placeholder="Buscar nas rotinas..." />
+      <div class="resultados-busca" id="resultados-busca"></div>
+    </div>
+    <button class="btn-toolbar" id="btn-imprimir-tudo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+        <rect x="6" y="14" width="12" height="8"/>
+      </svg>
+      Imprimir Tudo
+    </button>
+    <button class="btn-toolbar" id="btn-imprimir-selecionados">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+        <rect x="6" y="14" width="12" height="8"/>
+      </svg>
+      Imprimir Selecionados
+    </button>
+  </div>
+
+  <div class="legenda-container">
+    <div class="legenda-header" id="legenda-toggle">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>
+        Legenda das Categorias
+      </h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    
+    <div class="legenda-conteudo" id="legenda-conteudo">
+      <div class="legenda-grid" id="legenda-grid">
+        <!-- A legenda será carregada dinamicamente -->
+      </div>
+    </div>
+  </div>
+
+  <div class="rotinas-container">
+    <div class="dias-sidebar">
+      <!-- Filtro de categorias -->
+      <div class="filtro-categorias">
+        <div class="filtro-header" id="filtro-toggle">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            </svg>
+            Filtrar por Categoria
+          </h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+        <div class="filtro-conteudo" id="filtro-conteudo">
+          <!-- As categorias serão carregadas aqui -->
+        </div>
+        <div class="botoes-filtro">
+          <button class="btn-filtro" id="btn-selecionar-todas">Todas</button>
+          <button class="btn-filtro" id="btn-limpar-todas">Nenhuma</button>
+        </div>
+      </div>
+
+      <!-- Dias da semana -->
+      <div class="periodo-secao">
+        <h3>Dias</h3>
+        <div id="dias-sidebar-lista"></div>
+      </div>
+    </div>
+
+    <div class="conteudo-area">
+      <div class="conteudo-header">
+        <h2 id="dia-titulo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
+          </svg>
+          Selecione um dia
+        </h2>
+        <div class="conteudo-header-acoes">
+          <button class="btn-acao btn-imprimir" id="btn-imprimir-dia">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+            Imprimir Dia
+          </button>
+        </div>
+      </div>
+
+      <div id="conteudo-dinamico">
+        <div class="sem-tarefas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p>Carregando dados do cronograma...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="btn-voltar-topo" id="btn-voltar-topo">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polyline points="18 15 12 9 6 15"/>
+  </svg>
+</button>
+
+<script>
+// Sistema principal modificado para carregar dados de rotina-cronograma.html
+class SistemaRotinas {
+  constructor(categorias, rotinas) {
+    this.categorias = categorias;
+    this.rotinas = rotinas;
+    this.diaAtual = null;
+    this.termoBusca = "";
+    this.buscaAtiva = false;
+    this.legendaAberta = false;
+    this.filtroAberto = true;
+    this.diasSelecionados = new Set();
+    this.categoriasSelecionadas = new Set();
+    this.contadoresCategorias = {};
+    
+    this.init();
+  }
+  
+  init() {
+    this.calcularContadoresCategorias();
+    this.carregarLegenda();
+    this.carregarFiltroCategorias();
+    this.carregarSidebar();
+    this.configurarEventos();
+    this.verificarHoje();
+  }
+  
+  calcularContadoresCategorias() {
+    // Inicializar contadores
+    Object.keys(this.categorias).forEach(codigo => {
+      this.contadoresCategorias[codigo] = 0;
+    });
+    
+    // Contar ocorrências de cada categoria em todas as rotinas
+    Object.values(this.rotinas).forEach(dia => {
+      dia.tarefas.forEach(tarefa => {
+        if (tarefa.categoria && this.contadoresCategorias[tarefa.categoria] !== undefined) {
+          this.contadoresCategorias[tarefa.categoria]++;
+        }
+      });
+    });
+  }
+  
+  carregarLegenda() {
+    const grid = document.getElementById("legenda-grid");
+    let html = "";
+    
+    Object.entries(this.categorias).forEach(([codigo, categoria]) => {
+      const contador = this.contadoresCategorias[codigo] || 0;
+      html += `
+        <div class="legenda-item legenda-${codigo}" id="legenda-${codigo}">
+          <div class="legenda-item-header">
+            <div class="legenda-icone-grande">
+              ${categoria.icone}
+            </div>
+            <div>
+              <div class="legenda-titulo">${codigo}: ${categoria.nome} <span style="color: var(--muted); font-size: 12px;">(${contador} tarefa${contador !== 1 ? 's' : ''})</span></div>
+              <div class="legenda-desc">${categoria.descricao}</div>
+            </div>
+          </div>
+          <div class="legenda-detalhes">
+            ${categoria.detalhes}
+          </div>
+        </div>
+      `;
+    });
+    
+    grid.innerHTML = html;
+  }
+  
+  carregarFiltroCategorias() {
+    const conteudo = document.getElementById("filtro-conteudo");
+    let html = "";
+    
+    Object.entries(this.categorias).forEach(([codigo, categoria]) => {
+      const contador = this.contadoresCategorias[codigo] || 0;
+      const ativo = this.categoriasSelecionadas.has(codigo);
+      html += `
+        <div class="categoria-filtro-item ${ativo ? 'ativo' : ''}" data-categoria="${codigo}">
+          <div class="categoria-filtro-checkbox">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div class="categoria-filtro-cor" style="background: ${categoria.cor}"></div>
+          <div class="categoria-filtro-nome">${categoria.nome}</div>
+          <div class="contador-categoria">${contador}</div>
+        </div>
+      `;
+    });
+    
+    conteudo.innerHTML = html;
+  }
+  
+  carregarSidebar() {
+    const container = document.getElementById("dias-sidebar-lista");
+    if (!container) return;
+    
+    // Ordenar as datas
+    const datas = Object.keys(this.rotinas).sort((a, b) => {
+      const [da, ma, aa] = a.split('/');
+      const [db, mb, ab] = b.split('/');
+      return new Date(aa, ma-1, da) - new Date(ab, mb-1, db);
+    });
+    
+    let html = "";
+    datas.forEach(data => {
+      const dia = this.rotinas[data];
+      if (!dia) return;
+      
+      let classeExtra = "";
+      if (dia.feriado) classeExtra = "feriado";
+      if (dia.semExpediente && !dia.feriado) classeExtra = "sem-expediente";
+      
+      html += `
+        <div class="dia-item ${classeExtra}" data-data="${data}">
+          <input type="checkbox" class="checkbox-dia" data-data="${data}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <path d="M8 2v4M16 2v4M2 10h20"/>
+          </svg>
+          ${data} - ${dia.diaSemana}
+        </div>
+      `;
+    });
+    
+    container.innerHTML = html;
+  }
+  
+  configurarEventos() {
+    // Dias da sidebar (delegação)
+    document.addEventListener("click", (e) => {
+      const diaItem = e.target.closest(".dia-item");
+      if (diaItem && !e.target.classList.contains("checkbox-dia")) {
+        const data = diaItem.getAttribute("data-data");
+        this.carregarDia(data);
+      }
+    });
+    
+    // Checkboxes de dias
+    document.addEventListener("change", (e) => {
+      if (e.target.classList.contains("checkbox-dia")) {
+        const data = e.target.getAttribute("data-data");
+        if (e.target.checked) {
+          this.diasSelecionados.add(data);
+        } else {
+          this.diasSelecionados.delete(data);
+        }
+      }
+    });
+    
+    // Checkboxes de categorias (filtro)
+    document.addEventListener("click", (e) => {
+      const filtroItem = e.target.closest(".categoria-filtro-item");
+      if (filtroItem) {
+        const categoria = filtroItem.getAttribute("data-categoria");
+        this.toggleCategoriaFiltro(categoria);
+      }
+    });
+    
+    // Botões do filtro
+    document.getElementById("btn-selecionar-todas").addEventListener("click", () => {
+      this.selecionarTodasCategorias();
+    });
+    
+    document.getElementById("btn-limpar-todas").addEventListener("click", () => {
+      this.limparTodasCategorias();
+    });
+    
+    // Toggle legenda
+    document.getElementById("legenda-toggle").addEventListener("click", () => {
+      this.toggleLegenda();
+    });
+    
+    // Toggle filtro
+    document.getElementById("filtro-toggle").addEventListener("click", () => {
+      this.toggleFiltro();
+    });
+    
+    // Busca
+    document.getElementById("campo-busca").addEventListener("input", (e) => {
+      this.realizarBuscaGlobal(e.target.value);
+    });
+    
+    // Fechar resultados ao clicar fora
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".search")) {
+        const resultados = document.getElementById("resultados-busca");
+        if (resultados) resultados.style.display = "none";
+      }
+    });
+    
+    // Botão voltar ao topo
+    const btnTopo = document.getElementById("btn-voltar-topo");
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 300) {
+        btnTopo.classList.add("visivel");
+      } else {
+        btnTopo.classList.remove("visivel");
+      }
+    });
+    
+    btnTopo.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    
+    // Sistema de impressão
+    document.getElementById("btn-imprimir-dia").addEventListener("click", () => {
+      this.imprimirDia();
+    });
+    
+    document.getElementById("btn-imprimir-tudo").addEventListener("click", () => {
+      this.imprimirTudo();
+    });
+    
+    document.getElementById("btn-imprimir-selecionados").addEventListener("click", () => {
+      this.imprimirSelecionados();
+    });
+  }
+  
+  toggleCategoriaFiltro(categoria) {
+    if (this.categoriasSelecionadas.has(categoria)) {
+      this.categoriasSelecionadas.delete(categoria);
+    } else {
+      this.categoriasSelecionadas.add(categoria);
+    }
+    
+    // Atualizar visual
+    const item = document.querySelector(`.categoria-filtro-item[data-categoria="${categoria}"]`);
+    if (item) {
+      item.classList.toggle("ativo");
+    }
+    
+    // Atualizar botões
+    this.atualizarBotoesFiltro();
+    
+    // Aplicar filtro se houver um dia carregado
+    if (this.diaAtual) {
+      this.carregarDia(this.diaAtual);
+    }
+  }
+  
+  selecionarTodasCategorias() {
+    Object.keys(this.categorias).forEach(codigo => {
+      this.categoriasSelecionadas.add(codigo);
+    });
+    
+    // Atualizar visual
+    document.querySelectorAll(".categoria-filtro-item").forEach(item => {
+      item.classList.add("ativo");
+    });
+    
+    // Atualizar botões
+    this.atualizarBotoesFiltro();
+    
+    // Aplicar filtro se houver um dia carregado
+    if (this.diaAtual) {
+      this.carregarDia(this.diaAtual);
+    }
+  }
+  
+  limparTodasCategorias() {
+    this.categoriasSelecionadas.clear();
+    
+    // Atualizar visual
+    document.querySelectorAll(".categoria-filtro-item").forEach(item => {
+      item.classList.remove("ativo");
+    });
+    
+    // Atualizar botões
+    this.atualizarBotoesFiltro();
+    
+    // Aplicar filtro se houver um dia carregado
+    if (this.diaAtual) {
+      this.carregarDia(this.diaAtual);
+    }
+  }
+  
+  atualizarBotoesFiltro() {
+    const btnTodas = document.getElementById("btn-selecionar-todas");
+    const btnNenhuma = document.getElementById("btn-limpar-todas");
+    const totalCategorias = Object.keys(this.categorias).length;
+    
+    if (this.categoriasSelecionadas.size === totalCategorias) {
+      btnTodas.classList.add("ativo");
+      btnNenhuma.classList.remove("ativo");
+    } else if (this.categoriasSelecionadas.size === 0) {
+      btnTodas.classList.remove("ativo");
+      btnNenhuma.classList.add("ativo");
+    } else {
+      btnTodas.classList.remove("ativo");
+      btnNenhuma.classList.remove("ativo");
+    }
+  }
+  
+  carregarDia(data) {
+    this.diaAtual = data;
+    const dia = this.rotinas[data];
+    
+    if (!dia) return;
+    
+    // Atualizar seleção na sidebar
+    document.querySelectorAll(".dia-item").forEach(item => {
+      item.classList.remove("ativo");
+    });
+    
+    const itemAtivo = document.querySelector(`.dia-item[data-data="${data}"]`);
+    if (itemAtivo) itemAtivo.classList.add("ativo");
+    
+    // Atualizar título
+    document.getElementById("dia-titulo").innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
+      </svg>
+      ${dia.data} - ${dia.diaSemana}
+      ${dia.feriado ? `<span style="color: var(--warn); font-size: 14px;"> (${dia.feriadoNome})</span>` : ""}
+      ${dia.semExpediente && !dia.feriado ? `<span style="color: var(--muted); font-size: 14px;"> (Sem expediente)</span>` : ""}
+    `;
+    
+    // Renderizar conteúdo
+    this.renderizarDia(dia);
+  }
+  
+  renderizarDia(dia) {
+    const container = document.getElementById("conteudo-dinamico");
+    
+    if (dia.semExpediente) {
+      container.innerHTML = `
+        <div class="info-box feriado-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p>${dia.feriado ? dia.feriadoNome : "Sem expediente"} - Nenhuma tarefa agendada para este dia.</p>
+        </div>
+      `;
+      return;
+    }
+    
+    if (!dia.tarefas || dia.tarefas.length === 0) {
+      container.innerHTML = `
+        <div class="sem-tarefas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p>Nenhuma tarefa agendada para este dia</p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Filtrar tarefas por busca e por categoria
+    let tarefas = dia.tarefas;
+    
+    // Aplicar filtro de categorias
+    if (this.categoriasSelecionadas.size > 0) {
+      tarefas = tarefas.filter(tarefa => {
+        if (!tarefa.categoria) return false;
+        return this.categoriasSelecionadas.has(tarefa.categoria);
+      });
+    }
+    
+    // Aplicar filtro de busca
+    if (this.buscaAtiva && this.termoBusca) {
+      const termo = this.termoBusca.toLowerCase();
+      tarefas = tarefas.filter(tarefa => 
+        tarefa.titulo.toLowerCase().includes(termo) ||
+        (tarefa.pessoa && tarefa.pessoa.toLowerCase().includes(termo)) ||
+        (tarefa.categoria && this.categorias[tarefa.categoria]?.nome.toLowerCase().includes(termo)) ||
+        (tarefa.categoria && this.categorias[tarefa.categoria]?.descricao.toLowerCase().includes(termo))
+      );
+    }
+    
+    if (tarefas.length === 0) {
+      let mensagem = "Nenhuma tarefa encontrada";
+      if (this.categoriasSelecionadas.size > 0) {
+        mensagem = `Nenhuma tarefa encontrada para as categorias selecionadas${this.termoBusca ? ` com o termo "${this.termoBusca}"` : ''}`;
+      } else if (this.termoBusca) {
+        mensagem = `Nenhuma tarefa encontrada com o termo "${this.termoBusca}"`;
+      }
+      
+      container.innerHTML = `
+        <div class="sem-tarefas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p>${mensagem}</p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Renderizar tarefas
+    let html = `<div class="tarefas-dia">`;
+    
+    tarefas.forEach((tarefa, index) => {
+      const categoria = tarefa.categoria ? this.categorias[tarefa.categoria] : null;
+      const classeCategoria = tarefa.categoria ? ` categoria-${tarefa.categoria}` : "";
+      
+      html += `
+        <div class="tarefa-card fade-in${classeCategoria}" style="animation-delay: ${index * 0.05}s">
+          <div class="tarefa-header">
+            <div class="tarefa-titulo">${tarefa.titulo}</div>
+            ${tarefa.categoria ? `
+              <div class="tarefa-icone" data-categoria="${tarefa.categoria}" title="Clique para ver detalhes da categoria">
+                ${categoria.icone}
+              </div>
+            ` : ""}
+          </div>
+          ${tarefa.descricao ? `<div class="tarefa-desc">${tarefa.descricao}</div>` : ""}
+          ${tarefa.pessoa ? `<div class="tarefa-pessoa">${tarefa.pessoa}</div>` : ""}
+        </div>
+      `;
+    });
+    
+    html += `</div>`;
+    container.innerHTML = html;
+    
+    // Adicionar eventos aos ícones
+    document.querySelectorAll(".tarefa-icone").forEach(icone => {
+      icone.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const categoria = icone.getAttribute("data-categoria");
+        this.mostrarCategoria(categoria);
+      });
+    });
+  }
+  
+  realizarBuscaGlobal(termo) {
+    const resultadosContainer = document.getElementById("resultados-busca");
+    
+    if (!termo.trim()) {
+      resultadosContainer.style.display = "none";
+      this.buscaAtiva = false;
+      this.termoBusca = "";
+      if (this.diaAtual) {
+        this.carregarDia(this.diaAtual);
+      }
+      return;
+    }
+    
+    this.termoBusca = termo;
+    this.buscaAtiva = true;
+    let resultadosHTML = "";
+    let encontrouResultados = false;
+    
+    // Buscar em todos os dias
+    Object.entries(this.rotinas).forEach(([data, dia]) => {
+      const tarefasEncontradas = dia.tarefas.filter(tarefa => 
+        tarefa.titulo.toLowerCase().includes(termo.toLowerCase()) ||
+        (tarefa.pessoa && tarefa.pessoa.toLowerCase().includes(termo.toLowerCase())) ||
+        (tarefa.categoria && this.categorias[tarefa.categoria]?.nome.toLowerCase().includes(termo.toLowerCase())) ||
+        (tarefa.categoria && this.categorias[tarefa.categoria]?.descricao.toLowerCase().includes(termo.toLowerCase()))
+      );
+      
+      if (tarefasEncontradas.length > 0) {
+        encontrouResultados = true;
+        resultadosHTML += `<div class="resultado-item" data-data="${data}">`;
+        resultadosHTML += `<div class="resultado-data">${dia.data} - ${dia.diaSemana}</div>`;
+        tarefasEncontradas.forEach(tarefa => {
+          resultadosHTML += `<div class="resultado-tarefa">${tarefa.titulo}</div>`;
+        });
+        resultadosHTML += `</div>`;
+      }
+    });
+    
+    if (encontrouResultados) {
+      resultadosContainer.innerHTML = resultadosHTML;
+      resultadosContainer.style.display = "block";
+      
+      // Adicionar evento de clique para cada resultado
+      document.querySelectorAll(".resultado-item").forEach(item => {
+        item.addEventListener("click", () => {
+          const data = item.getAttribute("data-data");
+          this.carregarDia(data);
+          resultadosContainer.style.display = "none";
+          document.getElementById("campo-busca").value = "";
+          this.buscaAtiva = false;
+          this.termoBusca = "";
+        });
+      });
+    } else {
+      resultadosContainer.innerHTML = '<div class="resultado-item">Nenhum resultado encontrado.</div>';
+      resultadosContainer.style.display = "block";
+    }
+  }
+  
+  mostrarCategoria(codigo) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    
+    if (!this.legendaAberta) {
+      this.toggleLegenda(true);
+    }
+    
+    setTimeout(() => {
+      const item = document.getElementById(`legenda-${codigo}`);
+      const conteudoLegenda = document.getElementById("legenda-conteudo");
+      
+      if (item && conteudoLegenda) {
+        const offsetTop = item.offsetTop - conteudoLegenda.offsetTop;
+        conteudoLegenda.scrollTop = offsetTop - 20;
+        
+        this.destacarLegendaItem(codigo);
+      }
+    }, 100);
+  }
+  
+  destacarLegendaItem(codigo) {
+    document.querySelectorAll(".legenda-item").forEach(item => {
+      item.classList.remove("destaque");
+    });
+    
+    const item = document.getElementById(`legenda-${codigo}`);
+    if (item) {
+      item.classList.add("destaque");
+      setTimeout(() => {
+        item.classList.remove("destaque");
+      }, 3000);
+    }
+  }
+  
+  toggleLegenda(forcarAbrir = false) {
+    const conteudo = document.getElementById("legenda-conteudo");
+    const toggle = document.getElementById("legenda-toggle");
+    
+    if (forcarAbrir && !this.legendaAberta) {
+      conteudo.classList.add("ativo");
+      toggle.classList.add("ativo");
+      this.legendaAberta = true;
+    } else {
+      conteudo.classList.toggle("ativo");
+      toggle.classList.toggle("ativo");
+      this.legendaAberta = conteudo.classList.contains("ativo");
+    }
+  }
+  
+  toggleFiltro() {
+    const conteudo = document.getElementById("filtro-conteudo");
+    const toggle = document.getElementById("filtro-toggle");
+    
+    conteudo.classList.toggle("recolhido");
+    toggle.classList.toggle("ativo");
+    this.filtroAberto = !conteudo.classList.contains("recolhido");
+  }
+  
+  verificarHoje() {
+    const hoje = new Date();
+    const hojeFormatado = hoje.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    
+    if (this.rotinas[hojeFormatado]) {
+      setTimeout(() => {
+        this.carregarDia(hojeFormatado);
+        
+        const itemHoje = document.querySelector(`.dia-item[data-data="${hojeFormatado}"]`);
+        if (itemHoje) {
+          itemHoje.classList.add("hoje");
+        }
+      }, 500);
+    }
+  }
+  
+  // Métodos de impressão (adaptados para usar this.rotinas e this.categorias)
+  imprimirDia() {
+    if (!this.diaAtual) {
+      alert("Selecione um dia para imprimir.");
+      return;
+    }
+    window.print();
+  }
+  
+  imprimirTudo() {
+    const conteudoOriginal = document.getElementById('conteudo-dinamico').innerHTML;
+    const tituloOriginal = document.getElementById('dia-titulo').innerHTML;
+    
+    let html = `
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="font-size: 24px; margin-bottom: 10px;">Rotinas Completas</h1>
+        <div style="font-size: 16px; color: #666; margin-bottom: 20px;">${new Date().toLocaleDateString()}</div>
+      </div>
+    `;
+    
+    const datas = Object.keys(this.rotinas).sort((a, b) => {
+      const [da, ma, aa] = a.split('/');
+      const [db, mb, ab] = b.split('/');
+      return new Date(aa, ma-1, da) - new Date(ab, mb-1, db);
+    });
+    
+    datas.forEach(data => {
+      const dia = this.rotinas[data];
+      if (!dia) return;
+      
+      html += `
+        <div style="border: 1px solid #ddd; margin-bottom: 15px; padding: 15px; page-break-inside: avoid;">
+          <div style="font-weight: bold; font-size: 16px; margin-bottom: 10px;">
+            ${dia.data} - ${dia.diaSemana}
+            ${dia.feriado ? ` (${dia.feriadoNome})` : ''}
+            ${dia.semExpediente && !dia.feriado ? ' (Sem expediente)' : ''}
+          </div>
+      `;
+      
+      if (dia.semExpediente) {
+        html += `<div style="font-style: italic; color: #666;">${dia.feriado ? dia.feriadoNome : 'Sem expediente'}</div>`;
+      } else if (dia.tarefas.length > 0) {
+        html += `<div style="padding-left: 10px;">`;
+        dia.tarefas.forEach(tarefa => {
+          html += `
+            <div style="margin-bottom: 8px;">
+              <div style="font-weight: bold;">${tarefa.titulo}</div>
+              ${tarefa.descricao ? `<div style="margin-left: 10px;">${tarefa.descricao}</div>` : ''}
+              ${tarefa.pessoa ? `<div style="margin-left: 10px; font-style: italic;">Responsável: ${tarefa.pessoa}</div>` : ''}
+              ${tarefa.categoria ? `<div style="margin-left: 10px; font-size: 12px;">Categoria: ${tarefa.categoria}</div>` : ''}
+            </div>
+          `;
+        });
+        html += `</div>`;
+      } else {
+        html += `<div style="font-style: italic; color: #666;">Nenhuma tarefa agendada</div>`;
+      }
+      html += `</div>`;
+    });
+    
+    // Legenda
+    const categoriasUsadas = this.obterCategoriasDeTodasTarefas();
+    if (categoriasUsadas.length > 0) {
+      html += `
+        <div style="border: 1px solid #000; margin-top: 30px; padding: 15px; page-break-inside: avoid;">
+          <h3 style="font-size: 16px; margin-top: 0;">Legenda das Categorias</h3>
+      `;
+      categoriasUsadas.forEach(cat => {
+        const categoriaInfo = this.categorias[cat.codigo];
+        if (categoriaInfo) {
+          html += `
+            <div style="margin-bottom: 8px; padding: 8px; border-left: 3px solid ${categoriaInfo.cor};">
+              <strong>${cat.codigo}:</strong> ${cat.nome} - ${cat.descricao}
+            </div>
+          `;
+        }
+      });
+      html += `</div>`;
+    }
+    
+    document.getElementById('conteudo-dinamico').innerHTML = html;
+    document.getElementById('dia-titulo').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Impressão de Todas as Rotinas';
+    
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => {
+        document.getElementById('conteudo-dinamico').innerHTML = conteudoOriginal;
+        document.getElementById('dia-titulo').innerHTML = tituloOriginal;
+        if (this.diaAtual) this.carregarDia(this.diaAtual);
+      }, 100);
+    }, 100);
+  }
+  
+  imprimirSelecionados() {
+    if (this.diasSelecionados.size === 0) {
+      alert("Selecione pelo menos um dia para imprimir.");
+      return;
+    }
+    
+    const conteudoOriginal = document.getElementById('conteudo-dinamico').innerHTML;
+    const tituloOriginal = document.getElementById('dia-titulo').innerHTML;
+    
+    let html = `
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="font-size: 24px; margin-bottom: 10px;">Rotinas Selecionadas</h1>
+        <div style="font-size: 16px; color: #666; margin-bottom: 20px;">${this.diasSelecionados.size} dia(s) selecionado(s)</div>
+      </div>
+    `;
+    
+    const diasArray = Array.from(this.diasSelecionados).sort((a, b) => {
+      const [da, ma, aa] = a.split('/');
+      const [db, mb, ab] = b.split('/');
+      return new Date(aa, ma-1, da) - new Date(ab, mb-1, db);
+    });
+    
+    diasArray.forEach(data => {
+      const dia = this.rotinas[data];
+      if (!dia) return;
+      
+      html += `
+        <div style="border: 1px solid #ddd; margin-bottom: 20px; padding: 15px; page-break-inside: avoid;">
+          <div style="font-weight: bold; font-size: 16px; margin-bottom: 10px;">
+            ${dia.data} - ${dia.diaSemana}
+            ${dia.feriado ? ` (${dia.feriadoNome})` : ''}
+            ${dia.semExpediente && !dia.feriado ? ' (Sem expediente)' : ''}
+          </div>
+      `;
+      
+      if (dia.semExpediente) {
+        html += `<div style="font-style: italic; color: #666;">${dia.feriado ? dia.feriadoNome : 'Sem expediente'}</div>`;
+      } else if (dia.tarefas.length > 0) {
+        html += `<div style="padding-left: 10px;">`;
+        dia.tarefas.forEach(tarefa => {
+          html += `
+            <div style="margin-bottom: 8px;">
+              <div style="font-weight: bold;">${tarefa.titulo}</div>
+              ${tarefa.descricao ? `<div style="margin-left: 10px;">${tarefa.descricao}</div>` : ''}
+              ${tarefa.pessoa ? `<div style="margin-left: 10px; font-style: italic;">Responsável: ${tarefa.pessoa}</div>` : ''}
+              ${tarefa.categoria ? `<div style="margin-left: 10px; font-size: 12px;">Categoria: ${tarefa.categoria}</div>` : ''}
+            </div>
+          `;
+        });
+        html += `</div>`;
+      } else {
+        html += `<div style="font-style: italic; color: #666;">Nenhuma tarefa agendada</div>`;
+      }
+      html += `</div>`;
+    });
+    
+    const categoriasUsadas = this.obterCategoriasDeDiasSelecionados(diasArray);
+    if (categoriasUsadas.length > 0) {
+      html += `
+        <div style="border: 1px solid #000; margin-top: 30px; padding: 15px; page-break-inside: avoid;">
+          <h3 style="font-size: 16px; margin-top: 0;">Legenda das Categorias</h3>
+      `;
+      categoriasUsadas.forEach(cat => {
+        const categoriaInfo = this.categorias[cat.codigo];
+        if (categoriaInfo) {
+          html += `
+            <div style="margin-bottom: 8px; padding: 8px; border-left: 3px solid ${categoriaInfo.cor};">
+              <strong>${cat.codigo}:</strong> ${cat.nome} - ${cat.descricao}
+            </div>
+          `;
+        }
+      });
+      html += `</div>`;
+    }
+    
+    document.getElementById('conteudo-dinamico').innerHTML = html;
+    document.getElementById('dia-titulo').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Impressão de Dias Selecionados';
+    
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => {
+        document.getElementById('conteudo-dinamico').innerHTML = conteudoOriginal;
+        document.getElementById('dia-titulo').innerHTML = tituloOriginal;
+        if (this.diaAtual) this.carregarDia(this.diaAtual);
+      }, 100);
+    }, 100);
+  }
+  
+  obterCategoriasDeTodasTarefas() {
+    const categoriasSet = new Set();
+    Object.values(this.rotinas).forEach(dia => {
+      dia.tarefas.forEach(tarefa => {
+        if (tarefa.categoria && this.categorias[tarefa.categoria]) {
+          categoriasSet.add(tarefa.categoria);
+        }
+      });
+    });
+    return Array.from(categoriasSet).map(codigo => ({
+      codigo,
+      nome: this.categorias[codigo].nome,
+      descricao: this.categorias[codigo].descricao
+    }));
+  }
+  
+  obterCategoriasDeDiasSelecionados(diasArray) {
+    const categoriasSet = new Set();
+    diasArray.forEach(data => {
+      const dia = this.rotinas[data];
+      if (dia) {
+        dia.tarefas.forEach(tarefa => {
+          if (tarefa.categoria && this.categorias[tarefa.categoria]) {
+            categoriasSet.add(tarefa.categoria);
+          }
+        });
+      }
+    });
+    return Array.from(categoriasSet).map(codigo => ({
+      codigo,
+      nome: this.categorias[codigo].nome,
+      descricao: this.categorias[codigo].descricao
+    }));
+  }
+}
+
+// Função para carregar os dados do arquivo rotina-cronograma.html
+async function carregarDadosExternos() {
+  try {
+    const resposta = await fetch('rotina-cronograma.html');
+    if (!resposta.ok) throw new Error('Não foi possível carregar o arquivo.');
+    
+    const html = await resposta.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    
+    // Encontrar todas as tags script no documento carregado
+    const scripts = doc.querySelectorAll('script');
+    let categorias, rotinas;
+    
+    for (let script of scripts) {
+      const conteudo = script.textContent || script.innerText;
+      if (conteudo.includes('const categorias =') && conteudo.includes('const rotinas =')) {
+        // Avaliar o script em um escopo isolado para capturar as variáveis
+        const scope = {};
+        const func = new Function('scope', `
+          with (scope) {
+            ${conteudo}
+            scope.categorias = categorias;
+            scope.rotinas = rotinas;
+          }
+        `);
+        func(scope);
+        categorias = scope.categorias;
+        rotinas = scope.rotinas;
+        break;
+      }
+    }
+    
+    if (!categorias || !rotinas) {
+      throw new Error('Não foi possível encontrar as definições de categorias e rotinas no arquivo.');
+    }
+    
+    return { categorias, rotinas };
+  } catch (erro) {
+    console.error('Erro ao carregar dados:', erro);
+    alert('Falha ao carregar os dados do cronograma. Verifique se o arquivo rotina-cronograma.html existe e está acessível.');
+    return null;
+  }
+}
+
+// Inicialização após carregar os dados
+document.addEventListener('DOMContentLoaded', async () => {
+  const dados = await carregarDadosExternos();
+  if (dados) {
+    // Transformar o array rotinas em um objeto indexado por data para facilitar o acesso
+    const rotinasObj = {};
+    dados.rotinas.forEach(item => {
+      rotinasObj[item.data] = item;
+    });
+    
+    new SistemaRotinas(dados.categorias, rotinasObj);
+  } else {
+    // Fallback: exibir mensagem de erro
+    document.getElementById('conteudo-dinamico').innerHTML = `
+      <div class="sem-tarefas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p>Erro ao carregar os dados. Verifique o arquivo rotina-cronograma.html.</p>
+      </div>
+    `;
+  }
+});
+</script>
+</body>
+</html>

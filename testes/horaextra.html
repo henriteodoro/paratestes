@@ -5,21 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Controle de Horas Extras</title>
     <style>
-        /* Estilos existentes, com pequenas adições */
+        /* ===== ESTÉTICA INSPIRADA NO CÓDIGO FORNECIDO ===== */
+        :root {
+            --azul: #007BFF;
+            --accent: #0b5ed7;
+            --fundo: #f7fbff;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --borda: #e6eefc;
+            --borda-ativa: #cfe0ff;
+            --ink: #0b3b6b;
+            --ink-strong: #0b4fa0;
+            --warn: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --verde-suave: #f0fff4;
+            --verde-borda: #38a169;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
 
         body {
-            background: #f3f4f6;
-            padding: 2rem 1rem;
+            background: linear-gradient(180deg, var(--fundo), #f3f7ff);
             min-height: 100vh;
+            padding: 2rem 1rem;
             display: flex;
             flex-direction: column;
             align-items: center;
+            color: #111;
         }
 
         .container {
@@ -28,7 +46,7 @@
         }
 
         h1 {
-            color: #1f2937;
+            color: var(--accent);
             font-size: 2rem;
             margin-bottom: 0.5rem;
             text-align: center;
@@ -36,16 +54,18 @@
 
         .subtitle {
             text-align: center;
-            color: #4b5563;
+            color: var(--muted);
             margin-bottom: 2rem;
             font-style: italic;
+            font-size: 0.95rem;
         }
 
         .form-card {
-            background: white;
+            background: var(--card);
             border-radius: 1rem;
             padding: 1.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(11, 78, 167, 0.06);
+            border: 1px solid var(--borda);
             margin-bottom: 2rem;
         }
 
@@ -56,30 +76,33 @@
         label {
             display: block;
             font-weight: 600;
-            color: #374151;
+            color: var(--ink);
             margin-bottom: 0.5rem;
+            font-size: 0.95rem;
         }
 
         input, select {
             width: 100%;
             padding: 0.75rem;
-            border: 1px solid #d1d5db;
+            border: 1px solid var(--borda);
             border-radius: 0.5rem;
             font-size: 1rem;
-            transition: border 0.2s;
+            background: #fbfdff;
+            color: var(--ink);
+            transition: border 0.2s, box-shadow 0.2s;
         }
 
         input:focus, select:focus {
             outline: none;
-            border-color: #f59e0b;
-            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+            border-color: var(--azul);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
         }
 
         .names-container {
             background: #f9fafb;
             padding: 1rem;
             border-radius: 0.75rem;
-            border: 1px dashed #d1d5db;
+            border: 1px dashed var(--borda);
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 0.75rem;
@@ -102,23 +125,29 @@
             border-radius: 0.5rem;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
+            transition: background 0.2s, transform 0.1s, border-color 0.2s;
             font-size: 1rem;
             flex: 1 1 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .btn-primary {
-            background: #f59e0b;
+            background: var(--azul);
             color: white;
+            border: 1px solid transparent;
         }
 
         .btn-primary:hover {
-            background: #d97706;
+            background: var(--accent);
         }
 
         .btn-secondary {
             background: #e5e7eb;
-            color: #1f2937;
+            color: var(--ink);
+            border: 1px solid transparent;
         }
 
         .btn-secondary:hover {
@@ -126,12 +155,25 @@
         }
 
         .btn-danger {
-            background: #ef4444;
-            color: white;
+            background: #fef2f2;
+            color: var(--danger);
+            border: 1px solid #fecaca;
         }
 
         .btn-danger:hover {
-            background: #dc2626;
+            background: #fee2e2;
+            border-color: var(--danger);
+        }
+
+        .btn-warning {
+            background: #fff7f0;
+            color: var(--warn);
+            border: 1px solid #fed7aa;
+        }
+
+        .btn-warning:hover {
+            background: #ffedd5;
+            border-color: var(--warn);
         }
 
         .records-area {
@@ -139,12 +181,14 @@
         }
 
         .records-area h2 {
-            color: #1f2937;
+            color: var(--ink-strong);
             font-size: 1.5rem;
             margin-bottom: 1rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            border-bottom: 2px solid var(--borda);
+            padding-bottom: 0.5rem;
         }
 
         .records-grid {
@@ -154,18 +198,20 @@
         }
 
         .record-card {
-            background: white;
+            background: var(--card);
             border-radius: 1rem;
             padding: 1.25rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border-left: 6px solid #f59e0b;
-            transition: transform 0.2s;
+            border-left: 6px solid var(--azul);
+            transition: transform 0.2s, box-shadow 0.2s;
             display: flex;
             flex-direction: column;
+            border: 1px solid var(--borda);
         }
 
         .record-card:hover {
             transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 123, 255, 0.2);
         }
 
         .record-header {
@@ -173,7 +219,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1rem;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid var(--borda);
             padding-bottom: 0.5rem;
             flex-wrap: wrap;
             gap: 0.5rem;
@@ -181,8 +227,8 @@
 
         .record-date {
             font-weight: 600;
-            color: #4b5563;
-            background: #f3f4f6;
+            color: var(--muted);
+            background: var(--fundo);
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
             font-size: 0.875rem;
@@ -190,21 +236,23 @@
 
         .record-sector {
             font-weight: 700;
-            color: #f59e0b;
-            background: #fffbeb;
+            color: var(--azul);
+            background: #f0f9ff;
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
             font-size: 0.875rem;
+            border: 1px solid #bae6fd;
         }
 
         .record-sector-none {
             font-weight: 400;
-            color: #6b7280;
-            background: #f3f4f6;
+            color: var(--muted);
+            background: var(--fundo);
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
             font-size: 0.875rem;
             font-style: italic;
+            border: 1px solid var(--borda);
         }
 
         .record-names {
@@ -214,7 +262,7 @@
 
         .record-names p {
             font-weight: 600;
-            color: #374151;
+            color: var(--ink);
             margin-bottom: 0.5rem;
         }
 
@@ -226,15 +274,16 @@
         }
 
         .record-names li {
-            background: #e5e7eb;
+            background: var(--fundo);
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
             font-size: 0.875rem;
-            color: #1f2937;
+            color: var(--ink);
+            border: 1px solid var(--borda);
         }
 
         .record-names .no-names {
-            color: #9ca3af;
+            color: var(--muted);
             font-style: italic;
             padding: 0.5rem 0;
         }
@@ -249,7 +298,7 @@
         }
 
         .people-count {
-            background: #f59e0b;
+            background: var(--azul);
             color: white;
             font-weight: 600;
             padding: 0.25rem 0.75rem;
@@ -257,50 +306,67 @@
             font-size: 0.75rem;
         }
 
-        .btn-delete, .btn-print {
+        .btn-delete, .btn-print, .btn-edit {
             background: none;
-            border: 1px solid #ef4444;
-            color: #ef4444;
+            border: 1px solid transparent;
             padding: 0.25rem 0.75rem;
             border-radius: 0.5rem;
             font-size: 0.875rem;
             cursor: pointer;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
         }
 
-        .btn-print {
-            border-color: #3b82f6;
-            color: #3b82f6;
-        }
-
-        .btn-print:hover {
-            background: #3b82f6;
-            color: white;
+        .btn-delete {
+            border-color: #fecaca;
+            color: var(--danger);
         }
 
         .btn-delete:hover {
-            background: #ef4444;
-            color: white;
+            background: #fee2e2;
+            border-color: var(--danger);
+        }
+
+        .btn-print {
+            border-color: #bae6fd;
+            color: var(--azul);
+        }
+
+        .btn-print:hover {
+            background: #e0f2fe;
+            border-color: var(--azul);
+        }
+
+        .btn-edit {
+            border-color: #fed7aa;
+            color: var(--warn);
+        }
+
+        .btn-edit:hover {
+            background: #ffedd5;
+            border-color: var(--warn);
         }
 
         .empty-message {
             text-align: center;
-            color: #9ca3af;
+            color: var(--muted);
             font-style: italic;
             padding: 3rem 1rem;
             background: #f9fafb;
             border-radius: 1rem;
-            border: 2px dashed #d1d5db;
+            border: 2px dashed var(--borda);
         }
 
         footer {
             margin-top: 2rem;
-            color: #6b7280;
+            color: var(--muted);
             font-size: 0.875rem;
             text-align: center;
         }
 
-        /* Estilos para impressão */
+        /* Estilos para impressão (oculto) */
         @media print {
             body * {
                 visibility: hidden;
@@ -319,6 +385,12 @@
             .no-print {
                 display: none;
             }
+        }
+
+        /* Utilitários */
+        .flex {
+            display: flex;
+            gap: 0.5rem;
         }
     </style>
 </head>
@@ -361,13 +433,28 @@
             </div>
 
             <div class="button-group">
-                <button class="btn btn-primary" id="btnAdicionar">➕ Adicionar registro</button>
-                <button class="btn btn-secondary" id="btnLimparCampos">🔄 Limpar campos</button>
-                <button class="btn btn-danger" id="btnLimparTudo">🗑️ Limpar todos</button>
+                <button class="btn btn-primary" id="btnAdicionar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Adicionar registro
+                </button>
+                <button class="btn btn-secondary" id="btnLimparCampos">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 4V3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1"/>
+                    </svg>
+                    Limpar campos
+                </button>
+                <button class="btn btn-danger" id="btnLimparTudo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <polyline points="3 6 5 6 21 6"/><path d="M8 6V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1"/><path d="M10 11v5"/><path d="M14 11v5"/>
+                    </svg>
+                    Limpar todos
+                </button>
             </div>
         </div>
 
-        <!-- Área onde as "folhas" vão aparecer -->
+        <!-- Área onde os registros aparecem -->
         <div class="records-area">
             <h2>📋 Registros de hora extra</h2>
             <div id="recordsGrid" class="records-grid">
@@ -377,8 +464,10 @@
         <footer class="no-print">Clique em "Adicionar registro" para gerar uma nova folha</footer>
     </div>
 
-    <!-- Área oculta para impressão (será preenchida dinamicamente) -->
+    <!-- Área oculta para impressão -->
     <div id="printContainer" style="display: none;"></div>
+    <!-- Iframe para impressão silenciosa -->
+    <iframe id="print-iframe" style="display: none;"></iframe>
 
     <script>
         (function() {
@@ -395,6 +484,10 @@
             const btnLimparTudo = document.getElementById('btnLimparTudo');
             const recordsGrid = document.getElementById('recordsGrid');
             const printContainer = document.getElementById('printContainer');
+            const printIframe = document.getElementById('print-iframe');
+
+            // Variável para controlar edição
+            let editandoIndex = null;
 
             // Função para gerar os inputs de nome conforme a quantidade
             function gerarInputsNomes(quantidade) {
@@ -416,6 +509,54 @@
                 const mes = String(hoje.getMonth() + 1).padStart(2, '0');
                 const dia = String(hoje.getDate()).padStart(2, '0');
                 dataInput.value = `${ano}-${mes}-${dia}`;
+            }
+
+            // Função para preencher o formulário com os dados de um registro (para edição)
+            function preencherFormularioParaEdicao(registro) {
+                // Define a quantidade e recria os inputs
+                quantidadeInput.value = registro.quantidade;
+                gerarInputsNomes(registro.quantidade);
+
+                // Preenche os nomes (se houver)
+                const inputs = document.querySelectorAll('.name-input');
+                for (let i = 0; i < registro.quantidade; i++) {
+                    if (registro.nomes[i]) {
+                        inputs[i].value = registro.nomes[i];
+                    }
+                }
+
+                // Preenche setor e data
+                setorSelect.value = registro.setor || '';
+                // Converte data de dd/mm/aaaa para aaaa-mm-dd
+                if (registro.data) {
+                    const partes = registro.data.split('/');
+                    if (partes.length === 3) {
+                        dataInput.value = `${partes[2]}-${partes[1]}-${partes[0]}`;
+                    }
+                }
+
+                // Muda o texto do botão para "Atualizar registro"
+                btnAdicionar.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"/><polygon points="18 2 22 6 12 16 8 16 8 12 18 2"/>
+                    </svg>
+                    Atualizar registro
+                `;
+            }
+
+            // Função para resetar o formulário para o modo de adição
+            function resetarFormularioParaAdicao() {
+                editandoIndex = null;
+                quantidadeInput.value = 1;
+                gerarInputsNomes(1);
+                setorSelect.selectedIndex = 0;
+                setDataAtual();
+                btnAdicionar.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Adicionar registro
+                `;
             }
 
             // Função para renderizar os registros na tela
@@ -456,9 +597,27 @@
                             </div>
                             <div class="record-footer">
                                 <span class="people-count">${registro.quantidade} pessoa(s)</span>
-                                <div style="display: flex; gap: 0.5rem;">
-                                    <button class="btn-print" data-index="${index}">🖨️ Imprimir</button>
-                                    <button class="btn-delete" data-index="${index}">Remover</button>
+                                <div class="flex">
+                                    <button class="btn-edit" data-index="${index}" title="Editar">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                            <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"/>
+                                            <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"/>
+                                        </svg>
+                                        Editar
+                                    </button>
+                                    <button class="btn-print" data-index="${index}" title="Imprimir">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                            <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                                            <rect x="6" y="14" width="12" height="8"/>
+                                        </svg>
+                                        Imprimir
+                                    </button>
+                                    <button class="btn-delete" data-index="${index}" title="Remover">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                            <polyline points="3 6 5 6 21 6"/><path d="M8 6V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1"/><path d="M10 11v5"/><path d="M14 11v5"/>
+                                        </svg>
+                                        Remover
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -467,7 +626,7 @@
 
                 recordsGrid.innerHTML = html;
 
-                // Adiciona eventos aos botões de deletar e imprimir
+                // Adiciona eventos aos botões de deletar, imprimir e editar
                 document.querySelectorAll('.btn-delete').forEach(btn => {
                     btn.addEventListener('click', function(e) {
                         e.stopPropagation();
@@ -487,6 +646,16 @@
                         }
                     });
                 });
+
+                document.querySelectorAll('.btn-edit').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const index = this.getAttribute('data-index');
+                        if (index !== null) {
+                            editarRegistro(parseInt(index));
+                        }
+                    });
+                });
             }
 
             // Função para remover um registro específico
@@ -497,54 +666,50 @@
                 }
             }
 
-            // Função para imprimir um registro
+            // Função para preparar edição de um registro
+            function editarRegistro(index) {
+                const registro = records[index];
+                if (!registro) return;
+                editandoIndex = index;
+                preencherFormularioParaEdicao(registro);
+            }
+
+            // Função para imprimir um registro (sem abrir nova aba)
             function imprimirRegistro(index) {
                 const registro = records[index];
                 if (!registro) return;
 
-                // Cria um conteúdo para impressão
-                const dataFormatada = registro.data; // já vem no formato dd/mm/aaaa
-                const setorTexto = registro.setor && registro.setor !== '' ? registro.setor : 'Todos os setores';
-                
-                // Gera linhas para os nomes
-                let linhasNomes = '';
+                // Gera linhas para os nomes (apenas linhas sem números)
+                let linhas = '';
                 for (let i = 0; i < registro.quantidade; i++) {
-                    const nome = registro.nomes[i] || '__________________________';
-                    linhasNomes += `<div style="margin-bottom: 0.75rem; border-bottom: 1px solid #ccc; padding: 0.25rem 0;">${i+1}. ${nome}</div>`;
+                    linhas += `<div style="border-bottom: 1px solid #000; margin-bottom: 12px; height: 1.5em; width: 100%;"></div>`;
                 }
 
+                // Cabeçalho: data e setor (apenas se setor não for vazio)
+                const setorTexto = registro.setor && registro.setor !== '' ? `<p style="margin: 0 0 20px 0; font-size: 1.2rem;"><strong>Setor:</strong> ${registro.setor}</p>` : '';
+
                 const printContent = `
-                    <div class="print-area" style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem;">
-                        <h1 style="text-align: center; color: #333;">Hora Extra - ${dataFormatada}</h1>
-                        <p style="text-align: center; font-size: 1.2rem; margin-bottom: 2rem;"><strong>Setor:</strong> ${setorTexto}</p>
-                        <div style="margin-top: 2rem;">
-                            <h3>Pessoas que ficaram após o horário (${registro.quantidade}):</h3>
-                            <div style="margin-top: 1rem; font-size: 1.1rem;">
-                                ${linhasNomes}
-                            </div>
-                        </div>
-                        <div style="margin-top: 3rem; text-align: right;">
-                            <p>__________________________</p>
-                            <p>Assinatura do responsável</p>
+                    <div class="print-area" style="font-family: 'Inter', Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem;">
+                        <h1 style="text-align: center; color: #0b5ed7; border-bottom: 2px solid #e6eefc; padding-bottom: 10px;">Hora Extra - ${registro.data}</h1>
+                        ${setorTexto}
+                        <div style="margin-top: 30px;">
+                            ${linhas}
                         </div>
                     </div>
                 `;
 
-                // Coloca o conteúdo em um elemento oculto e imprime
-                printContainer.innerHTML = printContent;
-                printContainer.style.display = 'block';
-
-                // Chama a impressão
-                window.print();
-
-                // Limpa e esconde após impressão (opcional)
-                setTimeout(() => {
-                    printContainer.innerHTML = '';
-                    printContainer.style.display = 'none';
-                }, 1000);
+                // Usa o iframe para impressão silenciosa
+                const blob = new Blob([printContent], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                printIframe.src = url;
+                printIframe.onload = () => {
+                    printIframe.contentWindow.focus();
+                    printIframe.contentWindow.print();
+                    setTimeout(() => URL.revokeObjectURL(url), 1000);
+                };
             }
 
-            // Função para coletar os nomes preenchidos (mantém a quantidade de campos)
+            // Função para coletar os nomes preenchidos
             function coletarNomesEQuantidade() {
                 const inputs = document.querySelectorAll('.name-input');
                 const nomes = [];
@@ -553,48 +718,53 @@
                     nomes.push(nome); // pode ser vazio
                 });
                 return {
-                    nomes: nomes.filter(n => n !== ''), // apenas não vazios para exibição, mas guardamos a quantidade total
+                    nomes: nomes.filter(n => n !== ''),
                     quantidade: inputs.length
                 };
             }
 
-            // Função para adicionar um novo registro
-            function adicionarRegistro() {
-                // Validar data
+            // Função para adicionar ou atualizar registro
+            function salvarRegistro() {
                 if (!dataInput.value) {
                     alert('Por favor, selecione uma data.');
                     return;
                 }
 
-                // Coletar nomes e quantidade
                 const { nomes, quantidade } = coletarNomesEQuantidade();
 
-                // Criar objeto registro (guardamos a quantidade original)
-                const novoRegistro = {
-                    data: dataInput.value.split('-').reverse().join('/'), // formato dd/mm/aaaa
+                const registro = {
+                    data: dataInput.value.split('-').reverse().join('/'),
                     setor: setorSelect.value,
-                    nomes: nomes, // apenas os preenchidos
-                    quantidade: quantidade // total de campos (pessoas)
+                    nomes: nomes,
+                    quantidade: quantidade
                 };
 
-                // Adicionar ao array
-                records.push(novoRegistro);
+                if (editandoIndex !== null) {
+                    // Atualiza o registro existente
+                    records[editandoIndex] = registro;
+                    editandoIndex = null;
+                } else {
+                    // Adiciona novo registro no início do array (mais recente primeiro)
+                    records.unshift(registro);
+                }
 
-                // Renderizar novamente
                 renderizarRegistros();
-
-                // Resetar os campos de nome para 1 input vazio (mantém setor e data)
-                quantidadeInput.value = 1;
-                gerarInputsNomes(1);
+                resetarFormularioParaAdicao();
             }
 
             // Função para limpar apenas os campos do formulário
             function limparCampos() {
+                editandoIndex = null;
                 quantidadeInput.value = 1;
                 gerarInputsNomes(1);
-                // Opcional: resetar setor para "Nenhum"
                 setorSelect.selectedIndex = 0;
-                // Data permanece a atual
+                setDataAtual();
+                btnAdicionar.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Adicionar registro
+                `;
             }
 
             // Função para limpar todos os registros
@@ -612,13 +782,13 @@
                 gerarInputsNomes(qtd);
             });
 
-            btnAdicionar.addEventListener('click', adicionarRegistro);
+            btnAdicionar.addEventListener('click', salvarRegistro);
             btnLimparCampos.addEventListener('click', limparCampos);
             btnLimparTudo.addEventListener('click', limparTudo);
 
             // Inicialização
             setDataAtual();
-            gerarInputsNomes(1); // começa com 1 input
+            gerarInputsNomes(1);
         })();
     </script>
 </body>

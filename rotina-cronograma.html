@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rotinas Diárias (simplificado)</title>
+  <title>Rotinas Diárias (simplificado) - Fev/Mar 2026</title>
   <style>
     * {
       box-sizing: border-box;
@@ -220,7 +220,7 @@
 <body>
 <div class="container">
   <h1>📅 Rotinas Diárias</h1>
-  <div class="subtitulo">31/12/2025 – 16/01/2026 · versão simplificada</div>
+  <div class="subtitulo">23/02/2026 – 20/03/2026 · versão simplificada</div>
 
   <!-- LEGENDA (expansível) -->
   <details class="legenda" open>
@@ -238,8 +238,9 @@
 
 <script>
 (function() {
-  // ---------- DADOS DAS CATEGORIAS (fácil de editar) ----------
+  // ---------- DADOS DAS CATEGORIAS (incluindo novas) ----------
   const categorias = {
+    // Categorias originais
     N1: {
       nome: "Cobranças WhatsApp",
       descricao: "Fazer cobranças no WhatsApp dos clientes",
@@ -316,181 +317,354 @@
       detalhes: "Confira o tópico Cheques Início e Final de Mês na seção geral.",
       cor: "#2e7d32",
       icone: "📄"
+    },
+    // Novas categorias para as tarefas adicionadas
+    N12: {
+      nome: "Pedido São José",
+      descricao: "Realizar pedido da São José",
+      detalhes: "Fazer o pedido de compras para a São José conforme necessidade do setor.",
+      cor: "#9c27b0",
+      icone: "🛒"
+    },
+    N13: {
+      nome: "Passar Embalagem São José",
+      descricao: "Passar embalagem do pedido São José",
+      detalhes: "Encaminhar o pedido para o setor de embalagem.",
+      cor: "#ff9800",
+      icone: "📤"
+    },
+    N14: {
+      nome: "Pegar Embalagem São José",
+      descricao: "Pegar embalagem do pedido São José",
+      detalhes: "Retirar a embalagem pronta do setor de embalagem.",
+      cor: "#4caf50",
+      icone: "📥"
+    },
+    N15: {
+      nome: "Lista Hora Extra",
+      descricao: "Fazer lista de quem vai ficar depois do horário",
+      detalhes: "Anotar os funcionários que irão fazer hora extra para controle e pagamento.",
+      cor: "#795548",
+      icone: "⏰"
+    },
+    N16: {
+      nome: "Faturar Pedidos São José",
+      descricao: "Faturar os pedidos da São José no sistema",
+      detalhes: "Realizar o faturamento dos pedidos da São José conforme rotina.",
+      cor: "#2196f3",
+      icone: "💳"
+    },
+    N17: {
+      nome: "Lançar Notinhas",
+      descricao: "Lançar notas de compras e almoxarifado",
+      detalhes: "Inserir no sistema as notas fiscais de compras e movimentações de estoque.",
+      cor: "#9e9e9e",
+      icone: "🧾"
+    },
+    N18: {
+      nome: "Passar Dinheiro Hora Extra",
+      descricao: "Passar dinheiro para quem fez hora extra na semana",
+      detalhes: "Calcular e entregar o valor referente às horas extras da semana.",
+      cor: "#ffc107",
+      icone: "💵"
+    },
+    N19: {
+      nome: "Separar Dinheiro Sábado",
+      descricao: "Separar dinheiro para produção de sábado",
+      detalhes: "Separar numerário para pagamento ou troco caso haja produção no sábado.",
+      cor: "#ff5722",
+      icone: "💰"
+    },
+    N20: {
+      nome: "Entregar Planilhas Autocontrole",
+      descricao: "Entregar planilhas de autocontrole",
+      detalhes: "Entregar as planilhas preenchidas de autocontrole para o setor responsável.",
+      cor: "#607d8b",
+      icone: "📊"
+    },
+    N21: {
+      nome: "Atualização Comodatos",
+      descricao: "Atualizar contratos de comodato",
+      detalhes: "Revisar e atualizar os contratos de comodato com clientes/fornecedores.",
+      cor: "#3f51b5",
+      icone: "📝"
     }
   };
 
-  // ---------- DADOS DAS ROTINAS POR DIA (fácil de editar) ----------
+  // ---------- DADOS DAS ROTINAS POR DIA (23/02/2026 a 20/03/2026) ----------
   const rotinas = [
     {
-      data: "31/12/2025",
-      diaSemana: "Quarta-feira",
-      feriado: false,
-      semExpediente: false,
-      tarefas: [
-        { titulo: "Fazer cobranças no WhatsApp", categoria: "N1", descricao: "", pessoa: "Gleyce" },
-        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "", pessoa: "" },
-        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
-        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
-      ]
-    },
-    {
-      data: "01/01/2026",
-      diaSemana: "Quinta-feira",
-      feriado: true,
-      feriadoNome: "Ano Novo",
-      semExpediente: true,
-      tarefas: []
-    },
-    {
-      data: "02/01/2026",
-      diaSemana: "Sexta-feira",
-      feriado: false,
-      semExpediente: true,
-      tarefas: []
-    },
-    {
-      data: "05/01/2026",
+      data: "23/02/2026",
       diaSemana: "Segunda-feira",
       feriado: false,
       semExpediente: false,
       tarefas: [
-        { titulo: "Fazer cobranças no WhatsApp", categoria: "N1", descricao: "", pessoa: "Gleyce" },
-        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
-        { titulo: "Fazer lista da São José e Pão Total", categoria: "N9", descricao: "Entregar a embalagem", pessoa: "Emillie" },
-        { titulo: "Fechamento de caixas", categoria: "N6", descricao: "", pessoa: "Barão" },
-        { titulo: "Fazer cheques do início do mês", categoria: "N11", descricao: "", pessoa: "Barão" },
-        { titulo: "Entregar planilhas de autocontrole", categoria: null, descricao: "", pessoa: "" },
-        { titulo: "Pegar a lista da embalagem da São José e Pão Total e guardar", categoria: "N5", descricao: "", pessoa: "" },
-        { titulo: "Pedir café para produção caso preciso", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
-        { titulo: "Baixa notinhas e relatórios", categoria: null, descricao: "", pessoa: "Emillie" },
+        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
+        { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
+        { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "" },
+        { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "" },
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
         { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
       ]
     },
     {
-      data: "06/01/2026",
+      data: "24/02/2026",
       diaSemana: "Terça-feira",
       feriado: false,
       semExpediente: false,
       tarefas: [
-        { titulo: "Fechamento de caixas", categoria: "N6", descricao: "", pessoa: "Barão" },
-        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
-        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
-        { titulo: "Baixa notinhas e relatórios", categoria: null, descricao: "", pessoa: "Emillie" },
-        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" },
+        { titulo: "Faturar pedidos São José", categoria: "N16", descricao: "", pessoa: "" },
+        { titulo: "Lançar notinhas de compras, almoxarifado", categoria: "N17", descricao: "", pessoa: "" }
       ]
     },
     {
-      data: "07/01/2026",
+      data: "25/02/2026",
       diaSemana: "Quarta-feira",
       feriado: false,
       semExpediente: false,
       tarefas: [
-        { titulo: "Fazer cobranças no WhatsApp", categoria: "N1", descricao: "", pessoa: "Gleyce" },
-        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
-        { titulo: "Fechamento de caixas", categoria: "N6", descricao: "", pessoa: "Barão" },
-        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
-        { titulo: "Baixa notinhas e relatórios", categoria: null, descricao: "", pessoa: "Emillie" },
+        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
         { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
       ]
     },
     {
-      data: "08/01/2026",
+      data: "26/02/2026",
       diaSemana: "Quinta-feira",
       feriado: false,
       semExpediente: false,
       tarefas: [
-        { titulo: "Fechamento de caixas", categoria: "N6", descricao: "", pessoa: "Barão" },
-        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
-        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
-        { titulo: "Baixa notinhas e relatórios", categoria: null, descricao: "", pessoa: "Emillie" },
+        { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
         { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" },
-        { titulo: "Fazer lista da São José e Pão Total", categoria: "N9", descricao: "Deixar junto com os romaneios", pessoa: "Emillie" }
+        { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "" }
       ]
     },
     {
-      data: "09/01/2026",
+      data: "27/02/2026",
       diaSemana: "Sexta-feira",
       feriado: false,
       semExpediente: false,
       tarefas: [
-        { titulo: "Fazer cobranças no WhatsApp", categoria: "N1", descricao: "", pessoa: "Gleyce" },
-        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
-        { titulo: "Fechamento de caixas", categoria: "N6", descricao: "", pessoa: "Barão" },
-        { titulo: "Pegar a lista da embalagem da São José e Pão Total e guardar", categoria: "N5", descricao: "Até 11:00 ou 12:00", pessoa: "" },
-        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
-        { titulo: "Pedir café para sábado caso precise", categoria: "N7", descricao: "", pessoa: "Adeilton e Luiz Felipe" },
-        { titulo: "Separar dinheiro caso tenha produção sábado", categoria: null, descricao: "", pessoa: "Barão" },
-        { titulo: "Baixa notinhas e relatórios", categoria: null, descricao: "", pessoa: "Emillie" },
-        { titulo: "Acerto Célio", categoria: "N8", descricao: "", pessoa: "Barão" },
+        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
+        { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "" },
+        { titulo: "Passar dinheiro de quem ficou depois do horário na semana", categoria: "N18", descricao: "", pessoa: "" },
+        { titulo: "Acerto Célio e ajudantes", categoria: "N8", descricao: "", pessoa: "" },
+        { titulo: "Pedir café para sábado", categoria: "N7", descricao: "", pessoa: "" },
+        { titulo: "Separar dinheiro para sábado", categoria: "N19", descricao: "", pessoa: "" },
         { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
       ]
     },
     {
-      data: "12/01/2026",
+      data: "02/03/2026",
       diaSemana: "Segunda-feira",
       feriado: false,
       semExpediente: false,
       tarefas: [
-        { titulo: "Fazer cobranças no WhatsApp", categoria: "N1", descricao: "", pessoa: "Gleyce" },
-        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
-        { titulo: "Fazer lista da São José e Pão Total", categoria: "N9", descricao: "Entregar a embalagem", pessoa: "Emillie" },
-        { titulo: "Fechamento de caixas", categoria: "N6", descricao: "", pessoa: "Barão" },
-        { titulo: "Pegar a lista da embalagem da São José e Pão Total e guardar", categoria: "N5", descricao: "", pessoa: "" },
-        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
-        { titulo: "Baixa notinhas e relatórios", categoria: null, descricao: "", pessoa: "Emillie" },
+        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
+        { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
+        { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "" },
+        { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "" },
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+        { titulo: "Entregar planilhas de autocontrole", categoria: "N20", descricao: "", pessoa: "" },
+        { titulo: "Fazer cheques início do mês e frango machado", categoria: "N11", descricao: "", pessoa: "" },
         { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
       ]
     },
     {
-      data: "13/01/2026",
+      data: "03/03/2026",
       diaSemana: "Terça-feira",
       feriado: false,
       semExpediente: false,
       tarefas: [
-        { titulo: "Retorno Marina", categoria: null, descricao: "", pessoa: "" },
-        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
-        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
-        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" },
+        { titulo: "Faturar pedidos São José", categoria: "N16", descricao: "", pessoa: "" },
+        { titulo: "Lançar notinhas de compras, almoxarifado", categoria: "N17", descricao: "", pessoa: "" },
+        { titulo: "Ajeitar Joice (caso esteja errado)", categoria: null, descricao: "", pessoa: "" }
       ]
     },
     {
-      data: "14/01/2026",
+      data: "04/03/2026",
       diaSemana: "Quarta-feira",
       feriado: false,
       semExpediente: false,
       tarefas: [
-        { titulo: "Fazer cobranças no WhatsApp", categoria: "N1", descricao: "", pessoa: "Gleyce" },
-        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
-        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
         { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
       ]
     },
     {
-      data: "15/01/2026",
+      data: "05/03/2026",
       diaSemana: "Quinta-feira",
       feriado: false,
       semExpediente: false,
       tarefas: [
-        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
-        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
-        { titulo: "Adiantamento salarial no banco", categoria: "N10", descricao: "", pessoa: "Marina" },
+        { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
         { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" },
-        { titulo: "Fazer lista da São José e Pão Total", categoria: "N9", descricao: "Deixar junto com os romaneios", pessoa: "Emillie" }
+        { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "" }
       ]
     },
     {
-      data: "16/01/2026",
+      data: "06/03/2026",
       diaSemana: "Sexta-feira",
       feriado: false,
       semExpediente: false,
       tarefas: [
-        { titulo: "Fazer cobranças no WhatsApp", categoria: "N1", descricao: "", pessoa: "Gleyce" },
-        { titulo: "Mandar mensagem p/ clientes pedindo pedido", categoria: "N2", descricao: "Horário: 9:00-9:30", pessoa: "" },
-        { titulo: "Pegar a lista da embalagem da São José e Pão Total e guardar", categoria: "N5", descricao: "Até 11:00 ou 12:00", pessoa: "" },
-        { titulo: "Pedir café para produção caso precise", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
-        { titulo: "Pedir café para sábado caso precise", categoria: "N7", descricao: "", pessoa: "Adeilton e Luiz Felipe" },
-        { titulo: "Separar dinheiro caso tenha produção sábado", categoria: null, descricao: "", pessoa: "Marina ou Barão" },
-        { titulo: "Acerto Célio", categoria: "N8", descricao: "", pessoa: "Marina ou Barão" },
+        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
+        { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "" },
+        { titulo: "Passar dinheiro de quem ficou depois do horário na semana", categoria: "N18", descricao: "", pessoa: "" },
+        { titulo: "Acerto Célio e ajudantes", categoria: "N8", descricao: "", pessoa: "" },
+        { titulo: "Pedir café para sábado", categoria: "N7", descricao: "", pessoa: "" },
+        { titulo: "Separar dinheiro para sábado", categoria: "N19", descricao: "", pessoa: "" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+      ]
+    },
+    {
+      data: "09/03/2026",
+      diaSemana: "Segunda-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
+        { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
+        { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "" },
+        { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "" },
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+      ]
+    },
+    {
+      data: "10/03/2026",
+      diaSemana: "Terça-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+      ]
+    },
+    {
+      data: "11/03/2026",
+      diaSemana: "Quarta-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+      ]
+    },
+    {
+      data: "12/03/2026",
+      diaSemana: "Quinta-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" },
+        { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "" }
+      ]
+    },
+    {
+      data: "13/03/2026",
+      diaSemana: "Sexta-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
+        { titulo: "Adiantamento salarial (13/03 para agendar 15/03)", categoria: "N10", descricao: "", pessoa: "" },
+        { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "" },
+        { titulo: "Passar dinheiro de quem ficou depois do horário na semana", categoria: "N18", descricao: "", pessoa: "" },
+        { titulo: "Acerto Célio e ajudantes", categoria: "N8", descricao: "", pessoa: "" },
+        { titulo: "Pedir café para sábado", categoria: "N7", descricao: "", pessoa: "" },
+        { titulo: "Separar dinheiro para sábado", categoria: "N19", descricao: "", pessoa: "" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+      ]
+    },
+    {
+      data: "16/03/2026",
+      diaSemana: "Segunda-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
+        { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
+        { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "" },
+        { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "" },
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+      ]
+    },
+    {
+      data: "17/03/2026",
+      diaSemana: "Terça-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" },
+        { titulo: "Faturar pedidos São José", categoria: "N16", descricao: "", pessoa: "" },
+        { titulo: "Lançar notinhas de compras, almoxarifado", categoria: "N17", descricao: "", pessoa: "" },
+        { titulo: "Atualização comodatos", categoria: "N21", descricao: "", pessoa: "" }
+      ]
+    },
+    {
+      data: "18/03/2026",
+      diaSemana: "Quarta-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+      ]
+    },
+    {
+      data: "19/03/2026",
+      diaSemana: "Quinta-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" },
+        { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "" }
+      ]
+    },
+    {
+      data: "20/03/2026",
+      diaSemana: "Sexta-feira",
+      feriado: false,
+      semExpediente: false,
+      tarefas: [
+        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
+        { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "" },
+        { titulo: "Passar dinheiro de quem ficou depois do horário na semana", categoria: "N18", descricao: "", pessoa: "" },
+        { titulo: "Acerto Célio e ajudantes", categoria: "N8", descricao: "", pessoa: "" },
+        { titulo: "Pedir café para sábado", categoria: "N7", descricao: "", pessoa: "" },
+        { titulo: "Separar dinheiro para sábado", categoria: "N19", descricao: "", pessoa: "" },
         { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
       ]
     }

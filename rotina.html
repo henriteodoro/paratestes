@@ -1887,7 +1887,9 @@ class SistemaRotinas {
   }
 }
 
-// Função para carregar os dados do arquivo rotina-cronograma.html
+// ================= NOVA FUNÇÃO DE CARREGAMENTO =================
+// Agora extrai as variáveis diretamente do conteúdo dos scripts,
+// mesmo dentro de uma IIFE, usando expressões regulares.
 async function carregarDadosExternos() {
   try {
     const resposta = await fetch('rotina-cronograma.html');
@@ -1897,34 +1899,35 @@ async function carregarDadosExternos() {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     
-    // Encontrar todas as tags script no documento carregado
+    // Coleta todo o conteúdo dos scripts
     const scripts = doc.querySelectorAll('script');
-    let categorias, rotinas;
+    let scriptContent = '';
+    scripts.forEach(script => {
+      scriptContent += (script.textContent || script.innerText) + '\n';
+    });
     
-    for (let script of scripts) {
-      const conteudo = script.textContent || script.innerText;
-      if (conteudo.includes('const categorias =') && conteudo.includes('const rotinas =')) {
-        // Avaliar o script em um escopo isolado para capturar as variáveis
-        const scope = {};
-        const func = new Function('scope', `
-          with (scope) {
-            ${conteudo}
-            scope.categorias = categorias;
-            scope.rotinas = rotinas;
-          }
-        `);
-        func(scope);
-        categorias = scope.categorias;
-        rotinas = scope.rotinas;
-        break;
-      }
+    if (!scriptContent) {
+      throw new Error('Nenhum script encontrado no arquivo.');
     }
     
-    if (!categorias || !rotinas) {
-      throw new Error('Não foi possível encontrar as definições de categorias e rotinas no arquivo.');
+    // Extrair objeto categorias usando regex
+    const categoriasMatch = scriptContent.match(/const\s+categorias\s*=\s*({[\s\S]*?});/);
+    if (!categoriasMatch) {
+      throw new Error('Não foi possível encontrar a definição de categorias.');
     }
+    const categoriasTexto = categoriasMatch[1];
+    // Avaliar o objeto de forma segura
+    const categorias = new Function('return ' + categoriasTexto)();
     
-    return { categorias, rotinas };
+    // Extrair array rotinas
+    const rotinasMatch = scriptContent.match(/const\s+rotinas\s*=\s*(\[[\s\S]*?\]);/);
+    if (!rotinasMatch) {
+      throw new Error('Não foi possível encontrar a definição de rotinas.');
+    }
+    const rotinasTexto = rotinasMatch[1];
+    const rotinasArray = new Function('return ' + rotinasTexto)();
+    
+    return { categorias, rotinas: rotinasArray };
   } catch (erro) {
     console.error('Erro ao carregar dados:', erro);
     alert('Falha ao carregar os dados do cronograma. Verifique se o arquivo rotina-cronograma.html existe e está acessível.');

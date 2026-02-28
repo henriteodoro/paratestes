@@ -82,6 +82,7 @@
   .topico-item svg {
     width: 18px;
     height: 18px;
+    flex-shrink: 0;
   }
 
   .conteudo-area {
@@ -673,26 +674,11 @@
   }
 
   .btn-ferias svg {
-    animation: sunPulse 2s infinite alternate ease-in-out;
-    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.1));
+    transition: transform 0.3s ease;
   }
 
-  .btn-ferias::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 5px;
-    height: 5px;
-    background: rgba(255, 255, 255, 0.5);
-    opacity: 0;
-    border-radius: 100%;
-    transform: scale(1, 1) translate(-50%);
-    transform-origin: 50% 50%;
-  }
-
-  .btn-ferias:focus:not(:active)::after {
-    animation: ripple 1s ease-out;
+  .btn-ferias:hover svg {
+    transform: scale(1.1) rotate(-5deg);
   }
 
   .btn-ferias .tooltip-text {
@@ -731,28 +717,6 @@
     opacity: 1;
   }
 
-  @keyframes sunPulse {
-    0% {
-      transform: scale(1) rotate(0deg);
-      filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.1));
-    }
-    100% {
-      transform: scale(1.1) rotate(10deg);
-      filter: drop-shadow(0 4px 6px rgba(5, 150, 105, 0.3));
-    }
-  }
-
-  @keyframes ripple {
-    0% {
-      transform: scale(0, 0);
-      opacity: 0.8;
-    }
-    100% {
-      transform: scale(40, 40);
-      opacity: 0;
-    }
-  }
-
   .btn-fechar-topico {
     background: #fef2f2;
     border: 1px solid #fecaca;
@@ -771,19 +735,76 @@
     border-color: #ef4444;
   }
 
+  /* ===== RESULTADOS DE BUSCA MELHORADOS ===== */
   .resultados-busca {
     margin-top: 16px;
     display: none;
-    max-height: 400px;
+    max-height: 450px;
     overflow-y: auto;
     border: 1px solid var(--borda);
-    border-radius: 8px;
+    border-radius: 10px;
     background: var(--card);
+    box-shadow: 0 8px 24px rgba(11,78,167,.10);
+  }
+
+  .resultados-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--borda);
+    background: #f7fbff;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .resultados-header span {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .resultados-count {
+    background: var(--azul);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  .resultados-grupo {
+    border-bottom: 1px solid var(--borda);
+  }
+
+  .resultados-grupo:last-child {
+    border-bottom: none;
+  }
+
+  .resultados-grupo-header {
+    padding: 8px 14px;
+    background: #fafcff;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-strong);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid var(--borda);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .resultados-grupo-header:hover {
+    background: #f0f7ff;
   }
 
   .resultado-item {
-    padding: 12px;
-    border-bottom: 1px solid var(--borda);
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f4ff;
     cursor: pointer;
     transition: all 0.2s ease;
   }
@@ -796,29 +817,63 @@
     background: #f3f8ff;
   }
 
-  .resultado-topico {
-    font-size: 12px;
-    color: var(--muted);
+  .resultado-tipo-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
     margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .badge-topico {
+    background: #e0f2fe;
+    color: #0369a1;
+  }
+
+  .badge-subtopico {
+    background: #ede9fe;
+    color: #7c3aed;
+  }
+
+  .badge-conteudo {
+    background: #dcfce7;
+    color: #166534;
   }
 
   .resultado-titulo {
     font-weight: 600;
     color: var(--ink-strong);
     margin-bottom: 4px;
+    font-size: 13px;
   }
 
   .resultado-trecho {
-    font-size: 13px;
-    color: var(--ink);
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
   }
 
   .sem-resultados {
     text-align: center;
-    padding: 20px;
+    padding: 30px 20px;
     color: var(--muted);
+    font-size: 14px;
   }
 
+  .sem-resultados svg {
+    width: 32px;
+    height: 32px;
+    opacity: 0.4;
+    margin-bottom: 10px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ===== ESTADOS ===== */
   .conteudo-carregado img {
     max-width: 100%;
     height: auto;
@@ -979,6 +1034,7 @@
     }
   }
 
+  /* ===== MENU SIDEBAR SEM OVERLAY ESCURO ===== */
   .menu-sidebar {
     position: fixed;
     top: 0;
@@ -987,8 +1043,11 @@
     height: 100vh;
     background: var(--card);
     border-right: 1px solid var(--borda);
-    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
     overflow-y: auto;
+    /* Sem barra de rolagem visível */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
     transition: transform 0.3s ease;
     z-index: 1000;
     padding: 20px;
@@ -996,8 +1055,18 @@
     display: block;
   }
 
+  /* Esconder barra de rolagem no Chrome/Safari */
+  .menu-sidebar::-webkit-scrollbar {
+    display: none;
+  }
+
   .menu-sidebar.ativo {
     transform: translateX(0);
+  }
+
+  /* Overlay removido — sem escurecer o fundo */
+  .menu-overlay {
+    display: none !important; /* Desativado completamente */
   }
 
   .menu-header {
@@ -1075,21 +1144,6 @@
     font-weight: 600;
     min-width: 40px;
     text-align: center;
-  }
-
-  .menu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: none;
-    z-index: 999;
-  }
-
-  .menu-overlay.ativo {
-    display: block;
   }
 
   .popup-overlay {
@@ -1186,48 +1240,7 @@
     background: var(--accent);
   }
 
-  .impressao-direta {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: white;
-    z-index: 1500;
-    overflow-y: auto;
-    padding: 40px;
-    display: none;
-  }
-
-  .impressao-direta.ativo {
-    display: block;
-  }
-
-  .impressao-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid var(--borda);
-  }
-
-  .impressao-botoes {
-    display: flex;
-    gap: 12px;
-    margin-top: 30px;
-  }
-
-  .conteudo-header h2 {
-    position: relative;
-    padding-right: 0;
-  }
-
-  .conteudo-header h2::after {
-    content: none;
-  }
-
-  /* ESTILOS PARA IMAGENS COM LEGENDA */
+  /* Estilos de conteúdo específicos */
   .conteudo-carregado .image-container {
     background-color: #f5f5f5;
     border: 1px solid #ddd;
@@ -1255,7 +1268,6 @@
     color: var(--muted);
   }
 
-  /* ESTILOS PARA CLIENTES POR ROTA */
   .conteudo-carregado .cliente-item {
     padding: 6px 0;
     border-bottom: 1px dotted #e0e0e0;
@@ -1316,7 +1328,6 @@
   .conteudo-carregado .rota-nelio .clientes-container { border-left-color: #9C27B0; }
   .conteudo-carregado .rota-stenio .clientes-container { border-left-color: #9C27B0; }
 
-  /* ESTILOS ESPECÍFICOS PARA O ARQUIVO uteis-clientes.html */
   .conteudo-carregado .produtos-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -1344,12 +1355,30 @@
     color: var(--muted);
   }
 
-  /* Estilo para destaque de termos na busca */
   mark {
     background-color: #ffeb3b;
     color: #000;
     padding: 1px 4px;
     border-radius: 3px;
+  }
+
+  /* Indicador de ordenação alfabética */
+  .sidebar-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0 4px 8px 4px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--borda);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .sidebar-label svg {
+    width: 12px;
+    height: 12px;
   }
 </style>
 </head>
@@ -1368,22 +1397,17 @@
       Fechar
     </button>
     
-    <!-- Botão de Rotinas Férias -->
+    <!-- Botão de Rotinas Férias com novo ícone de avião -->
     <button class="btn-toolbar btn-ferias" id="btn-ferias">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="5" fill="#f59e0b" stroke="none"/>
-        <circle cx="12" cy="12" r="4" fill="#fbbf24"/>
-        <line x1="12" y1="2" x2="12" y2="4" stroke="#f59e0b" stroke-width="1.5"/>
-        <line x1="12" y1="20" x2="12" y2="22" stroke="#f59e0b" stroke-width="1.5"/>
-        <line x1="4" y1="12" x2="2" y2="12" stroke="#f59e0b" stroke-width="1.5"/>
-        <line x1="22" y1="12" x2="20" y2="12" stroke="#f59e0b" stroke-width="1.5"/>
-        <line x1="5.64" y1="5.64" x2="4.22" y2="4.22" stroke="#f59e0b" stroke-width="1.5"/>
-        <line x1="19.78" y1="19.78" x2="18.36" y2="18.36" stroke="#f59e0b" stroke-width="1.5"/>
-        <line x1="5.64" y1="18.36" x2="4.22" y2="19.78" stroke="#f59e0b" stroke-width="1.5"/>
-        <line x1="19.78" y1="4.22" x2="18.36" y2="5.64" stroke="#f59e0b" stroke-width="1.5"/>
-        <path d="M8 12a1 1 0 1 0 2 0 1 1 0 1 0-2 0" fill="#7c2d12"/>
-        <path d="M14 12a1 1 0 1 0 2 0 1 1 0 1 0-2 0" fill="#7c2d12"/>
-        <path d="M10 15c1 1 2 1 2 1s1 0 2-1" stroke="#7c2d12" stroke-width="1.5" fill="none"/>
+      <!-- Ícone de avião SVG -->
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" xml:space="preserve" width="18" height="18">
+        <style type="text/css">
+          .st0{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+          .st1{fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:10;}
+        </style>
+        <polygon class="st0" points="13,18 21,18 12,28 8,28 "/>
+        <polyline class="st0" points="20.2,14 13,6 9,6 13,14 "/>
+        <path class="st0" d="M12,20H4L1,9h3l4,5H28c0.8,0,1.6,0.3,2.1,0.9l0,0c1.2,1.2,1.2,3.1,0,4.2l0,0C29.5,19.7,28.8,20,28,20h-8.8"/>
       </svg>
       <span class="tooltip-text">Abrir Rotinas de Férias</span>
       Rotinas Férias
@@ -1405,66 +1429,18 @@
   </div>
 
   <div class="anotacoes-container">
+    <!-- Sidebar de tópicos: gerada dinamicamente em ordem alfabética pelo JS -->
     <div class="topicos-sidebar">
-      <div class="topico-item" data-arquivo="fechamento-caixas.html">
+      <div class="sidebar-label">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/>
         </svg>
-        Fechamento Caixas
+        Tópicos — A→Z
       </div>
-      
-      <div class="topico-item" data-arquivo="fornecedores.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-        </svg>
-        Fornecedores
+      <div id="topicos-lista">
+        <!-- Itens gerados pelo JavaScript em ordem alfabética -->
       </div>
-      
-      <div class="topico-item" data-arquivo="geral.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
-        </svg>
-        Geral
-      </div>
-      
-      <div class="topico-item" data-arquivo="uteis-clientes.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-        </svg>
-        Informações Úteis Clientes
-      </div>
-      
-      <div class="topico-item" data-arquivo="clientes-por-rota.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 12h4l3 8 4-16 3 8h4"/>
-        </svg>
-        Clientes por rota
-      </div>
-      
-      <div class="topico-item" data-arquivo="lancamento-pedidos.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-        </svg>
-        Lançamentos Pedidos
-      </div>
-      
-      <div class="topico-item" data-arquivo="montagem-rotas.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
-        </svg>
-        Montagem Rotas
-      </div>
-      
-      <!-- NOVA SEÇÃO: Pedidos São José e Pão Total -->
-      <div class="topico-item" data-arquivo="pedidos-sj-pt.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-        </svg>
-        Pedidos São José e Pão Total
-      </div>
-      
+
       <div class="resultados-busca" id="resultados-busca">
         <!-- Resultados da busca serão inseridos aqui -->
       </div>
@@ -1493,7 +1469,7 @@
   </div>
 </div>
 
-<!-- Menu Sidebar -->
+<!-- Menu Sidebar (sem overlay escuro) -->
 <div class="menu-overlay" id="menu-overlay"></div>
 <div class="menu-sidebar" id="menu-sidebar">
   <div class="menu-header">
@@ -1531,13 +1507,18 @@
       <div class="codigo">853</div>
       <span>MAC Concesso</span>
     </a>
+    <a href="../mac989.html" class="menu-opcao">
+      <div class="codigo">989</div>
+      <span>MAC Araújos</span>
+    </a>
     <a href="../mac1249.html" class="menu-opcao">
       <div class="codigo">1249</div>
       <span>MAC Jardim do Lago</span>
     </a>
-    <a href="../mac989.html" class="menu-opcao">
-      <div class="codigo">989</div>
-      <span>MAC Araújos</span>
+    <!-- NOVO: MAC São Gonçalo do Pará -->
+    <a href="../mac1436.html" class="menu-opcao">
+      <div class="codigo">1436</div>
+      <span>MAC São Gonçalo do Pará</span>
     </a>
   </div>
   
@@ -1620,7 +1601,95 @@
 <iframe id="print-iframe" style="display: none;"></iframe>
 
 <script>
-// Classe principal para gerenciar as anotações
+// =============================================
+// DEFINIÇÃO DOS TÓPICOS — adicione aqui novos tópicos
+// Serão exibidos automaticamente em ordem alfabética
+// =============================================
+const TOPICOS = [
+  {
+    arquivo: 'fechamento-caixas.html',
+    nome: 'Fechamento Caixas',
+    icone: `<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 2v4M16 2v4M2 10h20"/>`
+  },
+  {
+    arquivo: 'fornecedores.html',
+    nome: 'Fornecedores',
+    icone: `<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`
+  },
+  {
+    arquivo: 'geral.html',
+    nome: 'Geral',
+    icone: `<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>`
+  },
+  {
+    arquivo: 'uteis-clientes.html',
+    nome: 'Informações Úteis Clientes',
+    icone: `<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>`
+  },
+  {
+    arquivo: 'clientes-por-rota.html',
+    nome: 'Clientes por Rota',
+    icone: `<path d="M3 12h4l3 8 4-16 3 8h4"/>`
+  },
+  {
+    arquivo: 'lancamento-pedidos.html',
+    nome: 'Lançamentos Pedidos',
+    icone: `<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>`
+  },
+  {
+    arquivo: 'montagem-rotas.html',
+    nome: 'Montagem Rotas',
+    icone: `<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>`
+  },
+  {
+    arquivo: 'pedidos-sj-pt.html',
+    nome: 'Pedidos São José e Pão Total',
+    icone: `<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>`
+  },
+  {
+    arquivo: 'rotina-comercial-emillie.html',
+    nome: 'Rotina Comercial Emillie',
+    icone: `<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>`
+  }
+];
+
+// =============================================
+// ORDENAÇÃO ALFABÉTICA DOS TÓPICOS
+// =============================================
+function ordenarAlfabeticamente(topicos) {
+  return [...topicos].sort((a, b) => {
+    return a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' });
+  });
+}
+
+// Gerar os tópicos em ordem alfabética no DOM
+function renderizarTopicos() {
+  const lista = document.getElementById('topicos-lista');
+  const topicosOrdenados = ordenarAlfabeticamente(TOPICOS);
+  
+  lista.innerHTML = topicosOrdenados.map(topico => `
+    <div class="topico-item" data-arquivo="${topico.arquivo}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        ${topico.icone}
+      </svg>
+      ${topico.nome}
+    </div>
+  `).join('');
+  
+  // Adicionar eventos de clique
+  lista.querySelectorAll('.topico-item').forEach(item => {
+    item.addEventListener('click', function() {
+      lista.querySelectorAll('.topico-item').forEach(i => i.classList.remove('ativo'));
+      this.classList.add('ativo');
+      const arquivo = this.getAttribute('data-arquivo');
+      gerenciador.carregarTopico(arquivo);
+    });
+  });
+}
+
+// =============================================
+// CLASSE PRINCIPAL DE GERENCIAMENTO
+// =============================================
 class GerenciadorAnotacoes {
   constructor() {
     this.topicoAtual = null;
@@ -1631,18 +1700,8 @@ class GerenciadorAnotacoes {
     this.topicosSelecionados = new Set();
     this.conteudoSubtopicoAtual = null;
     this.resultadoBuscaAtual = null;
-    // Array atualizada com os novos arquivos
-    this.htmlFiles = [
-      'fechamento-caixas.html',
-      'fornecedores.html',
-      'geral.html',
-      'uteis-clientes.html',
-      'clientes-por-rota.html',
-      'lancamento-pedidos.html',
-      'montagem-rotas.html',
-      'pedidos-sj-pt.html',
-      'rotina-comercial-emillie.html'
-    ];
+    // Lista de arquivos para busca — sincronizada com TOPICOS
+    this.htmlFiles = TOPICOS.map(t => t.arquivo);
   }
 
   async carregarTopico(arquivo, scrollTo = null) {
@@ -1653,16 +1712,16 @@ class GerenciadorAnotacoes {
     this.topicosSelecionados.clear();
     
     const item = document.querySelector(`[data-arquivo="${arquivo}"]`);
-    const nomeTopico = item.textContent.trim();
+    const nomeTopico = item ? item.textContent.trim() : arquivo;
+    const iconeSVG = item ? item.querySelector('svg').innerHTML : '';
     
     document.getElementById('topico-titulo').innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        ${item.querySelector('svg').innerHTML}
+        ${iconeSVG}
       </svg>
       ${nomeTopico}
     `;
     
-    // Mostrar botões de ação apenas quando um tópico estiver aberto
     document.getElementById('topico-acoes').innerHTML = `
       <button class="btn-acao btn-pdf" id="btn-pdf-topico">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
@@ -1706,40 +1765,32 @@ class GerenciadorAnotacoes {
       this.mostrarErro(arquivo);
     }
     
-    // SCROLL PARA O TOPO AO CARREGAR NOVO TÓPICO
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   processarConteudo(html, arquivo, scrollTo = null) {
-    // Criar um elemento temporário para processar o HTML
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
     
-    // Remover elementos desnecessários como scripts e styles
     tempDiv.querySelectorAll('script, style, link, meta, title, head').forEach(el => el.remove());
     
-    // Extrair o conteúdo do body se existir, caso contrário usar o conteúdo completo
     const body = tempDiv.querySelector('body');
     let conteudoHTML = body ? body.innerHTML : tempDiv.innerHTML;
     
-    // Para o arquivo uteis-clientes.html, remover a tag .container que causa problemas de estilização
     if (arquivo === 'uteis-clientes.html') {
-      // Substituir a classe container por uma div comum
       conteudoHTML = conteudoHTML.replace(/class="container"/g, 'class="conteudo-clientes"');
     }
     
-    // Criar outro elemento para processar o conteúdo limpo
     const tempDiv2 = document.createElement('div');
     tempDiv2.innerHTML = conteudoHTML;
     
-    // Remover novamente scripts e styles que possam ter ficado
     tempDiv2.querySelectorAll('script, style').forEach(el => el.remove());
     
+    const topicoInfo = TOPICOS.find(t => t.arquivo === arquivo);
     const tituloPrincipal = (tempDiv2.querySelector('h1')?.textContent || 
-                           document.querySelector(`[data-arquivo="${arquivo}"]`).textContent.trim())
+                           (topicoInfo ? topicoInfo.nome : arquivo))
                            .replace('| °', '').trim();
     
-    // Extrair todos os h2 como subtópicos
     const subtopicos = Array.from(tempDiv2.querySelectorAll('h2'));
     
     this.conteudoAtual = {
@@ -1761,7 +1812,6 @@ class GerenciadorAnotacoes {
 
     this.adicionarEventosImagens();
 
-    // Se houver algo para rolar após o carregamento
     if (scrollTo) {
       setTimeout(() => {
         this.rolarParaElemento(scrollTo);
@@ -1773,7 +1823,6 @@ class GerenciadorAnotacoes {
     let conteudo = '';
     let elementoAtual = elementoH2.nextElementSibling;
     
-    // Coletar todos os elementos até encontrar o próximo h2
     while (elementoAtual && elementoAtual.tagName !== 'H2') {
       conteudo += elementoAtual.outerHTML;
       elementoAtual = elementoAtual.nextElementSibling;
@@ -1856,7 +1905,6 @@ class GerenciadorAnotacoes {
   }
 
   mostrarConteudoDireto(tempDiv) {
-    // Remover o h1 se existir
     const h1 = tempDiv.querySelector('h1');
     if (h1) h1.remove();
     
@@ -1884,44 +1932,29 @@ class GerenciadorAnotacoes {
   }
 
   adicionarEventosSelecao() {
-    // Botão "Selecionar tópicos" (ícone)
     const btnSelecionar = document.getElementById('btn-selecionar-topicos');
     if (btnSelecionar) {
-      btnSelecionar.addEventListener('click', () => {
-        this.ativarModoSelecao();
-      });
+      btnSelecionar.addEventListener('click', () => this.ativarModoSelecao());
     }
 
-    // PDF dos selecionados
     const btnPdfSelecionados = document.getElementById('btn-pdf-selecionados');
     if (btnPdfSelecionados) {
-      btnPdfSelecionados.addEventListener('click', () => {
-        this.salvarSubtopicosSelecionados('pdf');
-      });
+      btnPdfSelecionados.addEventListener('click', () => this.salvarSubtopicosSelecionados('pdf'));
     }
 
-    // Imprimir selecionados
     const btnImprimirSelecionados = document.getElementById('btn-imprimir-selecionados');
     if (btnImprimirSelecionados) {
-      btnImprimirSelecionados.addEventListener('click', () => {
-        this.salvarSubtopicosSelecionados('imprimir');
-      });
+      btnImprimirSelecionados.addEventListener('click', () => this.salvarSubtopicosSelecionados('imprimir'));
     }
 
-    // Selecionar todos
     const btnSelecionarTodos = document.getElementById('btn-selecionar-todos');
     if (btnSelecionarTodos) {
-      btnSelecionarTodos.addEventListener('click', () => {
-        this.selecionarTodosTopicos();
-      });
+      btnSelecionarTodos.addEventListener('click', () => this.selecionarTodosTopicos());
     }
 
-    // Cancelar seleção (ícone X)
     const btnCancelarSelecao = document.getElementById('btn-cancelar-selecao');
     if (btnCancelarSelecao) {
-      btnCancelarSelecao.addEventListener('click', () => {
-        this.desativarModoSelecao();
-      });
+      btnCancelarSelecao.addEventListener('click', () => this.desativarModoSelecao());
     }
   }
 
@@ -1933,7 +1966,6 @@ class GerenciadorAnotacoes {
     
     if (!container || !botoesSelecao || !btnSelecionarTopicos) return;
     
-    // Gerar a lista com checkboxes
     const listaComCheckboxes = this.conteudoAtual.subtopicos.map((subtopico, index) => {
       const estaSelecionado = this.topicosSelecionados.has(index);
       return `
@@ -1951,7 +1983,6 @@ class GerenciadorAnotacoes {
     botoesSelecao.classList.add('ativo');
     btnSelecionarTopicos.style.display = 'none';
     
-    // Adicionar eventos aos checkboxes
     document.querySelectorAll('.subtopico-checkbox').forEach(checkbox => {
       checkbox.addEventListener('change', (e) => {
         const index = parseInt(checkbox.getAttribute('data-index'));
@@ -1974,7 +2005,6 @@ class GerenciadorAnotacoes {
     
     if (!container || !botoesSelecao || !btnSelecionarTopicos) return;
     
-    // Restaurar a lista sem checkboxes
     const listaNormal = this.conteudoAtual.subtopicos.map((subtopico, index) => {
       return `
         <div class="subtopico-item" data-subtopico="${subtopico.id}" data-index="${index}">
@@ -2041,7 +2071,6 @@ class GerenciadorAnotacoes {
     
     this.adicionarEventosImagens();
     
-    // Scroll para o topo do conteúdo
     if (container) {
       container.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -2124,7 +2153,6 @@ class GerenciadorAnotacoes {
       </div>
     `;
     
-    // SCROLL PARA O TOPO AO FECHAR TÓPICO
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -2171,7 +2199,6 @@ class GerenciadorAnotacoes {
   }
 
   async gerarSaida(conteudo, titulo, formato) {
-    // Função para converter imagens para base64
     const converterImagensParaBase64 = async (htmlString) => {
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = htmlString;
@@ -2179,43 +2206,28 @@ class GerenciadorAnotacoes {
       
       for (const img of imagens) {
         const src = img.src || img.getAttribute('src');
-        if (!src) continue;
-        
-        // Se já for base64, não converter
-        if (src.startsWith('data:')) continue;
+        if (!src || src.startsWith('data:')) continue;
         
         try {
-          // Tentar carregar a imagem
           let imageUrl = src;
-          
-          // Se for um caminho relativo, tentar resolver
-          if (!src.startsWith('http') && !src.startsWith('data:')) {
-            // Usar a localização atual como base
-            const baseUrl = window.location.href;
-            const url = new URL(src, baseUrl);
+          if (!src.startsWith('http')) {
+            const url = new URL(src, window.location.href);
             imageUrl = url.href;
           }
           
           const response = await fetch(imageUrl);
-          if (!response.ok) {
-            console.warn('Não foi possível carregar imagem:', src);
-            continue;
-          }
+          if (!response.ok) continue;
           
           const blob = await response.blob();
           const reader = new FileReader();
           
           await new Promise((resolve, reject) => {
-            reader.onloadend = () => {
-              img.src = reader.result;
-              resolve();
-            };
+            reader.onloadend = () => { img.src = reader.result; resolve(); };
             reader.onerror = reject;
             reader.readAsDataURL(blob);
           });
         } catch (error) {
           console.error('Erro ao converter imagem:', error, src);
-          // Se não conseguir converter, manter o src original
         }
       }
       
@@ -2228,347 +2240,38 @@ class GerenciadorAnotacoes {
       const estilos = `
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-          
-          body { 
-            font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-            line-height: 1.6; 
-            margin: 40px;
-            color: #0b3b6b;
-            background: white;
-          }
-          
-          h1 { 
-            color: #0b5ed7; 
-            border-bottom: 2px solid #e6eefc; 
-            padding-bottom: 10px;
-            margin-bottom: 25px;
-            font-size: 24px;
-            page-break-after: avoid;
-          }
-          
-          h2 { 
-            color: #0b4fa0; 
-            margin-top: 25px;
-            border-left: 4px solid #007BFF;
-            padding-left: 12px;
-            font-size: 18px;
-            page-break-after: avoid;
-            page-break-before: auto;
-          }
-          
-          h2::before {
-            content: "•";
-            color: #007BFF;
-            font-size: 24px;
-            margin-right: 8px;
-          }
-          
-          h3 {
-            color: #0b4fa0;
-            margin: 20px 0 8px 0;
-            font-size: 16px;
-          }
-          
-          .destaque { 
-            background: #f0f7ff; 
-            padding: 12px 16px; 
-            border-radius: 8px;
-            border-left: 4px solid #007BFF; 
-            margin: 15px 0;
-            page-break-inside: avoid;
-          }
-          
-          .info-box { 
-            background: #fff7f0; 
-            padding: 12px 16px; 
-            border-radius: 8px;
-            border-left: 4px solid #f59e0b; 
-            margin: 15px 0;
-            page-break-inside: avoid;
-          }
-          
-          .ferias-box {
-            background: #f0fff4;
-            padding: 12px 16px;
-            border-radius: 8px;
-            border-left: 4px solid #38a169;
-            margin: 15px 0;
-            page-break-inside: avoid;
-          }
-          
-          .pix-info {
-            background: #f8f0ff;
-            padding: 12px 16px;
-            border-radius: 8px;
-            border-left: 4px solid #8a2be2;
-            margin: 12px 0;
-            font-family: monospace;
-            font-size: 14px;
-            page-break-inside: avoid;
-          }
-          
-          .passo-a-passo {
-            background: #f7fff0;
-            padding: 16px;
-            border-radius: 8px;
-            border: 1px solid #e6eefc;
-            margin: 16px 0;
-            page-break-inside: avoid;
-          }
-          
-          .passo {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            margin: 12px 0;
-          }
-          
-          .passo-num {
-            background: #007BFF;
-            color: white;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: bold;
-            flex-shrink: 0;
-          }
-          
-          .dados-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 12px;
-            margin: 12px 0 24px 0;
-          }
-          
-          .dado-item {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 8px;
-            border-left: 4px solid #007BFF;
-          }
-          
-          .tabela-container {
-            overflow-x: auto;
-            margin: 16px 0;
-            border-radius: 8px;
-            border: 1px solid #e6eefc;
-          }
-          
-          .tabela-melhorada {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 600px;
-          }
-          
-          .tabela-melhorada thead {
-            background: #007BFF;
-            color: white;
-          }
-          
-          .tabela-melhorada th {
-            padding: 12px 16px;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 2px solid #0b5ed7;
-          }
-          
-          .tabela-melhorada tbody tr {
-            border-bottom: 1px solid #e6eefc;
-          }
-          
-          .tabela-melhorada td {
-            padding: 12px 16px;
-            vertical-align: top;
-          }
-          
-          .tabela-melhorada tbody tr:nth-child(even) {
-            background: #fafcff;
-          }
-          
-          .badge-multiplicador {
-            display: inline-block;
-            background: #007BFF;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 14px;
-            margin-right: 8px;
-          }
-          
-          .transportadores {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 12px;
-            margin: 12px 0 24px 0;
-          }
-          
-          .transportador {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 8px;
-            border-left: 4px solid #007BFF;
-          }
-          
-          .image-container {
-            background-color: #f5f5f5;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 10px;
-            text-align: center;
-            margin: 16px 0;
-            color: #6b7280;
-            page-break-inside: avoid;
-          }
-          
-          .image-container img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-            border-radius: 4px;
-            max-height: 400px;
-            object-fit: contain;
-          }
-          
-          .image-container p {
-            margin: 8px 0 0 0;
-            padding: 0;
-            font-size: 13px;
-            color: #6b7280;
-          }
-          
-          .cliente-item {
-            padding: 6px 0;
-            border-bottom: 1px dotted #e0e0e0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-          }
-          
-          .cliente-item:last-child {
-            border-bottom: none;
-          }
-          
-          .cliente-nome {
-            flex-grow: 1;
-            font-size: 14.5px;
-          }
-          
-          .codigo-container {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-          }
-          
-          .codigo-box {
-            background: #007BFF;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: bold;
-            min-width: 40px;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,123,255,0.3);
-          }
-          
-          .total-clientes {
-            background: #f5f5f5;
-            padding: 8px 12px;
-            border-radius: 6px;
-            margin: 16px 0;
-            font-size: 14px;
-            color: #666;
-            border-left: 3px solid #ccc;
-          }
-          
-          .clientes-container {
-            background: #f8f9fa;
-            padding: 16px 20px;
-            border-radius: 10px;
-            border-left: 4px solid #007BFF;
-            margin: 12px 0 24px 0;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-          }
-          
-          /* Estilos específicos para uteis-clientes.html */
-          .produtos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 12px;
-            margin-top: 12px;
-            margin-bottom: 16px;
-          }
-          
-          .produto-item {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 8px;
-            border-left: 4px solid #007BFF;
-          }
-          
-          .produto-nome {
-            font-weight: bold;
-            color: #0b4fa0;
-            margin-bottom: 4px;
-          }
-          
-          .produto-detalhe {
-            font-size: 14px;
-            color: #6b7280;
-          }
-          
-          @media print {
-            body { margin: 20px; }
-            
-            h2 {
-              page-break-before: auto;
-              page-break-after: avoid;
-            }
-            
-            h2 {
-              break-inside: avoid;
-            }
-            
-            h2:not(:first-child) {
-              break-before: avoid;
-            }
-            
-            .image-container, .destaque, .info-box, .ferias-box, .pix-info, .passo-a-passo, .tabela-container, .produtos-grid {
-              break-inside: avoid;
-            }
-            
-            .tabela-melhorada {
-              break-inside: avoid;
-            }
-            
-            @page {
-              margin: 1cm;
-            }
-          }
+          body { font-family: 'Inter', system-ui; line-height: 1.6; margin: 40px; color: #0b3b6b; background: white; }
+          h1 { color: #0b5ed7; border-bottom: 2px solid #e6eefc; padding-bottom: 10px; margin-bottom: 25px; font-size: 24px; page-break-after: avoid; }
+          h2 { color: #0b4fa0; margin-top: 25px; border-left: 4px solid #007BFF; padding-left: 12px; font-size: 18px; page-break-after: avoid; page-break-before: auto; }
+          h2::before { content: "•"; color: #007BFF; font-size: 24px; margin-right: 8px; }
+          h3 { color: #0b4fa0; margin: 20px 0 8px 0; font-size: 16px; }
+          .destaque { background: #f0f7ff; padding: 12px 16px; border-radius: 8px; border-left: 4px solid #007BFF; margin: 15px 0; }
+          .info-box { background: #fff7f0; padding: 12px 16px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 15px 0; }
+          .ferias-box { background: #f0fff4; padding: 12px 16px; border-radius: 8px; border-left: 4px solid #38a169; margin: 15px 0; }
+          .pix-info { background: #f8f0ff; padding: 12px 16px; border-radius: 8px; border-left: 4px solid #8a2be2; margin: 12px 0; font-family: monospace; font-size: 14px; }
+          .passo-a-passo { background: #f7fff0; padding: 16px; border-radius: 8px; border: 1px solid #e6eefc; margin: 16px 0; }
+          .passo { display: flex; align-items: flex-start; gap: 12px; margin: 12px 0; }
+          .passo-num { background: #007BFF; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; flex-shrink: 0; }
+          .tabela-container { overflow-x: auto; margin: 16px 0; border-radius: 8px; border: 1px solid #e6eefc; }
+          .tabela-melhorada { width: 100%; border-collapse: collapse; min-width: 600px; }
+          .tabela-melhorada thead { background: #007BFF; color: white; }
+          .tabela-melhorada th { padding: 12px 16px; text-align: left; font-weight: 600; border-bottom: 2px solid #0b5ed7; }
+          .tabela-melhorada tbody tr { border-bottom: 1px solid #e6eefc; }
+          .tabela-melhorada td { padding: 12px 16px; vertical-align: top; }
+          .tabela-melhorada tbody tr:nth-child(even) { background: #fafcff; }
+          .image-container { background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; margin: 16px 0; }
+          .image-container img { max-width: 100%; height: auto; display: block; margin: 0 auto; max-height: 400px; object-fit: contain; }
+          .cliente-item { padding: 6px 0; border-bottom: 1px dotted #e0e0e0; display: flex; align-items: center; justify-content: space-between; }
+          .codigo-box { background: #007BFF; color: white; padding: 2px 8px; border-radius: 6px; font-size: 13px; font-weight: bold; min-width: 40px; text-align: center; }
+          .clientes-container { background: #f8f9fa; padding: 16px 20px; border-radius: 10px; border-left: 4px solid #007BFF; margin: 12px 0 24px 0; }
+          .produtos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; margin: 12px 0; }
+          .produto-item { background: #f8f9fa; padding: 12px; border-radius: 8px; border-left: 4px solid #007BFF; }
+          @media print { body { margin: 20px; } @page { margin: 1cm; } }
         </style>
       `;
 
-      const htmlCompleto = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>${titulo}</title>
-          <meta charset="utf-8">
-          ${estilos}
-        </head>
-        <body>
-          ${conteudoComImagens}
-        </body>
-        </html>
-      `;
+      const htmlCompleto = `<!DOCTYPE html><html><head><title>${titulo}</title><meta charset="utf-8">${estilos}</head><body>${conteudoComImagens}</body></html>`;
 
-      // Abrir impressão ou salvar como HTML
       if (formato === 'imprimir') {
         this.abrirImpressao(htmlCompleto);
       } else if (formato === 'pdf') {
@@ -2576,7 +2279,7 @@ class GerenciadorAnotacoes {
       }
     } catch (error) {
       console.error('Erro ao gerar saída:', error);
-      this.mostrarPopup('Erro ao processar imagens. Verifique os caminhos das imagens.', 'Erro');
+      this.mostrarPopup('Erro ao processar imagens.', 'Erro');
     }
   }
 
@@ -2586,16 +2289,11 @@ class GerenciadorAnotacoes {
     const url = URL.createObjectURL(blob);
     
     iframe.src = url;
-    
     iframe.onload = () => {
       try {
         iframe.contentWindow.focus();
         iframe.contentWindow.print();
-        
-        // Limpar URL após um tempo
-        setTimeout(() => {
-          URL.revokeObjectURL(url);
-        }, 1000);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
       } catch (e) {
         console.error('Erro ao imprimir:', e);
         this.mostrarPopup('Erro ao imprimir. Tente novamente.', 'Erro');
@@ -2613,11 +2311,7 @@ class GerenciadorAnotacoes {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    
-    // Limpar URL após um tempo
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-    }, 1000);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   mostrarPopup(mensagem, titulo = 'Atenção') {
@@ -2634,47 +2328,50 @@ class GerenciadorAnotacoes {
 
   fecharPopup() {
     const popup = document.getElementById('popup-overlay');
-    if (popup) {
-      popup.classList.remove('ativo');
-    }
+    if (popup) popup.classList.remove('ativo');
   }
 
+  // =============================================
+  // BUSCA MELHORADA — com agrupamento por tópico
+  // =============================================
   async buscarConteudo(termo) {
+    const resultadosContainer = document.getElementById('resultados-busca');
+    
     if (!termo.trim()) {
-      document.getElementById('resultados-busca').style.display = 'none';
+      resultadosContainer.style.display = 'none';
       document.querySelectorAll('.topico-item').forEach(item => {
         item.style.display = 'flex';
       });
       return;
     }
 
-    const resultados = [];
-    const termoLower = termo.toLowerCase();
+    // Mostrar indicador de busca
+    resultadosContainer.style.display = 'block';
+    resultadosContainer.innerHTML = `
+      <div class="resultados-header">
+        <span>Buscando...</span>
+      </div>
+      <div style="padding: 20px; text-align: center; color: var(--muted); font-size: 13px;">
+        Pesquisando em todos os tópicos...
+      </div>
+    `;
 
-    // Buscar nos títulos dos tópicos
     document.querySelectorAll('.topico-item').forEach(item => {
-      const titulo = item.textContent.toLowerCase();
-      const arquivo = item.getAttribute('data-arquivo');
-      
-      if (titulo.includes(termoLower)) {
-        resultados.push({
-          tipo: 'topico',
-          titulo: item.textContent.trim(),
-          arquivo: arquivo,
-          trecho: titulo
-        });
-      }
+      item.style.display = 'none';
     });
 
-    // Buscar em todos os arquivos HTML disponíveis
-    for (const arquivo of this.htmlFiles) {
+    const termoLower = termo.toLowerCase().trim();
+    // Mapa: arquivo -> lista de resultados
+    const resultadosPorArquivo = new Map();
+
+    // Buscar em todos os arquivos
+    for (const topico of TOPICOS) {
+      const arquivo = topico.arquivo;
       try {
         let html;
-        
         if (this.cache.has(arquivo)) {
           html = this.cache.get(arquivo);
         } else {
-          // Carregar o arquivo se não estiver em cache
           const response = await fetch(arquivo);
           if (!response.ok) continue;
           html = await response.text();
@@ -2683,99 +2380,188 @@ class GerenciadorAnotacoes {
         
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = html;
-        
-        // Remover scripts e styles
         tempDiv.querySelectorAll('script, style, link, meta, title, head').forEach(el => el.remove());
-        
-        // Buscar subtópicos (h2)
-        const subtitulos = tempDiv.querySelectorAll('h2');
-        subtitulos.forEach(h2 => {
-          const texto = h2.textContent.toLowerCase();
-          if (texto.includes(termoLower)) {
-            const topico = document.querySelector(`[data-arquivo="${arquivo}"]`)?.textContent.trim() || arquivo;
-            resultados.push({
+
+        const resultadosDoArquivo = [];
+
+        // H2 — subtópicos
+        tempDiv.querySelectorAll('h2').forEach(h2 => {
+          if (h2.textContent.toLowerCase().includes(termoLower)) {
+            resultadosDoArquivo.push({
               tipo: 'subtopico',
-              titulo: h2.textContent.trim(),
-              topico: topico,
-              arquivo: arquivo,
+              titulo: h2.textContent.replace('| °', '').trim(),
               id: this.criarId(h2.textContent),
-              trecho: texto,
               posicao: 'h2'
             });
           }
         });
 
-        // Buscar em parágrafos
-        const paragrafos = tempDiv.querySelectorAll('p');
-        paragrafos.forEach(p => {
-          const texto = p.textContent.toLowerCase();
-          if (texto.includes(termoLower)) {
-            const topico = document.querySelector(`[data-arquivo="${arquivo}"]`)?.textContent.trim() || arquivo;
-            resultados.push({
+        // H3
+        tempDiv.querySelectorAll('h3').forEach(h3 => {
+          if (h3.textContent.toLowerCase().includes(termoLower)) {
+            resultadosDoArquivo.push({
               tipo: 'conteudo',
-              titulo: p.textContent.substring(0, 50) + '...',
-              topico: topico,
-              arquivo: arquivo,
-              textoCompleto: p.textContent,
+              titulo: h3.textContent.trim(),
+              textoCompleto: h3.textContent,
+              posicao: 'h3'
+            });
+          }
+        });
+
+        // Parágrafos
+        tempDiv.querySelectorAll('p').forEach(p => {
+          const texto = p.textContent;
+          if (texto.toLowerCase().includes(termoLower)) {
+            resultadosDoArquivo.push({
+              tipo: 'conteudo',
+              titulo: texto.length > 60 ? texto.substring(0, 60) + '…' : texto,
+              textoCompleto: texto,
               trecho: texto,
               posicao: 'p'
             });
           }
         });
 
-        // Buscar em listas
-        const itensLista = tempDiv.querySelectorAll('li');
-        itensLista.forEach(li => {
-          const texto = li.textContent.toLowerCase();
-          if (texto.includes(termoLower)) {
-            const topico = document.querySelector(`[data-arquivo="${arquivo}"]`)?.textContent.trim() || arquivo;
-            resultados.push({
+        // Itens de lista
+        tempDiv.querySelectorAll('li').forEach(li => {
+          const texto = li.textContent;
+          if (texto.toLowerCase().includes(termoLower)) {
+            resultadosDoArquivo.push({
               tipo: 'conteudo',
-              titulo: li.textContent.substring(0, 50) + '...',
-              topico: topico,
-              arquivo: arquivo,
-              textoCompleto: li.textContent,
+              titulo: texto.length > 60 ? texto.substring(0, 60) + '…' : texto,
+              textoCompleto: texto,
               trecho: texto,
               posicao: 'li'
             });
           }
         });
 
+        // Células de tabela
+        tempDiv.querySelectorAll('td, th').forEach(cel => {
+          const texto = cel.textContent;
+          if (texto.toLowerCase().includes(termoLower)) {
+            resultadosDoArquivo.push({
+              tipo: 'conteudo',
+              titulo: texto.length > 60 ? texto.substring(0, 60) + '…' : texto,
+              textoCompleto: texto,
+              trecho: texto,
+              posicao: 'td'
+            });
+          }
+        });
+
+        // Verificar se o nome do próprio tópico bate
+        if (topico.nome.toLowerCase().includes(termoLower) && resultadosDoArquivo.length === 0) {
+          resultadosDoArquivo.push({
+            tipo: 'topico',
+            titulo: topico.nome,
+            textoCompleto: topico.nome,
+            posicao: 'topico'
+          });
+        }
+
+        if (resultadosDoArquivo.length > 0 || topico.nome.toLowerCase().includes(termoLower)) {
+          // Se o tópico em si bate, adicionar como primeiro item
+          if (topico.nome.toLowerCase().includes(termoLower)) {
+            resultadosPorArquivo.set(arquivo, { topico, itens: resultadosDoArquivo, nomeMatch: true });
+          } else {
+            resultadosPorArquivo.set(arquivo, { topico, itens: resultadosDoArquivo, nomeMatch: false });
+          }
+        }
+
       } catch (error) {
         console.error('Erro ao buscar no arquivo:', arquivo, error);
       }
     }
 
-    this.exibirResultadosBusca(resultados, termo);
+    this.exibirResultadosAgrupados(resultadosPorArquivo, termo);
   }
 
-  exibirResultadosBusca(resultados, termo) {
+  exibirResultadosAgrupados(resultadosPorArquivo, termo) {
     const container = document.getElementById('resultados-busca');
     if (!container) return;
-    
-    if (resultados.length === 0) {
-      container.innerHTML = '<div class="sem-resultados">Nenhum resultado encontrado para "' + termo + '"</div>';
-    } else {
-      const html = resultados.map(resultado => `
-        <div class="resultado-item" data-arquivo="${resultado.arquivo}" data-tipo="${resultado.tipo}" 
-             data-id="${resultado.id || ''}" data-texto="${resultado.textoCompleto ? resultado.textoCompleto.replace(/"/g, '&quot;') : ''}"
-             data-posicao="${resultado.posicao || ''}">
-          <div class="resultado-topico">${resultado.tipo === 'topico' ? 'Tópico' : 'Em: ' + resultado.topico}</div>
-          <div class="resultado-titulo">${resultado.titulo}</div>
-          <div class="resultado-trecho">${this.destacarTermo(resultado.trecho, termo)}</div>
+
+    if (resultadosPorArquivo.size === 0) {
+      container.innerHTML = `
+        <div class="resultados-header">
+          <span>Resultados</span>
+          <span class="resultados-count">0</span>
         </div>
-      `).join('');
-      
-      container.innerHTML = html;
+        <div class="sem-resultados">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          Nenhum resultado para "<strong>${termo}</strong>"
+        </div>
+      `;
+      container.style.display = 'block';
+      return;
     }
-    
-    container.style.display = 'block';
-    
-    document.querySelectorAll('.topico-item').forEach(item => {
-      item.style.display = 'none';
+
+    // Contar total
+    let total = 0;
+    resultadosPorArquivo.forEach(({ itens }) => { total += itens.length || 1; });
+
+    let html = `
+      <div class="resultados-header">
+        <span>Resultados para "${termo}"</span>
+        <span class="resultados-count">${total}</span>
+      </div>
+    `;
+
+    resultadosPorArquivo.forEach(({ topico, itens, nomeMatch }, arquivo) => {
+      html += `<div class="resultados-grupo">`;
+      html += `
+        <div class="resultados-grupo-header" data-arquivo="${arquivo}" data-abrir-topico="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          ${topico.nome}
+          ${nomeMatch ? '<span style="margin-left:auto; font-size:10px; background:#dbeafe; color:#1d4ed8; padding:2px 6px; border-radius:20px; text-transform:none; font-weight:600;">Tópico</span>' : ''}
+        </div>
+      `;
+
+      itens.forEach(item => {
+        const badgeClass = item.tipo === 'subtopico' ? 'badge-subtopico' : 'badge-conteudo';
+        const badgeLabel = item.tipo === 'subtopico' ? 'Subtópico' : 'Conteúdo';
+
+        const trecho = item.trecho || item.titulo || '';
+        const trechoDestacado = this.destacarTermo(trecho.toLowerCase().substring(0, 120), termo.toLowerCase());
+
+        html += `
+          <div class="resultado-item" 
+               data-arquivo="${arquivo}" 
+               data-tipo="${item.tipo}"
+               data-id="${item.id || ''}"
+               data-texto="${(item.textoCompleto || '').replace(/"/g, '&quot;')}"
+               data-posicao="${item.posicao || ''}">
+            <span class="resultado-tipo-badge ${badgeClass}">${badgeLabel}</span>
+            <div class="resultado-titulo">${item.titulo}</div>
+            ${trecho && trecho !== item.titulo ? `<div class="resultado-trecho">${trechoDestacado}</div>` : ''}
+          </div>
+        `;
+      });
+
+      // Se só o nome bateu (sem itens internos), adicionar clique direto
+      if (itens.length === 0 && nomeMatch) {
+        html += `
+          <div class="resultado-item" data-arquivo="${arquivo}" data-tipo="topico" data-posicao="topico">
+            <span class="resultado-tipo-badge badge-topico">Tópico</span>
+            <div class="resultado-titulo">${topico.nome}</div>
+            <div class="resultado-trecho">Clique para abrir este tópico</div>
+          </div>
+        `;
+      }
+
+      html += `</div>`;
     });
 
-    document.querySelectorAll('.resultado-item').forEach(item => {
+    container.innerHTML = html;
+    container.style.display = 'block';
+
+    // Eventos para os itens de resultado
+    container.querySelectorAll('.resultado-item').forEach(item => {
       item.addEventListener('click', () => {
         const arquivo = item.getAttribute('data-arquivo');
         const tipo = item.getAttribute('data-tipo');
@@ -2790,19 +2576,44 @@ class GerenciadorAnotacoes {
           scrollTo = { tipo: 'texto', valor: texto, posicao: posicao };
         }
         
-        this.carregarTopico(arquivo, scrollTo);
-        container.style.display = 'none';
+        // Marcar tópico ativo na sidebar
         document.querySelectorAll('.topico-item').forEach(i => {
           i.style.display = 'flex';
+          i.classList.remove('ativo');
         });
+        const topicoItem = document.querySelector(`[data-arquivo="${arquivo}"]`);
+        if (topicoItem) topicoItem.classList.add('ativo');
+
+        gerenciador.carregarTopico(arquivo, scrollTo);
+        container.style.display = 'none';
+        document.getElementById('campo-busca').value = '';
+      });
+    });
+
+    // Clique no cabeçalho do grupo abre diretamente o tópico
+    container.querySelectorAll('[data-abrir-topico="true"]').forEach(header => {
+      header.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const arquivo = header.getAttribute('data-arquivo');
+        
+        document.querySelectorAll('.topico-item').forEach(i => {
+          i.style.display = 'flex';
+          i.classList.remove('ativo');
+        });
+        const topicoItem = document.querySelector(`[data-arquivo="${arquivo}"]`);
+        if (topicoItem) topicoItem.classList.add('ativo');
+
+        gerenciador.carregarTopico(arquivo);
+        container.style.display = 'none';
         document.getElementById('campo-busca').value = '';
       });
     });
   }
 
   destacarTermo(texto, termo) {
-    const regex = new RegExp(`(${termo})`, 'gi');
-    return texto.replace(regex, '<mark>$1</mark>').substring(0, 100) + '...';
+    if (!texto || !termo) return texto || '';
+    const regex = new RegExp(`(${termo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return texto.replace(regex, '<mark>$1</mark>');
   }
 
   rolarParaElemento(dados) {
@@ -2810,19 +2621,14 @@ class GerenciadorAnotacoes {
     
     setTimeout(() => {
       if (dados.tipo === 'id') {
-        // Procurar por elemento com ID
         let elemento = document.getElementById(dados.valor);
         if (!elemento) {
-          // Tentar encontrar por atributo data-subtopico
           elemento = document.querySelector(`[data-subtopico="${dados.valor}"]`);
           if (elemento) {
-            // Clicar no subtópico para carregar o conteúdo
             elemento.click();
             setTimeout(() => {
               const container = document.getElementById('conteudo-subtopico');
-              if (container) {
-                container.scrollTop = 0;
-              }
+              if (container) container.scrollTop = 0;
             }, 300);
           }
         } else {
@@ -2830,8 +2636,7 @@ class GerenciadorAnotacoes {
           this.destacarElemento(elemento);
         }
       } else if (dados.tipo === 'texto') {
-        // Procurar por elemento que contenha o texto
-        const seletor = dados.posicao || 'p, li, h2, h3, h4';
+        const seletor = dados.posicao || 'p, li, h2, h3, h4, td';
         const elementos = document.querySelectorAll(`#conteudo-dinamico ${seletor}`);
         
         for (let elemento of elementos) {
@@ -2861,47 +2666,42 @@ class GerenciadorAnotacoes {
   }
 }
 
-// Inicialização da aplicação
+// =============================================
+// INICIALIZAÇÃO
+// =============================================
+let gerenciador;
+
 document.addEventListener('DOMContentLoaded', function() {
-  const gerenciador = new GerenciadorAnotacoes();
+  // Renderizar tópicos em ordem alfabética
+  renderizarTopicos();
+  
+  // Instanciar gerenciador
+  gerenciador = new GerenciadorAnotacoes();
 
-  // Eventos para os tópicos
-  document.querySelectorAll('.topico-item').forEach(item => {
-    item.addEventListener('click', function() {
-      document.querySelectorAll('.topico-item').forEach(i => i.classList.remove('ativo'));
-      this.classList.add('ativo');
-      
-      const arquivo = this.getAttribute('data-arquivo');
-      gerenciador.carregarTopico(arquivo);
-    });
-  });
-
-  // Eventos para os botões da toolbar
+  // Botão Fechar (volta para index)
   document.getElementById('btn-fechar').addEventListener('click', function() {
     window.location.href = '../index.html';
   });
 
-  // Evento para o botão de Rotinas Férias
+  // Botão Rotinas Férias
   document.getElementById('btn-ferias').addEventListener('click', function() {
     window.location.href = '../rotinas.html';
   });
 
-  // Eventos para o menu sidebar
+  // Menu Sidebar — sem overlay escuro
   const abrirMenu = function() {
     document.getElementById('menu-sidebar').classList.add('ativo');
-    document.getElementById('menu-overlay').classList.add('ativo');
   };
 
   const fecharMenu = function() {
     document.getElementById('menu-sidebar').classList.remove('ativo');
-    document.getElementById('menu-overlay').classList.remove('ativo');
   };
 
   document.getElementById('btn-menu').addEventListener('click', abrirMenu);
   document.getElementById('btn-fechar-sidebar').addEventListener('click', fecharMenu);
-  document.getElementById('menu-overlay').addEventListener('click', fecharMenu);
+  // Overlay desativado, então não precisa de evento no overlay
 
-  // Eventos para a busca
+  // Campo de busca com debounce
   const searchInput = document.getElementById('campo-busca');
   if (searchInput) {
     let timeout;
@@ -2909,14 +2709,14 @@ document.addEventListener('DOMContentLoaded', function() {
       clearTimeout(timeout);
       timeout = setTimeout(() => {
         gerenciador.buscarConteudo(e.target.value);
-      }, 300);
+      }, 350);
     });
     
     // Fechar resultados ao clicar fora
     document.addEventListener('click', function(e) {
       if (!e.target.closest('.search') && !e.target.closest('.resultados-busca')) {
         const resultados = document.getElementById('resultados-busca');
-        if (resultados) {
+        if (resultados && resultados.style.display !== 'none') {
           resultados.style.display = 'none';
           document.querySelectorAll('.topico-item').forEach(item => {
             item.style.display = 'flex';
@@ -2924,9 +2724,28 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     });
+
+    // Fechar com ESC
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const resultados = document.getElementById('resultados-busca');
+        if (resultados && resultados.style.display !== 'none') {
+          resultados.style.display = 'none';
+          document.querySelectorAll('.topico-item').forEach(item => {
+            item.style.display = 'flex';
+          });
+          searchInput.value = '';
+        }
+        if (gerenciador && gerenciador.modoSelecao) {
+          gerenciador.desativarModoSelecao();
+        }
+        // Fechar menu lateral com ESC
+        document.getElementById('menu-sidebar').classList.remove('ativo');
+      }
+    });
   }
 
-  // Eventos para o lightbox de imagens
+  // Lightbox
   const lightboxClose = document.getElementById('lightbox-close');
   if (lightboxClose) {
     lightboxClose.addEventListener('click', function() {
@@ -2937,40 +2756,25 @@ document.addEventListener('DOMContentLoaded', function() {
   const imageLightbox = document.getElementById('image-lightbox');
   if (imageLightbox) {
     imageLightbox.addEventListener('click', function(e) {
-      if (e.target === this) {
-        gerenciador.fecharLightbox();
-      }
+      if (e.target === this) gerenciador.fecharLightbox();
     });
   }
 
-  // Eventos para popup
+  // Popup
   document.getElementById('popup-fechar').addEventListener('click', function() {
     gerenciador.fecharPopup();
   });
 
   document.getElementById('popup-overlay').addEventListener('click', function(e) {
-    if (e.target === this) {
-      gerenciador.fecharPopup();
-    }
+    if (e.target === this) gerenciador.fecharPopup();
   });
 
-  // Evento para tecla ESC cancelar seleção
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      if (gerenciador.modoSelecao) {
-        gerenciador.desativarModoSelecao();
-      }
-    }
-  });
-
-  // Eventos delegados para ações dinâmicas
+  // Ações dinâmicas (botões criados depois do carregamento)
   document.addEventListener('click', function(e) {
-    // Fechar tópico
     if (e.target.id === 'btn-fechar-topico' || e.target.closest('#btn-fechar-topico')) {
       gerenciador.fecharTopico();
     }
     
-    // PDF do subtópico atual
     if (e.target.id === 'btn-pdf-topico' || e.target.closest('#btn-pdf-topico')) {
       if (gerenciador.subtopicoAtual !== null) {
         gerenciador.salvarSubtopicoAtual('pdf');
@@ -2979,7 +2783,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
     
-    // Imprimir subtópico atual
     if (e.target.id === 'btn-imprimir-topico' || e.target.closest('#btn-imprimir-topico')) {
       if (gerenciador.subtopicoAtual !== null) {
         gerenciador.salvarSubtopicoAtual('imprimir');

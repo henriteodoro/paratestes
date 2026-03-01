@@ -3,401 +3,503 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rotinas Diárias (simplificado) - Fev/Mar 2026</title>
+  <title>Rotinas Diárias - Fev/Mar 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    :root {
+      --bg: #f0f4fb;
+      --surface: #ffffff;
+      --border: #dce8fb;
+      --text-primary: #1a2740;
+      --text-secondary: #4e6080;
+      --accent: #1a56db;
+      --accent-light: #e8f0fe;
+      --shadow-sm: 0 2px 8px rgba(20,60,120,0.07);
+      --shadow-md: 0 8px 24px rgba(20,60,120,0.10);
+      --shadow-lg: 0 14px 36px rgba(20,60,120,0.13);
+      --radius-sm: 14px;
+      --radius-md: 20px;
+      --radius-lg: 28px;
     }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-      background: #f5f9ff;
-      color: #1e293b;
-      padding: 24px;
-      line-height: 1.5;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      padding: 32px 24px 64px;
+      line-height: 1.55;
+      min-height: 100vh;
     }
+
+    /* subtle grid bg */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: radial-gradient(circle, #c8d9f5 1px, transparent 1px);
+      background-size: 28px 28px;
+      opacity: 0.35;
+      pointer-events: none;
+      z-index: 0;
+    }
+
     .container {
-      max-width: 1000px;
+      max-width: 900px;
       margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
-    h1 {
-      font-size: 2rem;
-      font-weight: 600;
-      color: #0b4f8b;
-      margin-bottom: 0.25rem;
-      border-left: 6px solid #0b4f8b;
-      padding-left: 1rem;
-    }
-    .subtitulo {
-      color: #475569;
-      margin-bottom: 2rem;
-      font-size: 1.1rem;
-      margin-left: 1.2rem;
-    }
-    /* Legenda */
-    .legenda {
-      background: white;
-      border-radius: 20px;
-      padding: 1.2rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 8px 20px rgba(0,60,120,0.08);
-      border: 1px solid #e2edff;
-    }
-    .legenda summary {
-      font-weight: 600;
-      font-size: 1.2rem;
-      cursor: pointer;
-      color: #0b4f8b;
+
+    /* ---- HEADER ---- */
+    .page-header {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 1rem;
+      margin-bottom: 0.4rem;
+    }
+    .header-icon {
+      width: 52px; height: 52px;
+      background: var(--accent);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(26,86,219,0.35);
+      flex-shrink: 0;
+    }
+    .header-icon svg { width: 28px; height: 28px; color: #fff; }
+    h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+    }
+    .subtitulo {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      margin-left: 68px;
+      margin-bottom: 2.5rem;
+      font-weight: 500;
+    }
+
+    /* ---- LEGENDA ---- */
+    .legenda {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 2.5rem;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+    }
+    .legenda summary {
+      font-family: 'Sora', sans-serif;
+      font-weight: 600;
+      font-size: 1.05rem;
+      cursor: pointer;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
       list-style: none;
+      user-select: none;
     }
-    .legenda summary::-webkit-details-marker {
-      display: none;
+    .legenda summary::-webkit-details-marker { display: none; }
+    .legenda summary .leg-arrow {
+      margin-left: auto;
+      transition: transform 0.25s;
+      opacity: 0.5;
     }
-    .legenda summary::before {
-      content: '📋';
-      font-size: 1.4rem;
-    }
+    details[open] .leg-arrow { transform: rotate(180deg); }
+    .legenda summary svg { width: 20px; height: 20px; }
+
     .legenda-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 0.85rem;
       margin-top: 1.2rem;
     }
     .legenda-item {
-      background: #f8fcff;
-      border-radius: 16px;
-      padding: 1rem;
+      background: #f7faff;
+      border-radius: var(--radius-sm);
+      padding: 0.9rem 1rem;
       border-left: 5px solid;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      transition: box-shadow 0.18s;
     }
+    .legenda-item:hover { box-shadow: var(--shadow-sm); }
     .legenda-titulo {
+      font-family: 'Sora', sans-serif;
       font-weight: 600;
+      font-size: 0.92rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.35rem;
+      color: var(--text-primary);
     }
-    .legenda-titulo span {
-      font-size: 1.2rem;
+    .legenda-titulo .cat-icon {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
     }
+    .legenda-titulo .cat-icon svg { width: 15px; height: 15px; color: #fff; }
     .legenda-desc {
-      font-size: 0.95rem;
-      color: #334155;
-      margin-bottom: 0.5rem;
+      font-size: 0.87rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.45rem;
     }
     .legenda-detalhes {
-      font-size: 0.9rem;
+      font-size: 0.83rem;
       background: white;
-      padding: 0.75rem;
-      border-radius: 12px;
-      border: 1px solid #dbeafe;
-      color: #1e3a5f;
+      padding: 0.6rem 0.8rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      line-height: 1.5;
     }
-    /* Dias */
+
+    /* ---- DIAS ---- */
     .dias-container {
       display: flex;
       flex-direction: column;
-      gap: 2rem;
+      gap: 1.8rem;
     }
     .dia-card {
-      background: white;
-      border-radius: 24px;
-      padding: 1.5rem;
-      box-shadow: 0 8px 24px rgba(0,50,100,0.08);
-      border: 1px solid #e0edff;
-      transition: 0.2s;
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 1.6rem;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+      transition: box-shadow 0.2s, transform 0.2s;
     }
     .dia-card:hover {
-      box-shadow: 0 12px 28px rgba(0,80,150,0.12);
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
     }
+
     .dia-cabecalho {
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      gap: 0.75rem 1.5rem;
-      margin-bottom: 1.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 2px dashed #cbd5e1;
+      gap: 0.7rem 1.2rem;
+      margin-bottom: 1.4rem;
+      padding-bottom: 1.1rem;
+      border-bottom: 2px dashed #d5e4fb;
     }
     .dia-data {
-      font-size: 1.5rem;
+      font-family: 'Sora', sans-serif;
+      font-size: 1.3rem;
       font-weight: 700;
-      color: #0b4f8b;
-      background: #e8f0fe;
-      padding: 0.3rem 1.2rem;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 0.25rem 1.1rem;
       border-radius: 40px;
-      letter-spacing: 0.5px;
     }
     .dia-semana {
-      font-size: 1.2rem;
+      font-size: 1rem;
       font-weight: 500;
-      color: #2c3e50;
+      color: var(--text-secondary);
     }
     .dia-observacao {
-      background: #fff3cd;
-      color: #856404;
-      padding: 0.3rem 1rem;
+      background: #fff8e1;
+      color: #7a5800;
+      padding: 0.25rem 0.9rem;
       border-radius: 30px;
-      font-size: 0.95rem;
+      font-size: 0.88rem;
       font-weight: 500;
-      border: 1px solid #ffe69c;
+      border: 1px solid #fde68a;
     }
-    /* Tarefas */
+
+    /* ---- TAREFAS ---- */
     .tarefas-lista {
       display: flex;
       flex-direction: column;
-      gap: 0.8rem;
+      gap: 0.65rem;
     }
     .tarefa-item {
       display: flex;
       align-items: flex-start;
-      gap: 0.8rem;
-      padding: 0.8rem 1rem;
-      background: #fafdff;
-      border-radius: 18px;
-      border-left: 6px solid;
-      transition: 0.1s;
+      gap: 0.75rem;
+      padding: 0.75rem 0.9rem;
+      background: #f7faff;
+      border-radius: var(--radius-sm);
+      border-left: 5px solid;
+      transition: background 0.15s;
     }
-    .tarefa-item:hover {
-      background: #f1f9ff;
-    }
+    .tarefa-item:hover { background: #eef3ff; }
+
     .tarefa-icone {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
-      background: #007BFF;
-      color: white;
-      font-size: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-    .tarefa-conteudo {
-      flex: 1;
-    }
+    .tarefa-icone svg { width: 17px; height: 17px; color: #fff; }
+
+    .tarefa-conteudo { flex: 1; }
     .tarefa-titulo {
+      font-family: 'Sora', sans-serif;
       font-weight: 600;
-      font-size: 1.05rem;
-      margin-bottom: 0.2rem;
+      font-size: 0.97rem;
+      color: var(--text-primary);
+      margin-bottom: 0.1rem;
     }
     .tarefa-descricao {
-      font-size: 0.95rem;
-      color: #475569;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      margin-top: 0.1rem;
     }
     .tarefa-pessoa {
-      display: inline-block;
-      background: #dbeafe;
-      color: #0b4f8b;
-      padding: 0.2rem 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: 0.15rem 0.65rem;
       border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      margin-top: 0.3rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-top: 0.35rem;
     }
+    .tarefa-pessoa svg { width: 12px; height: 12px; }
+
     .sem-tarefas {
       font-style: italic;
       color: #6b7280;
       background: #f1f5f9;
       padding: 1rem;
-      border-radius: 16px;
+      border-radius: var(--radius-sm);
       text-align: center;
-    }
-    .footer {
-      margin-top: 3rem;
-      text-align: center;
-      color: #64748b;
-      font-size: 0.9rem;
-      border-top: 1px solid #cbd5e1;
-      padding-top: 1.5rem;
     }
   </style>
 </head>
 <body>
 <div class="container">
-  <h1>📅 Rotinas Diárias</h1>
-  <div class="subtitulo">23/02/2026 – 20/03/2026 · versão simplificada</div>
 
-  <!-- LEGENDA (expansível) -->
+  <!-- HEADER -->
+  <div class="page-header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
+      </svg>
+    </div>
+    <h1>Rotinas Diárias</h1>
+  </div>
+  <div class="subtitulo">23/02/2026 – 20/03/2026</div>
+
+  <!-- LEGENDA -->
   <details class="legenda" open>
-    <summary><span style="font-size:1.2rem;">📌</span> Legenda das categorias</summary>
+    <summary>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="8" y1="6" x2="21" y2="6"></line>
+        <line x1="8" y1="12" x2="21" y2="12"></line>
+        <line x1="8" y1="18" x2="21" y2="18"></line>
+        <line x1="3" y1="6" x2="3.01" y2="6"></line>
+        <line x1="3" y1="12" x2="3.01" y2="12"></line>
+        <line x1="3" y1="18" x2="3.01" y2="18"></line>
+      </svg>
+      Legenda das categorias
+      <svg class="leg-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </summary>
     <div class="legenda-grid" id="legendaContainer"></div>
   </details>
 
-  <!-- DIAS COM TAREFAS -->
+  <!-- DIAS -->
   <div class="dias-container" id="diasContainer"></div>
 
-  <div class="footer">
-    ⚡ Dados fáceis de editar no código (arrays categorias e rotinas)
-  </div>
 </div>
 
 <script>
-(function() {
-  // ---------- DADOS DAS CATEGORIAS (incluindo novas) ----------
+(function () {
+
+  // ─── SVG ICONS ────────────────────────────────────────────────────────────
+  // Each returns an SVG string (viewBox="0 0 24 24", stroke-based Feather-style)
+  const icons = {
+    chat: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>`,
+    box: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>`,
+    coffee: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>`,
+    map: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="21"></line></svg>`,
+    clipboard: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`,
+    dollarSign: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>`,
+    handshake: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"></path></svg>`,
+    fileText: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`,
+    landmark: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"></line><line x1="6" y1="18" x2="6" y2="11"></line><line x1="10" y1="18" x2="10" y2="11"></line><line x1="14" y1="18" x2="14" y2="11"></line><line x1="18" y1="18" x2="18" y2="11"></line><polygon points="12 2 20 7 4 7"></polygon></svg>`,
+    check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
+    cart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>`,
+    upload: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"></polyline><line x1="12" y1="12" x2="12" y2="21"></line><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path></svg>`,
+    download: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 17 12 21 16 17"></polyline><line x1="12" y1="12" x2="12" y2="21"></line><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"></path></svg>`,
+    clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
+    creditCard: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>`,
+    receipt: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z"></path><line x1="8" y1="10" x2="16" y2="10"></line><line x1="8" y1="14" x2="16" y2="14"></line></svg>`,
+    banknote: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="22" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg>`,
+    coins: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"></circle><path d="M18.09 10.37A6 6 0 1 1 10.34 18"></path><path d="M7 6h1v4"></path><line x1="16.71" y1="13.88" x2="13.29" y2="10.47"></line></svg>`,
+    barChart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line><line x1="2" y1="20" x2="22" y2="20"></line></svg>`,
+    refreshCcw: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg>`,
+    pin: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
+    user: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`,
+    listIcon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>`,
+  };
+
+  // ─── CATEGORIAS ───────────────────────────────────────────────────────────
   const categorias = {
-    // Categorias originais
     N1: {
       nome: "Cobranças WhatsApp",
       descricao: "Fazer cobranças no WhatsApp dos clientes",
       detalhes: "Tirar relatório de cobranças, procurar cliente no WhatsApp e mandar mensagem pronta. Cobrar comprovante se necessário.",
       cor: "#ef4444",
-      icone: "💬"
+      icon: "chat"
     },
     N2: {
       nome: "Pedidos Clientes",
       descricao: "Mandar mensagem para clientes pedindo pedido",
       detalhes: "Na web do sistema, vá em telemarketing, olhe clientes sem pedido e peça para enviarem. Horário: 9:00-9:30.",
       cor: "#007BFF",
-      icone: "📦"
+      icon: "box"
     },
     N3: {
       nome: "Pedir Café",
       descricao: "Pedir café para produção caso precise",
       detalhes: "Confirmar na produção (embalagem ou setor Ceará) se precisa de café para quem fica até mais tarde.",
       cor: "#5d4037",
-      icone: "☕"
+      icon: "coffee"
     },
     N4: {
       nome: "Montagem Rotas",
       descricao: "Montagem das rotas de entrega",
       detalhes: "Confira a seção de montagem rotas nas anotações do site.",
       cor: "#10b981",
-      icone: "🗺️"
+      icon: "map"
     },
     N5: {
       nome: "Lista Embalagem",
       descricao: "Pegar lista da embalagem São José e Pão Total",
       detalhes: "Pegar ou pedir que tragam a lista. Se perderam, perguntar ao Guilherme ou Kauan o que faltou.",
       cor: "#fb8c00",
-      icone: "📋"
+      icon: "clipboard"
     },
     N6: {
       nome: "Fechamento Caixas",
       descricao: "Fechamento de caixas (Barão)",
       detalhes: "Confira a seção de fechamento caixas nas anotações do site.",
       cor: "#8a2be2",
-      icone: "💰"
+      icon: "dollarSign"
     },
     N7: {
       nome: "Café Sábado",
       descricao: "Pedir café para sábado caso precise",
       detalhes: "Se tiver produção sábado, pedir café na padaria para o número de pessoas e solicitar entrega na fábrica.",
       cor: "#5d4037",
-      icone: "☕"
+      icon: "coffee"
     },
     N8: {
       nome: "Acerto Célio",
       descricao: "Acerto com o fornecedor Célio",
       detalhes: "Confira o tópico Célio (pagamentos e pix) na seção fornecedores.",
       cor: "#00897b",
-      icone: "🤝"
+      icon: "handshake"
     },
     N9: {
       nome: "Lista São José",
       descricao: "Fazer lista da São José e Pão Total",
       detalhes: "Confira o tópico São José na seção geral.",
       cor: "#f4511e",
-      icone: "📝"
+      icon: "fileText"
     },
     N10: {
       nome: "Adiantamento Salarial",
       descricao: "Adiantamento salarial no banco",
       detalhes: "No banco: folha de pagamento → cadastrar → data, funcionários, valores. Depois processar com autenticação de dois fatores.",
       cor: "#00acc1",
-      icone: "🏦"
+      icon: "landmark"
     },
     N11: {
       nome: "Cheques Início do Mês",
       descricao: "Fazer cheques do início do mês",
       detalhes: "Confira o tópico Cheques Início e Final de Mês na seção geral.",
       cor: "#2e7d32",
-      icone: "📄"
+      icon: "fileText"
     },
-    // Novas categorias para as tarefas adicionadas
     N12: {
       nome: "Pedido São José",
       descricao: "Realizar pedido da São José",
       detalhes: "Fazer o pedido de compras para a São José conforme necessidade do setor.",
       cor: "#9c27b0",
-      icone: "🛒"
+      icon: "cart"
     },
     N13: {
       nome: "Passar Embalagem São José",
       descricao: "Passar embalagem do pedido São José",
       detalhes: "Encaminhar o pedido para o setor de embalagem.",
       cor: "#ff9800",
-      icone: "📤"
+      icon: "upload"
     },
     N14: {
       nome: "Pegar Embalagem São José",
       descricao: "Pegar embalagem do pedido São José",
-      detalhes: "Retirar a embalagem pronta do setor de embalagem.",
+      detalhes: "Pegar ou pedir que tragam a lista. Se perderam, perguntar ao Guilherme ou Kauan o que faltou.",
       cor: "#4caf50",
-      icone: "📥"
+      icon: "download"
     },
     N15: {
       nome: "Lista Hora Extra",
       descricao: "Fazer lista de quem vai ficar depois do horário",
       detalhes: "Anotar os funcionários que irão fazer hora extra para controle e pagamento.",
       cor: "#795548",
-      icone: "⏰"
+      icon: "clock"
     },
     N16: {
       nome: "Faturar Pedidos São José",
       descricao: "Faturar os pedidos da São José no sistema",
       detalhes: "Realizar o faturamento dos pedidos da São José conforme rotina.",
       cor: "#2196f3",
-      icone: "💳"
+      icon: "creditCard"
     },
     N17: {
       nome: "Lançar Notinhas",
       descricao: "Lançar notas de compras e almoxarifado",
-      detalhes: "Inserir no sistema as notas fiscais de compras e movimentações de estoque.",
+      detalhes: "Inserir no sistema as notinhas de compras.",
       cor: "#9e9e9e",
-      icone: "🧾"
+      icon: "receipt"
     },
     N18: {
       nome: "Passar Dinheiro Hora Extra",
       descricao: "Passar dinheiro para quem fez hora extra na semana",
       detalhes: "Calcular e entregar o valor referente às horas extras da semana.",
       cor: "#ffc107",
-      icone: "💵"
+      icon: "banknote"
     },
     N19: {
       nome: "Separar Dinheiro Sábado",
       descricao: "Separar dinheiro para produção de sábado",
-      detalhes: "Separar numerário para pagamento ou troco caso haja produção no sábado.",
+      detalhes: "Separar pagamento para produção no sábado.",
       cor: "#ff5722",
-      icone: "💰"
+      icon: "coins"
     },
     N20: {
       nome: "Entregar Planilhas Autocontrole",
       descricao: "Entregar planilhas de autocontrole",
       detalhes: "Entregar as planilhas preenchidas de autocontrole para o setor responsável.",
       cor: "#607d8b",
-      icone: "📊"
+      icon: "barChart"
     },
     N21: {
       nome: "Atualização Comodatos",
       descricao: "Atualizar contratos de comodato",
-      detalhes: "Revisar e atualizar os contratos de comodato com clientes/fornecedores.",
+      detalhes: "Revisar e atualizar os contratos de comodato.",
       cor: "#3f51b5",
-      icone: "📝"
+      icon: "refreshCcw"
     }
   };
 
-  // ---------- DADOS DAS ROTINAS POR DIA (23/02/2026 a 20/03/2026) ----------
+  // ─── ROTINAS ──────────────────────────────────────────────────────────────
   const rotinas = [
     {
-      data: "23/02/2026",
-      diaSemana: "Segunda-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "23/02/2026", diaSemana: "Segunda-feira", feriado: false, semExpediente: false,
       tarefas: [
         { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
         { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
@@ -409,10 +511,7 @@
       ]
     },
     {
-      data: "24/02/2026",
-      diaSemana: "Terça-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "24/02/2026", diaSemana: "Terça-feira", feriado: false, semExpediente: false,
       tarefas: [
         { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
         { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
@@ -422,10 +521,7 @@
       ]
     },
     {
-      data: "25/02/2026",
-      diaSemana: "Quarta-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "25/02/2026", diaSemana: "Quarta-feira", feriado: false, semExpediente: false,
       tarefas: [
         { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
         { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
@@ -434,10 +530,7 @@
       ]
     },
     {
-      data: "26/02/2026",
-      diaSemana: "Quinta-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "26/02/2026", diaSemana: "Quinta-feira", feriado: false, semExpediente: false,
       tarefas: [
         { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
         { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
@@ -447,10 +540,7 @@
       ]
     },
     {
-      data: "27/02/2026",
-      diaSemana: "Sexta-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "27/02/2026", diaSemana: "Sexta-feira", feriado: false, semExpediente: false,
       tarefas: [
         { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
         { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "" },
@@ -462,10 +552,7 @@
       ]
     },
     {
-      data: "02/03/2026",
-      diaSemana: "Segunda-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "02/03/2026", diaSemana: "Segunda-feira", feriado: false, semExpediente: false,
       tarefas: [
         { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
         { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
@@ -479,10 +566,7 @@
       ]
     },
     {
-      data: "03/03/2026",
-      diaSemana: "Terça-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "03/03/2026", diaSemana: "Terça-feira", feriado: false, semExpediente: false,
       tarefas: [
         { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
         { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
@@ -493,117 +577,90 @@
       ]
     },
     {
-      data: "04/03/2026",
-      diaSemana: "Quarta-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "04/03/2026", diaSemana: "Quarta-feira", feriado: false, semExpediente: false,
       tarefas: [
-        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
-        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
-        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
-        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "Gleyce" },
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "Adeilton" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "Adeilton" }
       ]
     },
     {
-      data: "05/03/2026",
-      diaSemana: "Quinta-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "05/03/2026", diaSemana: "Quinta-feira", feriado: false, semExpediente: false,
       tarefas: [
-        { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
-        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
-        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
-        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" },
-        { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "" }
+        { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "Emillie" },
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "Adeilton" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "Adeilton" },
+        { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "Adeilton" }
       ]
     },
     {
-      data: "06/03/2026",
-      diaSemana: "Sexta-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "06/03/2026", diaSemana: "Sexta-feira", feriado: false, semExpediente: false,
       tarefas: [
-        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
-        { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "" },
-        { titulo: "Passar dinheiro de quem ficou depois do horário na semana", categoria: "N18", descricao: "", pessoa: "" },
-        { titulo: "Acerto Célio e ajudantes", categoria: "N8", descricao: "", pessoa: "" },
-        { titulo: "Pedir café para sábado", categoria: "N7", descricao: "", pessoa: "" },
-        { titulo: "Separar dinheiro para sábado", categoria: "N19", descricao: "", pessoa: "" },
-        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "Gleyce" },
+        { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "Emillie" },
+        { titulo: "Passar dinheiro de quem ficou depois do horário na semana", categoria: "N18", descricao: "", pessoa: "Marina ou Barão" },
+        { titulo: "Acerto Célio e ajudantes", categoria: "N8", descricao: "", pessoa: "Marina ou Barão" },
+        { titulo: "Pedir café para sábado", categoria: "N7", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Separar dinheiro para sábado", categoria: "N19", descricao: "", pessoa: "Marina ou Barão" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "Adeilton" }
       ]
     },
     {
-      data: "09/03/2026",
-      diaSemana: "Segunda-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "09/03/2026", diaSemana: "Segunda-feira", feriado: false, semExpediente: false,
       tarefas: [
-        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
-        { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
-        { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "" },
-        { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "" },
-        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
-        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
-        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "Gleyce" },
+        { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "Emillie" },
+        { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "Escritório" },
+        { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "Emillie" },
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "Adeilton" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "Adeilton" }
       ]
     },
     {
-      data: "10/03/2026",
-      diaSemana: "Terça-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "10/03/2026", diaSemana: "Terça-feira", feriado: false, semExpediente: false,
       tarefas: [
-        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
-        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
-        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "Adeilton" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "Adeilton" }
       ]
     },
     {
-      data: "11/03/2026",
-      diaSemana: "Quarta-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "11/03/2026", diaSemana: "Quarta-feira", feriado: false, semExpediente: false,
       tarefas: [
-        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
-        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
-        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
-        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "Gleyce" },
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "Adeilton" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "Adeilton" }
       ]
     },
     {
-      data: "12/03/2026",
-      diaSemana: "Quinta-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "12/03/2026", diaSemana: "Quinta-feira", feriado: false, semExpediente: false,
       tarefas: [
-        { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
-        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
-        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
-        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" },
-        { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "" }
+        { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "Emillie" },
+        { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "Adeilton" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "Adeilton" },
+        { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "Adeilton" }
       ]
     },
     {
-      data: "13/03/2026",
-      diaSemana: "Sexta-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "13/03/2026", diaSemana: "Sexta-feira", feriado: false, semExpediente: false,
       tarefas: [
-        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
-        { titulo: "Adiantamento salarial (13/03 para agendar 15/03)", categoria: "N10", descricao: "", pessoa: "" },
-        { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "" },
-        { titulo: "Passar dinheiro de quem ficou depois do horário na semana", categoria: "N18", descricao: "", pessoa: "" },
-        { titulo: "Acerto Célio e ajudantes", categoria: "N8", descricao: "", pessoa: "" },
-        { titulo: "Pedir café para sábado", categoria: "N7", descricao: "", pessoa: "" },
-        { titulo: "Separar dinheiro para sábado", categoria: "N19", descricao: "", pessoa: "" },
-        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+        { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "Gleyce" },
+        { titulo: "Adiantamento salarial (13/03 para agendar 15/03)", categoria: "N10", descricao: "", pessoa: "Marina" },
+        { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "Emillie" },
+        { titulo: "Passar dinheiro de quem ficou depois do horário na semana", categoria: "N18", descricao: "", pessoa: "Marina ou Barão" },
+        { titulo: "Acerto Célio e ajudantes", categoria: "N8", descricao: "", pessoa: "Marina ou Barão" },
+        { titulo: "Pedir café para sábado", categoria: "N7", descricao: "", pessoa: "Luiz Felipe" },
+        { titulo: "Separar dinheiro para sábado", categoria: "N19", descricao: "", pessoa: "Marina ou Barão" },
+        { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "Adeilton" }
       ]
     },
     {
-      data: "16/03/2026",
-      diaSemana: "Segunda-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "16/03/2026", diaSemana: "Segunda-feira", feriado: false, semExpediente: false,
       tarefas: [
         { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
         { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
@@ -615,10 +672,7 @@
       ]
     },
     {
-      data: "17/03/2026",
-      diaSemana: "Terça-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "17/03/2026", diaSemana: "Terça-feira", feriado: false, semExpediente: false,
       tarefas: [
         { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
         { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
@@ -629,10 +683,7 @@
       ]
     },
     {
-      data: "18/03/2026",
-      diaSemana: "Quarta-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "18/03/2026", diaSemana: "Quarta-feira", feriado: false, semExpediente: false,
       tarefas: [
         { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
         { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
@@ -641,10 +692,7 @@
       ]
     },
     {
-      data: "19/03/2026",
-      diaSemana: "Quinta-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "19/03/2026", diaSemana: "Quinta-feira", feriado: false, semExpediente: false,
       tarefas: [
         { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
         { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
@@ -654,10 +702,7 @@
       ]
     },
     {
-      data: "20/03/2026",
-      diaSemana: "Sexta-feira",
-      feriado: false,
-      semExpediente: false,
+      data: "20/03/2026", diaSemana: "Sexta-feira", feriado: false, semExpediente: false,
       tarefas: [
         { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
         { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "" },
@@ -670,60 +715,59 @@
     }
   ];
 
-  // ---------- FUNÇÃO PARA RENDERIZAR LEGENDA ----------
+  // ─── RENDER LEGENDA ───────────────────────────────────────────────────────
   function renderLegenda() {
     const container = document.getElementById('legendaContainer');
     let html = '';
     for (const [cod, cat] of Object.entries(categorias)) {
+      const svg = icons[cat.icon] || icons.pin;
       html += `
-        <div class="legenda-item" style="border-left-color: ${cat.cor};">
+        <div class="legenda-item" style="border-left-color:${cat.cor};">
           <div class="legenda-titulo">
-            <span>${cat.icone}</span> <strong>${cod}:</strong> ${cat.nome}
+            <div class="cat-icon" style="background:${cat.cor};">${svg}</div>
+            ${cat.nome}
           </div>
           <div class="legenda-desc">${cat.descricao}</div>
           <div class="legenda-detalhes">${cat.detalhes}</div>
-        </div>
-      `;
+        </div>`;
     }
     container.innerHTML = html;
   }
 
-  // ---------- FUNÇÃO PARA RENDERIZAR DIAS ----------
+  // ─── RENDER DIAS ─────────────────────────────────────────────────────────
   function renderDias() {
     const container = document.getElementById('diasContainer');
     let html = '';
 
     rotinas.forEach(dia => {
-      // Observação (feriado / sem expediente)
       let obs = '';
-      if (dia.feriado) obs = `🎉 ${dia.feriadoNome}`;
-      else if (dia.semExpediente) obs = '🚫 Sem expediente';
+      if (dia.feriado) obs = `<span class="dia-observacao">🎉 ${dia.feriadoNome}</span>`;
+      else if (dia.semExpediente) obs = `<span class="dia-observacao">🚫 Sem expediente</span>`;
 
-      html += `<div class="dia-card">`;
-      html += `<div class="dia-cabecalho">`;
-      html += `<span class="dia-data">${dia.data}</span>`;
-      html += `<span class="dia-semana">${dia.diaSemana}</span>`;
-      if (obs) html += `<span class="dia-observacao">${obs}</span>`;
-      html += `</div>`;
+      html += `<div class="dia-card">
+        <div class="dia-cabecalho">
+          <span class="dia-data">${dia.data}</span>
+          <span class="dia-semana">${dia.diaSemana}</span>
+          ${obs}
+        </div>`;
 
-      // Tarefas
-      if (dia.tarefas.length === 0) {
+      if (!dia.tarefas.length) {
         html += `<div class="sem-tarefas">Nenhuma tarefa agendada.</div>`;
       } else {
         html += `<div class="tarefas-lista">`;
         dia.tarefas.forEach(tarefa => {
           const cat = tarefa.categoria ? categorias[tarefa.categoria] : null;
-          const corFundo = cat ? cat.cor : '#94a3b8';
-          const icone = cat ? cat.icone : '📌';
-          const estiloBorda = `border-left-color: ${corFundo};`;
+          const cor = cat ? cat.cor : '#94a3b8';
+          const svg = cat ? (icons[cat.icon] || icons.pin) : icons.pin;
 
-          html += `<div class="tarefa-item" style="${estiloBorda}">`;
-          html += `<div class="tarefa-icone" style="background: ${corFundo};">${icone}</div>`;
-          html += `<div class="tarefa-conteudo">`;
-          html += `<div class="tarefa-titulo">${tarefa.titulo}</div>`;
-          if (tarefa.descricao) html += `<div class="tarefa-descricao">${tarefa.descricao}</div>`;
-          if (tarefa.pessoa) html += `<span class="tarefa-pessoa">👤 ${tarefa.pessoa}</span>`;
-          html += `</div></div>`;
+          html += `<div class="tarefa-item" style="border-left-color:${cor};">
+            <div class="tarefa-icone" style="background:${cor};">${svg}</div>
+            <div class="tarefa-conteudo">
+              <div class="tarefa-titulo">${tarefa.titulo}</div>
+              ${tarefa.descricao ? `<div class="tarefa-descricao">${tarefa.descricao}</div>` : ''}
+              ${tarefa.pessoa ? `<span class="tarefa-pessoa">${icons.user} ${tarefa.pessoa}</span>` : ''}
+            </div>
+          </div>`;
         });
         html += `</div>`;
       }
@@ -733,7 +777,6 @@
     container.innerHTML = html;
   }
 
-  // Inicializar
   renderLegenda();
   renderDias();
 })();

@@ -93,6 +93,7 @@
     box-shadow: 0 10px 30px rgba(11,78,167,.06);
     min-height: 400px;
     position: relative;
+    overflow: hidden;
   }
 
   .conteudo-header {
@@ -259,12 +260,13 @@
 
   .lista-subtopicos-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 6px;
     margin-bottom: 12px;
   }
 
   .lista-subtopicos-header h3 {
+    flex: 1;
     margin: 0;
     font-size: 14px;
     color: var(--muted);
@@ -283,6 +285,7 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    flex-shrink: 0;
   }
 
   .btn-icone-editar:hover {
@@ -295,18 +298,29 @@
     height: 16px;
   }
 
-  /* ===== BARRA DE AÇÕES DE SELEÇÃO (TOPO) ===== */
-  .selecao-acoes-topo {
+  /* ===== AÇÕES NO CABEÇALHO (MODO SELEÇÃO) ===== */
+  .acoes-header-selecao {
     display: none;
     align-items: center;
-    gap: 5px;
-    padding: 8px 0;
-    margin-bottom: 10px;
+    gap: 4px;
+  }
+
+  .acoes-header-selecao.ativo {
+    display: flex;
+  }
+
+  /* ===== SEGUNDA LINHA DE SELEÇÃO ===== */
+  .selecao-segunda-linha {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 4px;
     border-bottom: 1px solid var(--borda);
+    margin-bottom: 8px;
     flex-wrap: wrap;
   }
 
-  .selecao-acoes-topo.ativo {
+  .selecao-segunda-linha.ativo {
     display: flex;
   }
 
@@ -428,16 +442,20 @@
 
   .conteudo-subtopico {
     animation: fadeIn 0.3s ease;
+    min-width: 0;
+    overflow: hidden;
   }
 
   .conteudo-carregado {
     animation: fadeIn 0.3s ease;
     max-width: 100%;
     overflow-x: hidden;
+    word-wrap: break-word;
   }
 
   /* Estilos específicos para conteúdo */
-  .conteudo-carregado .container {
+  .conteudo-carregado .container,
+  .conteudo-carregado .conteudo-interno {
     max-width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -474,6 +492,25 @@
     color: var(--ink-strong);
     margin: 20px 0 8px 0;
     font-size: 16px;
+    padding-left: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .conteudo-carregado h3::before {
+    content: "›";
+    color: var(--azul);
+    font-size: 18px;
+    font-weight: bold;
+    flex-shrink: 0;
+    margin-right: 2px;
+  }
+
+  .conteudo-carregado h4 {
+    color: var(--ink-strong);
+    margin: 16px 0 8px 0;
+    font-size: 15px;
     padding-left: 16px;
   }
 
@@ -559,7 +596,7 @@
 
   .conteudo-carregado .dados-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 12px;
     margin: 12px 0 24px 0;
     padding-left: 16px;
@@ -577,13 +614,12 @@
     margin: 16px 0;
     border-radius: 8px;
     border: 1px solid var(--borda);
-    padding-left: 16px;
   }
 
   .conteudo-carregado .tabela-melhorada {
     width: 100%;
     border-collapse: collapse;
-    min-width: 600px;
+    min-width: 400px;
   }
 
   .conteudo-carregado .tabela-melhorada thead {
@@ -624,7 +660,7 @@
 
   .conteudo-carregado .transportadores {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 12px;
     margin: 12px 0 24px 0;
     padding-left: 16px;
@@ -653,6 +689,123 @@
   .conteudo-carregado .dado-valor {
     color: var(--ink);
   }
+
+  /* ===== INFORMACAO EXTRA (geral.html / pedidos-sj-pt.html) ===== */
+  .conteudo-carregado .informacao-extra {
+    background: #fff9f0;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #ffd8b2;
+    margin: 16px 0;
+  }
+
+  .conteudo-carregado .informacao-extra h4 {
+    color: var(--ink-strong);
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 0;
+  }
+
+  .conteudo-carregado .informacao-extra h4::before {
+    content: "•";
+    color: var(--azul);
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .conteudo-carregado .info-list {
+    margin: 0;
+    padding-left: 24px;
+  }
+
+  .conteudo-carregado .info-list li {
+    margin: 6px 0;
+    padding-left: 4px;
+  }
+
+  /* ===== CLIENTES POR ROTA ===== */
+  .conteudo-carregado .clientes-container {
+    background: #f8f9fa;
+    padding: 16px 20px;
+    border-radius: 10px;
+    border-left: 4px solid var(--azul);
+    margin: 12px 0 24px 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,.05);
+  }
+
+  .conteudo-carregado .rota-jovi .clientes-container { border-left-color: #4CAF50; }
+  .conteudo-carregado .rota-salsicha .clientes-container { border-left-color: #FF9800; }
+  .conteudo-carregado .rota-guilherme .clientes-container { border-left-color: #2196F3; }
+  .conteudo-carregado .rota-nelio .clientes-container { border-left-color: #9C27B0; }
+  .conteudo-carregado .rota-stenio .clientes-container { border-left-color: #9C27B0; }
+  .conteudo-carregado .rota-bh .clientes-container { border-left-color: #9C27B0; }
+  .conteudo-carregado .rota-avulsa .clientes-container { border-left-color: #6c757d; }
+
+  .conteudo-carregado .cliente-item {
+    padding: 6px 0;
+    border-bottom: 1px dotted #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .conteudo-carregado .cliente-item:last-child { border-bottom: none; }
+  .conteudo-carregado .cliente-nome { flex-grow: 1; font-size: 14.5px; }
+
+  .conteudo-carregado .codigo-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .conteudo-carregado .codigo-box {
+    color: white;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    min-width: 40px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  .conteudo-carregado .codigo-box.gerencial { background-color: #28a745; }
+  .conteudo-carregado .codigo-box.fiscal    { background-color: #fd7e14; }
+  .conteudo-carregado .codigo-box.alternado { background-color: #6f42c1; }
+
+  .conteudo-carregado .total-clientes {
+    background: #f5f5f5;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin: 16px 0;
+    font-size: 14px;
+    color: #666;
+    border-left: 3px solid #ccc;
+  }
+
+  /* ===== PRODUTOS GRID ===== */
+  .conteudo-carregado .produtos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+    margin-bottom: 16px;
+    padding-left: 16px;
+  }
+
+  .conteudo-carregado .produto-item {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid var(--azul);
+  }
+
+  .conteudo-carregado .produto-nome { font-weight: bold; color: var(--ink-strong); margin-bottom: 4px; }
+  .conteudo-carregado .produto-detalhe { font-size: 14px; color: var(--muted); }
 
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
@@ -742,7 +895,6 @@
     pointer-events: none;
   }
 
-  /* Botão X de limpar busca */
   .search-clear {
     position: absolute;
     right: 10px;
@@ -791,7 +943,7 @@
     cursor: pointer;
     transition: all 0.2s ease;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 400;
     position: relative;
     font-family: inherit;
   }
@@ -1024,7 +1176,7 @@
     margin-right: auto;
   }
 
-  /* ===== HIGHLIGHT DE BUSCA PERSISTENTE ===== */
+  /* ===== HIGHLIGHT DE BUSCA ===== */
   mark.hl {
     background-color: #ffeb3b;
     color: #000;
@@ -1035,7 +1187,6 @@
     line-height: inherit;
   }
 
-  /* Manter compatível com mark sem class */
   mark {
     background-color: #ffeb3b;
     color: #000;
@@ -1199,7 +1350,6 @@
 
   .popup-btn.primario:hover { background: var(--accent); }
 
-  /* Estilos específicos */
   .conteudo-carregado .image-container {
     background-color: #f5f5f5; border: 1px solid #ddd;
     border-radius: 8px; padding: 10px; text-align: center; margin: 16px 0; color: var(--muted);
@@ -1214,58 +1364,6 @@
     margin: 8px 0 0 0; padding: 0; font-size: 13px; color: var(--muted);
   }
 
-  .conteudo-carregado .cliente-item {
-    padding: 6px 0; border-bottom: 1px dotted #e0e0e0;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-
-  .conteudo-carregado .cliente-item:last-child { border-bottom: none; }
-  .conteudo-carregado .cliente-nome { flex-grow: 1; font-size: 14.5px; }
-
-  .conteudo-carregado .codigo-container {
-    display: flex; align-items: center; gap: 6px;
-  }
-
-  .conteudo-carregado .codigo-box {
-    background: var(--azul); color: white;
-    padding: 2px 8px; border-radius: 6px;
-    font-size: 13px; font-weight: bold;
-    min-width: 40px; text-align: center;
-    box-shadow: 0 2px 4px rgba(0,123,255,0.3);
-  }
-
-  .conteudo-carregado .total-clientes {
-    background: #f5f5f5; padding: 8px 12px;
-    border-radius: 6px; margin: 16px 0;
-    font-size: 14px; color: #666; border-left: 3px solid #ccc;
-  }
-
-  .conteudo-carregado .clientes-container {
-    background: #f8f9fa; padding: 16px 20px;
-    border-radius: 10px; border-left: 4px solid var(--azul);
-    margin: 12px 0 24px 0; box-shadow: 0 4px 8px rgba(0,0,0,.05);
-  }
-
-  .conteudo-carregado .rota-jovi .clientes-container { border-left-color: #4CAF50; }
-  .conteudo-carregado .rota-salsicha .clientes-container { border-left-color: #FF9800; }
-  .conteudo-carregado .rota-guilherme .clientes-container { border-left-color: #2196F3; }
-  .conteudo-carregado .rota-nelio .clientes-container { border-left-color: #9C27B0; }
-  .conteudo-carregado .rota-stenio .clientes-container { border-left-color: #9C27B0; }
-
-  .conteudo-carregado .produtos-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 12px; margin-top: 12px; margin-bottom: 16px; padding-left: 16px;
-  }
-
-  .conteudo-carregado .produto-item {
-    background: #f8f9fa; padding: 12px;
-    border-radius: 8px; border-left: 4px solid var(--azul);
-  }
-
-  .conteudo-carregado .produto-nome { font-weight: bold; color: var(--ink-strong); margin-bottom: 4px; }
-  .conteudo-carregado .produto-detalhe { font-size: 14px; color: var(--muted); }
-
-  /* Indicador de ordenação alfabética */
   .sidebar-label {
     font-size: 11px; color: var(--muted);
     text-transform: uppercase; letter-spacing: 0.5px;
@@ -1285,6 +1383,14 @@
   </header>
 
   <div class="toolbar">
+    <!-- ORDEM: Menu, Fechar, Rotinas Férias -->
+    <button class="btn-toolbar btn-menu" id="btn-menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+      Menu
+    </button>
+
     <button class="btn-toolbar btn-fechar" id="btn-fechar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -1292,6 +1398,7 @@
       Fechar
     </button>
 
+    <!-- BOTÃO ROTINAS FÉRIAS — altere MOSTRAR_ROTINAS_FERIAS no script para ocultar -->
     <button class="btn-toolbar btn-ferias" id="btn-ferias">
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" xml:space="preserve" width="18" height="18">
         <style type="text/css">
@@ -1304,13 +1411,6 @@
       </svg>
       <span class="tooltip-text">Abrir Rotinas de Férias</span>
       Rotinas Férias
-    </button>
-
-    <button class="btn-toolbar btn-menu" id="btn-menu">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
-      </svg>
-      Menu
     </button>
 
     <div class="search" id="search-container">
@@ -1407,6 +1507,7 @@
     <a href="../simularpedido.html" class="menu-opcao"><span>Simulador de Pedido</span></a>
     <a href="anotacoes.html" class="menu-opcao"><span>Anotações</span></a>
     <a href="../planilhaautocontrole.html" class="menu-opcao"><span>Planilhas de Autocontrole</span></a>
+    <a href="../hora-extra.html" class="menu-opcao"><span>Ficha de Hora Extra</span></a>
   </div>
 </div>
 
@@ -1443,6 +1544,12 @@
 <iframe id="print-iframe" style="display:none;"></iframe>
 
 <script>
+// =============================================
+// CONFIGURAÇÃO: BOTÃO ROTINAS FÉRIAS
+// Altere para false para ocultar o botão
+// =============================================
+const MOSTRAR_ROTINAS_FERIAS = true;
+
 // =============================================
 // DEFINIÇÃO DOS TÓPICOS
 // =============================================
@@ -1526,7 +1633,9 @@ const ICONS = {
   pdf: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
   txt: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
   chevron: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><polyline points="6 9 12 15 18 9"/></svg>`,
-  checkAll: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M9 11l3 3 7-7"/></svg>`
+  checkAll: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M9 11l3 3 7-7"/></svg>`,
+  // Ícone de lista com marcações — representa "selecionar itens da lista"
+  checklistSelect: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><polyline points="3 6 4 7 6 5"/><polyline points="3 12 4 13 6 11"/><polyline points="3 18 4 19 6 17"/></svg>`
 };
 
 // =============================================
@@ -1568,9 +1677,9 @@ class GerenciadorAnotacoes {
     this.modoSelecao = false;
     this.topicosSelecionados = new Set();
     this.conteudoSubtopicoAtual = null;
-    this.termoBusca = null;          // Termo atual para highlight
-    this.pendingScrollTo = null;     // Navegação pendente após carregar
-    this.todosCheckados = false;     // Estado do "selecionar todos"
+    this.termoBusca = null;
+    this.pendingScrollTo = null;
+    this.todosCheckados = false;
     this.htmlFiles = TOPICOS.map(t => t.arquivo);
   }
 
@@ -1619,9 +1728,9 @@ class GerenciadorAnotacoes {
     const body = tempDiv.querySelector('body');
     let conteudoHTML = body ? body.innerHTML : tempDiv.innerHTML;
 
-    if (arquivo === 'uteis-clientes.html') {
-      conteudoHTML = conteudoHTML.replace(/class="container"/g, 'class="conteudo-clientes"');
-    }
+    // Neutralizar a classe "container" de todos os arquivos carregados
+    // para evitar que o layout do arquivo original quebre o layout da página
+    conteudoHTML = conteudoHTML.replace(/\bclass="container"\b/g, 'class="conteudo-interno"');
 
     const tempDiv2 = document.createElement('div');
     tempDiv2.innerHTML = conteudoHTML;
@@ -1650,7 +1759,6 @@ class GerenciadorAnotacoes {
 
     this.adicionarEventosImagens();
 
-    // Navegação pendente (vinda da busca)
     if (this.pendingScrollTo) {
       const nav = this.pendingScrollTo;
       this.pendingScrollTo = null;
@@ -1680,23 +1788,32 @@ class GerenciadorAnotacoes {
     document.getElementById('conteudo-dinamico').innerHTML = `
       <div class="conteudo-com-subtopicos">
         <div class="lista-subtopicos">
-          <div class="lista-subtopicos-header">
+          <!-- Cabeçalho da lista -->
+          <div class="lista-subtopicos-header" id="subtopicos-header">
             <h3>TÓPICOS</h3>
-            <button class="btn-icone-editar" id="btn-selecionar-topicos" title="Selecionar tópicos">
-              ${ICONS.checkAll}
-            </button>
+
+            <!-- Modo normal: ícone de selecionar -->
+            <div id="acoes-header-normal">
+              <button class="btn-icone-editar" id="btn-selecionar-topicos" title="Selecionar tópicos para salvar/imprimir">
+                ${ICONS.checklistSelect}
+              </button>
+            </div>
+
+            <!-- Modo seleção: fechar + imprimir (oculto inicialmente) -->
+            <div id="acoes-header-selecao" class="acoes-header-selecao">
+              <button class="btn-selecao-icon danger" id="btn-cancelar-selecao" title="Cancelar seleção">
+                ${ICONS.fechar}
+              </button>
+              <button class="btn-selecao-icon azul" id="btn-imprimir-selecionados" title="Imprimir selecionados">
+                ${ICONS.imprimir}
+              </button>
+            </div>
           </div>
 
-          <!-- BARRA DE AÇÕES DE SELEÇÃO (TOPO) -->
-          <div class="selecao-acoes-topo" id="selecao-acoes-topo">
-            <button class="btn-selecao-icon danger" id="btn-cancelar-selecao" title="Cancelar seleção">
-              ${ICONS.fechar}
-            </button>
+          <!-- Segunda linha: selecionar todos + salvar como (oculta inicialmente) -->
+          <div class="selecao-segunda-linha" id="selecao-segunda-linha">
             <button class="btn-selecao-icon" id="btn-selecionar-todos" title="Selecionar todos">
               ${ICONS.checkAll}
-            </button>
-            <button class="btn-selecao-icon azul" id="btn-imprimir-selecionados" title="Imprimir selecionados">
-              ${ICONS.imprimir}
             </button>
             <div class="selecao-salvar-wrapper">
               <button class="btn-selecao-salvar" id="btn-salvar-como-selecao" title="Salvar como">
@@ -1799,11 +1916,14 @@ class GerenciadorAnotacoes {
     this.todosCheckados = false;
 
     const container = document.getElementById('lista-subtopicos-conteudo');
-    const topoAcoes = document.getElementById('selecao-acoes-topo');
-    const btnSelecionar = document.getElementById('btn-selecionar-topicos');
-
     if (!container) return;
 
+    // Trocar botões no cabeçalho
+    document.getElementById('acoes-header-normal').style.display = 'none';
+    document.getElementById('acoes-header-selecao').classList.add('ativo');
+    document.getElementById('selecao-segunda-linha').classList.add('ativo');
+
+    // Rebuild lista com checkboxes
     const listaComCheckboxes = this.conteudoAtual.subtopicos.map((subtopico, index) => `
       <div class="subtopico-item" data-index="${index}">
         <div style="display:flex; align-items:center; flex:1; gap:6px;">
@@ -1814,8 +1934,6 @@ class GerenciadorAnotacoes {
     `).join('');
 
     container.innerHTML = listaComCheckboxes;
-    topoAcoes?.classList.add('ativo');
-    if (btnSelecionar) btnSelecionar.style.display = 'none';
 
     document.querySelectorAll('.subtopico-checkbox').forEach(cb => {
       cb.addEventListener('change', () => {
@@ -1831,11 +1949,15 @@ class GerenciadorAnotacoes {
     this.todosCheckados = false;
 
     const container = document.getElementById('lista-subtopicos-conteudo');
-    const topoAcoes = document.getElementById('selecao-acoes-topo');
-    const btnSelecionar = document.getElementById('btn-selecionar-topicos');
-
     if (!container) return;
 
+    // Restaurar botões no cabeçalho
+    document.getElementById('acoes-header-normal').style.display = '';
+    document.getElementById('acoes-header-selecao').classList.remove('ativo');
+    document.getElementById('selecao-segunda-linha').classList.remove('ativo');
+    document.getElementById('salvar-dropdown-selecao')?.classList.remove('aberto');
+
+    // Restaurar lista sem checkboxes
     container.innerHTML = this.conteudoAtual.subtopicos.map((subtopico, index) => `
       <div class="subtopico-item" data-subtopico="${subtopico.id}" data-index="${index}">
         <div style="display:flex; align-items:center; flex:1;">
@@ -1843,12 +1965,6 @@ class GerenciadorAnotacoes {
         </div>
       </div>
     `).join('');
-
-    topoAcoes?.classList.remove('ativo');
-    if (btnSelecionar) btnSelecionar.style.display = '';
-
-    // Fechar dropdown se aberto
-    document.getElementById('salvar-dropdown-selecao')?.classList.remove('aberto');
 
     // Restaurar item ativo
     if (this.subtopicoAtual !== null) {
@@ -1883,7 +1999,6 @@ class GerenciadorAnotacoes {
     if (!dados || !this.conteudoAtual) return;
 
     if (dados.tipo === 'subtopico') {
-      // Encontrar subtópico por id ou título
       let index = -1;
       for (let i = 0; i < this.conteudoAtual.subtopicos.length; i++) {
         const sub = this.conteudoAtual.subtopicos[i];
@@ -1893,19 +2008,13 @@ class GerenciadorAnotacoes {
           break;
         }
       }
-
       if (index >= 0) {
         this.mostrarSubtopico(index);
-        // Aplicar highlight após render
         setTimeout(() => {
-          if (this.termoBusca) {
-            this.aplicarHighlight(this.termoBusca);
-          }
+          if (this.termoBusca) this.aplicarHighlight(this.termoBusca);
         }, 200);
       }
-
     } else if (dados.tipo === 'conteudo') {
-      // Se tem subtópicos, encontrar qual contém o texto
       if (this.conteudoAtual.subtopicos.length > 0) {
         const index = this.encontrarSubtopicoDoConteudo(dados.valor);
         if (index >= 0) {
@@ -1913,13 +2022,11 @@ class GerenciadorAnotacoes {
           setTimeout(() => {
             if (this.termoBusca) {
               this.aplicarHighlight(this.termoBusca);
-              // Scroll para o primeiro highlight
               const mark = document.querySelector('#conteudo-dinamico mark.hl');
               if (mark) mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
           }, 250);
         } else {
-          // Fallback: primeiro subtópico
           if (this.subtopicoAtual === null && this.conteudoAtual.subtopicos.length > 0) {
             this.mostrarSubtopico(0);
           }
@@ -1928,7 +2035,6 @@ class GerenciadorAnotacoes {
           }, 250);
         }
       } else {
-        // Sem subtópicos, conteúdo direto
         setTimeout(() => {
           if (this.termoBusca) {
             this.aplicarHighlight(this.termoBusca);
@@ -1943,13 +2049,10 @@ class GerenciadorAnotacoes {
   encontrarSubtopicoDoConteudo(texto) {
     if (!this.conteudoAtual || !texto) return -1;
     const termoLower = texto.toLowerCase();
-
     for (let i = 0; i < this.conteudoAtual.subtopicos.length; i++) {
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = this.conteudoAtual.subtopicos[i].conteudo;
-      if ((tempDiv.textContent || '').toLowerCase().includes(termoLower)) {
-        return i;
-      }
+      if ((tempDiv.textContent || '').toLowerCase().includes(termoLower)) return i;
     }
     return -1;
   }
@@ -1959,35 +2062,24 @@ class GerenciadorAnotacoes {
   // =============================================
   aplicarHighlight(termo) {
     if (!termo) return;
-
-    // Destacar na área de conteúdo (não na lista de navegação)
     const alvo = document.getElementById('conteudo-subtopico') ||
                  document.querySelector('#conteudo-dinamico .conteudo-carregado');
     if (!alvo) return;
-
     this.removerHighlights();
     this.highlightNode(alvo, termo);
-
-    // Rolar para o primeiro match
     const firstMark = document.querySelector('#conteudo-dinamico mark.hl');
-    if (firstMark) {
-      firstMark.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    if (firstMark) firstMark.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   highlightNode(node, termo) {
     if (!node) return;
     if (node.nodeType === 3) {
-      // Nó de texto
       const txt = node.textContent;
       if (!txt.toLowerCase().includes(termo.toLowerCase())) return;
-
       const escapado = termo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const regex = new RegExp(`(${escapado})`, 'gi');
       const partes = txt.split(regex);
-
       if (partes.length <= 1) return;
-
       const frag = document.createDocumentFragment();
       partes.forEach(parte => {
         if (parte.toLowerCase() === termo.toLowerCase()) {
@@ -1999,14 +2091,10 @@ class GerenciadorAnotacoes {
           frag.appendChild(document.createTextNode(parte));
         }
       });
-
-      if (node.parentNode) {
-        node.parentNode.replaceChild(frag, node);
-      }
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
     } else if (node.nodeType === 1) {
       const tag = node.tagName ? node.tagName.toUpperCase() : '';
       if (['SCRIPT', 'STYLE', 'MARK', 'INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) return;
-      // Processar cópia para evitar modificar enquanto itera
       Array.from(node.childNodes).forEach(child => this.highlightNode(child, termo));
     }
   }
@@ -2120,7 +2208,6 @@ class GerenciadorAnotacoes {
   }
 
   async gerarSaida(conteudo, titulo, formato) {
-    // Para texto simples
     if (formato === 'texto') {
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = conteudo;
@@ -2137,7 +2224,6 @@ class GerenciadorAnotacoes {
       return;
     }
 
-    // PDF ou imprimir: converter imagens para base64
     const converterImagens = async (htmlString) => {
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = htmlString;
@@ -2170,6 +2256,7 @@ class GerenciadorAnotacoes {
           h2 { color:#0b4fa0; margin-top:25px; border-left:4px solid #007BFF; padding-left:12px; font-size:18px; }
           h2::before { content:"•"; color:#007BFF; font-size:24px; margin-right:8px; }
           h3 { color:#0b4fa0; margin:20px 0 8px 0; font-size:16px; }
+          h4 { color:#0b4fa0; margin:16px 0 8px 0; font-size:15px; }
           .destaque { background:#f0f7ff; padding:12px 16px; border-radius:8px; border-left:4px solid #007BFF; margin:15px 0; }
           .info-box { background:#fff7f0; padding:12px 16px; border-radius:8px; border-left:4px solid #f59e0b; margin:15px 0; }
           .ferias-box { background:#f0fff4; padding:12px 16px; border-radius:8px; border-left:4px solid #38a169; margin:15px 0; }
@@ -2182,8 +2269,12 @@ class GerenciadorAnotacoes {
           .tabela-melhorada th { padding:12px 16px; text-align:left; }
           .tabela-melhorada td { padding:12px 16px; border-bottom:1px solid #e6eefc; vertical-align:top; }
           .tabela-melhorada tbody tr:nth-child(even) { background:#fafcff; }
+          .informacao-extra { background:#fff9f0; padding:16px; border-radius:8px; border:1px solid #ffd8b2; margin:16px 0; }
           .clientes-container { background:#f8f9fa; padding:16px 20px; border-radius:10px; border-left:4px solid #007BFF; margin:12px 0 24px 0; }
-          .codigo-box { background:#007BFF; color:white; padding:2px 8px; border-radius:6px; font-size:13px; font-weight:bold; }
+          .codigo-box { color:white; padding:2px 8px; border-radius:6px; font-size:13px; font-weight:bold; }
+          .codigo-box.gerencial { background:#28a745; }
+          .codigo-box.fiscal { background:#fd7e14; }
+          .codigo-box.alternado { background:#6f42c1; }
           @media print { body { margin:20px; } @page { margin:1cm; } }
         </style>
       `;
@@ -2203,7 +2294,6 @@ class GerenciadorAnotacoes {
           } catch (e) { this.mostrarPopup('Erro ao imprimir. Tente novamente.', 'Erro'); }
         };
       } else {
-        // pdf = download HTML
         const blob = new Blob([htmlCompleto], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -2236,7 +2326,6 @@ class GerenciadorAnotacoes {
 
   // =============================================
   // BUSCA ABRANGENTE COM TREEWALKER
-  // Cobre TODOS os nós de texto, inclusive "Essenciais"
   // =============================================
   async buscarConteudo(termo) {
     const resultadosContainer = document.getElementById('resultados-busca');
@@ -2292,10 +2381,6 @@ class GerenciadorAnotacoes {
           }
         };
 
-        // ========================
-        // TREEWALKER: percorre TODOS os nós de texto
-        // Captura qualquer texto visível, inclusive "Essenciais"
-        // ========================
         const walker = document.createTreeWalker(tempDiv, NodeFilter.SHOW_TEXT, {
           acceptNode(node) {
             const parent = node.parentElement;
@@ -2420,7 +2505,6 @@ class GerenciadorAnotacoes {
     container.innerHTML = html;
     container.style.display = 'block';
 
-    // Evento nos resultados individuais
     container.querySelectorAll('.resultado-item').forEach(item => {
       item.addEventListener('click', () => {
         const arquivo = item.getAttribute('data-arquivo');
@@ -2443,11 +2527,9 @@ class GerenciadorAnotacoes {
 
         gerenciador.carregarTopico(arquivo, scrollTo);
         container.style.display = 'none';
-        // NÃO limpar o campo de busca, para manter o highlight
       });
     });
 
-    // Evento nos cabeçalhos dos grupos
     container.querySelectorAll('[data-abrir-topico="true"]').forEach(header => {
       header.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -2457,7 +2539,6 @@ class GerenciadorAnotacoes {
           i.classList.remove('ativo');
         });
         document.querySelector(`[data-arquivo="${arquivo}"]`)?.classList.add('ativo');
-
         gerenciador.carregarTopico(arquivo);
         container.style.display = 'none';
       });
@@ -2480,18 +2561,26 @@ document.addEventListener('DOMContentLoaded', function() {
   renderizarTopicos();
   gerenciador = new GerenciadorAnotacoes();
 
+  // ===== APLICAR CONFIGURAÇÃO DO BOTÃO ROTINAS FÉRIAS =====
+  const btnFerias = document.getElementById('btn-ferias');
+  if (!MOSTRAR_ROTINAS_FERIAS && btnFerias) {
+    btnFerias.style.display = 'none';
+  }
+
   // Botão Fechar (volta para index)
   document.getElementById('btn-fechar').addEventListener('click', () => {
     window.location.href = '../index.html';
   });
 
   // Botão Rotinas Férias
-  document.getElementById('btn-ferias').addEventListener('click', () => {
-    window.location.href = '../rotinas.html';
-  });
+  if (btnFerias) {
+    btnFerias.addEventListener('click', () => {
+      window.location.href = '../rotinas.html';
+    });
+  }
 
   // =============================================
-  // MENU: TOGGLE (abre E fecha no mesmo botão)
+  // MENU: TOGGLE
   // =============================================
   const sidebar = document.getElementById('menu-sidebar');
   const btnMenu = document.getElementById('btn-menu');
@@ -2546,21 +2635,18 @@ document.addEventListener('DOMContentLoaded', function() {
   // CLICK GLOBAL: fechar menu, dropdowns, busca
   // =============================================
   document.addEventListener('click', function(e) {
-    // Fechar menu ao clicar fora
     if (sidebar.classList.contains('ativo') &&
         !sidebar.contains(e.target) &&
         !btnMenu.contains(e.target)) {
       fecharMenu();
     }
 
-    // Fechar todos os dropdowns de salvar ao clicar fora
     const estaNoDropdownBtn = e.target.closest('[id^="btn-salvar-como"]') ||
                               e.target.closest('[id^="btn-salvar-como-selecao"]');
     if (!estaNoDropdownBtn && !e.target.closest('.salvar-dropdown')) {
       document.querySelectorAll('.salvar-dropdown.aberto').forEach(dd => dd.classList.remove('aberto'));
     }
 
-    // Fechar resultados de busca ao clicar fora
     if (!e.target.closest('.search') && !e.target.closest('.resultados-busca')) {
       const resultados = document.getElementById('resultados-busca');
       if (resultados && resultados.style.display !== 'none') {

@@ -34,9 +34,6 @@
             min-height: 100vh;
         }
 
-        /* ===== MENU LATERAL HOVER ===== */
-
-        /* ===== TRIGGER: ícone hambúrguer no header, à esquerda da faixa azul ===== */
         #nav-trigger {
             position: absolute;
             top: 50%;
@@ -68,11 +65,8 @@
             transition: transform 0.2s ease;
         }
 
-        #nav-trigger:hover svg {
-            transform: scale(1.08);
-        }
+        #nav-trigger:hover svg { transform: scale(1.08); }
 
-        /* ===== Painel lateral ===== */
         #side-nav {
             position: fixed;
             top: 0;
@@ -85,22 +79,19 @@
             display: flex;
             flex-direction: column;
             padding: 20px 0 20px;
-            overflow: hidden; /* SEM scrollbar visível no painel principal */
+            overflow: hidden;
             opacity: 0;
             pointer-events: none;
             transform: translateX(-100%);
             transition: opacity 0.22s cubic-bezier(.4,0,.2,1), transform 0.22s cubic-bezier(.4,0,.2,1);
         }
 
-        /* Painel ativo: controlado via JS (hover no trigger ou no painel)
-           O seletor CSS puro é só backup para quando o side-nav estiver em hover direto */
         #side-nav:hover {
             opacity: 1;
             pointer-events: all;
             transform: translateX(0);
         }
 
-        /* Grupos dentro do painel */
         .nav-group {
             display: flex;
             flex-direction: column;
@@ -122,7 +113,6 @@
             width: 100%;
         }
 
-        /* Cada item do menu */
         .nav-item {
             position: relative;
             display: flex;
@@ -149,7 +139,6 @@
             flex-shrink: 0;
         }
 
-        /* Tooltip: nome do atalho ao hover — animação slide + fade */
         .nav-tooltip {
             position: absolute;
             left: calc(100% + 16px);
@@ -185,7 +174,6 @@
             transform: translateY(-50%) translateX(0px);
         }
 
-        /* Separador visual entre grupos no painel */
         .nav-divider {
             width: 32px;
             height: 1px;
@@ -193,7 +181,6 @@
             margin: 4px 0;
         }
 
-        /* Badge especial para anotações/destaque */
         .nav-item.nav-highlight {
             background: rgba(255, 193, 7, 0.15);
             color: #ffc107;
@@ -203,10 +190,7 @@
             color: #ffe082;
         }
 
-        /* Ícones de número para os MACs */
-        .nav-item-num {
-            font-family: 'Inter', system-ui, monospace;
-        }
+        .nav-item-num { font-family: 'Inter', system-ui, monospace; }
 
         .nav-num {
             font-size: 14px;
@@ -216,26 +200,17 @@
             line-height: 1;
         }
 
-        .nav-num-sm {
-            font-size: 12px;
-        }
+        .nav-num-sm { font-size: 12px; }
+        .nav-num-xs { font-size: 10.5px; letter-spacing: -0.05em; }
 
-        .nav-num-xs {
-            font-size: 10.5px;
-            letter-spacing: -0.05em;
-        }
-
-        /* Grupo dos MACs: scroll interno invisível */
         .nav-group.nav-group-macs {
             overflow-y: auto;
             overflow-x: hidden;
             flex-shrink: 1;
             min-height: 0;
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none;
         }
-        .nav-group.nav-group-macs::-webkit-scrollbar {
-            display: none; /* Chrome/Safari */
-        }
+        .nav-group.nav-group-macs::-webkit-scrollbar { display: none; }
 
         /* ===== HEADER ===== */
         header {
@@ -252,11 +227,7 @@
 
         .header-content { display: flex; flex-direction: column; gap: 15px; }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+        .logo { display: flex; align-items: center; gap: 15px; }
 
         .logo-icon {
             width: 50px;
@@ -612,7 +583,6 @@
             .guides-grid { grid-template-columns: 1fr; }
         }
 
-        /* ===== UTILITIES ===== */
         .sr-only {
             position: absolute; width: 1px; height: 1px;
             padding: 0; margin: -1px; overflow: hidden;
@@ -807,11 +777,10 @@
             font-size: 14px;
             line-height: 1.5;
             transition: all 0.2s ease;
-            cursor: pointer;
+            cursor: default;
         }
 
-        .guide-item:hover { background-color: #f8fbff; border-radius: 6px; transform: translateX(2px); }
-        .guide-item:hover .guide-item-text { color: var(--azul); }
+        .guide-item:hover { background-color: #f8fbff; border-radius: 6px; }
         .guide-item:last-child { border-bottom: none; }
 
         .guide-item-info { display: flex; align-items: flex-start; gap: 8px; }
@@ -900,12 +869,6 @@
             border-bottom: 1px solid var(--borda);
         }
 
-        .guide-item.executable-link {
-            display: block;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--borda);
-        }
-
         .fav-item.executable-link,
         .recent-item.executable-link {
             display: flex;
@@ -934,7 +897,7 @@
             <div class="nav-group-label">Atalhos</div>
 
             <!-- Anotações / Em destaque -->
-            <div class="nav-item nav-highlight" data-action="notes" title="Anotações">
+            <a class="nav-item nav-highlight" href="anotacoes/anotacoes.html" title="Anotações">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
@@ -943,7 +906,7 @@
                     <polyline points="10 9 9 9 8 9"></polyline>
                 </svg>
                 <span class="nav-tooltip">Anotações</span>
-            </div>
+            </a>
 
             <!-- Gerenciador de Pedidos -->
             <a class="nav-item" href="processadordepedidos.html" title="Gerenciador de Pedidos">
@@ -1012,68 +975,58 @@
         <!-- DIVIDER -->
         <div class="nav-divider" style="margin: 4px auto; width: 32px;"></div>
 
-        <!-- GRUPO 2: MACs -->
+        <!-- GRUPO 2: MACs — ordem: 77,78,79,80,277,853,1249,989,1436 -->
         <div class="nav-group nav-group-macs">
             <div class="nav-group-label">MACs</div>
 
-            <!-- MAC 77 -->
             <a class="nav-item nav-item-num" href="mac77.html" title="MAC 77 - Bairro São Geraldo">
                 <span class="nav-num">77</span>
                 <span class="nav-tooltip">MAC 77 – São Geraldo</span>
             </a>
 
-            <!-- MAC 78 -->
             <a class="nav-item nav-item-num" href="mac78.html" title="MAC 78 - Bairro Planalto">
                 <span class="nav-num">78</span>
                 <span class="nav-tooltip">MAC 78 – Planalto</span>
             </a>
 
-            <!-- MAC 79 -->
             <a class="nav-item nav-item-num" href="mac79.html" title="MAC 79 - Romeu Duarte">
                 <span class="nav-num">79</span>
                 <span class="nav-tooltip">MAC 79 – Romeu Duarte</span>
             </a>
 
-            <!-- MAC 80 -->
             <a class="nav-item nav-item-num" href="mac80.html" title="MAC 80 - Rua São Geraldo / Centro 2">
                 <span class="nav-num">80</span>
                 <span class="nav-tooltip">MAC 80 – Centro 2</span>
             </a>
 
-            <!-- MAC 277 -->
             <a class="nav-item nav-item-num" href="mac277.html" title="MAC 277 - Matriz">
                 <span class="nav-num nav-num-sm">277</span>
                 <span class="nav-tooltip">MAC 277 – Matriz</span>
             </a>
 
-            <!-- MAC 853 -->
             <a class="nav-item nav-item-num" href="mac853.html" title="MAC 853 - Concesso">
                 <span class="nav-num nav-num-sm">853</span>
                 <span class="nav-tooltip">MAC 853 – Concesso</span>
             </a>
 
-            <!-- MAC 989 -->
-            <a class="nav-item nav-item-num" href="mac989.html" title="MAC 989 - Araújos">
-                <span class="nav-num nav-num-sm">989</span>
-                <span class="nav-tooltip">MAC 989 – Araújos</span>
-            </a>
-
-            <!-- MAC 1249 -->
             <a class="nav-item nav-item-num" href="mac1249.html" title="MAC 1249 - Jardim do Lago">
                 <span class="nav-num nav-num-xs">1249</span>
                 <span class="nav-tooltip">MAC 1249 – Jardim do Lago</span>
             </a>
 
-            <!-- MAC 1436 -->
-            <a class="nav-item nav-item-num" href="mac1436.html" title="MAC 1436">
+            <a class="nav-item nav-item-num" href="mac989.html" title="MAC 989 - Araújos">
+                <span class="nav-num nav-num-sm">989</span>
+                <span class="nav-tooltip">MAC 989 – Araújos</span>
+            </a>
+
+            <a class="nav-item nav-item-num" href="mac1436.html" title="MAC 1436 - São Gonçalo do Pará">
                 <span class="nav-num nav-num-xs">1436</span>
-                <span class="nav-tooltip">MAC 1436</span>
+                <span class="nav-tooltip">MAC 1436 – São Gonçalo do Pará</span>
             </a>
         </div>
     </div>
 
     <header>
-        <!-- Hambúrguer: absoluto no header, à esquerda, fora do container -->
         <div id="nav-trigger" aria-label="Abrir menu de atalhos rápidos">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -1184,7 +1137,7 @@
                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                             </svg>
                         </a>
-                        <div class="quick-card" data-action="notes" data-id="tool-notes">
+                        <a href="anotacoes/anotacoes.html" class="quick-card executable-link" data-id="tool-notes">
                             <div class="icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -1199,7 +1152,7 @@
                             <svg class="favorite-star" data-id="tool-notes" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                             </svg>
-                        </div>
+                        </a>
                     </div>
                 </section>
 
@@ -1228,7 +1181,7 @@
                                 </div>
                                 <div>
                                     <div class="category-title">MACS</div>
-                                    <div class="category-count">8 locais</div>
+                                    <div class="category-count">9 locais</div>
                                 </div>
                                 <svg class="category-favorite-star" data-category="macs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
@@ -1267,6 +1220,10 @@
                                     <li><a href="mac989.html" class="category-item executable-link" data-id="mac-989">
                                         <div class="item-content"><span class="item-text">MAC Araújos</span><span class="item-badge">989</span></div>
                                         <div class="item-actions"><svg class="favorite-star" data-id="mac-989" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg></div>
+                                    </a></li>
+                                    <li><a href="mac1436.html" class="category-item executable-link" data-id="mac-1436">
+                                        <div class="item-content"><span class="item-text">MAC São Gonçalo do Pará</span><span class="item-badge">1436</span></div>
+                                        <div class="item-actions"><svg class="favorite-star" data-id="mac-1436" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg></div>
                                     </a></li>
                                 </div>
                                 <li class="category-item expandable" id="expand-macs">Ver todos...</li>
@@ -1362,10 +1319,10 @@
                                     <div class="item-content"><span class="item-text">Simulador de Pedidos</span></div>
                                     <div class="item-actions"><svg class="favorite-star" data-id="tool-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg></div>
                                 </a></li>
-                                <li class="category-item" data-id="tool-notes">
+                                <li><a href="anotacoes/anotacoes.html" class="category-item executable-link" data-id="tool-notes">
                                     <div class="item-content"><span class="item-text">Anotações</span></div>
                                     <div class="item-actions"><svg class="favorite-star" data-id="tool-notes" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg></div>
-                                </li>
+                                </a></li>
                                 <li><a href="planilhaautocontrole.html" class="category-item executable-link" data-id="tool-autocontrol">
                                     <div class="item-content"><span class="item-text">Planilhas de Autocontrole</span></div>
                                     <div class="item-actions"><svg class="favorite-star" data-id="tool-autocontrol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg></div>
@@ -1388,6 +1345,7 @@
                     </div>
                     <div class="guides-container" id="guides-content">
                         <div class="guides-grid">
+
                             <!-- MACS -->
                             <div class="guide-group">
                                 <div class="guide-group-header" data-group="macs">
@@ -1398,14 +1356,15 @@
                                     <svg class="guide-group-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                                 </div>
                                 <ul class="guide-items">
-                                    <li><a href="mac77.html" class="guide-item executable-link"><div class="guide-item-info"><span class="guide-item-badge">77</span><span class="guide-item-text">MAC Bairro São Geraldo</span></div></a></li>
-                                    <li><a href="mac78.html" class="guide-item executable-link"><div class="guide-item-info"><span class="guide-item-badge">78</span><span class="guide-item-text">MAC Bairro Planalto</span></div></a></li>
-                                    <li><a href="mac79.html" class="guide-item executable-link"><div class="guide-item-info"><span class="guide-item-badge">79</span><span class="guide-item-text">MAC Romeu Duarte</span></div></a></li>
-                                    <li><a href="mac80.html" class="guide-item executable-link"><div class="guide-item-info"><span class="guide-item-badge">80</span><span class="guide-item-text">MAC Rua São Geraldo / Centro 2</span></div></a></li>
-                                    <li><a href="mac277.html" class="guide-item executable-link"><div class="guide-item-info"><span class="guide-item-badge">277</span><span class="guide-item-text">MAC Matriz</span></div></a></li>
-                                    <li><a href="mac853.html" class="guide-item executable-link"><div class="guide-item-info"><span class="guide-item-badge">853</span><span class="guide-item-text">MAC Concesso</span></div></a></li>
-                                    <li><a href="mac1249.html" class="guide-item executable-link"><div class="guide-item-info"><span class="guide-item-badge">1249</span><span class="guide-item-text">MAC Jardim do Lago</span></div></a></li>
-                                    <li><a href="mac989.html" class="guide-item executable-link"><div class="guide-item-info"><span class="guide-item-badge">989</span><span class="guide-item-text">MAC Araújos</span></div></a></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">77</span><span class="guide-item-text">Bairro São Geraldo - Rua Rosa Ana da Conceição, Bairro São Geraldo II</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">78</span><span class="guide-item-text">Bairro Planalto - Rodovia Municipal Carmen Duarte, Bairro Sandra Regina</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">79</span><span class="guide-item-text">Romeu Duarte - Rua Geraldo Pinto do Amaral, Bairro Jardim Padre Libério</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">80</span><span class="guide-item-text">Rua São Geraldo / Centro 2 - Rua São Geraldo, Bairro Centro</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">277</span><span class="guide-item-text">Matriz - Rua Coronel Martinho Ferreira do Amaral, Bairro Centro</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">853</span><span class="guide-item-text">Concesso - Avenida Carandaí, Bairro Concesso Elias</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">1249</span><span class="guide-item-text">Jardim do Lago - Rua Vereador Lelis Camilo, Bairro Jardim do Lago</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">989</span><span class="guide-item-text">Araújos - Av. Santana, Bairro Esteves</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">1436</span><span class="guide-item-text">São Gonçalo do Pará - Av. Presidente Tancredo Neves, Bairro Centro</span></div></li>
                                 </ul>
                             </div>
 
@@ -1419,13 +1378,13 @@
                                     <svg class="guide-group-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                                 </div>
                                 <ul class="guide-items">
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">782</span><span class="guide-item-text">Rua Joaquim Nabuco Bairro Porto Velho</span></div></li>
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">793</span><span class="guide-item-text">Kit do Adriano - Divinópolis</span></div></li>
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">794</span><span class="guide-item-text">Kit 2 Irmãos - Divinópolis</span></div></li>
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">795</span><span class="guide-item-text">Rua Bom Sucesso Bairro Nações</span></div></li>
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">797</span><span class="guide-item-text">Av. Divíno Espírito Santo Bairro Sidil</span></div></li>
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">796</span><span class="guide-item-text">Comércio de Alimentos Teixeira Rabelo - Carmo do Cajuru</span></div></li>
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">1260</span><span class="guide-item-text">Perdigão</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">782</span><span class="guide-item-text">Rua Joaquim Nabuco, Bairro Porto Velho</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">793</span><span class="guide-item-text">Kit do Adriano - Rua Ascendino Campos, Bairro Quintino</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">794</span><span class="guide-item-text">Kit 2 Irmãos - Rua Vereador Lourival Araújo, Bairro Danilo Passos</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">795</span><span class="guide-item-text">Rua Bom Sucesso, Bairro Nações</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">797</span><span class="guide-item-text">Av. Divíno Espírito Santo, Bairro Sidil</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">796</span><span class="guide-item-text">Comércio de Alimentos Teixeira Rabelo - Rua Tiradentes, Bairro Centro - Carmo do Cajuru</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">1260</span><span class="guide-item-text">Av. Francisco Caetano Pereira, Bairro Centro - Perdigão</span></div></li>
                                 </ul>
                             </div>
 
@@ -1439,10 +1398,10 @@
                                     <svg class="guide-group-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                                 </div>
                                 <ul class="guide-items">
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">33</span><span class="guide-item-text">Eifa Padaria e Confeitaria - Rua Bahia Bairro Centro</span></div></li>
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">296</span><span class="guide-item-text">M.X.A. Comércio e Serviços - Rua Itumiritinga Bairro Bom Pastor</span></div></li>
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">854</span><span class="guide-item-text">Ester Amaral Pães & Cia (MXA) - Rua Rio de Janeiro Bairro Levino de Paula Pereira</span></div></li>
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">1102</span><span class="guide-item-text">Torre Gourmet - Rua Cristóvão Teixeira Bairro Bom Pastor</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">33</span><span class="guide-item-text">Eifa Padaria e Confeitaria - Rua Bahia, Bairro Centro</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">296</span><span class="guide-item-text">M.X.A. Comércio e Serviços - Rua Itumiritinga, Bairro Bom Pastor</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">854</span><span class="guide-item-text">Ester Amaral Pães & Cia (MXA) - Rua Rio de Janeiro, Bairro Levino de Paula Pereira</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">1102</span><span class="guide-item-text">Torre Gourmet - Rua Cristóvão Teixeira, Bairro Bom Pastor</span></div></li>
                                 </ul>
                             </div>
 
@@ -1456,11 +1415,11 @@
                                     <svg class="guide-group-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                                 </div>
                                 <ul class="guide-items">
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">914</span><span class="guide-item-text">Avenida Dr. Roberto Melo Queiroz</span></div></li>
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">971</span><span class="guide-item-text">Avenida Doutor Manoel Pereira</span></div></li>
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">1088</span><span class="guide-item-text">Avenida Guarujá</span></div></li>
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">1089</span><span class="guide-item-text">Fidélis Supermercados (Comercial Neide) - Avenida Martinho Campos</span></div></li>
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">273</span><span class="guide-item-text">Luz</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">914</span><span class="guide-item-text">Avenida Dr. Roberto Melo Queiroz, Bairro Jardim América</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">971</span><span class="guide-item-text">Avenida Doutor Manoel Pereira, Bairro Centro</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">1088</span><span class="guide-item-text">Avenida Guarujá, Bairro Conjunto Aeroporto II</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">1089</span><span class="guide-item-text">Fidélis Supermercados (Comercial Neide) - Avenida Martinho Campos, Bairro Nossa Senhora de Fátima</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">273</span><span class="guide-item-text">Av. Doutor Josaphat Macedo, Bairro Monsenhor - Luz</span></div></li>
                                 </ul>
                             </div>
 
@@ -1474,8 +1433,8 @@
                                     <svg class="guide-group-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                                 </div>
                                 <ul class="guide-items">
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">131</span><span class="guide-item-text">Bairro Santa Clara</span></div></li>
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">132</span><span class="guide-item-text">Bairro Icaraí</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">131</span><span class="guide-item-text">Avenida Sete de Setembro, Bairro Santa Clara</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">132</span><span class="guide-item-text">Rua Rosana Noronha Guarany, Bairro Icaraí</span></div></li>
                                 </ul>
                             </div>
 
@@ -1489,10 +1448,26 @@
                                     <svg class="guide-group-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                                 </div>
                                 <ul class="guide-items">
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">123</span><span class="guide-item-text">Rua Esmeralda Bairro Padre Eustáquio</span></div></li>
-                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">327</span><span class="guide-item-text">Rua Antônio Corradi Bairro Cerqueira Lima</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">123</span><span class="guide-item-text">Rua Esmeralda, Bairro Padre Eustáquio</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">327</span><span class="guide-item-text">Rua Antônio Corradi, Bairro Cerqueira Lima</span></div></li>
                                 </ul>
                             </div>
+
+                            <!-- Comercial Nutrimais -->
+                            <div class="guide-group">
+                                <div class="guide-group-header" data-group="comercial-nutrimais">
+                                    <div class="guide-group-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                                    </div>
+                                    <div class="guide-group-title">Comercial Nutrimais</div>
+                                    <svg class="guide-group-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                </div>
+                                <ul class="guide-items">
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">1055</span><span class="guide-item-text">Av. Coronel Joaquim da Silva Guimarães, Bairro Prolongamento Dona Lode</span></div></li>
+                                    <li class="guide-item"><div class="guide-item-info"><span class="guide-item-badge">1075</span><span class="guide-item-text">Aldo Supermercado - Av. Araguaia, Bairro Conj. Habitacional Lázaro</span></div></li>
+                                </ul>
+                            </div>
+
                         </div>
                     </div>
                 </section>
@@ -1542,23 +1517,6 @@
         </div>
     </footer>
 
-    <!-- Modal Anotações -->
-    <div class="modal" id="notes-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Anotações</h3>
-                <button class="modal-close" id="close-notes">✕</button>
-            </div>
-            <div class="modal-body">
-                <p>Esta funcionalidade está em desenvolvimento.</p>
-                <p>Em breve você poderá criar e gerenciar suas anotações pessoais aqui.</p>
-            </div>
-            <div class="modal-actions">
-                <button class="btn" id="close-notes-btn">Fechar</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Modal confirmar limpar favoritos -->
     <div class="confirmation-modal" id="clear-favorites-confirm">
         <div class="confirmation-content">
@@ -1604,7 +1562,7 @@
                     nav.style.opacity = '0';
                     nav.style.pointerEvents = 'none';
                     nav.style.transform = 'translateX(-100%)';
-                }, 120); // pequeno delay para evitar piscar ao mover mouse
+                }, 120);
             }
 
             trigger.addEventListener('mouseenter', showNav);
@@ -1612,25 +1570,12 @@
             nav.addEventListener('mouseenter', showNav);
             nav.addEventListener('mouseleave', hideNav);
 
-            // Clique no item "Anotações" do menu lateral
-            nav.querySelectorAll('.nav-item[data-action="notes"]').forEach(function(el) {
-                el.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    hideNav();
-                    openNotesModal();
-                });
-            });
-
-            // Rastrear cliques nos links do menu lateral (para adicionar aos recentes)
+            // Rastrear cliques nos links do menu lateral
             nav.querySelectorAll('a.nav-item').forEach(function(el) {
                 el.addEventListener('click', function(e) {
-                    // Tentar descobrir o data-id pelo href
                     const href = el.getAttribute('href');
                     const found = systemData.items.find(function(i) { return i.url === href; });
-                    if (found) {
-                        addToRecent(found.id);
-                    }
-                    // Verificar preferência nova aba
+                    if (found) { addToRecent(found.id); }
                     const openInNewTab = document.getElementById('new-tab').checked;
                     if (openInNewTab && e.button === 0 && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
                         e.preventDefault();
@@ -1654,6 +1599,7 @@
                 { id: 'mac-853', name: 'MAC Concesso', category: 'macs', url: 'mac853.html', favorite: false },
                 { id: 'mac-1249', name: 'MAC Jardim do Lago', category: 'macs', url: 'mac1249.html', favorite: false },
                 { id: 'mac-989', name: 'MAC Araújos', category: 'macs', url: 'mac989.html', favorite: false },
+                { id: 'mac-1436', name: 'MAC São Gonçalo do Pará', category: 'macs', url: 'mac1436.html', favorite: false },
                 { id: 'sao-jose-1', name: 'Pedido São José', category: 'sao-jose', url: 'saojose.html', favorite: false },
                 { id: 'sao-jose-2', name: 'Pedido Pão Total', category: 'sao-jose', url: 'paototal.html', favorite: false },
                 { id: 'table-1', name: 'Tabela de Preços Geral', category: 'tabelas', url: 'pdfs/Tabela 2025 Geral.pdf', favorite: false },
@@ -1729,35 +1675,6 @@
                 });
             });
 
-            // Cards não-link (anotações)
-            document.querySelectorAll('.quick-card:not(.executable-link)').forEach(function(card) {
-                card.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    var action = this.getAttribute('data-action');
-                    var itemId = this.getAttribute('data-id');
-                    if (itemId) { openItem(itemId); } else { handleQuickAction(action); }
-                });
-            });
-
-            // Itens de categoria não-link
-            document.querySelectorAll('.category-item:not(.executable-link)').forEach(function(item) {
-                if (!item.classList.contains('expandable')) {
-                    item.addEventListener('click', function() {
-                        var itemId = this.getAttribute('data-id');
-                        if (itemId) { openItem(itemId); }
-                    });
-                }
-            });
-
-            // Itens de guias não-link
-            document.querySelectorAll('.guide-item:not(.executable-link)').forEach(function(item) {
-                item.addEventListener('click', function() {
-                    var itemName = this.querySelector('.guide-item-text').textContent;
-                    var itemId = findItemIdByName(itemName);
-                    if (itemId) { openItem(itemId); }
-                });
-            });
-
             // Estrelas de favorito
             document.querySelectorAll('.favorite-star').forEach(function(star) {
                 star.addEventListener('click', function(e) {
@@ -1786,10 +1703,6 @@
                 toggleRecentExpansion();
             });
 
-            // Modal anotações
-            document.getElementById('close-notes').addEventListener('click', closeNotesModal);
-            document.getElementById('close-notes-btn').addEventListener('click', closeNotesModal);
-
             // Toggle sections
             document.getElementById('toggle-quick-access').addEventListener('click', function() { toggleSection('quick-access'); });
             document.getElementById('toggle-categories').addEventListener('click', function() { toggleSection('categories'); });
@@ -1813,7 +1726,7 @@
                 });
             });
 
-            // Capturar cliques em links executáveis para rastrear recentes e preferência nova aba
+            // Capturar cliques em links executáveis
             setupLinkEvents();
         });
 
@@ -1825,15 +1738,17 @@
                 var link = e.target.closest('.executable-link');
                 if (!link) return;
 
+                // Ignorar cliques em estrelas de favorito
+                if (e.target.closest('.favorite-star') || e.target.closest('.category-favorite-star')) return;
+
                 var itemId = link.getAttribute('data-id');
-                if (itemId) {
-                    addToRecent(itemId);
-                }
+                if (itemId) { addToRecent(itemId); }
 
                 var openInNewTab = document.getElementById('new-tab').checked;
-                if (e.button === 0 && !e.ctrlKey && !e.metaKey && !e.shiftKey && openInNewTab && link.href) {
+                var href = link.getAttribute('href') || link.href;
+                if (e.button === 0 && !e.ctrlKey && !e.metaKey && !e.shiftKey && openInNewTab && href) {
                     e.preventDefault();
-                    window.open(link.href, '_blank');
+                    window.open(href, '_blank');
                 }
             }, true);
         }
@@ -1888,140 +1803,199 @@
         }
 
         // =============================================
-        // BUSCA
+        // BUSCA — versão corrigida
         // =============================================
+        function getTextContent(el) {
+            // Retorna texto sem tags HTML (para busca não afetar markup já aplicado)
+            return el.textContent || el.innerText || '';
+        }
+
         function highlightText(text, searchTerm) {
             if (!searchTerm) return text;
-            var regex = new RegExp('(' + searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+            var escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            var regex = new RegExp('(' + escaped + ')', 'gi');
             return text.replace(regex, '<mark class="search-highlight">$1</mark>');
         }
 
         function removeHighlights() {
-            document.querySelectorAll('.search-highlight').forEach(function(h) {
-                h.parentNode.replaceChild(document.createTextNode(h.textContent), h);
-                h.parentNode.normalize();
+            // Restaura conteúdo original de todos os elementos que possam ter highlight
+            document.querySelectorAll('.item-text, .category-title, .guide-group-title, .guide-item-text').forEach(function(el) {
+                if (el.dataset.originalText !== undefined) {
+                    el.textContent = el.dataset.originalText;
+                    delete el.dataset.originalText;
+                }
             });
         }
 
-        function performSearch(query) {
-            var searchTerm = query.toLowerCase().trim();
+        function applyHighlight(el, searchTerm) {
+            if (!el.dataset.originalText) {
+                el.dataset.originalText = el.textContent;
+            }
+            el.innerHTML = highlightText(el.dataset.originalText, searchTerm);
+        }
+
+        function resetAllVisibility() {
             var quickSection = document.querySelector('.quick-access');
             var catSection = document.querySelector('.categories');
             var guidesSection = document.querySelector('.guides-section');
             var quickTitle = document.getElementById('toggle-quick-access');
             var catTitle = document.getElementById('toggle-categories');
             var guidesTitle = document.getElementById('toggle-guides');
-            var mainContent = document.querySelector('.main-content > main');
 
-            // Remover mensagem anterior
+            quickSection.style.display = '';
+            catSection.style.display = '';
+            guidesSection.style.display = '';
+            quickTitle.style.display = '';
+            catTitle.style.display = '';
+            guidesTitle.style.display = '';
+
+            document.querySelectorAll('.category-item').forEach(function(i) { i.style.display = ''; });
+            document.querySelectorAll('.quick-card').forEach(function(c) { c.style.display = ''; });
+            document.querySelectorAll('.category-card').forEach(function(c) { c.style.display = ''; });
+            document.querySelectorAll('.guide-group').forEach(function(g) { g.style.display = ''; });
+            document.querySelectorAll('.guide-item').forEach(function(i) { i.style.display = ''; });
+
+            var gc = document.querySelector('.guides-container');
+            var gg = document.querySelector('.guides-grid');
+            gc.style.padding = '25px';
+            gg.style.gridTemplateColumns = 'repeat(auto-fill, minmax(300px, 1fr))';
+            gg.style.gap = '20px';
+
+            // Remove no-results se houver
             var existing = document.querySelector('.no-results');
             if (existing) { existing.remove(); }
+        }
+
+        function performSearch(query) {
+            var searchTerm = query.toLowerCase().trim();
 
             removeHighlights();
 
             if (searchTerm === '') {
-                quickSection.style.display = 'block';
-                catSection.style.display = 'block';
-                guidesSection.style.display = 'block';
-                quickTitle.style.display = 'flex';
-                catTitle.style.display = 'flex';
-                guidesTitle.style.display = 'flex';
-                document.querySelectorAll('.category-item').forEach(function(i) { i.style.display = 'flex'; });
-                document.querySelectorAll('.quick-card').forEach(function(c) { c.style.display = 'flex'; });
-                document.querySelectorAll('.category-card').forEach(function(c) { c.style.display = 'block'; });
-                document.querySelectorAll('.guide-group').forEach(function(g) { g.style.display = 'block'; });
-                document.querySelectorAll('.guide-item').forEach(function(i) { i.style.display = 'flex'; });
-                var gc = document.querySelector('.guides-container');
-                var gg = document.querySelector('.guides-grid');
-                gc.style.padding = '25px';
-                gg.style.gridTemplateColumns = 'repeat(auto-fill, minmax(300px, 1fr))';
-                gg.style.gap = '20px';
+                resetAllVisibility();
                 return;
             }
 
+            var mainContent = document.querySelector('.main-content > main');
+            var existing = document.querySelector('.no-results');
+            if (existing) { existing.remove(); }
+
+            // Esconder acesso rápido durante busca
+            var quickSection = document.querySelector('.quick-access');
+            var quickTitle = document.getElementById('toggle-quick-access');
             quickSection.style.display = 'none';
             quickTitle.style.display = 'none';
 
             var hasInCat = false;
             var hasInGuides = false;
 
-            // Filtrar categorias
+            // --- Filtrar categorias ---
             document.querySelectorAll('.category-card').forEach(function(card) {
-                var catTitle2 = card.querySelector('.category-title').textContent.toLowerCase();
+                var titleEl = card.querySelector('.category-title');
+                var catTitleText = getTextContent(titleEl).toLowerCase();
                 var catHas = false;
 
-                if (catTitle2.includes(searchTerm)) {
+                if (catTitleText.includes(searchTerm)) {
+                    // Título da categoria bate: mostra todos os itens
                     catHas = true;
                     hasInCat = true;
                     card.querySelectorAll('.category-item').forEach(function(item) {
-                        if (item.classList.contains('expandable')) {
-                            var exp = card.querySelector('.expanded-items');
-                            if (exp) { exp.classList.add('active'); item.textContent = 'Ver menos...'; }
-                        }
                         item.style.display = 'flex';
                     });
+                    // Expande seção oculta se existir
+                    var exp = card.querySelector('.expanded-items');
+                    var expandable = card.querySelector('.expandable');
+                    if (exp && expandable) { exp.classList.add('active'); expandable.textContent = 'Ver menos...'; }
+                    applyHighlight(titleEl, searchTerm);
                 } else {
+                    // Busca item por item
+                    var expEl = card.querySelector('.expanded-items');
+                    var expandableEl = card.querySelector('.expandable');
+                    var expHas = false;
+
                     card.querySelectorAll('.category-item').forEach(function(item) {
-                        if (item.classList.contains('expandable')) {
-                            var exp = card.querySelector('.expanded-items');
-                            if (exp) {
-                                var expHas = false;
-                                exp.querySelectorAll('.category-item').forEach(function(ei) {
-                                    if (ei.textContent.toLowerCase().includes(searchTerm)) {
-                                        ei.style.display = 'flex'; expHas = true; catHas = true; hasInCat = true;
-                                    } else { ei.style.display = 'none'; }
-                                });
-                                if (expHas) {
-                                    item.style.display = 'flex';
-                                    exp.classList.add('active');
-                                    item.textContent = 'Ver menos...';
-                                } else { item.style.display = 'none'; }
-                            }
-                            return;
+                        if (item.classList.contains('expandable')) return;
+                        var textEl = item.querySelector('.item-text');
+                        var badgeEl = item.querySelector('.item-badge');
+                        var combined = (textEl ? getTextContent(textEl) : '') + ' ' + (badgeEl ? getTextContent(badgeEl) : '');
+                        if (combined.toLowerCase().includes(searchTerm)) {
+                            item.style.display = 'flex';
+                            catHas = true;
+                            hasInCat = true;
+                            if (expEl && expEl.contains(item)) { expHas = true; }
+                            if (textEl) { applyHighlight(textEl, searchTerm); }
+                        } else {
+                            item.style.display = 'none';
                         }
-                        if (item.textContent.toLowerCase().includes(searchTerm)) {
-                            item.style.display = 'flex'; catHas = true; hasInCat = true;
-                        } else { item.style.display = 'none'; }
                     });
+
+                    if (expEl && expandableEl) {
+                        if (expHas) {
+                            expEl.classList.add('active');
+                            expandableEl.style.display = 'flex';
+                            expandableEl.textContent = 'Ver menos...';
+                        } else {
+                            expandableEl.style.display = 'none';
+                        }
+                    }
                 }
-                card.style.display = catHas ? 'block' : 'none';
+                card.style.display = catHas ? '' : 'none';
             });
 
-            // Filtrar guias
+            // --- Filtrar guias ---
             document.querySelectorAll('.guide-group').forEach(function(group) {
-                var gTitle = group.querySelector('.guide-group-title').textContent.toLowerCase();
+                var titleEl = group.querySelector('.guide-group-title');
+                var gTitleText = getTextContent(titleEl).toLowerCase();
                 var gHas = false;
 
-                if (gTitle.includes(searchTerm)) {
-                    gHas = true; hasInGuides = true;
-                    group.querySelectorAll('.guide-item').forEach(function(item) { item.style.display = 'flex'; });
+                if (gTitleText.includes(searchTerm)) {
+                    gHas = true;
+                    hasInGuides = true;
+                    group.querySelectorAll('.guide-item').forEach(function(item) { item.style.display = ''; });
                     group.querySelector('.guide-items').classList.add('expanded');
+                    group.querySelector('.guide-items').style.maxHeight = '300px';
                     group.querySelector('.guide-group-toggle').classList.remove('collapsed');
+                    applyHighlight(titleEl, searchTerm);
                 } else {
                     group.querySelectorAll('.guide-item').forEach(function(item) {
-                        if (item.textContent.toLowerCase().includes(searchTerm)) {
-                            item.style.display = 'flex'; gHas = true; hasInGuides = true;
-                        } else { item.style.display = 'none'; }
+                        var textEl = item.querySelector('.guide-item-text');
+                        var badgeEl = item.querySelector('.guide-item-badge');
+                        var combined = (textEl ? getTextContent(textEl) : '') + ' ' + (badgeEl ? getTextContent(badgeEl) : '');
+                        if (combined.toLowerCase().includes(searchTerm)) {
+                            item.style.display = '';
+                            gHas = true;
+                            hasInGuides = true;
+                            if (textEl) { applyHighlight(textEl, searchTerm); }
+                        } else {
+                            item.style.display = 'none';
+                        }
                     });
                     if (gHas) {
                         group.querySelector('.guide-items').classList.add('expanded');
+                        group.querySelector('.guide-items').style.maxHeight = '300px';
                         group.querySelector('.guide-group-toggle').classList.remove('collapsed');
                     }
                 }
-                group.style.display = gHas ? 'block' : 'none';
+                group.style.display = gHas ? '' : 'none';
             });
 
+            // Seção Categorias
+            var catSection = document.querySelector('.categories');
+            var catTitle = document.getElementById('toggle-categories');
             if (hasInCat) {
-                catSection.style.display = 'block';
-                catTitle.style.display = 'flex';
+                catSection.style.display = '';
+                catTitle.style.display = '';
             } else {
                 catSection.style.display = 'none';
                 catTitle.style.display = 'none';
             }
 
+            // Seção Guias
+            var guidesSection = document.querySelector('.guides-section');
+            var guidesTitle = document.getElementById('toggle-guides');
             if (hasInGuides) {
-                guidesSection.style.display = 'block';
-                guidesTitle.style.display = 'flex';
+                guidesSection.style.display = '';
+                guidesTitle.style.display = '';
                 var gc2 = document.querySelector('.guides-container');
                 var gg2 = document.querySelector('.guides-grid');
                 gc2.style.padding = '15px';
@@ -2030,22 +2004,6 @@
             } else {
                 guidesSection.style.display = 'none';
                 guidesTitle.style.display = 'none';
-            }
-
-            // Highlights
-            if (searchTerm) {
-                document.querySelectorAll('.category-item[style*="display: flex"] .item-text').forEach(function(el) {
-                    el.innerHTML = highlightText(el.textContent, searchTerm);
-                });
-                document.querySelectorAll('.category-card[style*="display: block"] .category-title').forEach(function(el) {
-                    el.innerHTML = highlightText(el.textContent, searchTerm);
-                });
-                document.querySelectorAll('.guide-group[style*="display: block"] .guide-group-title').forEach(function(el) {
-                    el.innerHTML = highlightText(el.textContent, searchTerm);
-                });
-                document.querySelectorAll('.guide-item[style*="display: flex"] .guide-item-text').forEach(function(el) {
-                    el.innerHTML = highlightText(el.textContent, searchTerm);
-                });
             }
 
             if (!hasInCat && !hasInGuides) {
@@ -2057,7 +2015,8 @@
         }
 
         function clearSearch() {
-            performSearch('');
+            removeHighlights();
+            resetAllVisibility();
         }
 
         // =============================================
@@ -2104,11 +2063,6 @@
             var openInNewTab = document.getElementById('new-tab').checked;
             if (openInNewTab) { window.open(item.url, '_blank'); }
             else { window.location.href = item.url; }
-        }
-
-        function findItemIdByName(name) {
-            var item = systemData.items.find(function(i) { return i.name === name; });
-            return item ? item.id : null;
         }
 
         // =============================================
@@ -2165,7 +2119,6 @@
                 if (!item) return;
                 var li = document.createElement('li');
                 li.className = 'fav-item executable-link';
-                li.setAttribute('href', item.url);
                 li.setAttribute('data-id', item.id);
                 li.innerHTML =
                     '<svg class="fav-icon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>' +
@@ -2198,16 +2151,7 @@
             if (existing) { existing.remove(); }
 
             if (!showOnly) {
-                quickSection.style.display = 'block';
-                catSection.style.display = 'block';
-                guidesSection.style.display = 'block';
-                quickTitle.style.display = 'flex';
-                catTitle.style.display = 'flex';
-                guidesTitle.style.display = 'flex';
-                document.querySelectorAll('.category-item').forEach(function(i) { i.style.display = 'flex'; });
-                document.querySelectorAll('.quick-card').forEach(function(c) { c.style.display = 'flex'; });
-                document.querySelectorAll('.category-card').forEach(function(c) { c.style.display = 'block'; });
-                document.querySelectorAll('.guide-group').forEach(function(g) { g.style.display = 'block'; });
+                resetAllVisibility();
                 return;
             }
 
@@ -2215,8 +2159,8 @@
             guidesSection.style.display = 'none';
             quickTitle.style.display = 'none';
             guidesTitle.style.display = 'none';
-            catSection.style.display = 'block';
-            catTitle.style.display = 'flex';
+            catSection.style.display = '';
+            catTitle.style.display = '';
 
             var hasResults = false;
             document.querySelectorAll('.category-card').forEach(function(card) {
@@ -2230,7 +2174,7 @@
                         item.style.display = 'flex'; catHas = true; hasResults = true;
                     } else { item.style.display = 'none'; }
                 });
-                card.style.display = catHas ? 'block' : 'none';
+                card.style.display = catHas ? '' : 'none';
             });
 
             if (!hasResults) {
@@ -2315,21 +2259,6 @@
             systemData.recentExpanded = false;
             updateRecentList();
             saveData();
-        }
-
-        // =============================================
-        // AÇÕES RÁPIDAS / MODAIS
-        // =============================================
-        function handleQuickAction(action) {
-            if (action === 'notes') { openNotesModal(); }
-        }
-
-        function openNotesModal() {
-            document.getElementById('notes-modal').classList.add('active');
-        }
-
-        function closeNotesModal() {
-            document.getElementById('notes-modal').classList.remove('active');
         }
     </script>
 </body>

@@ -5,760 +5,992 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>MAC 853 - Organizador de Lista</title>
 
-<!-- jsPDF + SheetJS via CDN -->
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
-  /* ===== base / tipografia ===== */
-  :root {
-    --azul: #007BFF;
-    --azul-escuro: #0056b3;
-    --amarelo: #FFD700;
-    --vermelho: #b22222;
-    --verde: #28a745;
-    --roxo: #6f42c1;
-    --bg: #ffffff;
-    --ink: #111;
-    --line: #e6eef9;
-    --cinza-claro: #f8f9fa;
-    --cinza-medio: #e9ecef;
-    --cinza-escuro: #495057;
-  }
-  html,body { height:100%; }
-  body {
-    font-family: monospace;
-    margin: 0;
-    padding: 0;
-    color: var(--ink);
-    background: var(--bg);
-  }
+:root {
+  --bg: #eef3fb;
+  --surface: #ffffff;
+  --surface2: #f4f8ff;
+  --border: #dce8fb;
+  --border2: #c8d9f5;
+  --text-primary: #1a2740;
+  --text-secondary: #4e6080;
+  --text-muted: #8fa3bf;
+  --accent: #1a56db;
+  --accent-dark: #1040b0;
+  --accent-light: #e8f0fe;
+  --warn: #f59e0b;
+  --success: #10b981;
+  --danger: #dc2626;
+  --purple: #7c3aed;
+  --shadow-sm: 0 2px 8px rgba(20,60,120,0.07);
+  --shadow-md: 0 6px 24px rgba(20,60,120,0.10);
+  --shadow-lg: 0 14px 40px rgba(20,60,120,0.14);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+}
 
-  /* small helper for screen readers */
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0,0,0,0);
-    white-space: nowrap;
-    border: 0;
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
 
-  /* ===== header ===== */
-  header {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    background: var(--azul);
-    color: white;
-    padding: 10px 14px;
-    gap: 12px;
-    position: sticky;
-    top: 0;
-    z-index: 999;
-  }
-  .menu-left, .menu-right {
-    display:flex;
-    gap: 8px;
-    align-items:center;
-  }
-  .icon-btn {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 18px;
-    cursor: pointer;
-    padding: 6px 8px;
-    border-radius: 6px;
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  line-height: 1.55;
+}
 
-    /* align SVG nicely */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .icon-btn:hover { background: rgba(255,255,255,0.08); }
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: radial-gradient(circle, #c0d0eb 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+}
 
-  /* sizing only (cada SVG controla fill/stroke via currentColor) */
-  .icon-btn svg {
-    width: 22px;
-    height: 22px;
-    display: block;
-    flex-shrink: 0;
-  }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0;
+  margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
+  white-space: nowrap; border: 0;
+}
 
-  /* dropdowns */
-  .menu-dropdown { position: relative; }
-  .menu-dropdown-content {
-    display: none;
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
-    background: white;
-    color: #111;
-    border-radius: 6px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-    min-width: 240px;
-    max-width: calc(100vw - 40px);
-    overflow: auto;
-    z-index: 1200;
-    padding: 6px 0;
-    white-space: normal;
-  }
-  .menu-right .menu-dropdown-content { right: 0; left: auto; }
+/* ── TOPBAR ─────────────────────────────────── */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 0 20px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
 
-  .menu-dropdown-content a {
-    display: flex;
-    align-items: center;
-    padding: 10px 12px;
-    color: #111;
-    text-decoration: none;
-    font-family: monospace;
-    transition: all 0.2s ease;
-    border-left: 3px solid transparent;
-  }
-  .menu-dropdown-content a:hover { 
-    background: var(--cinza-claro);
-    border-left-color: var(--azul);
-    color: var(--azul-escuro);
-  }
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
 
-  .dropdown-section { border-top: 1px solid #f0f0f0; padding-top: 6px; margin-top: 6px; }
-  .section-header {
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:8px;
-    padding: 10px 12px;
-    cursor: pointer;
-    font-weight:700;
-    transition: all 0.2s ease;
-    border-left: 3px solid transparent;
-  }
-  .section-header:hover { 
-    background: var(--cinza-claro);
-    border-left-color: var(--azul);
-    color: var(--azul-escuro);
-  }
-  .section-header small { font-weight:400; color:#666; }
-  .submenu { display:none; padding-left: 6px; padding-bottom:6px; }
-  .submenu a { padding-left: 18px; font-weight:500; }
-  
-  /* Estilo para a caixinha do código MAC */
-  .mac-code {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--azul);
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.85em;
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.brand-icon {
+  width: 38px; height: 38px;
+  background: var(--accent);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(26,86,219,0.3);
+  font-family: 'Sora', sans-serif;
+  font-weight: 800;
+  font-size: 0.75rem;
+  color: white;
+  letter-spacing: -0.5px;
+  flex-shrink: 0;
+}
+.brand-name {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--accent);
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.brand-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.nav-arrow-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border2);
+  background: white;
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: all 0.18s;
+  font-size: 14px;
+}
+.nav-arrow-btn:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.topbar-spacer { flex: 1; }
+
+.topbar-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Icon buttons in topbar */
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 7px 8px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s;
+  position: relative;
+}
+.icon-btn svg { width: 20px; height: 20px; display: block; }
+.icon-btn:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+.icon-btn.active {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.topbar-divider {
+  width: 1px; height: 28px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* ── DROPDOWNS ──────────────────────────────── */
+.menu-dropdown { position: relative; }
+.menu-dropdown-content {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  min-width: 260px;
+  max-width: calc(100vw - 32px);
+  overflow: auto;
+  z-index: 1200;
+  padding: 6px;
+}
+.menu-right .menu-dropdown-content { right: 0; left: auto; }
+
+.menu-dropdown-content a {
+  display: flex;
+  align-items: center;
+  padding: 9px 11px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.87rem;
+  border-radius: 8px;
+  transition: all 0.15s;
+  gap: 8px;
+}
+.menu-dropdown-content a:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.dropdown-section {
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  padding-top: 4px;
+}
+.dropdown-section:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 11px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  border-radius: 8px;
+  transition: all 0.15s;
+}
+.section-header:hover {
+  background: var(--surface2);
+  color: var(--text-secondary);
+}
+
+.mac-code {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--accent);
+  color: white;
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  min-width: 30px;
+  flex-shrink: 0;
+}
+
+.submenu { display: none; padding-left: 4px; }
+.submenu a { padding-left: 14px; }
+
+/* ── MAIN LAYOUT ────────────────────────────── */
+.page-wrapper {
+  position: relative;
+  z-index: 1;
+  padding: 20px 20px 40px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* ── STAT BAR ───────────────────────────────── */
+.stat-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 99px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-sm);
+}
+.stat-chip svg { width: 14px; height: 14px; color: var(--accent); }
+.stat-chip .val { color: var(--accent); font-family: 'Sora', sans-serif; }
+
+/* ── RESET CONFIRM BAR ──────────────────────── */
+#reset-confirm-bar {
+  display: none;
+  background: #fff7ed;
+  border: 1.5px solid #fed7aa;
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+  animation: slideDown 0.22s ease;
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+#reset-confirm-bar .rcb-title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #92400e;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#reset-confirm-bar .rcb-title svg {
+  width: 18px; height: 18px; color: #f59e0b; flex-shrink: 0;
+}
+#reset-confirm-bar .rcb-msg {
+  font-size: 0.85rem;
+  color: #78350f;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+#reset-confirm-bar .rcb-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.rcb-btn {
+  padding: 8px 16px;
+  border-radius: 9px;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.rcb-btn.danger  { background: var(--danger); color: white; }
+.rcb-btn.danger:hover  { background: #b91c1c; transform: translateY(-1px); }
+.rcb-btn.safe    { background: #f59e0b; color: white; }
+.rcb-btn.safe:hover    { background: #d97706; transform: translateY(-1px); }
+.rcb-btn.cancel  { background: var(--surface2); color: var(--text-secondary); border: 1.5px solid var(--border2); }
+.rcb-btn.cancel:hover  { background: #f1f5f9; }
+
+/* ── CONTENT GRID ───────────────────────────── */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+/* ── COLUMN PANELS ──────────────────────────── */
+.col-panel {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.col-header {
+  padding: 14px 18px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.col-header-icon {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(26,86,219,0.25);
+}
+.col-header-icon svg { width: 15px; height: 15px; color: white; }
+.col-header-title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.col-body { padding: 10px; }
+
+/* ── ITEMS ──────────────────────────────────── */
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  transition: background 0.15s;
+  border: 1px solid transparent;
+}
+.item:hover { background: var(--surface2); }
+
+.item span {
+  flex: 1;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.item input[type="text"] {
+  width: 58px;
+  padding: 5px 7px;
+  font-family: 'DM Sans', monospace;
+  font-size: 0.85rem;
+  text-align: center;
+  border: 1.5px solid var(--border2);
+  border-radius: 7px;
+  background: white;
+  color: var(--text-primary);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  flex-shrink: 0;
+}
+.item input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(26,86,219,0.12);
+}
+.item input[readonly] {
+  background: var(--surface2);
+  border-color: var(--border);
+  color: var(--text-secondary);
+  cursor: default;
+}
+.item input[readonly]:focus {
+  border-color: var(--border2);
+  box-shadow: none;
+}
+
+.item.novo-item {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+.item.novo-item:hover { background: #dcfce7; }
+
+.remove-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted); font-size: 14px; font-weight: 700;
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  line-height: 1;
+}
+.remove-btn:hover { background: #fee2e2; color: var(--danger); }
+
+/* ── MIDDLE CONTROLS ────────────────────────── */
+.middle-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  padding-top: 60px;
+}
+
+.ctrl-btn {
+  width: 158px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.18s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  box-shadow: var(--shadow-sm);
+}
+.ctrl-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+.ctrl-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.ctrl-btn:active { transform: translateY(0); }
+
+.ctrl-btn.purple { background: var(--purple); color: white; }
+.ctrl-btn.purple:hover { background: #6d28d9; }
+
+.ctrl-btn.blue { background: var(--accent); color: white; }
+.ctrl-btn.blue:hover { background: var(--accent-dark); }
+
+.ctrl-btn.amber { background: #f59e0b; color: white; }
+.ctrl-btn.amber:hover { background: #d97706; }
+
+.ctrl-btn.red { background: var(--danger); color: white; }
+.ctrl-btn.red:hover { background: #b91c1c; }
+
+/* ── SAVE DROPDOWN ──────────────────────────── */
+.save-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  min-width: 200px;
+  z-index: 1200;
+  padding: 6px;
+}
+.save-dropdown a {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 0.87rem;
+  transition: background 0.15s;
+}
+.save-dropdown a svg { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
+.save-dropdown a:hover { background: var(--accent-light); color: var(--accent); }
+.save-dropdown a:hover svg { color: var(--accent); }
+
+/* ── TOAST ──────────────────────────────────── */
+#copy-notice {
+  position: fixed;
+  right: 20px; bottom: 20px;
+  background: var(--text-primary);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 10px;
+  display: none;
+  z-index: 3000;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  animation: slideIn 0.2s ease;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── MODAL ──────────────────────────────────── */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(15, 30, 60, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 3000;
+  justify-content: center;
+  align-items: center;
+}
+.modal-content {
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  width: 90%;
+  max-width: 480px;
+  box-shadow: var(--shadow-lg);
+  animation: modalIn 0.22s ease;
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 22px;
+}
+.modal-icon {
+  width: 40px; height: 40px;
+  background: var(--purple);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(124,58,237,0.3);
+}
+.modal-icon svg { width: 20px; height: 20px; color: white; }
+.modal-header h2 {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.modal-input-group { margin-bottom: 16px; }
+.modal-input-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.modal-input-group input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border2);
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  background: var(--surface2);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+.modal-input-group input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(26,86,219,0.12);
+  background: white;
+}
+.modal-footer {
+  display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px;
+}
+.btn-modal {
+  padding: 9px 18px;
+  border-radius: 9px;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.btn-modal.confirm { background: var(--success); color: white; }
+.btn-modal.confirm:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16,185,129,0.35); }
+.btn-modal.cancel { background: var(--surface2); color: var(--text-secondary); border: 1.5px solid var(--border2); }
+.btn-modal.cancel:hover { background: #f1f5f9; }
+
+/* ── PRINT ──────────────────────────────────── */
+@media print {
+  .topbar, .stat-bar, .middle-controls, #copy-notice, .modal-overlay,
+  .remove-btn, .col-header-icon, body::before, #reset-confirm-bar { display: none !important; }
+
+  body { background: white; font-family: Arial, sans-serif; }
+  @page { size: A4 portrait; margin: 8mm; }
+
+  .page-wrapper { padding: 0 !important; max-width: 100% !important; }
+
+  /* Print title above the two columns */
+  .print-title {
+    display: block !important;
+    font-family: Arial, sans-serif;
     font-weight: bold;
-    margin-right: 10px;
-    min-width: 32px;
-    height: 22px;
+    font-size: 12px;
+    margin-bottom: 6px;
+    border-bottom: 1.5px solid #333;
+    padding-bottom: 5px;
   }
 
-  /* ===== título com setas ===== */
-  .titulo-nav {
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap: 16px;
-    margin: 14px 10px 8px;
-  }
-  .titulo-nav h1 {
-    margin:0;
-    font-size:18px;
-    color:#111;
-  }
-  .titulo-nav a {
-    color: var(--azul);
-    text-decoration:none;
-    font-size:22px;
-    user-select:none;
-  }
-  .titulo-nav .arrow {
-    width:28px;
-    height:28px;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:6px;
-    cursor:pointer;
-    color:var(--azul-escuro);
-    text-decoration:none;
-  }
-  .titulo-nav .arrow:hover { background:#f0f8ff; }
-
-  /* ===== container duas colunas ===== */
-  .container {
-    display:flex;
-    justify-content:center;
-    gap: 32px;
-    align-items:flex-start;
-    padding: 10px 14px 24px;
-    flex-wrap:wrap;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  .column {
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-    min-width: 300px;
-    max-width: 420px;
-    width: 100%;
-    flex: 1;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 12px;
-    box-sizing: border-box;
+  /* Side-by-side layout for both panels */
+  .content-grid {
+    display: flex !important;
+    gap: 6mm !important;
+    align-items: flex-start !important;
   }
 
+  .col-panel {
+    flex: 1 !important;
+    box-shadow: none !important;
+    border: 1px solid #bbb !important;
+    border-radius: 4px !important;
+    overflow: visible !important;
+  }
+
+  /* Hide the middle controls column (already hidden above via .middle-controls) */
+  .content-grid > div:nth-child(2) { display: none !important; }
+
+  .col-header {
+    padding: 4px 6px !important;
+    background: #f0f0f0 !important;
+    border-bottom: 1px solid #ccc !important;
+  }
+  .col-header-title {
+    font-size: 9px !important;
+    font-weight: bold;
+  }
+  .col-body {
+    padding: 2px 4px !important;
+  }
   .item {
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:6px 8px;
-    border-radius:6px;
-    transition: background-color 0.2s;
-    position: relative;
+    padding: 1px 2px !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    border: none !important;
+    background: none !important;
   }
-  
-  /* Borda completa ao redor do item novo - REDUZIDA PARA 1px */
-  .item.novo-item {
-    background-color: #e8f5e8;
-    border: 1px solid var(--verde);
-    border-radius: 6px;
-  }
-  
-  .item span { flex:1; color:#111; }
+  .item.novo-item { background: none !important; border: none !important; }
+  .item span { font-size: 7.5px !important; line-height: 1.2 !important; }
   .item input[type="text"] {
-    width: 60px;
-    padding:6px 6px;
-    font-family: monospace;
-    text-align:center;
-    border:1px solid #ddd;
-    border-radius:4px;
-    background: white;
-    transition: box-shadow .12s, border-color .12s;
+    width: 30px !important;
+    font-size: 7.5px !important;
+    padding: 1px 2px !important;
+    border: 1px solid #999 !important;
+    border-radius: 2px !important;
+    background: white !important;
   }
-  .item input[readonly] { background: #fafafa; }
+  .item input[readonly] {
+    background: #f5f5f5 !important;
+  }
+}
 
-  .item input:focus {
-    outline: none;
-    border-color: var(--azul-escuro);
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.12);
-  }
+.print-title { display: none; }
 
-  /* Botão de remover item - estilo do código de referência */
-  .remove-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    color: #6c757d;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-weight: bold;
-    transition: all 0.2s ease;
-  }
-  
-  .remove-btn:hover {
-    background: #f8f9fa;
-    color: #495057;
-  }
-
-  /* ===== middle controls ===== */
-  #middle-controls {
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-    align-items:center;
-    justify-content:center;
-    min-width:170px;
-    flex-shrink: 0;
-  }
-  #middle-controls button {
-    width:170px;
-    padding:10px 12px;
-    font-size:14px;
-    border-radius:6px;
-    border:none;
-    cursor:pointer;
-  }
-
-  /* Botão Adicionar Item - VOLTAR PARA ROXO */
-  #middle-controls button:first-child { 
-    background: var(--roxo); 
-    color:white; 
-  }
-  #middle-controls button:first-child:hover { 
-    background: #5a32a3; 
-  }
-
-  .btn-azul { background: var(--azul); color:white; }
-  .btn-azul:hover { background:var(--azul-escuro); }
-  .btn-verde { background: var(--verde); color:white; }
-  .btn-verde:hover { background:#218838; }
-  .btn-amarelo { background: var(--amarelo); color:black; }
-  .btn-amarelo:hover { background:#e6c200; }
-  .btn-vermelho { background: var(--vermelho); color:white; }
-  .btn-vermelho:hover { background:#8b1a1a; }
-
-  /* ===== contador ===== */
-  #contador-linhas { text-align:center; margin: 12px 0 24px; font-weight:700; }
-
-  /* aviso / toast discreto (reaproveitamos #copy-notice) */
-  #copy-notice {
-    position: fixed;
-    right: 18px;
-    bottom: 18px;
-    background: rgba(0,0,0,0.78);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    display: none;
-    z-index: 2000;
-    font-family: monospace;
-    font-size: 13px;
-  }
-
-  /* Modal para adicionar itens */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 3000;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  }
-  
-  .modal-content h2 {
-    margin-top: 0;
-    color: #333;
-  }
-  
-  .modal-input-group {
-    margin-bottom: 15px;
-  }
-  
-  .modal-input-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  
-  .modal-input-group input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-family: monospace;
-  }
-  
-  .modal-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 20px;
-  }
-  
-  .modal-buttons button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: monospace;
-  }
-  
-  .btn-modal-confirm {
-    background: var(--verde);
-    color: white;
-  }
-  
-  .btn-modal-cancel {
-    background: #6c757d;
-    color: white;
-  }
-
-  /* espaço estético no final da página */
-  .tail-space { height: 20px; }
-
-  /* ===== RESPONSIVIDADE ===== */
-  @media (max-width: 1024px) {
-    .container {
-      gap: 24px;
-    }
-    
-    .column {
-      min-width: 280px;
-      max-width: 380px;
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .container {
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-    }
-    
-    .column {
-      min-width: 100%;
-      max-width: 100%;
-    }
-    
-    #middle-controls {
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: center;
-      min-width: auto;
-      width: 100%;
-      max-width: 400px;
-    }
-    
-    #middle-controls button {
-      width: 160px;
-    }
-    
-    .titulo-nav {
-      flex-wrap: wrap;
-      text-align: center;
-    }
-    
-    .titulo-nav h1 {
-      font-size: 16px;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .container {
-      padding: 10px 8px 20px;
-    }
-    
-    #middle-controls button {
-      width: 140px;
-      padding: 8px 10px;
-      font-size: 13px;
-    }
-    
-    .item {
-      padding: 5px 6px;
-    }
-    
-    .item input[type="text"] {
-      width: 50px;
-    }
-    
-    .modal-content {
-      padding: 15px;
-      margin: 10px;
-    }
-  }
-
-  /* ---------- PRINT (melhoria mínima adicionada) ---------- */
-  @media print {
-    /* esconder controles e rodapé */
-    header, .menu-dropdown-content, #middle-controls, #copy-notice, .modal-overlay, .remove-btn { display: none !important; }
-
-    /* alturas automáticas */
-    html, body { height: auto !important; min-height: auto !important; font-family: monospace; }
-
-    /* pagina A4 e margens pequenas para caber o conteúdo */
-    @page { 
-      size: A4 portrait; 
-      margin: 4mm; /* REDUZIDO DE 8mm PARA 4mm */
-    }
-
-    /* evita problemas de impressão com flex: usar blocos e floats no print */
-    .container { 
-      display: block !important; 
-      gap: 4px !important; /* REDUZIDO DE 8px PARA 4px */
-      padding: 0 !important; 
-      max-width: 100% !important;
-    }
-    .container:after { content: ''; display: block; clear: both; }
-
-    /* coloca as colunas lado a lado usando float (mais previsível em impressão) */
-    .column { 
-      box-shadow: none; 
-      border: 1px solid #000 !important; 
-      min-width: auto; 
-      max-width: 49%; /* AJUSTADO PARA 49% PARA MELHOR APROVEITAMENTO */
-      width: 49%; 
-      float: left !important; 
-      box-sizing: border-box; 
-      padding: 6px !important; /* REDUZIDO DE 12px PARA 6px */
-      margin-bottom: 4px !important;
-    }
-
-    /* reduz o espaçamento por item e evita quebra dentro do item */
-    .item { 
-      gap: 4px !important; /* REDUZIDO DE 6px PARA 4px */
-      padding: 1px 2px !important; /* REDUZIDO DE 2px 4px PARA 1px 2px */
-      page-break-inside: avoid; 
-      break-inside: avoid; 
-    }
-    .item span { font-size: 10px; line-height: 1.1; } /* REDUZIDO DE 11px PARA 10px */
-    .item input[type="text"] { 
-      width: 40px; /* REDUZIDO DE 44px PARA 40px */
-      padding: 1px 2px; /* REDUZIDO DE 2px 4px PARA 1px 2px */
-      font-size: 10px; /* REDUZIDO DE 11px PARA 10px */
-      text-align: center; 
-    }
-
-    /* ajustar o espaço estético também para o print */
-    .tail-space { height: 0mm; }
-
-    /* caso tenhamos MUITAS linhas, aplicamos uma classe (JS) para reduzir ainda mais a fonte */
-    body.print-tight { font-size: 9px !important; } /* REDUZIDO DE 10px PARA 9px */
-    body.print-tight .column { max-width: 49%; width: 49%; float: left !important; }
-    body.print-tight .item span { font-size: 9px; } /* REDUZIDO DE 10px PARA 9px */
-    body.print-tight .item input[type="text"] { 
-      width: 35px; /* REDUZIDO DE 38px PARA 35px */
-      font-size: 9px; /* REDUZIDO DE 10px PARA 9px */
-      padding: 1px 2px; 
-    }
-    
-    /* Estilo para caber em uma página quando não há itens adicionados */
-    body.single-page-print .column { 
-      max-width: 100%; 
-      width: 100%; 
-      float: none !important; 
-    }
-    
-    body.single-page-print .item span { 
-      font-size: 11px; /* TAMANHO MAIOR QUANDO CABE EM UMA PÁGINA */
-    }
-    
-    body.single-page-print .item input[type="text"] { 
-      width: 45px; /* LARGURA MAIOR QUANDO CABE EM UMA PÁGINA */
-      font-size: 11px; /* TAMANHO MAIOR QUANDO CABE EM UMA PÁGINA */
-    }
-  }
-  /* ---------- fim PRINT ---------- */
+/* ── RESPONSIVE ─────────────────────────────── */
+@media (max-width: 900px) {
+  .content-grid { grid-template-columns: 1fr; }
+  .middle-controls { flex-direction: row; flex-wrap: wrap; justify-content: center; padding-top: 0; }
+  .ctrl-btn { width: 148px; }
+  .brand-name, .brand-sub { display: none; }
+}
+@media (max-width: 600px) {
+  .page-wrapper { padding: 14px 12px 32px; }
+  .topbar { padding: 0 12px; }
+}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="menu-left">
-    <div class="menu-dropdown">
-      <!-- MENU hamburger - DO CÓDIGO FORNECIDO -->
-      <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')" aria-haspopup="true" aria-controls="dropdown-menu" aria-expanded="false">
-        <!-- svg: três fileiras / menu sanduíche -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
-          <title>Menu</title>
-          <line x1="3" y1="6" x2="21" y2="6"/>
-          <line x1="3" y1="12" x2="21" y2="12"/>
-          <line x1="3" y1="18" x2="21" y2="18"/>
-        </svg>
-        <span class="sr-only">Abrir menu</span>
-      </button>
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
 
+    <!-- Hamburger menu -->
+    <div class="menu-dropdown">
+      <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')" aria-haspopup="true" aria-controls="dropdown-menu" aria-expanded="false">
+        <!-- Icon: menu/grid dots -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        <span class="sr-only">Menu</span>
+      </button>
       <div class="menu-dropdown-content" id="dropdown-menu" role="menu" aria-hidden="true">
         <div class="dropdown-section">
-          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)">
-            <span>MACS</span>
-            <small class="chev">▸</small>
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter')toggleSubmenu(this)">
+            <span>MACS</span><small class="chev">▸</small>
           </div>
           <div class="submenu">
-            <a href="mac77.html" data-mac="77" onclick="abrirMac(event, 'MAC Bairro São Geraldo')">
-              <span class="mac-code">77</span> MAC Bairro São Geraldo
-            </a>
-            <a href="mac78.html" data-mac="78" onclick="abrirMac(event, 'MAC Bairro Planalto')">
-              <span class="mac-code">78</span> MAC Bairro Planalto
-            </a>
-            <a href="mac79.html" data-mac="79" onclick="abrirMac(event, 'MAC Romeu Duarte')">
-              <span class="mac-code">79</span> MAC Romeu Duarte
-            </a>
-            <a href="mac80.html" data-mac="80" onclick="abrirMac(event, 'MAC Rua São Geraldo / Centro 2')">
-              <span class="mac-code">80</span> MAC Rua São Geraldo / Centro 2
-            </a>
-            <a href="mac277.html" data-mac="277" onclick="abrirMac(event, 'MAC Matriz')">
-              <span class="mac-code">277</span> MAC Matriz
-            </a>
-            <a href="mac853.html" data-mac="853" onclick="abrirMac(event, 'MAC Concesso')">
-              <span class="mac-code">853</span> MAC Concesso
-            </a>
-            <a href="mac1249.html" data-mac="1249" onclick="abrirMac(event, 'MAC Jardim do Lago')">
-              <span class="mac-code">1249</span> MAC Jardim do Lago
-            </a>
-            <a href="mac989.html" data-mac="989" onclick="abrirMac(event, 'MAC Araújos')">
-              <span class="mac-code">989</span> MAC Araújos
-            </a>
+            <a href="mac77.html"  onclick="abrirMac(event,'MAC Bairro São Geraldo')"><span class="mac-code">77</span>MAC Bairro São Geraldo</a>
+            <a href="mac78.html"  onclick="abrirMac(event,'MAC Bairro Planalto')"><span class="mac-code">78</span>MAC Bairro Planalto</a>
+            <a href="mac79.html"  onclick="abrirMac(event,'MAC Romeu Duarte')"><span class="mac-code">79</span>MAC Romeu Duarte</a>
+            <a href="mac80.html"  onclick="abrirMac(event,'MAC Rua São Geraldo / Centro 2')"><span class="mac-code">80</span>MAC Rua São Geraldo / Centro 2</a>
+            <a href="mac277.html" onclick="abrirMac(event,'MAC Matriz')"><span class="mac-code">277</span>MAC Matriz</a>
+            <a href="mac853.html" onclick="abrirMac(event,'MAC Concesso')"><span class="mac-code">853</span>MAC Concesso</a>
+            <a href="mac1249.html" onclick="abrirMac(event,'MAC Jardim do Lago')"><span class="mac-code">1249</span>MAC Jardim do Lago</a>
+            <a href="mac989.html" onclick="abrirMac(event,'MAC Araújos')"><span class="mac-code">989</span>MAC Araújos</a>
+            <a href="mac1436.html" onclick="abrirMac(event,'MAC São Gonçalo do Pará')"><span class="mac-code">1436</span>MAC São Gonçalo do Pará</a>
           </div>
         </div>
-
         <div class="dropdown-section">
-          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)">
-            <span>São José</span>
-            <small class="chev">▸</small>
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter')toggleSubmenu(this)">
+            <span>São José</span><small class="chev">▸</small>
           </div>
           <div class="submenu">
-            <a href="saojose.html" onclick="abrirLocal(event, 'Pedido São José')">Pedido São José</a>
-            <a href="paototal.html" onclick="abrirLocal(event, 'Pedido Pão Total')">Pedido Pão Total</a>
+            <a href="saojose.html" onclick="abrirLocal(event,'Pedido São José')">Pedido São José</a>
+            <a href="paototal.html" onclick="abrirLocal(event,'Pedido Pão Total')">Pedido Pão Total</a>
           </div>
         </div>
-        
         <div class="dropdown-section">
-          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)">
-            <span>Tabelas</span>
-            <small class="chev">▸</small>
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter')toggleSubmenu(this)">
+            <span>Tabelas</span><small class="chev">▸</small>
           </div>
           <div class="submenu">
-            <a href="pdfs/Tabela 2025 Geral.pdf" onclick="abrirLocal(event, 'Tabela de Preços Geral')">Tabela de Preços Geral</a>
-            <a href="pdfs/Tabela 2025 Empresa.pdf" onclick="abrirLocal(event, 'Tabela de Preços Empresa')">Tabela de Preços Empresa</a>
-            <a href="https://github.com/henriteodoro/paratestes/releases/download/v1.0/Catalogo.Sao.Jose.2025.AT03.pdf" onclick="abrirLocal(event, 'Catálogo de Produtos')">Catálogo de Produtos</a>
+            <a href="pdfs/Tabela 2025 Geral.pdf" onclick="abrirLocal(event,'Tabela de Preços Geral')">Tabela de Preços Geral</a>
+            <a href="pdfs/Tabela 2025 Empresa.pdf" onclick="abrirLocal(event,'Tabela de Preços Empresa')">Tabela de Preços Empresa</a>
+            <a href="https://github.com/henriteodoro/paratestes/releases/download/v1.0/Catalogo.Sao.Jose.2025.AT03.pdf" onclick="abrirLocal(event,'Catálogo de Produtos')">Catálogo de Produtos</a>
           </div>
         </div>
-        
         <div class="dropdown-section">
-          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)">
-            <span>Ferramentas</span>
-            <small class="chev">▸</small>
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter')toggleSubmenu(this)">
+            <span>Ferramentas</span><small class="chev">▸</small>
           </div>
           <div class="submenu">
-            <a href="processadordepedidos.html" onclick="abrirLocal(event, 'Processador de Pedidos')">Processador de Pedidos</a>
-            <a href="ods.html" onclick="abrirLocal(event, 'Visualizar Planilhas')">Visualizar Planilhas</a>
-            <a href="simularpedido.html" onclick="abrirLocal(event, 'Simulador de Pedido')">Simulador de Pedido</a>
-            <a href="anotacoes/anotacoes.html" onclick="abrirLocal(event, 'Anotações')">Anotações</a>
-            <a href="planilhaautocontrole.html" onclick="abrirLocal(event, 'Planilhas de Autocontrole')">Planilhas de Autocontrole</a>
+            <a href="processadordepedidos.html" onclick="abrirLocal(event,'Processador de Pedidos')">Processador de Pedidos</a>
+            <a href="ods.html" onclick="abrirLocal(event,'Visualizar Planilhas')">Visualizar Planilhas</a>
+            <a href="simularpedido.html" onclick="abrirLocal(event,'Simulador de Pedido')">Simulador de Pedido</a>
+            <a href="anotacoes/anotacoes.html" onclick="abrirLocal(event,'Anotações')">Anotações</a>
+            <a href="planilhaautocontrole.html" onclick="abrirLocal(event,'Planilhas de Autocontrole')">Planilhas de Autocontrole</a>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- X (fechar) - FUNCIONALIDADE DO CÓDIGO FORNECIDO -->
-    <button class="icon-btn" id="btn-close" title="Fechar" onclick="fecharPagina()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
-        <title>Fechar</title>
-        <line x1="18" y1="6" x2="6" y2="18"/>
-        <line x1="6" y1="6" x2="18" y2="18"/>
+    <!-- Home / voltar ao menu -->
+    <button class="icon-btn" title="Início" onclick="voltarMenu()">
+      <!-- Icon: door exit / log-out style -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      <span class="sr-only">Início</span>
+    </button>
+
+    <!-- Close -->
+    <button class="icon-btn" title="Fechar" onclick="fecharPagina()">
+      <!-- Icon: X circle -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <line x1="15" y1="9" x2="9" y2="15"/>
+        <line x1="9" y1="9" x2="15" y2="15"/>
       </svg>
       <span class="sr-only">Fechar</span>
     </button>
 
-    <!-- Home - FUNCIONALIDADE DO CÓDIGO FORNECIDO -->
-    <button class="icon-btn" id="btn-home" title="Menu inicial" onclick="voltarMenu()">
-      <svg xmlns="http://www.w3.org/2000/svg"
-           width="22" height="22"
-           viewBox="0 0 24 24"
-           fill="currentColor" aria-hidden="true">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M21.4498 10.275L11.9998 3.1875L2.5498 10.275L2.9998 11.625H3.7498V20.25H20.2498V11.625H20.9998L21.4498 10.275ZM5.2498 18.75V10.125L11.9998 5.0625L18.7498 10.125V18.75H14.9999V14.3333L14.2499 13.5833H9.74988L8.99988 14.3333V18.75H5.2498ZM10.4999 18.75H13.4999V15.0833H10.4999V18.75Z"/>
-      </svg>
-      <span class="sr-only">Menu inicial</span>
-    </button>
-  </div>
+    <div class="topbar-divider"></div>
 
-  <div class="menu-right">
-    <div class="menu-dropdown">
-      <!-- botão salvar (mantido) -->
-      <button class="icon-btn" id="btn-salvar" title="Salvar" onclick="toggleMenu('dropdown-save')" aria-haspopup="true" aria-controls="dropdown-save" aria-expanded="false">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <title>Salvar</title>
-          <path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7z"/>
-          <path d="M17 3v4H7V3"/>
-          <rect x="7" y="13" width="10" height="8" rx="1"/>
-        </svg>
-        <span class="sr-only">Salvar</span>
-      </button>
-      <div class="menu-dropdown-content" id="dropdown-save" aria-labelledby="btn-salvar">
-        <a href="#" onclick="salvarComoTXT(event)" title="Salvar como TXT">Salvar como TXT</a>
-        <a href="#" onclick="salvarComoPDF(event)" title="Salvar como PDF">Salvar como PDF</a>
-        <a href="#" onclick="salvarComoExcel(event)" title="Salvar como Excel">Salvar como Excel</a>
+    <!-- Left nav arrow -->
+    <a href="mac277.html" class="nav-arrow-btn" title="MAC anterior" onclick="abrirMac(event,'MAC Matriz')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+
+    <!-- Brand -->
+    <div class="topbar-brand">
+      <div class="brand-icon">853</div>
+      <div>
+        <div class="brand-name">MAC Concesso</div>
+        <div class="brand-sub">Organizador de lista</div>
       </div>
     </div>
 
-    <!-- botão imprimir: com SVG fornecido -->
+    <!-- Right nav arrow -->
+    <a href="mac1249.html" class="nav-arrow-btn" title="Próximo MAC" onclick="abrirMac(event,'MAC Jardim do Lago')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </a>
+
+  </div>
+
+  <div class="topbar-spacer"></div>
+
+  <!-- Actions right -->
+  <div class="topbar-actions">
+
+    <!-- Save dropdown -->
+    <div class="menu-dropdown menu-right" style="position:relative;">
+      <button class="icon-btn" title="Salvar" onclick="toggleMenu('dropdown-save')" aria-haspopup="true" aria-controls="dropdown-save">
+        <!-- Icon: arrow down to tray (download/save) -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v13"/>
+          <polyline points="7 11 12 16 17 11"/>
+          <path d="M5 20h14"/>
+        </svg>
+        <span class="sr-only">Salvar</span>
+      </button>
+      <div class="save-dropdown menu-dropdown-content" id="dropdown-save">
+        <a href="#" onclick="salvarComoTXT(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Salvar como TXT
+        </a>
+        <a href="#" onclick="salvarComoPDF(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          Salvar como PDF
+        </a>
+        <a href="#" onclick="salvarComoExcel(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+          Salvar como Excel
+        </a>
+      </div>
+    </div>
+
+    <!-- Print -->
     <button class="icon-btn" id="btn-print" title="Imprimir">
-      <svg xmlns="http://www.w3.org/2000/svg"
-           width="22" height="22"
-           viewBox="0 0 24 24"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="2"
-           stroke-linecap="round"
-           stroke-linejoin="round" aria-hidden="true">
-        <path d="M7 18H6.2C5.0799 18 4.51984 18 4.09202 17.782C3.71569 17.5903 3.40973 17.2843 3.21799 16.908C3 16.4802 3 15.9201 3 14.8V10.2C3 9.0799 3 8.51984 3.21799 8.09202C3.40973 7.71569 3.71569 7.40973 4.09202 7.21799C4.51984 7 5.0799 7 6.2 7H7M17 18H17.8C18.9201 18 19.4802 18 19.908 17.782C20.2843 17.5903 20.5903 17.2843 20.782 16.908C21 16.4802 21 15.9201 21 14.8V10.2C21 9.07989 21 8.51984 20.782 8.09202C20.5903 7.71569 20.2843 7.40973 19.908 7.21799C19.4802 7 18.9201 7 17.8 7H17M7 11H7.01M17 7V5.4V4.6C17 4.03995 17 3.75992 16.891 3.54601C16.7951 3.35785 16.6422 3.20487 16.454 3.10899C16.2401 3 15.9601 3 15.4 3H8.6C8.03995 3 7.75992 3 7.54601 3.10899C7.35785 3.20487 7.20487 3.35785 7.10899 3.54601C7 3.75992 7 4.03995 7 4.6V5.4V7M17 7H7M8.6 21H15.4C15.9601 21 16.2401 21 16.454 20.891C16.6422 20.7951 16.7951 20.6422 16.891 20.454C17 20.2401 17 19.9601 17 19.4V16.6C17 16.0399 17 15.7599 16.891 15.546C16.7951 15.3578 16.6422 15.2049 16.454 15.109C16.2401 15 15.9601 15 15.4 15H8.6C8.03995 15 7.75992 15 7.54601 15.109C7.35785 15.2049 7.20487 15.3578 7.10899 15.546C7 15.7599 7 16.0399 7 16.6V19.4C7 19.9601 7 20.2401 7.10899 20.454C7.20487 20.6422 7.35785 20.7951 7.54601 20.891C7.75992 21 8.03995 21 8.6 21Z"/>
+      <!-- Icon: file with text lines (document-text) -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="8" y1="13" x2="16" y2="13"/>
+        <line x1="8" y1="17" x2="16" y2="17"/>
+        <line x1="10" y1="9" x2="14" y2="9"/>
       </svg>
+      <span class="sr-only">Imprimir</span>
     </button>
 
-    <!-- botão copiar: ícone substituído conforme pedido (agora usa currentColor -> branco pela regra .icon-btn) -->
-    <button class="icon-btn" id="btn-copy" title="Copiar" onclick="copiarDireita()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <title>Copiar</title>
-        <path d="M15 17v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1H7" />
-        <rect x="7" y="3" width="12" height="14" rx="1" />
+    <!-- Copy -->
+    <button class="icon-btn" title="Copiar lista" onclick="copiarDireita()">
+      <!-- Icon: clipboard with check / share-2 -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="18" cy="5" r="3"/>
+        <circle cx="6" cy="12" r="3"/>
+        <circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
       </svg>
+      <span class="sr-only">Copiar</span>
     </button>
   </div>
 </header>
 
-<!-- AQUI ESTÁ A ALTERAÇÃO PRINCIPAL - ADICIONEI AS DUAS SETAS -->
-<div class="titulo-nav" role="navigation" aria-label="Navegação MAC">
-  <a href="mac277.html" class="arrow" id="arrow-left" title="MAC Anterior" onclick="abrirMac(event,'MAC Matriz - Cód. 277')">←</a>
-  <h1 id="titulo-principal">MAC Concesso - Cód. 853</h1>
-  <a href="mac1249.html" class="arrow" id="arrow-right" title="Próximo MAC" onclick="abrirMac(event,'MAC Jardim do Lago - Cód. 1249')">→</a>
-</div>
+<!-- PAGE WRAPPER -->
+<div class="page-wrapper">
 
-<div class="container">
-  <div class="column" id="coluna-esquerda"></div>
-
-  <div id="middle-controls" aria-hidden="false">
-    <button onclick="abrirModalAdicionar()">Adicionar Item</button>
-    <button id="btn-transfer" onclick="transferir()" class="btn-azul">→</button>
-    <button onclick="alternarLinhas()" id="btn-linhas" class="btn-amarelo">Remover Linhas Vazias</button>
-    <button onclick="resetarTudo()" class="btn-vermelho">Resetar Tudo</button>
+  <!-- Reset confirm bar (inline, not a popup) -->
+  <div id="reset-confirm-bar">
+    <div class="rcb-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Atenção — Você tem <span id="rcb-count">0</span> item(ns) adicionado(s) manualmente
+    </div>
+    <p class="rcb-msg">O que você deseja fazer com os itens adicionados manualmente além da lista original?</p>
+    <div class="rcb-actions">
+      <button class="rcb-btn danger" onclick="confirmarReset('excluir')">Excluir itens e zerar valores</button>
+      <button class="rcb-btn safe"   onclick="confirmarReset('manter')">Manter itens e zerar valores</button>
+      <button class="rcb-btn cancel" onclick="fecharResetConfirm()">Cancelar</button>
+    </div>
   </div>
 
-  <div class="column" id="coluna-direita"></div>
+  <!-- Stat bar -->
+  <div class="stat-bar">
+    <div class="stat-chip" id="stat-filled">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      Preenchidas: <span class="val" id="contador-val">0</span>
+    </div>
+    <div class="stat-chip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      Itens: <span class="val" id="total-val">0</span>
+    </div>
+  </div>
+
+  <!-- Print title (only visible when printing) -->
+  <div class="print-title">MAC Concesso — Cód. 853</div>
+
+  <!-- Main grid -->
+  <div class="content-grid">
+
+    <!-- Left column -->
+    <div class="col-panel">
+      <div class="col-header">
+        <div class="col-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </div>
+        <span class="col-header-title">Lista Original</span>
+      </div>
+      <div class="col-body" id="coluna-esquerda"></div>
+    </div>
+
+    <!-- Middle controls -->
+    <div class="middle-controls" id="middle-controls" aria-hidden="false">
+      <button class="ctrl-btn purple" onclick="abrirModalAdicionar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Adicionar
+      </button>
+      <button class="ctrl-btn blue" id="btn-transfer" onclick="transferir()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        Transferir
+      </button>
+      <button class="ctrl-btn amber" onclick="alternarLinhas()" id="btn-linhas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Ocultar Vazios
+      </button>
+      <button class="ctrl-btn red" onclick="iniciarReset()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+        Resetar Tudo
+      </button>
+    </div>
+
+    <!-- Right column -->
+    <div class="col-panel print-target">
+      <div class="col-header">
+        <div class="col-header-icon" style="background:var(--success);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <span class="col-header-title">Lista Formatada</span>
+      </div>
+      <div class="col-body" id="coluna-direita"></div>
+    </div>
+
+  </div>
 </div>
 
-<div id="contador-linhas">Linhas preenchidas: 0</div>
-
-<!-- Modal para adicionar itens -->
+<!-- Modal adicionar -->
 <div class="modal-overlay" id="modal-adicionar">
   <div class="modal-content">
-    <h2>Adicionar Novo Item</h2>
-    <div class="modal-input-group">
-      <label for="nome-esquerda">Nome na Coluna Esquerda:</label>
-      <input type="text" id="nome-esquerda" placeholder="Digite o nome para a coluna esquerda">
+    <div class="modal-header">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+      <h2>Adicionar Novo Item</h2>
     </div>
     <div class="modal-input-group">
-      <label for="nome-direita">Nome na Coluna Direita:</label>
+      <label for="nome-esquerda">Nome (coluna esquerda)</label>
+      <input type="text" id="nome-esquerda" placeholder="Ex: PÃO DE FORMA MP 500G">
+    </div>
+    <div class="modal-input-group">
+      <label for="nome-direita">Nome (coluna direita)</label>
       <input type="text" id="nome-direita" placeholder="Deixe em branco para preenchimento automático">
     </div>
-    <div class="modal-buttons">
-      <button class="btn-modal-confirm" onclick="confirmarAdicionarItem()">Adicionar</button>
-      <button class="btn-modal-cancel" onclick="fecharModalAdicionar()">Cancelar</button>
+    <div class="modal-footer">
+      <button class="btn-modal cancel" onclick="fecharModalAdicionar()">Cancelar</button>
+      <button class="btn-modal confirm" onclick="confirmarAdicionarItem()">Adicionar Item</button>
     </div>
   </div>
 </div>
 
-<!-- aviso discreto (reaproveitado para toasts) -->
 <div id="copy-notice">Copiado!</div>
-
-<!-- espaço estético no fim da página -->
-<div class="tail-space" aria-hidden="true"></div>
 
 <script>
 /* ============================
@@ -807,7 +1039,6 @@ const frasesEsquerda = [
   "SALGADOS KIBE CATUPIRY MP 1 KG"
 ];
 
-// Mapeamento direto entre os produtos originais e seus equivalentes formatados
 const mapeamentoProdutos = {
   "PAO DE QUEIJO RECHEADO FRANGO  PAC 7 KG": "Pão de queijo recheado frango pequeno 7kg",
   "PAO DE QUEIJO TRADICIONAL PACT 7 KG": "Pão de queijo tradicional pequeno 7kg",
@@ -851,203 +1082,245 @@ const mapeamentoProdutos = {
   "SALGADOS KIBE CATUPIRY MP 1 KG": "Quibe com catupiry pequeno 1kg"
 };
 
-// Array para armazenar itens adicionados pelo usuário
-const itensAdicionados = {
-  esquerda: [],
-  direita: []
-};
+const itensAdicionados = { esquerda: [], direita: [] };
 
-// Criar lista ordenada alfabeticamente dos produtos formatados
-let frasesDireitaOrdenadas = Object.values(mapeamentoProdutos).sort((a, b) => 
+let frasesDireitaOrdenadas = Object.values(mapeamentoProdutos).sort((a, b) =>
   a.localeCompare(b, 'pt-BR', { sensitivity: 'base' })
 );
 
-// Criar mapeamento reverso para facilitar a transferência
 const mapeamentoReverso = {};
-Object.keys(mapeamentoProdutos).forEach(chave => {
-  mapeamentoReverso[mapeamentoProdutos[chave]] = chave;
+Object.keys(mapeamentoProdutos).forEach(k => {
+  mapeamentoReverso[mapeamentoProdutos[k]] = k;
 });
 
 /* ============================
    Utilitários
    ============================ */
-function escapeHtml(s) {
-  if (s == null) return '';
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-/* ============================
-   Toast / aviso inferior direito
-   ============================ */
-function showBottomNotice(message = 'Copiado!', duration = 2000) {
+function showBottomNotice(msg = 'Copiado!', dur = 2000) {
   const el = document.getElementById('copy-notice');
   if (!el) return;
-  // se já estiver visível, cancela o timeout anterior
-  if (el._hideTimeout) {
-    clearTimeout(el._hideTimeout);
-    el._hideTimeout = null;
-  }
-  el.textContent = message;
+  if (el._t) { clearTimeout(el._t); el._t = null; }
+  el.textContent = msg;
   el.style.display = 'block';
-  el._hideTimeout = setTimeout(() => {
-    el.style.display = 'none';
-    el._hideTimeout = null;
-  }, duration);
-}
-
-// compat shim para chamadas antigas
-function mostrarAvisoCopia() {
-  showBottomNotice('Copiado!', 2000);
+  el._t = setTimeout(() => { el.style.display = 'none'; el._t = null; }, dur);
 }
 
 /* ============================
-   Modal para adicionar itens
+   Salvar/restaurar valores do DOM
    ============================ */
-function abrirModalAdicionar() {
-  const modal = document.getElementById('modal-adicionar');
-  modal.style.display = 'flex';
-  document.getElementById('nome-esquerda').focus();
+function capturarValoresEsquerda() {
+  const vals = {};
+  document.querySelectorAll('#coluna-esquerda input').forEach(inp => {
+    if (inp.value.trim()) vals[inp.dataset.nome] = inp.value.trim();
+  });
+  return vals;
 }
 
+function capturarValoresDireita() {
+  const vals = {};
+  document.querySelectorAll('#coluna-direita input').forEach(inp => {
+    if (inp.value.trim()) vals[inp.dataset.nome] = inp.value.trim();
+  });
+  return vals;
+}
+
+function restaurarValoresEsquerda(vals) {
+  document.querySelectorAll('#coluna-esquerda input').forEach(inp => {
+    if (vals[inp.dataset.nome]) inp.value = vals[inp.dataset.nome];
+  });
+}
+
+function restaurarValoresDireita(vals) {
+  document.querySelectorAll('#coluna-direita input').forEach(inp => {
+    if (vals[inp.dataset.nome]) inp.value = vals[inp.dataset.nome];
+  });
+}
+
+/* ============================
+   Modal
+   ============================ */
+function abrirModalAdicionar() {
+  document.getElementById('modal-adicionar').style.display = 'flex';
+  document.getElementById('nome-esquerda').focus();
+}
 function fecharModalAdicionar() {
-  const modal = document.getElementById('modal-adicionar');
-  modal.style.display = 'none';
-  // Limpar os campos
+  document.getElementById('modal-adicionar').style.display = 'none';
   document.getElementById('nome-esquerda').value = '';
   document.getElementById('nome-direita').value = '';
 }
-
 function confirmarAdicionarItem() {
-  const nomeEsquerda = document.getElementById('nome-esquerda').value.trim();
-  let nomeDireita = document.getElementById('nome-direita').value.trim();
-  
-  if (!nomeEsquerda) {
-    showBottomNotice('Preencha o nome da coluna esquerda!', 2000);
-    return;
+  const nomeEsq = document.getElementById('nome-esquerda').value.trim();
+  let nomeDir   = document.getElementById('nome-direita').value.trim();
+  if (!nomeEsq) { showBottomNotice('Preencha o nome da coluna esquerda!'); return; }
+  if (!nomeDir)  nomeDir = nomeEsq.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+  if ([...frasesEsquerda, ...itensAdicionados.esquerda].includes(nomeEsq)) {
+    showBottomNotice('Item já existe na coluna esquerda!'); return;
   }
-  
-  // Se o nome da direita estiver vazio, preencher automaticamente
-  if (!nomeDireita) {
-    // Formatação automática: converter para minúsculas e capitalizar palavras
-    nomeDireita = nomeEsquerda.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+  if (frasesDireitaOrdenadas.includes(nomeDir)) {
+    showBottomNotice('Item já existe na coluna direita!'); return;
   }
-  
-  // Verificar se o item já existe na esquerda
-  if ([...frasesEsquerda, ...itensAdicionados.esquerda].includes(nomeEsquerda)) {
-    showBottomNotice('Este item já existe na coluna esquerda!', 2000);
-    return;
-  }
-  
-  // Verificar se o item já existe na direita
-  if (frasesDireitaOrdenadas.includes(nomeDireita)) {
-    showBottomNotice('Este item já existe na coluna direita!', 2000);
-    return;
-  }
-  
-  // Adicionar aos arrays de itens adicionados
-  itensAdicionados.esquerda.push(nomeEsquerda);
-  
-  // Atualizar o mapeamento
-  mapeamentoProdutos[nomeEsquerda] = nomeDireita;
-  mapeamentoReverso[nomeDireita] = nomeEsquerda;
-  
-  // Reordenar a coluna direita
-  frasesDireitaOrdenadas = Object.values(mapeamentoProdutos).sort((a, b) => 
+
+  // Salvar valores antes de reconstruir
+  const valsEsq = capturarValoresEsquerda();
+  const valsDir = capturarValoresDireita();
+
+  itensAdicionados.esquerda.push(nomeEsq);
+  mapeamentoProdutos[nomeEsq] = nomeDir;
+  mapeamentoReverso[nomeDir] = nomeEsq;
+  frasesDireitaOrdenadas = Object.values(mapeamentoProdutos).sort((a, b) =>
     a.localeCompare(b, 'pt-BR', { sensitivity: 'base' })
   );
-  
-  // Reconstruir a interface
+
   montarInterface();
-  
-  // Fechar o modal
+
+  // Restaurar valores após reconstruir
+  restaurarValoresEsquerda(valsEsq);
+  restaurarValoresDireita(valsDir);
+  atualizarContagem();
+
   fecharModalAdicionar();
-  
-  showBottomNotice('Item adicionado com sucesso!', 2000);
+  showBottomNotice('Item adicionado com sucesso!');
 }
+
+function removerItem(nomeEsq, nomeDir) {
+  // Salvar valores antes de reconstruir
+  const valsEsq = capturarValoresEsquerda();
+  const valsDir = capturarValoresDireita();
+
+  const idx = itensAdicionados.esquerda.indexOf(nomeEsq);
+  if (idx > -1) itensAdicionados.esquerda.splice(idx, 1);
+  delete mapeamentoProdutos[nomeEsq];
+  delete mapeamentoReverso[nomeDir];
+  frasesDireitaOrdenadas = Object.values(mapeamentoProdutos).sort((a, b) =>
+    a.localeCompare(b, 'pt-BR', { sensitivity: 'base' })
+  );
+
+  montarInterface();
+
+  // Restaurar valores (sem o item removido)
+  restaurarValoresEsquerda(valsEsq);
+  restaurarValoresDireita(valsDir);
+  atualizarContagem();
+
+  showBottomNotice('Item removido.');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') fecharModalAdicionar();
+});
+document.getElementById('modal-adicionar').addEventListener('click', e => {
+  if (e.target.id === 'modal-adicionar') fecharModalAdicionar();
+});
+
+// Enter key confirms addition from any modal input
+['nome-esquerda', 'nome-direita'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // If focus is on first field and it's filled, jump to second; else confirm
+      if (id === 'nome-esquerda' && document.getElementById('nome-esquerda').value.trim()) {
+        const second = document.getElementById('nome-direita');
+        second.focus();
+      } else {
+        confirmarAdicionarItem();
+      }
+    }
+  });
+});
 
 /* ============================
-   Função para remover item
+   Reset com confirmação inline
    ============================ */
-function removerItem(nomeEsquerda, nomeDireita) {
-  // Remover dos arrays de itens adicionados
-  const indexEsquerda = itensAdicionados.esquerda.indexOf(nomeEsquerda);
-  if (indexEsquerda > -1) {
-    itensAdicionados.esquerda.splice(indexEsquerda, 1);
+function iniciarReset() {
+  const qtd = itensAdicionados.esquerda.length;
+  if (qtd > 0) {
+    // Mostrar barra de confirmação no site
+    document.getElementById('rcb-count').textContent = qtd;
+    const bar = document.getElementById('reset-confirm-bar');
+    bar.style.display = 'block';
+    bar.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } else {
+    // Nenhum item extra, resetar direto
+    executarReset(false);
   }
-  
-  // Remover do mapeamento
-  delete mapeamentoProdutos[nomeEsquerda];
-  delete mapeamentoReverso[nomeDireita];
-  
-  // Reordenar a coluna direita
-  frasesDireitaOrdenadas = Object.values(mapeamentoProdutos).sort((a, b) => 
-    a.localeCompare(b, 'pt-BR', { sensitivity: 'base' })
-  );
-  
-  // Reconstruir a interface
-  montarInterface();
-  
-  showBottomNotice('Item removido com sucesso!', 2000);
 }
 
-// Fechar modal com ESC
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    fecharModalAdicionar();
-  }
-});
+function fecharResetConfirm() {
+  document.getElementById('reset-confirm-bar').style.display = 'none';
+}
 
-// Fechar modal clicando fora
-document.getElementById('modal-adicionar').addEventListener('click', (e) => {
-  if (e.target.id === 'modal-adicionar') {
-    fecharModalAdicionar();
+function confirmarReset(opcao) {
+  fecharResetConfirm();
+  if (opcao === 'excluir') {
+    executarReset(true);
+  } else {
+    executarReset(false);
   }
-});
+}
+
+function executarReset(excluirAdicionados) {
+  if (excluirAdicionados) {
+    // Remover itens adicionados manualmente
+    const copiaNomes = [...itensAdicionados.esquerda];
+    copiaNomes.forEach(nomeEsq => {
+      const nomeDir = mapeamentoProdutos[nomeEsq];
+      delete mapeamentoProdutos[nomeEsq];
+      delete mapeamentoReverso[nomeDir];
+    });
+    itensAdicionados.esquerda.length = 0;
+    frasesDireitaOrdenadas = Object.values(mapeamentoProdutos).sort((a, b) =>
+      a.localeCompare(b, 'pt-BR', { sensitivity: 'base' })
+    );
+    montarInterface();
+  }
+
+  // Zerar todos os inputs
+  document.querySelectorAll("input[type='text']").forEach(i => i.value = '');
+
+  // Restaurar linhas ocultas
+  if (linhasOcultas) {
+    elementosOcultos.forEach(el => el.style.display = '');
+    elementosOcultos = [];
+    linhasOcultas = false;
+    const btn = document.getElementById('btn-linhas');
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Ocultar Vazios`;
+  }
+  atualizarContagem();
+  showBottomNotice(excluirAdicionados ? 'Resetado e itens removidos.' : 'Valores zerados.');
+}
 
 /* ============================
    Construção da interface
    ============================ */
 function montarInterface() {
-  const colEsq = document.getElementById("coluna-esquerda");
-  const colDir = document.getElementById("coluna-direita");
-  colEsq.innerHTML = "";
-  colDir.innerHTML = "";
+  const colEsq = document.getElementById('coluna-esquerda');
+  const colDir = document.getElementById('coluna-direita');
+  colEsq.innerHTML = '';
+  colDir.innerHTML = '';
 
-  // Montar coluna da esquerda (ordem original + itens adicionados)
-  [...frasesEsquerda, ...itensAdicionados.esquerda].forEach((frase, i) => {
-    const item = document.createElement("div");
-    item.className = "item";
-    
-    // Verificar se é um item adicionado pelo usuário
+  const todosEsquerda = [...frasesEsquerda, ...itensAdicionados.esquerda];
+
+  todosEsquerda.forEach((frase, i) => {
     const isCustom = i >= frasesEsquerda.length;
-    if (isCustom) {
-      item.classList.add("novo-item");
-    }
+    const item = document.createElement('div');
+    item.className = 'item' + (isCustom ? ' novo-item' : '');
 
-    const label = document.createElement("span");
+    const label = document.createElement('span');
     label.textContent = frase;
 
-    const input = document.createElement("input");
-    input.type = "text";
+    const input = document.createElement('input');
+    input.type = 'text';
     input.dataset.index = i;
     input.dataset.nome = frase;
-    input.dataset.isCustom = isCustom.toString();
-    input.setAttribute('inputmode','numeric');
+    input.setAttribute('inputmode', 'numeric');
     input.setAttribute('aria-label', `Quantidade ${frase}`);
 
-    input.addEventListener("input", () => {
-      const cur = input.value;
-      const filtered = cur.replace(/[^0-9]/g, '');
-      if (cur !== filtered) input.value = filtered;
+    input.addEventListener('input', () => {
+      const f = input.value.replace(/[^0-9]/g, '');
+      if (input.value !== f) input.value = f;
     });
-
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
         e.preventDefault();
         const next = colEsq.querySelector(`input[data-index="${i+1}"]`);
         if (next) next.focus();
@@ -1056,40 +1329,29 @@ function montarInterface() {
 
     item.appendChild(label);
     item.appendChild(input);
-    
-    // Adicionar botão de remover para itens customizados
+
     if (isCustom) {
-      const btnRemover = document.createElement("button");
-      btnRemover.className = "remove-btn";
-      btnRemover.title = "Remover item";
-      btnRemover.textContent = "✕";
-      btnRemover.onclick = () => {
-        const nomeDireita = mapeamentoProdutos[frase];
-        removerItem(frase, nomeDireita);
-      };
-      item.appendChild(btnRemover);
+      const btn = document.createElement('button');
+      btn.className = 'remove-btn';
+      btn.title = 'Remover item';
+      btn.textContent = '✕';
+      btn.onclick = () => removerItem(frase, mapeamentoProdutos[frase]);
+      item.appendChild(btn);
     }
-    
     colEsq.appendChild(item);
   });
 
-  // Montar coluna da direita (ordenada alfabeticamente)
   frasesDireitaOrdenadas.forEach((frase, i) => {
-    const item = document.createElement("div");
-    item.className = "item";
-    
-    // Verificar se é um item adicionado pelo usuário
     const nomeOriginal = mapeamentoReverso[frase];
     const isCustom = itensAdicionados.esquerda.includes(nomeOriginal);
-    if (isCustom) {
-      item.classList.add("novo-item");
-    }
+    const item = document.createElement('div');
+    item.className = 'item' + (isCustom ? ' novo-item' : '');
 
-    const label = document.createElement("span");
+    const label = document.createElement('span');
     label.textContent = frase;
 
-    const output = document.createElement("input");
-    output.type = "text";
+    const output = document.createElement('input');
+    output.type = 'text';
     output.readOnly = true;
     output.dataset.index = i;
     output.dataset.nome = frase;
@@ -1097,136 +1359,94 @@ function montarInterface() {
 
     item.appendChild(label);
     item.appendChild(output);
-    
-    // Adicionar botão de remover para itens customizados
+
     if (isCustom) {
-      const btnRemover = document.createElement("button");
-      btnRemover.className = "remove-btn";
-      btnRemover.title = "Remover item";
-      btnRemover.textContent = "✕";
-      btnRemover.onclick = () => {
-        removerItem(nomeOriginal, frase);
-      };
-      item.appendChild(btnRemover);
+      const btn = document.createElement('button');
+      btn.className = 'remove-btn';
+      btn.title = 'Remover item';
+      btn.textContent = '✕';
+      btn.onclick = () => removerItem(nomeOriginal, frase);
+      item.appendChild(btn);
     }
-    
     colDir.appendChild(item);
   });
 
-  atualizarContagemDireita();
+  atualizarContagem();
 }
 
 /* ============================
    Funções principais
    ============================ */
 function transferir() {
-  const inputs = Array.from(document.querySelectorAll("#coluna-esquerda input"));
-  const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
-  
-  // Limpar todos os outputs primeiro
-  outputs.forEach(output => output.value = "");
-  
-  // Para cada input com valor, encontrar o output correspondente
+  const inputs  = Array.from(document.querySelectorAll('#coluna-esquerda input'));
+  const outputs = Array.from(document.querySelectorAll('#coluna-direita input'));
+  outputs.forEach(o => o.value = '');
   inputs.forEach(input => {
-    if (input.value.trim() !== "") {
-      const nomeOriginal = input.dataset.nome;
-      const nomeFormatado = mapeamentoProdutos[nomeOriginal];
-      
-      // Encontrar o output com o nome formatado correspondente
-      const outputCorrespondente = outputs.find(output => 
-        output.dataset.nome === nomeFormatado
-      );
-      
-      if (outputCorrespondente) {
-        outputCorrespondente.value = input.value.trim();
-      }
+    if (input.value.trim()) {
+      const nomeFormatado = mapeamentoProdutos[input.dataset.nome];
+      const out = outputs.find(o => o.dataset.nome === nomeFormatado);
+      if (out) out.value = input.value.trim();
     }
   });
-  
-  atualizarContagemDireita();
+  atualizarContagem();
 }
 
 let linhasOcultas = false;
 let elementosOcultos = [];
 
 function alternarLinhas() {
+  const btn = document.getElementById('btn-linhas');
   if (!linhasOcultas) {
-    removerVazios();
-    document.getElementById('btn-linhas').innerText = "Restaurar Linhas Vazias";
+    const items = document.querySelectorAll('#coluna-direita .item');
+    elementosOcultos = [];
+    items.forEach(it => {
+      const inp = it.querySelector('input');
+      if (inp && inp.value.trim() === '') {
+        it.style.display = 'none';
+        elementosOcultos.push(it);
+      }
+    });
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Mostrar Todos`;
   } else {
-    restaurarLinhas();
-    document.getElementById('btn-linhas').innerText = "Remover Linhas Vazias";
+    elementosOcultos.forEach(el => el.style.display = '');
+    elementosOcultos = [];
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Ocultar Vazios`;
   }
   linhasOcultas = !linhasOcultas;
 }
 
-function removerVazios() {
-  const items = document.querySelectorAll("#coluna-direita .item");
-  elementosOcultos = [];
-  items.forEach(it => {
-    const input = it.querySelector("input[type='text']");
-    if (input && input.value.trim() === "") {
-      it.style.display = "none";
-      elementosOcultos.push(it);
-    }
-  });
-}
-
-function restaurarLinhas() {
-  elementosOcultos.forEach(el => el.style.display = "flex");
-  elementosOcultos = [];
-}
-
-function resetarTudo() {
-  const inputs = document.querySelectorAll("input[type='text']");
-  inputs.forEach(i => i.value = "");
-  restaurarLinhas();
-  atualizarContagemDireita();
-}
-
-function atualizarContagemDireita() {
-  const outputs = document.querySelectorAll("#coluna-direita input");
+function atualizarContagem() {
+  const outputs = document.querySelectorAll('#coluna-direita input');
   let preenchidos = 0;
-  outputs.forEach(out => {
-    if (out.parentElement.style.display !== "none" && out.value.trim() !== "") preenchidos++;
+  outputs.forEach(o => {
+    if (o.parentElement.style.display !== 'none' && o.value.trim()) preenchidos++;
   });
-  document.getElementById("contador-linhas").innerText = `Linhas preenchidas: ${preenchidos}`;
+  const total = [...frasesEsquerda, ...itensAdicionados.esquerda].length;
+  document.getElementById('contador-val').textContent = preenchidos;
+  document.getElementById('total-val').textContent = total;
 }
 
 /* ============================
-   Copiar / aviso discreto
+   Copiar
    ============================ */
 function copiarDireita() {
-  const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
+  const outputs = Array.from(document.querySelectorAll('#coluna-direita input'));
   const textos = [];
-  outputs.forEach(output => {
-    if (output.value.trim() !== "") {
-      const label = output.parentElement.querySelector("span").textContent;
-      textos.push(`${label}: ${output.value}`);
+  outputs.forEach(o => {
+    if (o.value.trim()) {
+      const label = o.parentElement.querySelector('span').textContent;
+      textos.push(`${label}: ${o.value}`);
     }
   });
-  const textoFinal = textos.join("\n");
-  if (!textoFinal) {
-    showBottomNotice('Nada para copiar', 2000);
-    return;
-  }
-  // tenta clipboard API
-  navigator.clipboard.writeText(textoFinal).then(() => {
-    showBottomNotice('Copiado!', 2000);
+  const texto = textos.join('\n');
+  if (!texto) { showBottomNotice('Nada para copiar'); return; }
+  navigator.clipboard.writeText(texto).then(() => {
+    showBottomNotice('Copiado!');
   }).catch(() => {
-    // fallback execCommand
     const ta = document.createElement('textarea');
-    ta.value = textoFinal;
-    ta.style.position = 'fixed';
-    ta.style.left = '-9999px';
-    document.body.appendChild(ta);
-    ta.select();
-    try {
-      document.execCommand('copy');
-      showBottomNotice('Copiado!', 2000);
-    } catch (e) {
-      showBottomNotice('Falha ao copiar', 2000);
-    }
+    ta.value = texto; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); showBottomNotice('Copiado!'); } catch(e) { showBottomNotice('Falha ao copiar'); }
     ta.remove();
   });
 }
@@ -1236,417 +1456,173 @@ function copiarDireita() {
    ============================ */
 function salvarComoTXT(e) {
   if (e) e.preventDefault();
-  const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
+  const outputs = Array.from(document.querySelectorAll('#coluna-direita input'));
   const linhas = [];
-  outputs.forEach((output) => {
-    if (output.value.trim() !== "") {
-      const label = output.parentElement.querySelector("span").textContent;
-      linhas.push(`${label}: ${output.value}`);
+  outputs.forEach(o => {
+    if (o.value.trim()) {
+      linhas.push(`${o.parentElement.querySelector('span').textContent}: ${o.value}`);
     }
   });
-  if (linhas.length === 0) {
-    showBottomNotice('Nenhum item preenchido para salvar', 2000);
-    return;
-  }
-  baixarArquivo(linhas.join("\n"), "lista_mac_853.txt", "text/plain");
-  showBottomNotice('Arquivo TXT salvo', 2000);
+  if (!linhas.length) { showBottomNotice('Nenhum item preenchido'); return; }
+  baixarArquivo(linhas.join('\n'), 'lista_mac_853.txt', 'text/plain');
+  showBottomNotice('Arquivo TXT salvo');
 }
 
 function salvarComoPDF(e) {
   if (e) e.preventDefault();
-  const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
+  const outputs = Array.from(document.querySelectorAll('#coluna-direita input'));
   const linhas = [];
-  
-  outputs.forEach((output) => {
-    if (output.value.trim() !== "") {
-      const label = output.parentElement.querySelector("span").textContent;
-      const valor = output.value.trim();
-      linhas.push({texto: label, valor});
-    }
+  outputs.forEach(o => {
+    if (o.value.trim()) linhas.push({ texto: o.parentElement.querySelector('span').textContent, valor: o.value.trim() });
   });
-
-  if (linhas.length === 0) { 
-    showBottomNotice('Nenhum item preenchido para salvar em PDF', 2000); 
-    return; 
-  }
-
+  if (!linhas.length) { showBottomNotice('Nenhum item preenchido'); return; }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-  doc.setFont("courier", "normal");
-  doc.setFontSize(11);
-
-  const marginLeft = 40;
-  const maxWidth = doc.internal.pageSize.getWidth() - marginLeft*2;
+  doc.setFont('courier', 'normal'); doc.setFontSize(11);
+  const ml = 40, mw = doc.internal.pageSize.getWidth() - ml * 2;
   let y = 40;
-  doc.text("MAC Concesso - Cód. 853", marginLeft, y);
-  y += 18;
-
-  linhas.forEach(({texto, valor}) => {
-    // Verificar se precisa adicionar nova página ANTES de adicionar o texto
-    if (y > doc.internal.pageSize.getHeight() - 40) {
-      doc.addPage();
-      y = 40;
-    }
-    doc.text(texto, marginLeft, y, { maxWidth });
-    doc.text(String(valor), marginLeft + 360, y);
+  doc.text('MAC Concesso — Cód. 853', ml, y); y += 18;
+  linhas.forEach(({ texto, valor }) => {
+    if (y > doc.internal.pageSize.getHeight() - 40) { doc.addPage(); y = 40; }
+    doc.text(texto, ml, y, { maxWidth: mw });
+    doc.text(String(valor), ml + 360, y);
     y += 14;
   });
-
-  // Verificar se há espaço para o contador antes de adicioná-lo
-  if (y > doc.internal.pageSize.getHeight() - 30) {
-    doc.addPage();
-    y = 40;
-  }
-  
+  if (y > doc.internal.pageSize.getHeight() - 30) { doc.addPage(); y = 40; }
   y += 8;
-  doc.text(`Linhas preenchidas: ${linhas.length}`, marginLeft, y);
-
-  doc.save("lista_mac_853.pdf");
-  showBottomNotice('PDF salvo', 2000);
+  doc.text(`Linhas preenchidas: ${linhas.length}`, ml, y);
+  doc.save('lista_mac_853.pdf');
+  showBottomNotice('PDF salvo');
 }
 
 function salvarComoExcel(e) {
   if (e) e.preventDefault();
-  const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
-  const data = [];
-  data.push(["Produto", "Quantidade"]);
-  outputs.forEach((output) => {
-    if (output.value.trim() !== "") {
-      const produto = output.parentElement.querySelector("span").textContent;
-      const qtd = output.value.trim();
-      data.push([produto, qtd]);
-    }
+  const outputs = Array.from(document.querySelectorAll('#coluna-direita input'));
+  const data = [['Produto', 'Quantidade']];
+  outputs.forEach(o => {
+    if (o.value.trim()) data.push([o.parentElement.querySelector('span').textContent, o.value.trim()]);
   });
-  if (data.length === 1) { showBottomNotice('Nenhum item preenchido para exportar Excel', 2000); return; }
+  if (data.length === 1) { showBottomNotice('Nenhum item preenchido'); return; }
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(data);
-  XLSX.utils.book_append_sheet(wb, ws, "MAC 853");
-  XLSX.writeFile(wb, "lista_mac_853.xlsx");
-  showBottomNotice('Excel salvo', 2000);
+  XLSX.utils.book_append_sheet(wb, ws, 'MAC 853');
+  XLSX.writeFile(wb, 'lista_mac_853.xlsx');
+  showBottomNotice('Excel salvo');
 }
 
 /* ============================
-   Imprimir -> gerar PDF e abrir em nova aba (mantida)
+   Imprimir
    ============================ */
-function imprimirDireto() {
+function prepareAndPrint() {
   const printBtn = document.getElementById('btn-print');
   if (printBtn) printBtn.disabled = true;
-
-  const outputs = Array.from(document.querySelectorAll("#coluna-direita input"));
-  const linhas = [];
-  
-  outputs.forEach((output) => {
-    if (output.value.trim() !== "") {
-      const label = output.parentElement.querySelector("span").textContent;
-      const valor = output.value.trim();
-      linhas.push({texto: label, valor});
-    }
-  });
-
-  if (linhas.length === 0) {
-    showBottomNotice('Nenhum item preenchido para imprimir', 2000);
-    if (printBtn) printBtn.disabled = false;
-    return;
-  }
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-  doc.setFont("courier", "normal");
-  doc.setFontSize(11);
-
-  const marginLeft = 40;
-  const maxWidth = doc.internal.pageSize.getWidth() - marginLeft*2;
-  let y = 40;
-  doc.text("MAC Concesso - Cód. 853", marginLeft, y);
-  y += 18;
-
-  linhas.forEach(({texto, valor}) => {
-    // Verificar se precisa adicionar nova página ANTES de adicionar o texto
-    if (y > doc.internal.pageSize.getHeight() - 40) {
-      doc.addPage();
-      y = 40;
-    }
-    doc.text(texto, marginLeft, y, { maxWidth });
-    doc.text(String(valor), marginLeft + 360, y);
-    y += 14;
-  });
-
-  // Verificar se há espaço para o contador antes de adicioná-lo
-  if (y > doc.internal.pageSize.getHeight() - 30) {
-    doc.addPage();
-    y = 40;
-  }
-  
-  y += 8;
-  doc.text(`Linhas preenchidas: ${linhas.length}`, marginLeft, y);
-
-  try {
-    const newWin = window.open('', '_blank');
-    if (!newWin) {
-      doc.save("lista_mac_853.pdf");
-      showBottomNotice('PDF baixado', 2000);
-      if (printBtn) printBtn.disabled = false;
-      return;
-    }
-    const pdfBlob = doc.output('blob');
-    const url = URL.createObjectURL(pdfBlob);
-    try {
-      newWin.location.href = url;
-    } catch (e) {
-      try {
-        newWin.document.open();
-        newWin.document.write(`
-          <!doctype html>
-          <html>
-            <head><title>PDF - MAC 853</title></head>
-            <body style="margin:0">
-              <embed src="${url}" type="application/pdf" width="100%" height="100%"/>
-            </body>
-          </html>
-        `);
-        newWin.document.close();
-      } catch (err2) {
-        doc.save("lista_mac_853.pdf");
-        showBottomNotice('PDF baixado', 2000);
-        try { newWin.close(); } catch(e){}
-      }
-    }
-    setTimeout(() => { try { URL.revokeObjectURL(url); } catch(e) {} }, 60000);
-  } catch (err) {
-    showBottomNotice('Erro ao gerar PDF', 3000);
-    console.error(err);
-  } finally {
-    if (printBtn) printBtn.disabled = false;
-  }
-}
-
-/* ============================
-   Imprimir diretamente a página (sem gerar PDF)
-   ============================ */
-function prepareAndPrintSinglePage() {
-  const esquerda = document.getElementById('coluna-esquerda');
-  const direita = document.getElementById('coluna-direita');
-  if (!esquerda || !direita) { showBottomNotice('Nada para imprimir', 2000); return; }
-
   transferir();
-
-  const totalRows = Math.max(frasesEsquerda.length + itensAdicionados.esquerda.length, frasesDireitaOrdenadas.length);
-  const filledLeft = Array.from(document.querySelectorAll('#coluna-esquerda input')).filter(i=>i.value.trim()!=='').length;
-  const filledRight = Array.from(document.querySelectorAll('#coluna-direita input')).filter(i=>i.value.trim()!=='').length;
-  const filledCount = Math.max(filledLeft, filledRight);
-
-  document.body.classList.remove('print-tight');
-  document.body.classList.remove('single-page-print');
-  
-  // Verificar se não há itens adicionados pelo usuário
-  const hasCustomItems = itensAdicionados.esquerda.length > 0;
-  
-  // Se não houver itens adicionados e o total de linhas for menor que 25, usar layout de página única
-  if (!hasCustomItems && totalRows <= 25) {
-    document.body.classList.add('single-page-print');
-  } else if (totalRows > 34 || filledCount > 34) {
-    document.body.classList.add('print-tight');
-  }
-
   const cleanup = () => {
-    document.body.classList.remove('print-tight');
-    document.body.classList.remove('single-page-print');
     try { window.removeEventListener('afterprint', cleanup); } catch(e){}
+    if (printBtn) printBtn.disabled = false;
   };
   try { window.addEventListener('afterprint', cleanup); } catch(e){}
-
-  try {
-    window.print();
-  } catch (err) {
-    showBottomNotice('Falha ao abrir impressão', 2000);
-    setTimeout(cleanup, 1000);
-  }
+  try { window.print(); } catch(err) { showBottomNotice('Falha ao imprimir'); setTimeout(cleanup, 1000); }
 }
 
 /* ============================
-   util: baixar arquivo
+   Util
    ============================ */
-function baixarArquivo(conteudo, nomeArquivo, tipo) {
-  const blob = new Blob([conteudo], { type: tipo });
+function baixarArquivo(conteudo, nome, tipo) {
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = nomeArquivo;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+  a.href = URL.createObjectURL(new Blob([conteudo], { type: tipo }));
+  a.download = nome;
+  document.body.appendChild(a); a.click(); a.remove();
 }
 
 /* ============================
-   dropdown / menus / seções - DO CÓDIGO FORNECIDO
+   Menus / dropdown
    ============================ */
 function toggleMenu(id) {
   document.querySelectorAll('.menu-dropdown-content').forEach(el => {
-    if (el.id !== id) { 
-      el.style.display = 'none'; 
-      el.style.opacity = 0; 
-      el.setAttribute('aria-hidden','true'); 
-    }
+    if (el.id !== id) { el.style.display = 'none'; el.setAttribute('aria-hidden','true'); }
   });
   const el = document.getElementById(id);
   if (!el) return;
-  if (el.style.display === 'block') {
-    el.style.opacity = 0;
-    setTimeout(() => { 
-      el.style.display = 'none'; 
-      el.setAttribute('aria-hidden','true'); 
-      // Fechar todas as subseções quando o menu é fechado
-      closeAllSubmenus();
-    }, 180);
-    try {
-      const btn = document.querySelector(`[aria-controls="${id}"]`);
-      if (btn) btn.setAttribute('aria-expanded', 'false');
-    } catch(e){}
-  } else {
-    // Fechar todas as subseções quando um novo menu é aberto
-    closeAllSubmenus();
-    el.style.display = 'block';
-    el.style.opacity = 0;
-    el.setAttribute('aria-hidden','false');
-    setTimeout(() => el.style.opacity = 1, 10);
-    try {
-      const btn = document.querySelector(`[aria-controls="${id}"]`);
-      if (btn) btn.setAttribute('aria-expanded', 'true');
-    } catch(e){}
-  }
+  const open = el.style.display === 'block';
+  if (open) { el.style.display = 'none'; el.setAttribute('aria-hidden','true'); closeAllSubmenus(); }
+  else { closeAllSubmenus(); el.style.display = 'block'; el.setAttribute('aria-hidden','false'); }
 }
 
 function toggleSubmenu(headerEl) {
-  const submenu = headerEl.nextElementSibling;
-  if (!submenu) return;
+  const sub = headerEl.nextElementSibling;
+  if (!sub) return;
   const chev = headerEl.querySelector('.chev');
-  if (submenu.style.display === 'block') {
-    submenu.style.display = 'none';
-    if (chev) chev.textContent = '▸';
-  } else {
-    submenu.style.display = 'block';
-    if (chev) chev.textContent = '▾';
-  }
+  const isOpen = sub.style.display === 'block';
+  sub.style.display = isOpen ? 'none' : 'block';
+  if (chev) chev.textContent = isOpen ? '▸' : '▾';
 }
 
-// Função para fechar todas as subseções - DO CÓDIGO FORNECIDO
 function closeAllSubmenus() {
-  document.querySelectorAll('.submenu').forEach(submenu => {
-    submenu.style.display = 'none';
-  });
-  document.querySelectorAll('.chev').forEach(chev => {
-    chev.textContent = '▸';
-  });
+  document.querySelectorAll('.submenu').forEach(s => s.style.display = 'none');
+  document.querySelectorAll('.chev').forEach(c => c.textContent = '▸');
 }
 
-document.addEventListener('click', (ev) => {
-  if (!ev.target.closest('.menu-dropdown')) {
+document.addEventListener('click', ev => {
+  if (!ev.target.closest('.menu-dropdown') && !ev.target.closest('.menu-right')) {
     document.querySelectorAll('.menu-dropdown-content').forEach(el => {
-      el.style.display = 'none';
-      el.style.opacity = 0;
-      el.setAttribute('aria-hidden','true');
+      el.style.display = 'none'; el.setAttribute('aria-hidden','true');
     });
-    document.querySelectorAll('[aria-controls]').forEach(b => { 
-      try { 
-        b.setAttribute('aria-expanded','false'); 
-      } catch(e){} 
+    closeAllSubmenus();
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.menu-dropdown-content').forEach(el => {
+      el.style.display = 'none'; el.setAttribute('aria-hidden','true');
     });
-    // Fechar todas as subseções quando clicar fora do menu
     closeAllSubmenus();
   }
 });
 
 /* ============================
-   Placeholders de navegação - DO CÓDIGO FORNECIDO
+   Navegação
    ============================ */
-function fecharPagina() {
-  // Redireciona diretamente sem popup
-  window.location.href = "index.html";
-}
-
-function voltarMenu() {
-  window.location.href = "index.html";
-}
+function fecharPagina() { window.location.href = 'index.html'; }
+function voltarMenu()   { window.location.href = 'index.html'; }
 
 function abrirMac(e, nome) {
-  // se o link tem href válido, fazemos a navegação para esse href
   try {
     if (e && e.currentTarget) {
       const href = e.currentTarget.getAttribute('href');
-      if (href && href !== '#' && href.trim() !== '') {
-        const menu = document.getElementById('dropdown-menu');
-        if (menu) { 
-          menu.style.display = 'none'; 
-          menu.setAttribute('aria-hidden','true'); 
-        }
-        // Fechar todas as subseções
+      if (href && href !== '#') {
         closeAllSubmenus();
-        // navega programaticamente (substitui o comportamento padrão)
-        window.location.href = href;
-        return;
+        document.querySelectorAll('.menu-dropdown-content').forEach(el => { el.style.display = 'none'; });
+        window.location.href = href; return;
       }
     }
-  } catch(err) { /* ignore */ }
+  } catch(err){}
   if (e) e.preventDefault();
-  toggleMenu('dropdown-menu');
 }
 
 function abrirLocal(e, nome) {
   try {
     if (e && e.currentTarget) {
       const href = e.currentTarget.getAttribute('href');
-      if (href && href !== '#' && href.trim() !== '') {
-        const menu = document.getElementById('dropdown-menu');
-        if (menu) { 
-          menu.style.display = 'none'; 
-          menu.setAttribute('aria-hidden','true'); 
-        }
-        // Fechar todas as subseções
+      if (href && href !== '#') {
         closeAllSubmenus();
-        window.location.href = href;
-        return;
+        document.querySelectorAll('.menu-dropdown-content').forEach(el => { el.style.display = 'none'; });
+        window.location.href = href; return;
       }
     }
-  } catch(err) { /* ignore */ }
+  } catch(err){}
   if (e) e.preventDefault();
-  toggleMenu('dropdown-menu');
 }
 
 /* ============================
-   Inicialização
+   Init
    ============================ */
 montarInterface();
 
-const transferBtn = document.querySelector('#middle-controls #btn-transfer');
-if (transferBtn) transferBtn.addEventListener('click', () => {
-  setTimeout(() => atualizarContagemDireita(), 80);
-});
-
-const printBtn = document.getElementById('btn-print');
-if (printBtn) {
-  try { printBtn.onclick = null; } catch(e){}
-  printBtn.addEventListener('click', (ev) => {
-    ev.preventDefault();
-    if (printBtn.disabled) return;
-    prepareAndPrintSinglePage();
-  });
-}
-
-// Fechar menus ao pressionar ESC - DO CÓDIGO FORNECIDO
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    document.querySelectorAll('.menu-dropdown-content').forEach(el => {
-      el.style.display = 'none';
-      el.style.opacity = 0;
-      el.setAttribute('aria-hidden','true');
-    });
-    document.querySelectorAll('[aria-controls]').forEach(b => { 
-      try { 
-        b.setAttribute('aria-expanded','false'); 
-      } catch(e){} 
-    });
-    // Fechar todas as subseções ao pressionar ESC
-    closeAllSubmenus();
-  }
+document.getElementById('btn-print').addEventListener('click', ev => {
+  ev.preventDefault();
+  if (!document.getElementById('btn-print').disabled) prepareAndPrint();
 });
 </script>
 </body>

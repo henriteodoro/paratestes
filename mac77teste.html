@@ -35,7 +35,6 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html, body { height: 100%; }
 
 body {
@@ -70,10 +69,17 @@ body::before {
   height: 62px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .topbar-brand {
@@ -109,24 +115,6 @@ body::before {
   font-weight: 500;
 }
 
-/* title nav in topbar */
-.topbar-nav {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  justify-content: center;
-}
-.topbar-nav h1 {
-  font-family: 'Sora', sans-serif;
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 320px;
-}
 .nav-arrow-btn {
   display: flex; align-items: center; justify-content: center;
   width: 32px; height: 32px;
@@ -145,6 +133,8 @@ body::before {
   border-color: var(--accent);
   color: var(--accent);
 }
+
+.topbar-spacer { flex: 1; }
 
 .topbar-actions {
   display: flex;
@@ -177,7 +167,6 @@ body::before {
   color: var(--accent);
 }
 
-/* Divider in topbar */
 .topbar-divider {
   width: 1px; height: 28px;
   background: var(--border);
@@ -295,6 +284,62 @@ body::before {
 .stat-chip svg { width: 14px; height: 14px; color: var(--accent); }
 .stat-chip .val { color: var(--accent); font-family: 'Sora', sans-serif; }
 
+/* ── RESET CONFIRM BAR ──────────────────────── */
+#reset-confirm-bar {
+  display: none;
+  background: #fff7ed;
+  border: 1.5px solid #fed7aa;
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+  animation: slideDown 0.22s ease;
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+#reset-confirm-bar .rcb-title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #92400e;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#reset-confirm-bar .rcb-title svg {
+  width: 18px; height: 18px; color: #f59e0b; flex-shrink: 0;
+}
+#reset-confirm-bar .rcb-msg {
+  font-size: 0.85rem;
+  color: #78350f;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+#reset-confirm-bar .rcb-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.rcb-btn {
+  padding: 8px 16px;
+  border-radius: 9px;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.rcb-btn.danger  { background: var(--danger); color: white; }
+.rcb-btn.danger:hover  { background: #b91c1c; transform: translateY(-1px); }
+.rcb-btn.safe    { background: #f59e0b; color: white; }
+.rcb-btn.safe:hover    { background: #d97706; transform: translateY(-1px); }
+.rcb-btn.cancel  { background: var(--surface2); color: var(--text-secondary); border: 1.5px solid var(--border2); }
+.rcb-btn.cancel:hover  { background: #f1f5f9; }
+
 /* ── CONTENT GRID ───────────────────────────── */
 .content-grid {
   display: grid;
@@ -335,14 +380,6 @@ body::before {
   font-size: 0.9rem;
   color: var(--text-primary);
   flex: 1;
-}
-.col-header-count {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  background: #e5e7eb;
-  padding: 2px 8px;
-  border-radius: 99px;
 }
 
 .col-body { padding: 10px; }
@@ -592,42 +629,82 @@ body::before {
 /* ── PRINT ──────────────────────────────────── */
 @media print {
   .topbar, .stat-bar, .middle-controls, #copy-notice, .modal-overlay,
-  .remove-btn, .col-header-icon, body::before { display: none !important; }
-  body { background: white; font-family: 'DM Sans', sans-serif; }
-  @page { size: A4 portrait; margin: 8mm; }
+  .remove-btn, .col-header-icon, body::before, #reset-confirm-bar,
+  #coluna-esquerda, .col-panel:first-child, .content-grid > .col-panel:first-child { display: none !important; }
+
+  body { background: white; font-family: Arial, sans-serif; }
+  @page { size: A4 portrait; margin: 10mm; }
+
   .page-wrapper { padding: 0 !important; max-width: 100% !important; }
+
+  /* Hide left col panel completely */
   .content-grid {
     display: block !important;
   }
-  .content-grid:after { content: ''; display: block; clear: both; }
-  .col-panel {
-    float: left !important;
-    width: 49% !important;
-    max-width: 49% !important;
+
+  /* Only show the right panel */
+  .col-panel { display: none !important; }
+  .col-panel.print-target { display: block !important; }
+
+  .col-panel.print-target {
     box-shadow: none !important;
-    border: 1px solid #ccc !important;
-    border-radius: 6px !important;
-    margin-bottom: 4px !important;
+    border: none !important;
+    border-radius: 0 !important;
   }
-  .col-header { padding: 6px 10px !important; }
-  .col-body { padding: 4px !important; }
-  .item { padding: 2px 4px !important; }
-  .item span { font-size: 9.5px !important; line-height: 1.2 !important; }
-  .item input[type="text"] { width: 38px !important; font-size: 9.5px !important; padding: 1px 3px !important; }
+
+  .print-title {
+    display: block !important;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    font-size: 13px;
+    margin-bottom: 8px;
+    border-bottom: 1.5px solid #333;
+    padding-bottom: 6px;
+  }
+
+  .col-header {
+    padding: 0 0 6px 0 !important;
+    background: none !important;
+    border-bottom: 1px solid #ccc !important;
+    margin-bottom: 4px;
+  }
+  .col-header-title {
+    font-size: 11px !important;
+    font-weight: bold;
+  }
+  .col-body {
+    padding: 0 !important;
+    columns: 2;
+    column-gap: 10mm;
+  }
+  .item {
+    padding: 1.5px 2px !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    border: none !important;
+  }
+  .item span { font-size: 8.5px !important; line-height: 1.25 !important; }
+  .item input[type="text"] {
+    width: 36px !important;
+    font-size: 8.5px !important;
+    padding: 1px 3px !important;
+    border: 1px solid #999 !important;
+    border-radius: 3px !important;
+  }
 }
+
+.print-title { display: none; }
 
 /* ── RESPONSIVE ─────────────────────────────── */
 @media (max-width: 900px) {
   .content-grid { grid-template-columns: 1fr; }
   .middle-controls { flex-direction: row; flex-wrap: wrap; justify-content: center; padding-top: 0; }
   .ctrl-btn { width: 148px; }
-  .topbar-nav h1 { max-width: 180px; font-size: 0.82rem; }
   .brand-name, .brand-sub { display: none; }
 }
 @media (max-width: 600px) {
   .page-wrapper { padding: 14px 12px 32px; }
   .topbar { padding: 0 12px; }
-  .topbar-nav { display: none; }
 }
 </style>
 </head>
@@ -635,13 +712,15 @@ body::before {
 
 <!-- TOPBAR -->
 <header class="topbar">
-  <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+  <div class="topbar-left">
 
     <!-- Hamburger menu -->
     <div class="menu-dropdown">
       <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')" aria-haspopup="true" aria-controls="dropdown-menu" aria-expanded="false">
+        <!-- Icon: menu/grid dots -->
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
         </svg>
         <span class="sr-only">Menu</span>
       </button>
@@ -695,51 +774,64 @@ body::before {
       </div>
     </div>
 
+    <!-- Home / voltar ao menu -->
+    <button class="icon-btn" title="Início" onclick="voltarMenu()">
+      <!-- Icon: door exit / log-out style -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      <span class="sr-only">Início</span>
+    </button>
+
     <!-- Close -->
     <button class="icon-btn" title="Fechar" onclick="fecharPagina()">
+      <!-- Icon: X circle -->
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        <circle cx="12" cy="12" r="9"/>
+        <line x1="15" y1="9" x2="9" y2="15"/>
+        <line x1="9" y1="9" x2="15" y2="15"/>
       </svg>
       <span class="sr-only">Fechar</span>
     </button>
 
-    <!-- Home -->
-    <button class="icon-btn" title="Início" onclick="voltarMenu()">
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M21.4498 10.275L11.9998 3.1875L2.5498 10.275L2.9998 11.625H3.7498V20.25H20.2498V11.625H20.9998L21.4498 10.275ZM5.2498 18.75V10.125L11.9998 5.0625L18.7498 10.125V18.75H14.9999V14.3333L14.2499 13.5833H9.74988L8.99988 14.3333V18.75H5.2498ZM10.4999 18.75H13.4999V15.0833H10.4999V18.75Z"/>
-      </svg>
-      <span class="sr-only">Início</span>
-    </button>
-  </div>
+    <div class="topbar-divider"></div>
 
-  <!-- Brand -->
-  <div class="topbar-brand">
-    <div class="brand-icon">77</div>
-    <div>
-      <div class="brand-name">MAC Bairro São Geraldo</div>
-      <div class="brand-sub">Organizador de Lista · Cód. 77</div>
+    <!-- Left nav arrow -->
+    <a href="mac989.html" class="nav-arrow-btn" title="MAC anterior" onclick="abrirMac(event,'MAC Araújos')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+
+    <!-- Brand -->
+    <div class="topbar-brand">
+      <div class="brand-icon">77</div>
+      <div>
+        <div class="brand-name">MAC Bairro São Geraldo</div>
+        <div class="brand-sub">Organizador de lista</div>
+      </div>
     </div>
-  </div>
 
-  <!-- Title Nav -->
-  <div class="topbar-nav" role="navigation" aria-label="Navegação MAC">
-    <a href="mac78.html" class="nav-arrow-btn" id="arrow-right" title="Próximo MAC" onclick="abrirMac(event,'MAC Bairro Planalto')">→</a>
-    <h1 id="titulo-principal">MAC Bairro São Geraldo — Cód. 77</h1>
+    <!-- Right nav arrow -->
     <a href="mac78.html" class="nav-arrow-btn" title="Próximo MAC" onclick="abrirMac(event,'MAC Bairro Planalto')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
     </a>
+
   </div>
+
+  <div class="topbar-spacer"></div>
 
   <!-- Actions right -->
   <div class="topbar-actions">
-    <div class="topbar-divider"></div>
 
     <!-- Save dropdown -->
     <div class="menu-dropdown menu-right" style="position:relative;">
       <button class="icon-btn" title="Salvar" onclick="toggleMenu('dropdown-save')" aria-haspopup="true" aria-controls="dropdown-save">
+        <!-- Icon: arrow down to tray (download/save) -->
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7z"/>
-          <path d="M17 3v4H7V3"/><rect x="7" y="13" width="10" height="8" rx="1"/>
+          <path d="M12 3v13"/>
+          <polyline points="7 11 12 16 17 11"/>
+          <path d="M5 20h14"/>
         </svg>
         <span class="sr-only">Salvar</span>
       </button>
@@ -761,17 +853,26 @@ body::before {
 
     <!-- Print -->
     <button class="icon-btn" id="btn-print" title="Imprimir">
+      <!-- Icon: file with text lines (document-text) -->
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M7 18H6.2C5.08 18 4.52 18 4.09 17.78 3.72 17.59 3.41 17.28 3.22 16.91 3 16.48 3 15.92 3 14.8V10.2C3 9.08 3 8.52 3.22 8.09 3.41 7.72 3.72 7.41 4.09 7.22 4.52 7 5.08 7 6.2 7H7M17 18h.8c1.12 0 1.68 0 2.11-.22.38-.19.69-.5.87-.87C21 16.48 21 15.92 21 14.8V10.2c0-1.12 0-1.68-.22-2.11a2 2 0 0 0-.87-.87C19.48 7 18.92 7 17.8 7H17M7 11h.01M17 7V5.4V4.6C17 4.04 17 3.76 16.89 3.55 16.8 3.36 16.64 3.2 16.45 3.11 16.24 3 15.96 3 15.4 3H8.6C8.04 3 7.76 3 7.55 3.11 7.36 3.2 7.2 3.36 7.11 3.55 7 3.76 7 4.04 7 4.6V5.4V7M17 7H7M8.6 21h6.8c.56 0 .84 0 1.05-.11.19-.1.34-.25.44-.45C17 20.24 17 19.96 17 19.4v-2.8c0-.56 0-.84-.11-1.05a1 1 0 0 0-.44-.44C16.24 15 15.96 15 15.4 15H8.6c-.56 0-.84 0-1.05.11a1 1 0 0 0-.44.44C7 15.76 7 16.04 7 16.6v2.8c0 .56 0 .84.11 1.05.1.19.25.34.44.44C7.76 21 8.04 21 8.6 21z"/>
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="8" y1="13" x2="16" y2="13"/>
+        <line x1="8" y1="17" x2="16" y2="17"/>
+        <line x1="10" y1="9" x2="14" y2="9"/>
       </svg>
       <span class="sr-only">Imprimir</span>
     </button>
 
     <!-- Copy -->
     <button class="icon-btn" title="Copiar lista" onclick="copiarDireita()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M15 17v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1H7"/>
-        <rect x="7" y="3" width="12" height="14" rx="1"/>
+      <!-- Icon: clipboard with check / share-2 -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="18" cy="5" r="3"/>
+        <circle cx="6" cy="12" r="3"/>
+        <circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
       </svg>
       <span class="sr-only">Copiar</span>
     </button>
@@ -781,12 +882,22 @@ body::before {
 <!-- PAGE WRAPPER -->
 <div class="page-wrapper">
 
+  <!-- Reset confirm bar (inline, not a popup) -->
+  <div id="reset-confirm-bar">
+    <div class="rcb-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Atenção — Você tem <span id="rcb-count">0</span> item(ns) adicionado(s) manualmente
+    </div>
+    <p class="rcb-msg">O que você deseja fazer com os itens adicionados manualmente além da lista original?</p>
+    <div class="rcb-actions">
+      <button class="rcb-btn danger" onclick="confirmarReset('excluir')">Excluir itens e zerar valores</button>
+      <button class="rcb-btn safe"   onclick="confirmarReset('manter')">Manter itens, só zerar valores</button>
+      <button class="rcb-btn cancel" onclick="fecharResetConfirm()">Cancelar</button>
+    </div>
+  </div>
+
   <!-- Stat bar -->
   <div class="stat-bar">
-    <div class="stat-chip">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="9" y1="18" x2="9" y2="12"/><line x1="9" y1="9" x2="9" y2="9.01"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-      MAC Bairro São Geraldo
-    </div>
     <div class="stat-chip" id="stat-filled">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
       Preenchidas: <span class="val" id="contador-val">0</span>
@@ -806,8 +917,7 @@ body::before {
         <div class="col-header-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         </div>
-        <span class="col-header-title">Lançar Quantidades</span>
-        <span class="col-header-count" id="esq-count">0 itens</span>
+        <span class="col-header-title">Lista Original</span>
       </div>
       <div class="col-body" id="coluna-esquerda"></div>
     </div>
@@ -826,20 +936,20 @@ body::before {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         Ocultar Vazios
       </button>
-      <button class="ctrl-btn red" onclick="resetarTudo()">
+      <button class="ctrl-btn red" onclick="iniciarReset()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
         Resetar Tudo
       </button>
     </div>
 
     <!-- Right column -->
-    <div class="col-panel">
+    <div class="col-panel print-target">
+      <div class="print-title">MAC Bairro São Geraldo — Cód. 77</div>
       <div class="col-header">
         <div class="col-header-icon" style="background:var(--success);">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         <span class="col-header-title">Lista Formatada</span>
-        <span class="col-header-count" id="dir-count">0 itens</span>
       </div>
       <div class="col-body" id="coluna-direita"></div>
     </div>
@@ -857,11 +967,11 @@ body::before {
       <h2>Adicionar Novo Item</h2>
     </div>
     <div class="modal-input-group">
-      <label for="nome-esquerda">Nome na coluna esquerda</label>
+      <label for="nome-esquerda">Nome (coluna esquerda)</label>
       <input type="text" id="nome-esquerda" placeholder="Ex: PÃO DE FORMA MP 500G">
     </div>
     <div class="modal-input-group">
-      <label for="nome-direita">Nome na coluna direita</label>
+      <label for="nome-direita">Nome (coluna direita)</label>
       <input type="text" id="nome-direita" placeholder="Deixe em branco para preenchimento automático">
     </div>
     <div class="modal-footer">
@@ -975,6 +1085,37 @@ function showBottomNotice(msg = 'Copiado!', dur = 2000) {
 }
 
 /* ============================
+   Salvar/restaurar valores do DOM
+   ============================ */
+function capturarValoresEsquerda() {
+  const vals = {};
+  document.querySelectorAll('#coluna-esquerda input').forEach(inp => {
+    if (inp.value.trim()) vals[inp.dataset.nome] = inp.value.trim();
+  });
+  return vals;
+}
+
+function capturarValoresDireita() {
+  const vals = {};
+  document.querySelectorAll('#coluna-direita input').forEach(inp => {
+    if (inp.value.trim()) vals[inp.dataset.nome] = inp.value.trim();
+  });
+  return vals;
+}
+
+function restaurarValoresEsquerda(vals) {
+  document.querySelectorAll('#coluna-esquerda input').forEach(inp => {
+    if (vals[inp.dataset.nome]) inp.value = vals[inp.dataset.nome];
+  });
+}
+
+function restaurarValoresDireita(vals) {
+  document.querySelectorAll('#coluna-direita input').forEach(inp => {
+    if (vals[inp.dataset.nome]) inp.value = vals[inp.dataset.nome];
+  });
+}
+
+/* ============================
    Modal
    ============================ */
 function abrirModalAdicionar() {
@@ -997,18 +1138,34 @@ function confirmarAdicionarItem() {
   if (frasesDireitaOrdenadas.includes(nomeDir)) {
     showBottomNotice('Item já existe na coluna direita!'); return;
   }
+
+  // Salvar valores antes de reconstruir
+  const valsEsq = capturarValoresEsquerda();
+  const valsDir = capturarValoresDireita();
+
   itensAdicionados.esquerda.push(nomeEsq);
   mapeamentoProdutos[nomeEsq] = nomeDir;
   mapeamentoReverso[nomeDir] = nomeEsq;
   frasesDireitaOrdenadas = Object.values(mapeamentoProdutos).sort((a, b) =>
     a.localeCompare(b, 'pt-BR', { sensitivity: 'base' })
   );
+
   montarInterface();
+
+  // Restaurar valores após reconstruir
+  restaurarValoresEsquerda(valsEsq);
+  restaurarValoresDireita(valsDir);
+  atualizarContagem();
+
   fecharModalAdicionar();
   showBottomNotice('Item adicionado com sucesso!');
 }
 
 function removerItem(nomeEsq, nomeDir) {
+  // Salvar valores antes de reconstruir
+  const valsEsq = capturarValoresEsquerda();
+  const valsDir = capturarValoresDireita();
+
   const idx = itensAdicionados.esquerda.indexOf(nomeEsq);
   if (idx > -1) itensAdicionados.esquerda.splice(idx, 1);
   delete mapeamentoProdutos[nomeEsq];
@@ -1016,7 +1173,14 @@ function removerItem(nomeEsq, nomeDir) {
   frasesDireitaOrdenadas = Object.values(mapeamentoProdutos).sort((a, b) =>
     a.localeCompare(b, 'pt-BR', { sensitivity: 'base' })
   );
+
   montarInterface();
+
+  // Restaurar valores (sem o item removido)
+  restaurarValoresEsquerda(valsEsq);
+  restaurarValoresDireita(valsDir);
+  atualizarContagem();
+
   showBottomNotice('Item removido.');
 }
 
@@ -1026,6 +1190,67 @@ document.addEventListener('keydown', e => {
 document.getElementById('modal-adicionar').addEventListener('click', e => {
   if (e.target.id === 'modal-adicionar') fecharModalAdicionar();
 });
+
+/* ============================
+   Reset com confirmação inline
+   ============================ */
+function iniciarReset() {
+  const qtd = itensAdicionados.esquerda.length;
+  if (qtd > 0) {
+    // Mostrar barra de confirmação no site
+    document.getElementById('rcb-count').textContent = qtd;
+    const bar = document.getElementById('reset-confirm-bar');
+    bar.style.display = 'block';
+    bar.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } else {
+    // Nenhum item extra, resetar direto
+    executarReset(false);
+  }
+}
+
+function fecharResetConfirm() {
+  document.getElementById('reset-confirm-bar').style.display = 'none';
+}
+
+function confirmarReset(opcao) {
+  fecharResetConfirm();
+  if (opcao === 'excluir') {
+    executarReset(true);
+  } else {
+    executarReset(false);
+  }
+}
+
+function executarReset(excluirAdicionados) {
+  if (excluirAdicionados) {
+    // Remover itens adicionados manualmente
+    const copiaNomes = [...itensAdicionados.esquerda];
+    copiaNomes.forEach(nomeEsq => {
+      const nomeDir = mapeamentoProdutos[nomeEsq];
+      delete mapeamentoProdutos[nomeEsq];
+      delete mapeamentoReverso[nomeDir];
+    });
+    itensAdicionados.esquerda.length = 0;
+    frasesDireitaOrdenadas = Object.values(mapeamentoProdutos).sort((a, b) =>
+      a.localeCompare(b, 'pt-BR', { sensitivity: 'base' })
+    );
+    montarInterface();
+  }
+
+  // Zerar todos os inputs
+  document.querySelectorAll("input[type='text']").forEach(i => i.value = '');
+
+  // Restaurar linhas ocultas
+  if (linhasOcultas) {
+    elementosOcultos.forEach(el => el.style.display = '');
+    elementosOcultos = [];
+    linhasOcultas = false;
+    const btn = document.getElementById('btn-linhas');
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Ocultar Vazios`;
+  }
+  atualizarContagem();
+  showBottomNotice(excluirAdicionados ? 'Resetado e itens removidos.' : 'Valores zerados.');
+}
 
 /* ============================
    Construção da interface
@@ -1153,18 +1378,6 @@ function alternarLinhas() {
   linhasOcultas = !linhasOcultas;
 }
 
-function resetarTudo() {
-  document.querySelectorAll("input[type='text']").forEach(i => i.value = '');
-  if (linhasOcultas) {
-    elementosOcultos.forEach(el => el.style.display = '');
-    elementosOcultos = [];
-    linhasOcultas = false;
-    const btn = document.getElementById('btn-linhas');
-    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Ocultar Vazios`;
-  }
-  atualizarContagem();
-}
-
 function atualizarContagem() {
   const outputs = document.querySelectorAll('#coluna-direita input');
   let preenchidos = 0;
@@ -1174,8 +1387,6 @@ function atualizarContagem() {
   const total = [...frasesEsquerda, ...itensAdicionados.esquerda].length;
   document.getElementById('contador-val').textContent = preenchidos;
   document.getElementById('total-val').textContent = total;
-  document.getElementById('esq-count').textContent = total + ' itens';
-  document.getElementById('dir-count').textContent = frasesDireitaOrdenadas.length + ' itens';
 }
 
 /* ============================
@@ -1269,11 +1480,7 @@ function prepareAndPrint() {
   const printBtn = document.getElementById('btn-print');
   if (printBtn) printBtn.disabled = true;
   transferir();
-  const total = [...frasesEsquerda, ...itensAdicionados.esquerda].length;
-  document.body.classList.remove('print-tight');
-  if (total > 34) document.body.classList.add('print-tight');
   const cleanup = () => {
-    document.body.classList.remove('print-tight');
     try { window.removeEventListener('afterprint', cleanup); } catch(e){}
     if (printBtn) printBtn.disabled = false;
   };

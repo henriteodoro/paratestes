@@ -629,67 +629,73 @@ body::before {
 /* ── PRINT ──────────────────────────────────── */
 @media print {
   .topbar, .stat-bar, .middle-controls, #copy-notice, .modal-overlay,
-  .remove-btn, .col-header-icon, body::before, #reset-confirm-bar,
-  #coluna-esquerda, .col-panel:first-child, .content-grid > .col-panel:first-child { display: none !important; }
+  .remove-btn, .col-header-icon, body::before, #reset-confirm-bar { display: none !important; }
 
   body { background: white; font-family: Arial, sans-serif; }
-  @page { size: A4 portrait; margin: 10mm; }
+  @page { size: A4 portrait; margin: 8mm; }
 
   .page-wrapper { padding: 0 !important; max-width: 100% !important; }
 
-  /* Hide left col panel completely */
-  .content-grid {
-    display: block !important;
-  }
-
-  /* Only show the right panel */
-  .col-panel { display: none !important; }
-  .col-panel.print-target { display: block !important; }
-
-  .col-panel.print-target {
-    box-shadow: none !important;
-    border: none !important;
-    border-radius: 0 !important;
-  }
-
+  /* Print title above the two columns */
   .print-title {
     display: block !important;
     font-family: Arial, sans-serif;
     font-weight: bold;
-    font-size: 13px;
-    margin-bottom: 8px;
+    font-size: 12px;
+    margin-bottom: 6px;
     border-bottom: 1.5px solid #333;
-    padding-bottom: 6px;
+    padding-bottom: 5px;
   }
 
+  /* Side-by-side layout for both panels */
+  .content-grid {
+    display: flex !important;
+    gap: 6mm !important;
+    align-items: flex-start !important;
+  }
+
+  .col-panel {
+    flex: 1 !important;
+    box-shadow: none !important;
+    border: 1px solid #bbb !important;
+    border-radius: 4px !important;
+    overflow: visible !important;
+  }
+
+  /* Hide the middle controls column (already hidden above via .middle-controls) */
+  .content-grid > div:nth-child(2) { display: none !important; }
+
   .col-header {
-    padding: 0 0 6px 0 !important;
-    background: none !important;
+    padding: 4px 6px !important;
+    background: #f0f0f0 !important;
     border-bottom: 1px solid #ccc !important;
-    margin-bottom: 4px;
   }
   .col-header-title {
-    font-size: 11px !important;
+    font-size: 9px !important;
     font-weight: bold;
   }
   .col-body {
-    padding: 0 !important;
-    columns: 2;
-    column-gap: 10mm;
+    padding: 2px 4px !important;
   }
   .item {
-    padding: 1.5px 2px !important;
+    padding: 1px 2px !important;
     break-inside: avoid;
     page-break-inside: avoid;
     border: none !important;
+    background: none !important;
   }
-  .item span { font-size: 8.5px !important; line-height: 1.25 !important; }
+  .item.novo-item { background: none !important; border: none !important; }
+  .item span { font-size: 7.5px !important; line-height: 1.2 !important; }
   .item input[type="text"] {
-    width: 36px !important;
-    font-size: 8.5px !important;
-    padding: 1px 3px !important;
+    width: 30px !important;
+    font-size: 7.5px !important;
+    padding: 1px 2px !important;
     border: 1px solid #999 !important;
-    border-radius: 3px !important;
+    border-radius: 2px !important;
+    background: white !important;
+  }
+  .item input[readonly] {
+    background: #f5f5f5 !important;
   }
 }
 
@@ -908,6 +914,9 @@ body::before {
     </div>
   </div>
 
+  <!-- Print title (only visible when printing) -->
+  <div class="print-title">MAC Bairro São Geraldo — Cód. 77</div>
+
   <!-- Main grid -->
   <div class="content-grid">
 
@@ -944,7 +953,6 @@ body::before {
 
     <!-- Right column -->
     <div class="col-panel print-target">
-      <div class="print-title">MAC Bairro São Geraldo — Cód. 77</div>
       <div class="col-header">
         <div class="col-header-icon" style="background:var(--success);">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1189,6 +1197,22 @@ document.addEventListener('keydown', e => {
 });
 document.getElementById('modal-adicionar').addEventListener('click', e => {
   if (e.target.id === 'modal-adicionar') fecharModalAdicionar();
+});
+
+// Enter key confirms addition from any modal input
+['nome-esquerda', 'nome-direita'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // If focus is on first field and it's filled, jump to second; else confirm
+      if (id === 'nome-esquerda' && document.getElementById('nome-esquerda').value.trim()) {
+        const second = document.getElementById('nome-direita');
+        second.focus();
+      } else {
+        confirmarAdicionarItem();
+      }
+    }
+  });
 });
 
 /* ============================

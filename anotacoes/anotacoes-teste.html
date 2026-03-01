@@ -1045,9 +1045,8 @@
     border-right: 1px solid var(--borda);
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
     overflow-y: auto;
-    /* Sem barra de rolagem visível */
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
     transition: transform 0.3s ease;
     z-index: 1000;
     padding: 20px;
@@ -1055,7 +1054,6 @@
     display: block;
   }
 
-  /* Esconder barra de rolagem no Chrome/Safari */
   .menu-sidebar::-webkit-scrollbar {
     display: none;
   }
@@ -1064,9 +1062,8 @@
     transform: translateX(0);
   }
 
-  /* Overlay removido — sem escurecer o fundo */
   .menu-overlay {
-    display: none !important; /* Desativado completamente */
+    display: none !important;
   }
 
   .menu-header {
@@ -1355,11 +1352,15 @@
     color: var(--muted);
   }
 
+  /* ===== HIGHLIGHT DE BUSCA — só nas letras, sem padding extra ===== */
   mark {
     background-color: #ffeb3b;
     color: #000;
-    padding: 1px 4px;
-    border-radius: 3px;
+    padding: 0;
+    margin: 0;
+    border-radius: 2px;
+    display: inline;
+    line-height: inherit;
   }
 
   /* Indicador de ordenação alfabética */
@@ -1397,9 +1398,8 @@
       Fechar
     </button>
     
-    <!-- Botão de Rotinas Férias com novo ícone de avião -->
+    <!-- Botão de Rotinas Férias -->
     <button class="btn-toolbar btn-ferias" id="btn-ferias">
-      <!-- Ícone de avião SVG -->
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" xml:space="preserve" width="18" height="18">
         <style type="text/css">
           .st0{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
@@ -1435,7 +1435,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/>
         </svg>
-        Tópicos — A→Z
+        Tópicos
       </div>
       <div id="topicos-lista">
         <!-- Itens gerados pelo JavaScript em ordem alfabética -->
@@ -1515,7 +1515,6 @@
       <div class="codigo">1249</div>
       <span>MAC Jardim do Lago</span>
     </a>
-    <!-- NOVO: MAC São Gonçalo do Pará -->
     <a href="../mac1436.html" class="menu-opcao">
       <div class="codigo">1436</div>
       <span>MAC São Gonçalo do Pará</span>
@@ -1602,8 +1601,8 @@
 
 <script>
 // =============================================
-// DEFINIÇÃO DOS TÓPICOS — adicione aqui novos tópicos
-// Serão exibidos automaticamente em ordem alfabética
+// DEFINIÇÃO DOS TÓPICOS
+// "Rotina Comercial Emillie" removida conforme solicitado
 // =============================================
 const TOPICOS = [
   {
@@ -1645,11 +1644,6 @@ const TOPICOS = [
     arquivo: 'pedidos-sj-pt.html',
     nome: 'Pedidos São José e Pão Total',
     icone: `<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>`
-  },
-  {
-    arquivo: 'rotina-comercial-emillie.html',
-    nome: 'Rotina Comercial Emillie',
-    icone: `<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>`
   }
 ];
 
@@ -2332,7 +2326,7 @@ class GerenciadorAnotacoes {
   }
 
   // =============================================
-  // BUSCA MELHORADA — com agrupamento por tópico
+  // BUSCA AMPLIADA — cobre mais elementos do DOM
   // =============================================
   async buscarConteudo(termo) {
     const resultadosContainer = document.getElementById('resultados-busca');
@@ -2345,7 +2339,6 @@ class GerenciadorAnotacoes {
       return;
     }
 
-    // Mostrar indicador de busca
     resultadosContainer.style.display = 'block';
     resultadosContainer.innerHTML = `
       <div class="resultados-header">
@@ -2361,10 +2354,8 @@ class GerenciadorAnotacoes {
     });
 
     const termoLower = termo.toLowerCase().trim();
-    // Mapa: arquivo -> lista de resultados
     const resultadosPorArquivo = new Map();
 
-    // Buscar em todos os arquivos
     for (const topico of TOPICOS) {
       const arquivo = topico.arquivo;
       try {
@@ -2383,11 +2374,33 @@ class GerenciadorAnotacoes {
         tempDiv.querySelectorAll('script, style, link, meta, title, head').forEach(el => el.remove());
 
         const resultadosDoArquivo = [];
+        const vistos = new Set(); // evitar duplicatas
+
+        // Função auxiliar para adicionar resultado sem duplicar
+        const adicionarResultado = (item) => {
+          const chave = item.tipo + '::' + (item.titulo || '').trim().substring(0, 80);
+          if (!vistos.has(chave)) {
+            vistos.add(chave);
+            resultadosDoArquivo.push(item);
+          }
+        };
+
+        // H1
+        tempDiv.querySelectorAll('h1').forEach(el => {
+          if (el.textContent.toLowerCase().includes(termoLower)) {
+            adicionarResultado({
+              tipo: 'subtopico',
+              titulo: el.textContent.replace('| °', '').trim(),
+              id: this.criarId(el.textContent),
+              posicao: 'h1'
+            });
+          }
+        });
 
         // H2 — subtópicos
         tempDiv.querySelectorAll('h2').forEach(h2 => {
           if (h2.textContent.toLowerCase().includes(termoLower)) {
-            resultadosDoArquivo.push({
+            adicionarResultado({
               tipo: 'subtopico',
               titulo: h2.textContent.replace('| °', '').trim(),
               id: this.criarId(h2.textContent),
@@ -2396,25 +2409,25 @@ class GerenciadorAnotacoes {
           }
         });
 
-        // H3
-        tempDiv.querySelectorAll('h3').forEach(h3 => {
-          if (h3.textContent.toLowerCase().includes(termoLower)) {
-            resultadosDoArquivo.push({
+        // H3, H4, H5, H6
+        tempDiv.querySelectorAll('h3, h4, h5, h6').forEach(el => {
+          if (el.textContent.toLowerCase().includes(termoLower)) {
+            adicionarResultado({
               tipo: 'conteudo',
-              titulo: h3.textContent.trim(),
-              textoCompleto: h3.textContent,
-              posicao: 'h3'
+              titulo: el.textContent.trim(),
+              textoCompleto: el.textContent,
+              posicao: el.tagName.toLowerCase()
             });
           }
         });
 
         // Parágrafos
         tempDiv.querySelectorAll('p').forEach(p => {
-          const texto = p.textContent;
-          if (texto.toLowerCase().includes(termoLower)) {
-            resultadosDoArquivo.push({
+          const texto = p.textContent.trim();
+          if (texto && texto.toLowerCase().includes(termoLower)) {
+            adicionarResultado({
               tipo: 'conteudo',
-              titulo: texto.length > 60 ? texto.substring(0, 60) + '…' : texto,
+              titulo: texto.length > 80 ? texto.substring(0, 80) + '…' : texto,
               textoCompleto: texto,
               trecho: texto,
               posicao: 'p'
@@ -2422,13 +2435,13 @@ class GerenciadorAnotacoes {
           }
         });
 
-        // Itens de lista
+        // Itens de lista (li)
         tempDiv.querySelectorAll('li').forEach(li => {
-          const texto = li.textContent;
-          if (texto.toLowerCase().includes(termoLower)) {
-            resultadosDoArquivo.push({
+          const texto = li.textContent.trim();
+          if (texto && texto.toLowerCase().includes(termoLower)) {
+            adicionarResultado({
               tipo: 'conteudo',
-              titulo: texto.length > 60 ? texto.substring(0, 60) + '…' : texto,
+              titulo: texto.length > 80 ? texto.substring(0, 80) + '…' : texto,
               textoCompleto: texto,
               trecho: texto,
               posicao: 'li'
@@ -2436,13 +2449,13 @@ class GerenciadorAnotacoes {
           }
         });
 
-        // Células de tabela
+        // Células de tabela (td, th)
         tempDiv.querySelectorAll('td, th').forEach(cel => {
-          const texto = cel.textContent;
-          if (texto.toLowerCase().includes(termoLower)) {
-            resultadosDoArquivo.push({
+          const texto = cel.textContent.trim();
+          if (texto && texto.toLowerCase().includes(termoLower)) {
+            adicionarResultado({
               tipo: 'conteudo',
-              titulo: texto.length > 60 ? texto.substring(0, 60) + '…' : texto,
+              titulo: texto.length > 80 ? texto.substring(0, 80) + '…' : texto,
               textoCompleto: texto,
               trecho: texto,
               posicao: 'td'
@@ -2450,23 +2463,53 @@ class GerenciadorAnotacoes {
           }
         });
 
-        // Verificar se o nome do próprio tópico bate
-        if (topico.nome.toLowerCase().includes(termoLower) && resultadosDoArquivo.length === 0) {
-          resultadosDoArquivo.push({
-            tipo: 'topico',
-            titulo: topico.nome,
-            textoCompleto: topico.nome,
-            posicao: 'topico'
-          });
-        }
-
-        if (resultadosDoArquivo.length > 0 || topico.nome.toLowerCase().includes(termoLower)) {
-          // Se o tópico em si bate, adicionar como primeiro item
-          if (topico.nome.toLowerCase().includes(termoLower)) {
-            resultadosPorArquivo.set(arquivo, { topico, itens: resultadosDoArquivo, nomeMatch: true });
-          } else {
-            resultadosPorArquivo.set(arquivo, { topico, itens: resultadosDoArquivo, nomeMatch: false });
+        // Spans e divs com texto direto (não estrutural)
+        tempDiv.querySelectorAll('span, strong, em, b, i, label, a').forEach(el => {
+          const texto = el.textContent.trim();
+          if (texto && texto.toLowerCase().includes(termoLower) && texto.length > 2) {
+            adicionarResultado({
+              tipo: 'conteudo',
+              titulo: texto.length > 80 ? texto.substring(0, 80) + '…' : texto,
+              textoCompleto: texto,
+              trecho: texto,
+              posicao: el.tagName.toLowerCase()
+            });
           }
+        });
+
+        // Divs com classe específica que contém texto relevante
+        tempDiv.querySelectorAll('.destaque, .info-box, .ferias-box, .pix-info, .dado-item, .produto-item, .transportador, .dado-valor, .dado-rotulo, .cliente-nome').forEach(el => {
+          const texto = el.textContent.trim();
+          if (texto && texto.toLowerCase().includes(termoLower)) {
+            adicionarResultado({
+              tipo: 'conteudo',
+              titulo: texto.length > 80 ? texto.substring(0, 80) + '…' : texto,
+              textoCompleto: texto,
+              trecho: texto,
+              posicao: 'div'
+            });
+          }
+        });
+
+        // Atributos data e title (para casos de conteúdo em atributos)
+        tempDiv.querySelectorAll('[title], [data-nome], [data-info]').forEach(el => {
+          const titulo = el.getAttribute('title') || el.getAttribute('data-nome') || el.getAttribute('data-info') || '';
+          if (titulo && titulo.toLowerCase().includes(termoLower)) {
+            adicionarResultado({
+              tipo: 'conteudo',
+              titulo: titulo.length > 80 ? titulo.substring(0, 80) + '…' : titulo,
+              textoCompleto: titulo,
+              trecho: titulo,
+              posicao: 'attr'
+            });
+          }
+        });
+
+        // Verificar se o nome do próprio tópico bate
+        const nomeMatch = topico.nome.toLowerCase().includes(termoLower);
+
+        if (resultadosDoArquivo.length > 0 || nomeMatch) {
+          resultadosPorArquivo.set(arquivo, { topico, itens: resultadosDoArquivo, nomeMatch });
         }
 
       } catch (error) {
@@ -2498,9 +2541,8 @@ class GerenciadorAnotacoes {
       return;
     }
 
-    // Contar total
     let total = 0;
-    resultadosPorArquivo.forEach(({ itens }) => { total += itens.length || 1; });
+    resultadosPorArquivo.forEach(({ itens }) => { total += Math.max(itens.length, 1); });
 
     let html = `
       <div class="resultados-header">
@@ -2527,7 +2569,7 @@ class GerenciadorAnotacoes {
         const badgeLabel = item.tipo === 'subtopico' ? 'Subtópico' : 'Conteúdo';
 
         const trecho = item.trecho || item.titulo || '';
-        const trechoDestacado = this.destacarTermo(trecho.toLowerCase().substring(0, 120), termo.toLowerCase());
+        const trechoDestacado = this.destacarTermo(trecho.substring(0, 120), termo);
 
         html += `
           <div class="resultado-item" 
@@ -2543,7 +2585,6 @@ class GerenciadorAnotacoes {
         `;
       });
 
-      // Se só o nome bateu (sem itens internos), adicionar clique direto
       if (itens.length === 0 && nomeMatch) {
         html += `
           <div class="resultado-item" data-arquivo="${arquivo}" data-tipo="topico" data-posicao="topico">
@@ -2560,7 +2601,6 @@ class GerenciadorAnotacoes {
     container.innerHTML = html;
     container.style.display = 'block';
 
-    // Eventos para os itens de resultado
     container.querySelectorAll('.resultado-item').forEach(item => {
       item.addEventListener('click', () => {
         const arquivo = item.getAttribute('data-arquivo');
@@ -2576,7 +2616,6 @@ class GerenciadorAnotacoes {
           scrollTo = { tipo: 'texto', valor: texto, posicao: posicao };
         }
         
-        // Marcar tópico ativo na sidebar
         document.querySelectorAll('.topico-item').forEach(i => {
           i.style.display = 'flex';
           i.classList.remove('ativo');
@@ -2590,7 +2629,6 @@ class GerenciadorAnotacoes {
       });
     });
 
-    // Clique no cabeçalho do grupo abre diretamente o tópico
     container.querySelectorAll('[data-abrir-topico="true"]').forEach(header => {
       header.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -2610,9 +2648,11 @@ class GerenciadorAnotacoes {
     });
   }
 
+  // Highlight: só envolve o termo, sem padding extra
   destacarTermo(texto, termo) {
     if (!texto || !termo) return texto || '';
-    const regex = new RegExp(`(${termo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    const termoEscapado = termo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${termoEscapado})`, 'gi');
     return texto.replace(regex, '<mark>$1</mark>');
   }
 
@@ -2636,11 +2676,13 @@ class GerenciadorAnotacoes {
           this.destacarElemento(elemento);
         }
       } else if (dados.tipo === 'texto') {
-        const seletor = dados.posicao || 'p, li, h2, h3, h4, td';
-        const elementos = document.querySelectorAll(`#conteudo-dinamico ${seletor}`);
+        // Busca ampliada em todos os elementos de texto
+        const seletores = 'p, li, h2, h3, h4, h5, h6, td, th, span, strong, em, label, .destaque, .info-box, .ferias-box, .dado-item, .produto-item, .cliente-nome, .dado-valor';
+        const elementos = document.querySelectorAll(`#conteudo-dinamico ${seletores}`);
         
         for (let elemento of elementos) {
-          if (elemento.textContent.includes(dados.valor)) {
+          if (elemento.textContent.includes(dados.valor) || 
+              elemento.textContent.toLowerCase().includes(dados.valor.toLowerCase())) {
             elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
             this.destacarElemento(elemento);
             break;
@@ -2672,10 +2714,8 @@ class GerenciadorAnotacoes {
 let gerenciador;
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Renderizar tópicos em ordem alfabética
   renderizarTopicos();
   
-  // Instanciar gerenciador
   gerenciador = new GerenciadorAnotacoes();
 
   // Botão Fechar (volta para index)
@@ -2688,7 +2728,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.location.href = '../rotinas.html';
   });
 
-  // Menu Sidebar — sem overlay escuro
+  // Menu Sidebar
   const abrirMenu = function() {
     document.getElementById('menu-sidebar').classList.add('ativo');
   };
@@ -2699,7 +2739,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   document.getElementById('btn-menu').addEventListener('click', abrirMenu);
   document.getElementById('btn-fechar-sidebar').addEventListener('click', fecharMenu);
-  // Overlay desativado, então não precisa de evento no overlay
 
   // Campo de busca com debounce
   const searchInput = document.getElementById('campo-busca');
@@ -2712,7 +2751,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 350);
     });
     
-    // Fechar resultados ao clicar fora
     document.addEventListener('click', function(e) {
       if (!e.target.closest('.search') && !e.target.closest('.resultados-busca')) {
         const resultados = document.getElementById('resultados-busca');
@@ -2725,7 +2763,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 
-    // Fechar com ESC
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         const resultados = document.getElementById('resultados-busca');
@@ -2739,7 +2776,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (gerenciador && gerenciador.modoSelecao) {
           gerenciador.desativarModoSelecao();
         }
-        // Fechar menu lateral com ESC
         document.getElementById('menu-sidebar').classList.remove('ativo');
       }
     });
@@ -2769,7 +2805,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (e.target === this) gerenciador.fecharPopup();
   });
 
-  // Ações dinâmicas (botões criados depois do carregamento)
+  // Ações dinâmicas
   document.addEventListener('click', function(e) {
     if (e.target.id === 'btn-fechar-topico' || e.target.closest('#btn-fechar-topico')) {
       gerenciador.fecharTopico();

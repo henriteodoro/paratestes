@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gerenciador de Pedidos</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <style>
+    /* ── VARIÁVEIS ─────────────────────────────── */
+    :root {
+      --bg:           #eef3fb;
+      --surface:      #ffffff;
+      --surface2:     #f4f8ff;
+      --border:       #dce8fb;
+      --border2:      #c8d9f5;
+      --text-primary: #1a2740;
+      --text-secondary:#4e6080;
+      --text-muted:   #8fa3bf;
+      --accent:       #1a56db;
+      --accent-dark:  #1040b0;
+      --accent-light: #e8f0fe;
+      --warn:         #f59e0b;
+      --success:      #10b981;
+      --danger:       #dc2626;
+      --shadow-sm:    0 2px 8px rgba(20,60,120,0.07);
+      --shadow-md:    0 6px 24px rgba(20,60,120,0.10);
+      --shadow-lg:    0 14px 40px rgba(20,60,120,0.14);
+      --radius-sm:    10px;
+      --radius-md:    16px;
+      --radius-lg:    22px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.55;
+    }
+
+    /* dot pattern background */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: radial-gradient(circle, #c0d0eb 1px, transparent 1px);
+      background-size: 28px 28px;
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0;
+      margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
+      white-space: nowrap; border: 0;
+    }
+
+    /* ── TOPBAR ─────────────────────────────────── */
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      padding: 0 20px;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .brand-icon {
+      width: 38px; height: 38px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(26,86,219,0.3);
+      font-family: 'Sora', sans-serif;
+      font-weight: 800;
+      font-size: 0.7rem;
+      color: white;
+      letter-spacing: -0.5px;
+      flex-shrink: 0;
+      text-align: center;
+      line-height: 1.1;
+    }
+    .brand-name {
+      font-family: 'Sora', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--accent);
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+    .brand-sub {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .topbar-divider {
+      width: 1px; height: 28px;
+      background: var(--border);
+      flex-shrink: 0;
+      margin: 0 2px;
+    }
+
+    .topbar-spacer { flex: 1; }
+
+    .topbar-actions {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    /* ── ICON BUTTONS ───────────────────────────── */
+    .icon-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 7px 8px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.18s;
+      position: relative;
+    }
+    .icon-btn svg { width: 20px; height: 20px; display: block; flex-shrink: 0; }
+    .icon-btn:hover {
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    /* ── DROPDOWNS ──────────────────────────────── */
+    .menu-dropdown { position: relative; }
+    .menu-dropdown-content {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      background: var(--surface);
+      border: 1.5px solid var(--border2);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      min-width: 260px;
+      max-width: calc(100vw - 32px);
+      overflow: auto;
+      z-index: 1200;
+      padding: 6px;
+    }
+    .menu-right .menu-dropdown-content { right: 0; left: auto; }
+
+    .menu-dropdown-content a {
+      display: flex;
+      align-items: center;
+      padding: 9px 11px;
+      color: var(--text-primary);
+      text-decoration: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.87rem;
+      border-radius: 8px;
+      transition: all 0.15s;
+      gap: 8px;
+    }
+    .menu-dropdown-content a:hover {
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    .dropdown-section {
+      border-top: 1px solid var(--border);
+      margin-top: 4px;
+      padding-top: 4px;
+    }
+    .dropdown-section:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 11px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      border-radius: 8px;
+      transition: all 0.15s;
+    }
+    .section-header:hover {
+      background: var(--surface2);
+      color: var(--text-secondary);
+    }
+
+    .mac-code {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--accent);
+      color: white;
+      padding: 3px 7px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      min-width: 30px;
+      flex-shrink: 0;
+    }
+
+    .submenu { display: none; padding-left: 4px; }
+    .submenu a { padding-left: 14px; }
+
+    /* Save dropdown */
+    .save-dropdown {
+      min-width: 210px;
+    }
+    .save-dropdown a svg {
+      width: 16px; height: 16px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .save-dropdown a:hover svg { color: var(--accent); }
+
+    /* ── PAGE WRAPPER ───────────────────────────── */
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      padding: 20px 20px 40px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    /* ── PAGE TITLE ─────────────────────────────── */
+    .page-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      gap: 12px;
+    }
+    .page-title {
+      font-family: 'Sora', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--text-primary);
+    }
+
+    /* ── STAT BAR ───────────────────────────────── */
+    .stat-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .stat-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 99px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-chip svg { width: 14px; height: 14px; color: var(--accent); }
+    .stat-chip .val { color: var(--accent); font-family: 'Sora', sans-serif; }
+
+    /* ── CONTENT GRID ───────────────────────────── */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    /* ── COLUMN PANELS ──────────────────────────── */
+    .col-panel {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .col-header {
+      padding: 14px 18px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .col-header-icon {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(26,86,219,0.25);
+    }
+    .col-header-icon svg { width: 15px; height: 15px; color: white; }
+    .col-header-title {
+      font-family: 'Sora', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      flex: 1;
+    }
+
+    .col-body {
+      padding: 14px;
+    }
+
+    /* ── TEXTAREAS ──────────────────────────────── */
+    .col-body textarea {
+      width: 100%;
+      height: 460px;
+      padding: 14px;
+      border: 1.5px solid var(--border2);
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      resize: none;
+      line-height: 1.6;
+      font-family: 'DM Sans', monospace;
+      box-sizing: border-box;
+      color: var(--text-primary);
+      background: var(--surface2);
+      transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+      outline: none;
+    }
+    .col-body textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(26,86,219,0.10);
+      background: white;
+    }
+    .col-body textarea[readonly] {
+      background: var(--surface2);
+      cursor: default;
+    }
+    .col-body textarea[readonly]:focus {
+      border-color: var(--border2);
+      box-shadow: none;
+    }
+    .col-body textarea::placeholder {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* ── MIDDLE CONTROLS ────────────────────────── */
+    .middle-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+      padding-top: 58px;
+    }
+
+    .ctrl-btn {
+      width: 162px;
+      padding: 11px 14px;
+      font-size: 0.85rem;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.18s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      box-shadow: var(--shadow-sm);
+    }
+    .ctrl-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .ctrl-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+    .ctrl-btn:active { transform: translateY(0); box-shadow: var(--shadow-sm); }
+
+    .ctrl-btn.blue  { background: var(--accent); color: white; }
+    .ctrl-btn.blue:hover  { background: var(--accent-dark); }
+
+    .ctrl-btn.red   { background: var(--danger); color: white; }
+    .ctrl-btn.red:hover   { background: #b91c1c; }
+
+    .ctrl-btn.green { background: var(--success); color: white; }
+    .ctrl-btn.green:hover { background: #059669; }
+
+    /* ── TOAST ──────────────────────────────────── */
+    #copy-notice {
+      position: fixed;
+      right: 20px; bottom: 20px;
+      background: var(--text-primary);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 10px;
+      display: none;
+      z-index: 3000;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* ── PRINT ──────────────────────────────────── */
+    @media print {
+      .topbar, .stat-bar, .middle-controls, #copy-notice, body::before { display: none !important; }
+      body { background: white; }
+      @page { size: A4 portrait; margin: 12mm; }
+      .page-wrapper { padding: 0 !important; max-width: 100% !important; }
+      .print-title { display: block !important; font-family: Arial, sans-serif; font-weight: bold; font-size: 12px; margin-bottom: 10px; border-bottom: 1.5px solid #333; padding-bottom: 6px; }
+      .content-grid { grid-template-columns: 1fr !important; gap: 0 !important; }
+      .col-panel { box-shadow: none !important; border: 1px solid #bbb !important; border-radius: 4px !important; }
+      .col-body textarea { height: auto !important; min-height: 200px; font-size: 10px !important; border: none !important; background: white !important; box-shadow: none !important; }
+      .content-grid > .middle-controls { display: none !important; }
+    }
+    .print-title { display: none; }
+
+    /* ── RESPONSIVE ─────────────────────────────── */
+    @media (max-width: 900px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+      .middle-controls {
+        padding-top: 0;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        order: -1;
+      }
+      .ctrl-btn, .ctrl-stat { width: 148px; }
+      .brand-name, .brand-sub { display: none; }
+    }
+    @media (max-width: 600px) {
+      .page-wrapper { padding: 14px 12px 32px; }
+      .topbar { padding: 0 12px; height: 56px; }
+      .col-body textarea { height: 280px; }
+      .ctrl-btn, .ctrl-stat { width: 140px; }
+    }
+    @media (max-width: 420px) {
+      .middle-controls { flex-direction: column; align-items: center; }
+      .ctrl-btn, .ctrl-stat { width: 100%; max-width: 280px; }
+      .col-body textarea { height: 220px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── TOPBAR ─────────────────────────────────── -->
+<header class="topbar">
+  <div class="topbar-left">
+
+    <!-- Hamburger / menu -->
+    <div class="menu-dropdown">
+      <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')"
+              aria-haspopup="true" aria-controls="dropdown-menu" aria-expanded="false">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        <span class="sr-only">Menu</span>
+      </button>
+
+      <div class="menu-dropdown-content" id="dropdown-menu" role="menu" aria-hidden="true">
+        <div class="dropdown-section">
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)"
+               onkeydown="if(event.key==='Enter')toggleSubmenu(this)">
+            <span>MACS</span><small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="mac77.html"   onclick="abrirLink(event)"><span class="mac-code">77</span>MAC Bairro São Geraldo</a>
+            <a href="mac78.html"   onclick="abrirLink(event)"><span class="mac-code">78</span>MAC Bairro Planalto</a>
+            <a href="mac79.html"   onclick="abrirLink(event)"><span class="mac-code">79</span>MAC Romeu Duarte</a>
+            <a href="mac80.html"   onclick="abrirLink(event)"><span class="mac-code">80</span>MAC Rua São Geraldo / Centro 2</a>
+            <a href="mac277.html"  onclick="abrirLink(event)"><span class="mac-code">277</span>MAC Matriz</a>
+            <a href="mac853.html"  onclick="abrirLink(event)"><span class="mac-code">853</span>MAC Concesso</a>
+            <a href="mac1249.html" onclick="abrirLink(event)"><span class="mac-code">1249</span>MAC Jardim do Lago</a>
+            <a href="mac989.html"  onclick="abrirLink(event)"><span class="mac-code">989</span>MAC Araújos</a>
+            <a href="mac1436.html" onclick="abrirLink(event)"><span class="mac-code">1436</span>MAC São Gonçalo do Pará</a>
+          </div>
+        </div>
+        <div class="dropdown-section">
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)"
+               onkeydown="if(event.key==='Enter')toggleSubmenu(this)">
+            <span>São José</span><small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="saojose.html"   onclick="abrirLink(event)">Pedido São José</a>
+            <a href="paototal.html"  onclick="abrirLink(event)">Pedido Pão Total</a>
+          </div>
+        </div>
+        <div class="dropdown-section">
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)"
+               onkeydown="if(event.key==='Enter')toggleSubmenu(this)">
+            <span>Ferramentas</span><small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="gerenciadordepedidos.html" onclick="abrirLink(event)">Gerenciador de Pedidos</a>
+            <a href="ods.html"                  onclick="abrirLink(event)">Visualizar Planilhas</a>
+            <a href="simularpedido.html"         onclick="abrirLink(event)">Simulador de Pedido</a>
+            <a href="anotacoes/anotacoes.html"   onclick="abrirLink(event)">Anotações</a>
+            <a href="planilhaautocontrole.html"  onclick="abrirLink(event)">Planilhas de Autocontrole</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fechar / voltar ao index -->
+    <button class="icon-btn" title="Fechar" onclick="fecharPagina()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <line x1="15" y1="9" x2="9" y2="15"/>
+        <line x1="9" y1="9" x2="15" y2="15"/>
+      </svg>
+      <span class="sr-only">Fechar</span>
+    </button>
+
+    <!-- Home -->
+    <button class="icon-btn" title="Menu inicial" onclick="voltarMenu()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      <span class="sr-only">Menu inicial</span>
+    </button>
+
+    <div class="topbar-divider"></div>
+
+    <!-- Brand -->
+    <div class="topbar-brand">
+      <div class="brand-icon">GP</div>
+      <div>
+        <div class="brand-name">Gerenciador de Pedidos</div>
+        <div class="brand-sub">Processamento e formatação</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="topbar-spacer"></div>
+
+  <!-- Ações à direita -->
+  <div class="topbar-actions menu-right">
+
+    <!-- Salvar dropdown -->
+    <div class="menu-dropdown" style="position:relative;">
+      <button class="icon-btn" title="Salvar" onclick="toggleMenu('dropdown-save')"
+              aria-haspopup="true" aria-controls="dropdown-save">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v13"/>
+          <polyline points="7 11 12 16 17 11"/>
+          <path d="M5 20h14"/>
+        </svg>
+        <span class="sr-only">Salvar</span>
+      </button>
+      <div class="menu-dropdown-content save-dropdown" id="dropdown-save">
+        <a href="#" onclick="salvarComoTXT(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+          Salvar como TXT
+        </a>
+        <a href="#" onclick="salvarComoPDF(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <path d="M8 21h8M12 17v4"/>
+          </svg>
+          Salvar como PDF
+        </a>
+        <a href="#" onclick="salvarComoExcel(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10"/>
+            <line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="14"/>
+            <line x1="2" y1="20" x2="22" y2="20"/>
+          </svg>
+          Salvar como Excel
+        </a>
+      </div>
+    </div>
+
+    <!-- Imprimir -->
+    <button class="icon-btn" id="btn-print" title="Imprimir">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 18H6.2C5.08 18 4.52 18 4.09 17.78C3.72 17.59 3.41 17.28 3.22 16.91C3 16.48 3 15.92 3 14.8V10.2C3 9.08 3 8.52 3.22 8.09C3.41 7.72 3.72 7.41 4.09 7.22C4.52 7 5.08 7 6.2 7H17.8C18.92 7 19.48 7 19.91 7.22C20.28 7.41 20.59 7.72 20.78 8.09C21 8.52 21 9.08 21 10.2V14.8C21 15.92 21 16.48 20.78 16.91C20.59 17.28 20.28 17.59 19.91 17.78C19.48 18 18.92 18 17.8 18H17M7 11H7.01M17 7V5.4V4.6C17 4.04 17 3.76 16.89 3.55C16.8 3.36 16.64 3.2 16.45 3.11C16.24 3 15.96 3 15.4 3H8.6C8.04 3 7.76 3 7.55 3.11C7.36 3.2 7.2 3.36 7.11 3.55C7 3.76 7 4.04 7 4.6V5.4V7M17 7H7M8.6 21H15.4C15.96 21 16.24 21 16.45 20.89C16.64 20.8 16.8 20.64 16.89 20.45C17 20.24 17 19.96 17 19.4V16.6C17 16.04 17 15.76 16.89 15.55C16.8 15.36 16.64 15.2 16.45 15.11C16.24 15 15.96 15 15.4 15H8.6C8.04 15 7.76 15 7.55 15.11C7.36 15.2 7.2 15.36 7.11 15.55C7 15.76 7 16.04 7 16.6V19.4C7 19.96 7 20.24 7.11 20.45C7.2 20.64 7.36 20.8 7.55 20.89C7.76 21 8.04 21 8.6 21Z"/>
+      </svg>
+      <span class="sr-only">Imprimir</span>
+    </button>
+
+    <!-- Copiar -->
+    <button class="icon-btn" title="Copiar resultado" onclick="copiarTexto()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 17v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1H7"/>
+        <rect x="7" y="3" width="12" height="14" rx="1"/>
+      </svg>
+      <span class="sr-only">Copiar</span>
+    </button>
+  </div>
+</header>
+
+<!-- ── PAGE WRAPPER ───────────────────────────── -->
+<div class="page-wrapper">
+
+  <!-- Título -->
+  <div class="page-title-row">
+    <h1 class="page-title" id="titulo-principal">Gerenciador de Pedidos</h1>
+  </div>
+
+  <!-- Stat bar -->
+  <div class="stat-bar">
+    <div class="stat-chip" id="stat-processadas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      Linhas processadas: <span class="val" id="contador-val">0</span>
+    </div>
+  </div>
+
+  <!-- Print title (só na impressão) -->
+  <div class="print-title">Gerenciador de Pedidos — Resultado</div>
+
+  <!-- Grid principal -->
+  <div class="content-grid">
+
+    <!-- Coluna Entrada -->
+    <div class="col-panel">
+      <div class="col-header">
+        <div class="col-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </div>
+        <span class="col-header-title">Entrada</span>
+      </div>
+      <div class="col-body">
+        <textarea id="input-text" placeholder="Digite seus pedidos aqui, um por linha. Exemplo:
+3 baguete
+2 pao de queijo
+3 pao de sal"></textarea>
+      </div>
+    </div>
+
+    <!-- Controles do meio -->
+    <div class="middle-controls" id="middle-controls">
+      <button class="ctrl-btn blue" onclick="processarTexto()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+        Processar
+      </button>
+      <button class="ctrl-btn red" onclick="resetarTudo()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="1 4 1 10 7 10"/>
+          <path d="M3.51 15a9 9 0 1 0 .49-4.95"/>
+        </svg>
+        Resetar Tudo
+      </button>
+      <button class="ctrl-btn green" onclick="copiarTexto()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 17v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1H7"/>
+          <rect x="7" y="3" width="12" height="14" rx="1"/>
+        </svg>
+        Copiar Texto
+      </button>
+    </div>
+
+    <!-- Coluna Saída -->
+    <div class="col-panel">
+      <div class="col-header">
+        <div class="col-header-icon" style="background: var(--success);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <span class="col-header-title">Saída</span>
+      </div>
+      <div class="col-body">
+        <textarea id="output-text" readonly></textarea>
+      </div>
+    </div>
+
+  </div><!-- /content-grid -->
+</div><!-- /page-wrapper -->
+
+<!-- Toast -->
+<div id="copy-notice">Copiado!</div>
+
+<!-- ── SCRIPTS ────────────────────────────────── -->
+<script>
+  /* ============================
+     Core: processar texto
+     ============================ */
+  function processarTexto() {
+    const input = document.getElementById('input-text').value.trim();
+    const outputEl = document.getElementById('output-text');
+
+    if (!input) {
+      outputEl.value = '';
+      atualizarContador(0);
+      return;
+    }
+
+    const lines = input.split('\n');
+    const processed = [];
+
+    for (let line of lines) {
+      line = line.trim();
+      if (!line) continue;
+
+      // Minúsculas
+      line = line.toLowerCase();
+
+      // Remover: pct, pcts, pacote, pacotes
+      line = line.replace(/\b(pct|pcts|pacote|pacotes)\b/g, '');
+
+      // Substituir kibe/kibes por quibe/quibes
+      line = line.replace(/\bkibes?\b/g, m => m === 'kibe' ? 'quibe' : 'quibes');
+
+      // Remover espaços extras
+      line = line.replace(/\s+/g, ' ').trim();
+
+      // Número no início → mover para o final
+      const match = line.match(/^(\d+)\s+(.+)$/);
+      if (match) {
+        processed.push(`${match[2]} ${match[1]}`);
+      } else {
+        processed.push(line);
+      }
+    }
+
+    // Ordenar alfabeticamente
+    processed.sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+    outputEl.value = processed.join('\n');
+    atualizarContador(processed.length);
+  }
+
+  /* ============================
+     Reset
+     ============================ */
+  function resetarTudo() {
+    document.getElementById('input-text').value  = '';
+    document.getElementById('output-text').value = '';
+    atualizarContador(0);
+  }
+
+  /* ============================
+     Copiar
+     ============================ */
+  function copiarTexto() {
+    const output = document.getElementById('output-text').value;
+    if (!output) { showNotice('Nada para copiar', 1800); return; }
+    navigator.clipboard.writeText(output)
+      .then(() => showNotice('Copiado!', 1600))
+      .catch(() => {
+        // fallback
+        const ta = document.createElement('textarea');
+        ta.value = output;
+        ta.style.position = 'fixed'; ta.style.left = '-9999px';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); showNotice('Copiado!', 1600); }
+        catch(e) { showNotice('Falha ao copiar', 2000); }
+        ta.remove();
+      });
+  }
+
+  /* ============================
+     Contador
+     ============================ */
+  function atualizarContador(n) {
+    document.getElementById('contador-val').textContent = n;
+  }
+
+  /* ============================
+     Toast
+     ============================ */
+  function showNotice(msg = 'Copiado!', dur = 2000) {
+    const el = document.getElementById('copy-notice');
+    if (!el) return;
+    if (el._t) { clearTimeout(el._t); el._t = null; }
+    el.textContent = msg;
+    el.style.display = 'block';
+    el._t = setTimeout(() => { el.style.display = 'none'; el._t = null; }, dur);
+  }
+
+  /* ============================
+     Salvar TXT
+     ============================ */
+  function salvarComoTXT(e) {
+    if (e) e.preventDefault();
+    const texto = document.getElementById('output-text').value.trim();
+    if (!texto) { showNotice('Nada para salvar', 2000); return; }
+    baixarArquivo(texto, 'pedidos_processados.txt', 'text/plain;charset=utf-8');
+    showNotice('Arquivo TXT salvo!', 2000);
+  }
+
+  /* ============================
+     Salvar PDF
+     ============================ */
+  function salvarComoPDF(e) {
+    if (e) e.preventDefault();
+    const texto = document.getElementById('output-text').value.trim();
+    if (!texto) { showNotice('Nada para salvar', 2000); return; }
+
+    if (!window.jspdf) { showNotice('jsPDF não disponível', 2500); return; }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    doc.setFont('courier', 'normal');
+    doc.setFontSize(11);
+
+    const ml = 40;
+    const mw = doc.internal.pageSize.getWidth() - ml * 2;
+    const pgH = doc.internal.pageSize.getHeight();
+    let y = 50;
+
+    // Cabeçalho
+    doc.setFontSize(13);
+    doc.setFont('courier', 'bold');
+    doc.text('Gerenciador de Pedidos — Resultado', ml, y);
+    y += 20;
+    doc.setLineWidth(0.8);
+    doc.line(ml, y, ml + mw, y);
+    y += 16;
+    doc.setFontSize(10);
+    doc.setFont('courier', 'normal');
+
+    // Linhas
+    const linhas = texto.split('\n');
+    linhas.forEach(linha => {
+      if (y > pgH - 40) { doc.addPage(); y = 40; }
+      doc.text(linha, ml, y, { maxWidth: mw });
+      y += 14;
+    });
+
+    y += 10;
+    if (y > pgH - 40) { doc.addPage(); y = 40; }
+    doc.setFont('courier', 'italic');
+    doc.text(`Total de linhas: ${linhas.length}`, ml, y);
+
+    doc.save('pedidos_processados.pdf');
+    showNotice('PDF salvo!', 2000);
+  }
+
+  /* ============================
+     Salvar Excel
+     ============================ */
+  function salvarComoExcel(e) {
+    if (e) e.preventDefault();
+    const texto = document.getElementById('output-text').value.trim();
+    if (!texto) { showNotice('Nada para salvar', 2000); return; }
+    if (!window.XLSX) { showNotice('XLSX não disponível', 2500); return; }
+
+    const linhas = texto.split('\n').filter(l => l.trim());
+
+    // Tenta separar "produto quantidade" ou mantém linha inteira
+    const data = [['Item', 'Quantidade']];
+    linhas.forEach(linha => {
+      const m = linha.match(/^(.+?)\s+(\d+)$/);
+      if (m) {
+        data.push([m[1].trim(), m[2]]);
+      } else {
+        data.push([linha, '']);
+      }
+    });
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    // Largura de coluna
+    ws['!cols'] = [{ wch: 50 }, { wch: 12 }];
+    XLSX.utils.book_append_sheet(wb, ws, 'Pedidos');
+    XLSX.writeFile(wb, 'pedidos_processados.xlsx');
+    showNotice('Excel salvo!', 2000);
+  }
+
+  /* ============================
+     Util: baixar arquivo
+     ============================ */
+  function baixarArquivo(conteudo, nome, tipo) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([conteudo], { type: tipo }));
+    a.download = nome;
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  /* ============================
+     Imprimir
+     ============================ */
+  document.getElementById('btn-print').addEventListener('click', () => {
+    window.print();
+  });
+
+  /* ============================
+     Menus / Dropdowns
+     ============================ */
+  function toggleMenu(id) {
+    document.querySelectorAll('.menu-dropdown-content').forEach(el => {
+      if (el.id !== id) { el.style.display = 'none'; el.setAttribute('aria-hidden', 'true'); }
+    });
+    const el = document.getElementById(id);
+    if (!el) return;
+    const isOpen = el.style.display === 'block';
+    if (isOpen) {
+      el.style.display = 'none';
+      el.setAttribute('aria-hidden', 'true');
+      closeAllSubmenus();
+    } else {
+      closeAllSubmenus();
+      el.style.display = 'block';
+      el.setAttribute('aria-hidden', 'false');
+    }
+  }
+
+  function toggleSubmenu(headerEl) {
+    const sub = headerEl.nextElementSibling;
+    if (!sub) return;
+    const chev = headerEl.querySelector('.chev');
+    const isOpen = sub.style.display === 'block';
+    sub.style.display = isOpen ? 'none' : 'block';
+    if (chev) chev.textContent = isOpen ? '▸' : '▾';
+  }
+
+  function closeAllSubmenus() {
+    document.querySelectorAll('.submenu').forEach(s => s.style.display = 'none');
+    document.querySelectorAll('.chev').forEach(c => c.textContent = '▸');
+  }
+
+  // Fecha menus ao clicar fora
+  document.addEventListener('click', ev => {
+    if (!ev.target.closest('.menu-dropdown') && !ev.target.closest('.topbar-actions')) {
+      document.querySelectorAll('.menu-dropdown-content').forEach(el => {
+        el.style.display = 'none';
+        el.setAttribute('aria-hidden', 'true');
+      });
+      closeAllSubmenus();
+    }
+  });
+
+  // Fecha menus com Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.menu-dropdown-content').forEach(el => {
+        el.style.display = 'none';
+        el.setAttribute('aria-hidden', 'true');
+      });
+      closeAllSubmenus();
+    }
+  });
+
+  /* ============================
+     Navegação
+     ============================ */
+  function fecharPagina() { window.location.href = 'index.html'; }
+  function voltarMenu()   { window.location.href = 'index.html'; }
+
+  function abrirLink(e) {
+    try {
+      if (e && e.currentTarget) {
+        const href = e.currentTarget.getAttribute('href');
+        if (href && href !== '#' && href.trim() !== '') {
+          closeAllSubmenus();
+          document.querySelectorAll('.menu-dropdown-content').forEach(el => {
+            el.style.display = 'none';
+          });
+          window.location.href = href;
+          return;
+        }
+      }
+    } catch(err){}
+    if (e) e.preventDefault();
+  }
+</script>
+</body>
+</html>

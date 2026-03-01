@@ -3,774 +3,1463 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Visualizador de Planilhas (.ods, .xlsx) — V3</title>
+<title>Visualizador de Planilhas</title>
 
-<!-- SheetJS: lê .ods/.xlsx no navegador -->
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
-  /* ===== base / tipografia ===== */
-  :root{
-    --azul:#007BFF;
-    --amarelo:#FFD700;
-    --vermelho:#b22222;
-    --cinza:#f7fbff;
-    --borda:#e5e7eb;
-    --texto:#111;
-    --sel-bg: #e6f0ff;
-    --warn-bg: #fff4e5;
-    --warn-border: #ffd8a8;
-  }
-  *{ box-sizing:border-box; }
-  html,body{ height:100% }
-  body{
-    font-family: monospace;
-    margin:0; padding:0;
-    -webkit-font-smoothing:antialiased;
-    color:var(--texto);
-    background:#fff;
-  }
+/* ═══════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --bg:           #eef3fb;
+  --surface:      #ffffff;
+  --surface2:     #f4f8ff;
+  --border:       #dce8fb;
+  --border2:      #c8d9f5;
+  --text-primary: #1a2740;
+  --text-second:  #4e6080;
+  --text-muted:   #8fa3bf;
+  --accent:       #1a56db;
+  --accent-dark:  #1040b0;
+  --accent-light: #e8f0fe;
+  --success:      #10b981;
+  --danger:       #dc2626;
+  --amber:        #f59e0b;
+  --purple:       #7c3aed;
+  --shadow-sm:    0 2px 8px rgba(20,60,120,.07);
+  --shadow-md:    0 6px 24px rgba(20,60,120,.10);
+  --shadow-lg:    0 14px 40px rgba(20,60,120,.14);
+  --r-sm: 10px; --r-md: 16px; --r-lg: 22px;
+  --panel-w: 420px;
+  --bar-h: 62px;
+}
 
-  /* ===== header (estética MAC) ===== */
-  header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    background:var(--azul);
-    color:#fff;
-    padding:10px 14px;
-    gap:12px;
-    position:sticky; top:0; z-index:999;
-  }
-  .menu-left,.menu-right{ display:flex; gap:8px; align-items:center; }
-  .icon-btn{
-    background:none; border:none; color:#fff;
-    font-size:18px; cursor:pointer;
-    padding:6px 8px; border-radius:6px; user-select:none;
-    width:32px; height:32px; display:flex; align-items:center; justify-content:center;
-  }
-  .icon-btn img{ width:20px; height:20px; filter:brightness(0) invert(1); }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  line-height: 1.55;
+  transition: padding-right .35s cubic-bezier(.4,0,.2,1);
+}
+body.panel-open { padding-right: var(--panel-w); }
 
-  /* dropdowns */
-  .menu-dropdown{ position:relative; }
-  .menu-dropdown.left .menu-dropdown-content{ left:0; right:auto; }
-  .menu-dropdown-content{
-    display:none; position:absolute; top:calc(100% + 6px);
-    right:0; left:auto; background:#fff; color:#111; border-radius:6px;
-    box-shadow:0 6px 18px rgba(0,0,0,.15);
-    min-width:220px; overflow:auto; z-index:1200; padding:6px 0;
-  }
-  .menu-dropdown-content a{
-    display:block; padding:8px 12px; color:#111; text-decoration:none;
-  }
-  .menu-dropdown-content a:hover{ background:#f2f2f2; }
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: radial-gradient(circle, #c0d0eb 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: .28;
+  pointer-events: none;
+  z-index: 0;
+}
 
-  /* ===== título (sem setas) ===== */
-  .titulo-nav{
-    display:flex; justify-content:center; align-items:center;
-    gap:16px; margin:14px 10px 8px; text-align:center;
-  }
-  .titulo-nav h1{ margin:0; font-size:18px; color:#111; }
+.sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
 
-  /* ===== layout geral ===== */
-  .wrap{ max-width:1100px; margin:0 auto; padding:8px 14px 28px; }
+/* ═══════════════════════════════════════════
+   TOPBAR
+═══════════════════════════════════════════ */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 0 16px;
+  height: var(--bar-h);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: sticky; top: 0; z-index: 200;
+}
+.topbar-left  { display:flex; align-items:center; gap:4px; flex-shrink:0; }
+.topbar-center{ flex:1; display:flex; align-items:center; justify-content:center; min-width:0; }
+.topbar-right { display:flex; align-items:center; gap:4px; flex-shrink:0; }
+.topbar-divider { width:1px; height:26px; background:var(--border); flex-shrink:0; margin:0 2px; }
 
-  /* ===== uploader (drag & drop) ===== */
-  #uploader{ margin-top:8px; }
-  .dropzone{
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:6px; width:100%;
-    border:2px dashed var(--azul);
-    border-radius:12px; padding:28px; text-align:center;
-    background:var(--cinza); color:#0b305a;
-    cursor:pointer; user-select:none;
-    transition:.15s ease;
-    min-height:160px;
-  }
-  .dropzone .title{ font-weight:700; margin-bottom:6px; font-size:14px; }
-  .dropzone .hint{ font-size:12px; opacity:.8; }
-  .dropzone.dragover{ background:#eef6ff; border-style:solid; transform:scale(1.01); }
-  #file-input{ position:absolute; left:-9999px; width:1px; height:1px; opacity:0; }
+/* Brand */
+.brand { display:flex; align-items:center; gap:10px; }
+.brand-icon {
+  width:36px; height:36px;
+  background:var(--accent);
+  border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 12px rgba(26,86,219,.3);
+  flex-shrink:0;
+}
+.brand-icon svg { width:18px; height:18px; color:white; }
+.brand-name {
+  font-family:'Sora',sans-serif;
+  font-weight:700; font-size:.92rem;
+  color:var(--accent);
+  white-space:nowrap;
+  line-height:1.1;
+}
+.brand-sub { font-size:.7rem; color:var(--text-muted); font-weight:500; }
 
-  /* ===== viewer ===== */
-  #viewer{ display:none; }
-  .file-info{
-    margin:20px 0 10px 0; padding:10px 0; border-bottom:1px solid var(--borda);
-  }
-  .file-info span{ font-size:12px; opacity:.85; }
-  .file-info strong{ font-size:13px; }
+/* Icon button */
+.icon-btn {
+  background:none; border:none;
+  color:var(--text-second);
+  cursor:pointer;
+  padding:7px 8px;
+  border-radius:8px;
+  display:inline-flex; align-items:center; justify-content:center;
+  transition:background .15s, color .15s;
+  position:relative; flex-shrink:0;
+}
+.icon-btn svg   { width:20px; height:20px; display:block; }
+.icon-btn:hover { background:var(--accent-light); color:var(--accent); }
+.icon-btn.active{ background:var(--accent-light); color:var(--accent); }
 
-  .actions-top{
-    display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:10px 0;
-    justify-content:space-between;
-  }
-  .left-actions{ display:flex; gap:8px; align-items:center; }
-  .right-actions{ 
-    display:flex; flex-direction:column; align-items:flex-end; gap:6px; 
-    margin-top:10px;
-  }
+/* Nav arrow */
+.nav-arrow-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border2);
+  background: white;
+  color: var(--text-second);
+  cursor: pointer;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: all 0.18s;
+  font-size: 14px;
+}
+.nav-arrow-btn:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
 
-  .tabs{
-    display:flex; gap:6px; flex-wrap:wrap; margin:10px 0 10px;
-  }
-  .tab-btn{
-    padding:6px 10px; border:1px solid var(--borda); border-radius:6px;
-    background:#fff; cursor:pointer; font-family:monospace; font-size:12px;
-  }
-  .tab-btn.active{ background:#e8f2ff; border-color:#cfe2ff; color:#0b305a; }
+/* ═══════════════════════════════════════════
+   DROPDOWNS
+═══════════════════════════════════════════ */
+.menu-dropdown { position:relative; }
+.menu-dropdown-content {
+  display:none;
+  position:absolute;
+  top:calc(100% + 8px); left:0;
+  background:var(--surface);
+  border:1.5px solid var(--border2);
+  border-radius:var(--r-md);
+  box-shadow:var(--shadow-lg);
+  min-width:260px;
+  max-width:calc(100vw - 32px);
+  z-index:1200;
+  padding:6px;
+  overflow:auto;
+  opacity:0;
+  transition:opacity .15s;
+}
+.menu-dropdown-content.open { display:block; opacity:1; }
+.menu-right .menu-dropdown-content { right:0; left:auto; }
 
-  .sheets{
-    width:100%; overflow:auto; border:1px solid var(--borda);
-    border-radius:8px; background:#fff;
-  }
-  .sheet{ display:none; padding:12px; }
-  .sheet.active{ display:block; }
-  .sheet table{
-    width:100%; border-collapse:collapse; table-layout:auto; font-size:12px;
-  }
-  .sheet th,.sheet td{
-    border:1px solid #ddd; padding:6px 8px; vertical-align:top; word-break:break-word;
-  }
-  .sheet thead th{ background:#f9fafb; font-weight:700; }
-  .sheet tbody tr:nth-child(even){ background:#fafafa; }
+.menu-dropdown-content a {
+  display:flex; align-items:center; gap:8px;
+  padding:9px 12px;
+  border-radius:8px;
+  color:var(--text-primary);
+  text-decoration:none;
+  font-size:.87rem;
+  transition:background .15s;
+}
+.menu-dropdown-content a svg { width:15px; height:15px; color:var(--text-muted); flex-shrink:0; }
+.menu-dropdown-content a:hover { background:var(--accent-light); color:var(--accent); }
+.menu-dropdown-content a:hover svg { color:var(--accent); }
 
-  .viewer-footer{
-    margin-top:10px; display:flex; flex-wrap:wrap;
-    gap:10px; align-items:center; justify-content:space-between;
-  }
-  .status{ font-size:12px; color:#333; }
-  .btn{
-    border:1px solid var(--borda); background:#fff; cursor:pointer;
-    padding:8px 12px; border-radius:6px; font-family:monospace; font-size:12px;
-    transition:all 0.2s ease;
-  }
-  .btn:hover{ transform:translateY(-1px); box-shadow:0 2px 4px rgba(0,0,0,0.1); }
-  .btn-primaria{ background:#e8f2ff; border-color:#cfe2ff; color:#0b305a; }
-  .btn-perigo{ background:var(--vermelho); color:#fff; border:none; }
+.dd-label {
+  padding:5px 12px 3px;
+  font-size:.72rem; font-weight:700; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--text-muted);
+}
+.dd-divider { border-top:1px solid var(--border); margin:4px 0; }
 
-  /* aviso/Toast */
-  #copy-notice{
-    position: fixed; right: 18px; bottom: 18px;
-    background: rgba(0,0,0,0.84); color: white;
-    padding: 9px 13px; border-radius: 8px;
-    display: none; z-index: 2000; font-size:12px;
-  }
+/* Menu sections from paste 2 */
+.dropdown-section {
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  padding-top: 4px;
+}
+.dropdown-section:first-child { border-top: none; margin-top: 0; padding-top: 0; }
 
-  /* painel de substituições - novo visual com caixinhas */
-  .subst-panel{ 
-    min-width:520px; 
-    max-height: 80vh; /* Altura máxima do painel */
-    overflow-y: auto; /* Rolagem interna */
-  }
-  .subst-header{ 
-    padding:8px 12px; 
-    border-bottom:1px solid #eee; 
-    background:#fafafa; 
-    font-weight:700; 
-    position: sticky;
-    top: 0;
-    background: #fafafa;
-    z-index: 10;
-  }
-  .subst-toolbar{ 
-    display:flex; 
-    flex-direction: column;
-    gap:12px;
-    margin:8px 0; 
-    flex-wrap:wrap;
-    padding:12px; 
-    background:#f8f9fa; 
-    border-radius:8px; 
-    border:1px solid var(--borda);
-  }
-  .subst-toolbar-top {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-  }
-  .subst-toolbar-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-  }
-  .subst-toolbar-left {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  .subst-toolbar-right {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-  .subst-toolbar .subst-sets{ 
-    min-width: 180px;
-    padding:6px 8px; 
-    border-radius:6px; 
-    border:1px solid #eee; 
-    background:#fff; 
-    font-family:monospace; 
-    font-size:12px; 
-  }
-  .subst-toolbar .btn, .subst-toolbar .add-mapping-btn{ white-space:nowrap; font-family:monospace; font-size:12px; }
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 11px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  border-radius: 8px;
+  transition: all 0.15s;
+}
+.section-header:hover {
+  background: var(--surface2);
+  color: var(--text-second);
+}
 
-  .subst-main{ display:flex; gap:12px; padding:10px; }
-  .subst-left{ flex:1; }
-  .subst-right{ display:none; }
+.mac-code {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--accent);
+  color: white;
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  min-width: 30px;
+  flex-shrink: 0;
+}
 
-  /* mapping list (caixinhas) COM ROLAGEM INTERNA */
-  .subst-list{ 
-    display:flex; 
-    flex-direction:column; 
-    gap:8px; 
-    margin-top:12px; 
-    max-height: 300px; /* Altura máxima da lista */
-    overflow-y: auto;  /* Rolagem interna */
-    padding-right: 4px; /* Espaço para a barra de rolagem */
-    position: relative;
-  }
-  .subst-list.readonly-mode::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(232, 242, 255, 0.4);
-    z-index: 1;
-    pointer-events: none;
-    border-radius: 6px;
-  }
-  .map-row{ 
-    display:flex; 
-    gap:8px; 
-    align-items:center;
-    padding: 8px;
-    border-radius: 6px;
-    border: 1px solid #e5e7eb;
-    background: #fff;
-    position: relative;
-    z-index: 2;
-  }
-  .map-key, .map-val{ 
-    flex:1; 
-    padding:8px 10px; 
-    border-radius:8px; 
-    border:1px solid #e6e6e6; 
-    font-family:monospace; 
-    font-size:13px; 
-    background:#fff; 
-    cursor: text;
-  }
-  .map-key:disabled, .map-val:disabled {
-    background: #f8f9fa;
-    color: #6b7280;
-    cursor: default;
-  }
-  .map-key{ max-width:220px; }
-  .map-arrow{ width:36px; height:28px; display:flex; align-items:center; justify-content:center; }
-  .map-del{ background:none; border:none; padding:6px; cursor:pointer; font-size:14px; border-radius:6px; font-family:monospace; }
-  .map-del:hover{ background:#ffecec; }
-  
-  /* Botão de adicionar - NOVO ESTILO (igual ao do pedido) */
-  .add-mapping-btn { 
-    display: none; /* Inicialmente escondido */
-    align-items: center; 
-    justify-content: center; 
-    gap: 6px; 
-    margin-top: 8px; 
-    padding: 8px 12px; 
-    background: #f7fbff; 
-    border: 1px dashed #b8d4ff; 
-    border-radius: 6px; 
-    cursor: pointer; 
-    font-size: 13px; 
-    color: #007BFF; 
-    font-family: monospace;
-    transition: all 0.2s ease;
-    width: 100%;
-    box-sizing: border-box;
-    position: relative;
-    z-index: 2;
-  }
-  .add-mapping-btn:hover { 
-    background: #eef6ff; 
-    border-color: #007BFF;
-    border-style: solid;
-  }
+.submenu { display: none; padding-left: 4px; }
+.submenu a { padding-left: 14px; }
 
-  .edit-mode-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 10px;
-    background: #f8f9fa;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    color: #6b7280;
-    font-family: monospace;
-    transition: all 0.2s ease;
-  }
-  .edit-mode-btn:hover {
-    background: #e5e7eb;
-    border-color: #d1d5db;
-  }
+/* ═══════════════════════════════════════════
+   PAGE WRAPPER
+═══════════════════════════════════════════ */
+.page-wrapper {
+  position:relative; z-index:1;
+  padding:20px 20px 48px;
+  max-width:1200px;
+  margin:0 auto;
+}
 
-  .preview-btn{ display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; border:1px solid var(--borda); background:#fff; cursor:pointer; }
-  .preview-count{ margin-top:8px; font-size:13px; font-weight:700; color:#111; }
+/* ═══════════════════════════════════════════
+   UPLOADER / DROPZONE
+═══════════════════════════════════════════ */
+.dropzone-outer {
+  display:flex; align-items:center; justify-content:center;
+  min-height:calc(100vh - var(--bar-h) - 60px);
+  padding:20px;
+}
 
-  /* seleção de células */
-  td.cell-selected{ background:var(--sel-bg) !important; outline:2px solid rgba(0,123,255,0.12); }
+.dropzone-card {
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0;
+  width:100%; max-width:520px;
+  background:var(--surface);
+  border:2px dashed var(--border2);
+  border-radius:var(--r-lg);
+  padding:52px 32px;
+  text-align:center;
+  cursor:pointer; user-select:none;
+  transition:border-color .2s, background .2s, transform .15s, box-shadow .2s;
+  box-shadow:var(--shadow-sm);
+}
+.dropzone-card:hover {
+  border-color:var(--accent); background:#f0f6ff;
+  transform:translateY(-2px); box-shadow:var(--shadow-md);
+}
+.dropzone-card.dragover {
+  border-style:solid; border-color:var(--accent);
+  background:var(--accent-light); transform:scale(1.01);
+}
+.dz-icon {
+  width:64px; height:64px;
+  background:var(--accent-light);
+  border-radius:18px;
+  display:inline-flex; align-items:center; justify-content:center;
+  margin-bottom:18px;
+  box-shadow:0 4px 16px rgba(26,86,219,.15);
+  flex-shrink:0;
+}
+.dz-icon svg { width:32px; height:32px; color:var(--accent); }
+.dz-title {
+  font-family:'Sora',sans-serif;
+  font-weight:700; font-size:1.08rem;
+  color:var(--text-primary); margin-bottom:6px;
+}
+.dz-hint  { font-size:.84rem; color:var(--text-muted); margin-bottom:18px; }
+.dz-types {
+  display:flex; gap:6px; flex-wrap:wrap; justify-content:center;
+}
+.dz-badge {
+  padding:3px 10px;
+  background:var(--surface2); border:1px solid var(--border2);
+  border-radius:99px; font-size:.75rem; font-weight:600;
+  color:var(--text-second);
+}
+#file-input { position:absolute; left:-9999px; width:1px; height:1px; opacity:0; }
 
-  /* linha separadora */
-  .separator{
-    margin:15px 0; border-top:1px solid var(--borda); padding-top:15px;
-  }
-  .separator-title{
-    font-weight:700; margin-bottom:10px; font-size:13px; color:#333;
-  }
+/* ═══════════════════════════════════════════
+   VIEWER
+═══════════════════════════════════════════ */
+#viewer { display:none; }
 
-  /* botões horizontais */
-  .horizontal-buttons{
-    display:flex; gap:8px; flex-wrap:wrap; align-items:center;
-    justify-content: space-between;
-    width: 100%;
-  }
+/* file bar */
+.file-bar {
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  justify-content:space-between;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r-md);
+  padding:12px 18px;
+  margin-bottom:16px;
+  box-shadow:var(--shadow-sm);
+}
+.file-bar-l { display:flex; align-items:center; gap:10px; min-width:0; }
+.file-bar-icon {
+  width:34px; height:34px; background:var(--accent-light);
+  border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.file-bar-icon svg { width:17px; height:17px; color:var(--accent); }
+.file-bar-name {
+  font-family:'Sora',sans-serif; font-weight:700; font-size:.9rem;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:340px;
+}
+.file-bar-meta { font-size:.76rem; color:var(--text-muted); margin-top:1px; }
+.file-bar-r { display:flex; align-items:center; gap:8px; }
+.btn-open-other {
+  display:flex; align-items:center; gap:6px;
+  padding:7px 14px; border-radius:8px; border:1.5px solid var(--border2);
+  background:var(--surface); color:var(--text-second);
+  font-family:'DM Sans',sans-serif; font-size:.82rem; font-weight:600;
+  cursor:pointer; transition:all .18s;
+}
+.btn-open-other svg { width:14px; height:14px; }
+.btn-open-other:hover { background:var(--accent-light); border-color:var(--accent); color:var(--accent); }
 
-  /* Botão ver mais */
-  .show-more-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    margin-top: 8px;
-    padding: 6px 10px;
-    background: #f8f9fa;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    color: #6b7280;
-    font-family: monospace;
-    transition: all 0.2s ease;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  .show-more-btn:hover {
-    background: #e5e7eb;
-    border-color: #d1d5db;
-  }
+/* sel chip */
+.sel-chip {
+  display:none;
+  align-items:center; gap:6px;
+  padding:5px 12px;
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:99px; font-size:.8rem; font-weight:600; color:var(--text-second);
+  box-shadow:var(--shadow-sm);
+}
+.sel-chip.visible { display:inline-flex; }
+.sel-chip svg { width:13px; height:13px; color:var(--accent); }
+.sel-chip .val { color:var(--accent); font-family:'Sora',sans-serif; }
 
-  /* ===== impressão ===== */
-  @media print{
-    header, .menu-dropdown-content, #uploader, #copy-notice, .viewer-footer .btn { display:none !important; }
-    html, body { background:#fff; height:auto !important; overflow:visible !important; }
-    .wrap{ padding:0; max-width:none; page-break-after:avoid; break-after:avoid-page; }
-    .titulo-nav{ margin:0 0 6px 0; }
-    .sheet{ padding:0; }
-    .sheets{ border:none; }
-    .sheet table{ font-size:10px; page-break-inside:auto; }
-    .sheet tr, .sheet td, .sheet th{ page-break-inside:avoid; break-inside:avoid; }
-    @page{ size:A4 portrait; margin:10mm; }
-  }
+/* tabs */
+.tabs-wrap { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+.tab-btn {
+  padding:7px 14px;
+  border:1.5px solid var(--border);
+  border-radius:8px;
+  background:var(--surface); color:var(--text-second);
+  font-family:'DM Sans',sans-serif; font-size:.82rem; font-weight:600;
+  cursor:pointer; transition:all .18s; box-shadow:var(--shadow-sm);
+}
+.tab-btn:hover { background:var(--accent-light); border-color:var(--accent); color:var(--accent); }
+.tab-btn.active { background:var(--accent-light); border-color:var(--accent); color:var(--accent); }
 
-  /* subst inline warning */
-  .subst-warning{ display:none; padding:8px 10px; border-radius:6px; background:var(--warn-bg); border:1px solid var(--warn-border); color:#7a4e00; font-size:13px; margin-top:8px; }
-  .subst-inline{ display:none; margin-top:8px; gap:8px; align-items:center; }
-  .subst-inline input{ padding:6px 8px; border-radius:6px; border:1px solid #ddd; font-family:monospace; font-size:12px; }
+/* sheet panel */
+.sheet-panel {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  overflow:auto;
+  box-shadow:var(--shadow-sm);
+}
+.sheet { display:none; padding:14px; }
+.sheet.active { display:block; }
+.sheet table {
+  width:100%; border-collapse:collapse;
+  font-size:.8rem; font-family:'DM Sans',sans-serif;
+  table-layout:auto;
+}
+.sheet th, .sheet td {
+  border:1px solid #dde6f0; padding:7px 10px;
+  vertical-align:top; word-break:break-word;
+}
+.sheet thead th {
+  background:var(--surface2); font-weight:700;
+  color:var(--text-primary); font-family:'Sora',sans-serif; font-size:.78rem;
+}
+.sheet tbody tr:nth-child(even) { background:#f8fbff; }
+.sheet tbody tr:hover { background:#eef4ff; }
+td.cell-selected { background:var(--accent-light) !important; outline:2px solid rgba(26,86,219,.2); }
 
-  /* modal para salvar como */
-  .modal-overlay{
-    position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5);
-    display:none; align-items:center; justify-content:center; z-index:3000;
-  }
-  .modal-content{
-    background:#fff; padding:20px; border-radius:8px; min-width:300px; max-width:500px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.2);
-  }
-  .modal-header{ font-weight:700; margin-bottom:15px; font-family:monospace; }
-  .modal-body{ margin-bottom:15px; }
-  .modal-footer{ display:flex; gap:8px; justify-content:flex-end; }
+/* footer */
+.viewer-footer {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px; flex-wrap:wrap; margin-top:14px;
+}
+.status-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:5px 12px;
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:99px; font-size:.79rem; font-weight:500; color:var(--text-second);
+  box-shadow:var(--shadow-sm);
+}
+.status-dot { width:7px; height:7px; border-radius:50%; background:var(--success); flex-shrink:0; }
 
-  /* Aviso quando não há arquivo carregado */
-  .no-file-warning {
-    padding: 12px;
-    background: #fff4e5;
-    border: 1px solid #ffd8a8;
-    border-radius: 6px;
-    color: #7a4e00;
-    font-size: 13px;
-    text-align: center;
-    margin: 10px 0;
-  }
+/* ═══════════════════════════════════════════
+   SIDE PANEL (Processamento)
+═══════════════════════════════════════════ */
+.side-panel {
+  position:fixed;
+  top:0; right:0;
+  width:var(--panel-w);
+  height:100vh;
+  background:var(--surface);
+  border-left:1.5px solid var(--border2);
+  box-shadow:-6px 0 32px rgba(20,60,120,.12);
+  z-index:300;
+  display:flex; flex-direction:column;
+  transform:translateX(100%);
+  transition:transform .35s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
+}
+.side-panel.open { transform:translateX(0); }
 
-  /* Botões de ação - alinhamento correto */
-  .action-buttons-top {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    margin-top: 8px;
-    width: 100%;
-  }
+/* panel header */
+.sp-hd {
+  display:flex; align-items:center; gap:10px;
+  padding:16px 18px;
+  background:var(--accent);
+  flex-shrink:0;
+}
+.sp-hd-icon {
+  width:30px; height:30px;
+  background:rgba(255,255,255,.2);
+  border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.sp-hd-icon svg { width:15px; height:15px; color:white; }
+.sp-hd-title {
+  font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem;
+  color:white; flex:1;
+}
+.sp-close {
+  background:rgba(255,255,255,.15); border:none;
+  color:white; cursor:pointer;
+  width:28px; height:28px;
+  border-radius:7px;
+  display:flex; align-items:center; justify-content:center;
+  transition:background .15s;
+}
+.sp-close:hover { background:rgba(255,255,255,.3); }
+.sp-close svg { width:16px; height:16px; }
 
-  .action-buttons-bottom {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    flex-wrap: nowrap;
-  }
+/* panel body (scrollable) */
+.sp-body { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:14px; }
 
-  .action-buttons-bottom .btn {
-    flex: 1;
-    min-width: 0;
-    text-align: center;
-    white-space: nowrap;
-  }
+/* no file */
+.sp-no-file {
+  display:none;
+  padding:14px 16px;
+  background:#fff7ed; border:1.5px solid #fed7aa;
+  border-radius:10px; color:#92400e;
+  font-size:.85rem; text-align:center; line-height:1.5;
+}
 
-  .btn-sort-compact {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+/* inline warning */
+.sp-warning {
+  display:none;
+  padding:10px 14px;
+  background:#fff7ed; border:1.5px solid #fed7aa;
+  border-radius:10px; color:#92400e;
+  font-size:.83rem; line-height:1.45;
+}
+
+/* section title */
+.sp-stitle {
+  font-family:'Sora',sans-serif; font-weight:700; font-size:.76rem;
+  text-transform:uppercase; letter-spacing:.06em;
+  color:var(--text-muted); margin-bottom:8px;
+}
+
+/* set management buttons row */
+.sp-set-btns { display:flex; gap:6px; flex-wrap:wrap; }
+.sp-sbtn {
+  flex:1; min-width:70px;
+  padding:8px 10px;
+  border-radius:9px; border:none;
+  font-family:'DM Sans',sans-serif; font-size:.8rem; font-weight:700;
+  cursor:pointer; transition:all .18s;
+  display:flex; align-items:center; justify-content:center; gap:5px;
+  box-shadow:var(--shadow-sm);
+}
+.sp-sbtn:hover { transform:translateY(-1px); box-shadow:var(--shadow-md); }
+.sp-sbtn svg { width:13px; height:13px; flex-shrink:0; }
+/* Novo = accent blue */
+.sp-sbtn.novo    { background:var(--accent); color:white; }
+.sp-sbtn.novo:hover { background:var(--accent-dark); }
+/* Carregar = green */
+.sp-sbtn.load    { background:var(--success); color:white; }
+.sp-sbtn.load:hover { background:#059669; }
+/* Salvar como = amber */
+.sp-sbtn.saveas  { background:var(--amber); color:white; }
+.sp-sbtn.saveas:hover { background:#d97706; }
+/* Excluir = danger outline */
+.sp-sbtn.del {
+  background:white; color:var(--danger);
+  border:1.5px solid #fca5a5;
+}
+.sp-sbtn.del:hover { background:#fee2e2; border-color:var(--danger); }
+
+/* ═══ CUSTOM SELECT ═══ */
+.sp-select-row { display:flex; align-items:center; gap:6px; }
+
+.custom-select-wrap {
+  position:relative; flex:1; min-width:0;
+}
+.custom-select-btn {
+  display:flex; align-items:center; justify-content:space-between; gap:6px;
+  width:100%;
+  padding:9px 12px;
+  border:1.5px solid var(--border2); border-radius:9px;
+  background:var(--surface2); color:var(--text-primary);
+  font-family:'DM Sans',sans-serif; font-size:.85rem; font-weight:600;
+  cursor:pointer; outline:none; text-align:left;
+  transition:border-color .15s, box-shadow .15s, background .15s;
+}
+.custom-select-btn:hover {
+  border-color:var(--accent); background:white;
+}
+.custom-select-btn.open {
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(26,86,219,.12);
+  background:white;
+}
+.custom-select-btn svg { width:14px; height:14px; color:var(--text-muted); flex-shrink:0; transition:transform .18s; }
+.custom-select-btn.open svg { transform:rotate(180deg); }
+
+.custom-select-label {
+  flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+
+.custom-select-options {
+  display:none;
+  position:absolute;
+  top:calc(100% + 4px); left:0; right:0;
+  background:var(--surface);
+  border:1.5px solid var(--border2);
+  border-radius:var(--r-sm);
+  box-shadow:var(--shadow-lg);
+  z-index:1500;
+  overflow:hidden;
+  max-height:220px;
+  overflow-y:auto;
+}
+.custom-select-options.open { display:block; }
+
+.custom-select-option {
+  padding:9px 12px;
+  font-family:'DM Sans',sans-serif; font-size:.85rem;
+  color:var(--text-primary);
+  cursor:pointer;
+  transition:background .12s;
+  border-bottom:1px solid var(--border);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.custom-select-option:last-child { border-bottom:none; }
+.custom-select-option:hover { background:var(--accent-light); color:var(--accent); }
+.custom-select-option.selected { background:var(--accent-light); color:var(--accent); font-weight:700; }
+
+/* clear-set button */
+.sp-clear-btn {
+  width:28px; height:28px; flex-shrink:0;
+  background:none; border:1.5px solid #fca5a5;
+  border-radius:7px; color:var(--danger);
+  font-size:14px; font-weight:700; line-height:1;
+  cursor:pointer; display:none; align-items:center; justify-content:center;
+  transition:all .15s;
+}
+.sp-clear-btn.visible { display:flex; }
+.sp-clear-btn:hover { background:#fee2e2; }
+
+/* mapping list card */
+.sp-map-card {
+  border:1.5px solid var(--border);
+  border-radius:var(--r-sm);
+  overflow:hidden;
+}
+.sp-map-hd {
+  display:none;
+  align-items:center; justify-content:space-between;
+  padding:7px 12px;
+  background:var(--surface2); border-bottom:1px solid var(--border);
+  font-size:.75rem; font-weight:700;
+  color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em;
+}
+.sp-map-hd.visible { display:flex; }
+.sp-map-hd-arr { color:var(--text-muted); }
+.sp-map-hd-arr svg { width:13px; height:13px; display:block; }
+
+.sp-list { display:flex; flex-direction:column; }
+.sp-list.readonly .map-del-btn { display:none !important; }
+
+.map-row {
+  display:flex; align-items:center; gap:6px;
+  padding:7px 10px;
+  border-bottom:1px solid var(--border);
+  transition:background .12s;
+  position:relative;
+}
+.map-row:last-child { border-bottom:none; }
+.map-row:hover { background:var(--surface2); }
+
+/* Tooltip for long text */
+.map-inp-wrap {
+  flex:1; min-width:0; position:relative;
+}
+.map-inp-tooltip {
+  display:none;
+  position:absolute;
+  bottom:calc(100% + 6px); left:0; right:0;
+  background:var(--text-primary); color:white;
+  font-size:.75rem; padding:5px 8px;
+  border-radius:6px;
+  white-space:normal; word-break:break-word;
+  z-index:100; line-height:1.4;
+  box-shadow:var(--shadow-md);
+  pointer-events:none;
+}
+.map-inp-tooltip::after {
+  content:'';
+  position:absolute; top:100%; left:12px;
+  border:5px solid transparent;
+  border-top-color:var(--text-primary);
+}
+.map-inp-wrap:hover .map-inp-tooltip { display:block; }
+
+.map-inp {
+  width:100%;
+  padding:5px 8px;
+  border:1.5px solid transparent; border-radius:6px;
+  font-family:'DM Sans',monospace; font-size:.8rem; color:var(--text-primary);
+  background:transparent; outline:none;
+  transition:border-color .15s, background .15s;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.map-inp:focus { border-color:var(--accent); background:white; text-overflow:clip; }
+.map-inp:disabled { color:var(--text-second); cursor:default; }
+
+.map-arr { color:var(--text-muted); flex-shrink:0; }
+.map-arr svg { width:14px; height:14px; display:block; }
+
+.map-del-btn {
+  background:none; border:none; cursor:pointer;
+  color:var(--text-muted); font-size:13px; font-weight:700;
+  width:22px; height:22px; border-radius:5px;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .15s; flex-shrink:0; line-height:1;
+}
+.map-del-btn:hover { background:#fee2e2; color:var(--danger); }
+
+/* ver mais / ver menos */
+.sp-more-wrap { border-top:1px solid var(--border); }
+.sp-more-btn {
+  display:flex; align-items:center; justify-content:center; gap:5px;
+  width:100%; padding:9px;
+  background:var(--surface2); border:none;
+  color:var(--text-muted);
+  font-family:'DM Sans',sans-serif; font-size:.8rem; font-weight:600;
+  cursor:pointer; transition:all .15s;
+}
+.sp-more-btn:hover { background:var(--accent-light); color:var(--accent); }
+.sp-more-btn svg { width:14px; height:14px; }
+
+/* Empty set placeholder */
+.sp-empty-set {
+  padding:18px 12px;
+  text-align:center;
+  color:var(--text-muted);
+  font-size:.83rem;
+  line-height:1.5;
+}
+
+/* add mapping btn */
+.sp-add-btn {
+  display:none; align-items:center; justify-content:center; gap:6px;
+  width:100%; padding:10px;
+  border:1.5px dashed var(--border2); border-radius:9px;
+  background:var(--surface2); color:var(--accent);
+  font-family:'DM Sans',sans-serif; font-size:.83rem; font-weight:600;
+  cursor:pointer; transition:all .18s;
+}
+.sp-add-btn:hover { background:var(--accent-light); border-color:var(--accent); border-style:solid; }
+.sp-add-btn svg { width:15px; height:15px; }
+
+/* separator inside panel */
+.sp-sep { border-top:1.5px solid var(--border); padding-top:14px; margin-top:2px; }
+
+/* main action buttons */
+.sp-main-actions { display:flex; flex-direction:column; gap:8px; }
+.sp-main-btn {
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  width:100%; padding:10px 14px;
+  border-radius:10px; border:none;
+  font-family:'DM Sans',sans-serif; font-size:.85rem; font-weight:700;
+  cursor:pointer; transition:all .18s;
+  box-shadow:var(--shadow-sm);
+}
+.sp-main-btn:hover { transform:translateY(-1px); box-shadow:var(--shadow-md); }
+.sp-main-btn.primary { background:var(--accent); color:white; }
+.sp-main-btn.primary:hover { background:var(--accent-dark); }
+.sp-main-btn.ghost {
+  background:var(--surface2); color:var(--text-second);
+  border:1.5px solid var(--border2);
+}
+.sp-main-btn.ghost:hover { background:var(--accent-light); color:var(--accent); border-color:var(--accent); }
+.sp-main-btn svg { width:16px; height:16px; flex-shrink:0; }
+
+/* ═══════════════════════════════════════════
+   MODALS
+═══════════════════════════════════════════ */
+.modal-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(15,30,60,.45); backdrop-filter:blur(4px);
+  z-index:2000; justify-content:center; align-items:center;
+}
+.modal-overlay.open { display:flex; }
+.modal-content {
+  background:var(--surface); border:1.5px solid var(--border2);
+  border-radius:var(--r-lg); padding:28px;
+  width:90%; max-width:420px;
+  box-shadow:var(--shadow-lg);
+  animation:modalIn .22s ease;
+}
+@keyframes modalIn {
+  from { opacity:0; transform:scale(.95) translateY(8px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+.modal-hd {
+  display:flex; align-items:center; gap:12px;
+  font-family:'Sora',sans-serif; font-weight:700; font-size:1rem;
+  color:var(--text-primary); margin-bottom:20px;
+}
+.modal-hd-icon {
+  width:36px; height:36px; border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 3px 10px rgba(26,86,219,.25); flex-shrink:0;
+}
+.modal-hd-icon svg { width:18px; height:18px; color:white; }
+.modal-hd-icon.blue   { background:var(--accent); }
+.modal-hd-icon.green  { background:var(--success); }
+.modal-hd-icon.amber  { background:var(--amber); }
+.modal-hd-icon.red    { background:var(--danger); box-shadow:0 3px 10px rgba(220,38,38,.25); }
+
+.modal-grp { margin-bottom:14px; }
+.modal-grp label {
+  display:block; margin-bottom:5px;
+  font-size:.77rem; font-weight:700; color:var(--text-second);
+  text-transform:uppercase; letter-spacing:.04em;
+}
+.modal-grp input {
+  width:100%; padding:9px 13px;
+  border:1.5px solid var(--border2); border-radius:9px;
+  font-family:'DM Sans',sans-serif; font-size:.9rem; color:var(--text-primary);
+  background:var(--surface2); outline:none;
+  transition:border-color .15s, box-shadow .15s;
+}
+.modal-grp input:focus {
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(26,86,219,.12);
+  background:white;
+}
+.modal-body-txt { font-size:.87rem; color:var(--text-second); line-height:1.55; }
+.modal-ft { display:flex; justify-content:flex-end; gap:10px; margin-top:22px; }
+.btn-m {
+  padding:9px 18px; border-radius:9px; border:none;
+  font-family:'DM Sans',sans-serif; font-size:.88rem; font-weight:600;
+  cursor:pointer; transition:all .18s;
+}
+.btn-m.cancel { background:var(--surface2); color:var(--text-second); border:1.5px solid var(--border2); }
+.btn-m.cancel:hover { background:#f1f5f9; }
+.btn-m.confirm { background:var(--success); color:white; }
+.btn-m.confirm:hover { background:#059669; transform:translateY(-1px); }
+.btn-m.danger  { background:var(--danger); color:white; }
+.btn-m.danger:hover  { background:#b91c1c; }
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+#toast {
+  position:fixed; right:20px; bottom:20px;
+  background:var(--text-primary); color:white;
+  padding:10px 16px; border-radius:10px;
+  display:none; z-index:9999;
+  font-family:'DM Sans',sans-serif; font-size:.85rem; font-weight:500;
+  box-shadow:var(--shadow-lg);
+  animation:toastIn .2s ease;
+}
+@keyframes toastIn {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ═══════════════════════════════════════════
+   PRINT
+═══════════════════════════════════════════ */
+@media print {
+  .topbar, .side-panel, #toast, .file-bar-r, .viewer-footer { display:none !important; }
+  body { background:white; }
+  body::before { display:none; }
+  body.panel-open { padding-right:0 !important; }
+  .page-wrapper { padding:0; max-width:none; }
+  .sheet-panel { border:none; box-shadow:none; overflow:visible; }
+  .sheet table { font-size:9px; }
+  @page { size:A4 landscape; margin:8mm; }
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media (max-width:768px) {
+  :root { --panel-w:100vw; }
+  body.panel-open { padding-right:0; }
+  .brand-name, .brand-sub { display:none; }
+}
 </style>
 </head>
 <body>
 
-<header>
-  <!-- ESQUERDA -->
-  <div class="menu-left">
-    <div class="menu-dropdown left">
-      <button class="icon-btn" title="Menu (☰)" onclick="toggleMenu('dropdown-menu')">
-        <img src="icones/menu-hamburger.png" alt="Menu">
-      </button>
-      <div class="menu-dropdown-content" id="dropdown-menu">
-        <a href="#" onclick="showToast('Página 1 (em breve)');return false;">Página 1 (em breve)</a>
-        <a href="#" onclick="showToast('Página 2 (em breve)');return false;">Página 2 (em breve)</a>
-        <a href="#" onclick="showToast('Página 3 (em breve)');return false;">Página 3 (em breve)</a>
-      </div>
-    </div>
-    <button class="icon-btn" title="Fechar (❌)" onclick="fecharPagina()">
-      <img src="icones/fechar.png" alt="Fechar">
-    </button>
-    <button class="icon-btn" title="Menu inicial (🏠)" onclick="voltarMenu()">
-      <img src="icones/home.png" alt="Início">
-    </button>
-  </div>
+<!-- ████████████████ TOPBAR ████████████████ -->
+<header class="topbar">
 
-  <!-- DIREITA -->
-  <div class="menu-right">
+  <!-- LEFT -->
+  <div class="topbar-left">
+
+    <!-- Hamburger (menu from paste2) -->
     <div class="menu-dropdown">
-      <button class="icon-btn" id="btn-salvar" title="Salvar (💾)" onclick="toggleMenu('dropdown-save')">
-        <img src="icones/salvar.png" alt="Salvar">
+      <button class="icon-btn" title="Menu" onclick="toggleMenu('dd-menu')" aria-haspopup="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
       </button>
-      <div class="menu-dropdown-content" id="dropdown-save" aria-labelledby="btn-salvar">
-        <a href="#" onclick="exportarXLSX();fecharTodosMenus();return false;">Salvar como XLSX</a>
-        <a href="#" onclick="exportarCSVAtivo();fecharTodosMenus();return false;">Salvar CSV (aba ativa)</a>
-        <a href="#" onclick="exportarJSON();fecharTodosMenus();return false;">Salvar como JSON</a>
-      </div>
-    </div>
+      <div class="menu-dropdown-content" id="dd-menu">
 
-    <button class="icon-btn" id="btn-print" title="Imprimir (🖨️)" onclick="imprimirAtual()">
-      <img src="icones/imprimir.png" alt="Imprimir">
-    </button>
-    <button class="icon-btn" id="btn-copy" title="Copiar (📋)" onclick="copiarTabelaAtiva()">
-      <img src="icones/copiar.png" alt="Copiar">
-    </button>
-
-    <!-- Substituições: abre painel com dicionário editável, aplicar / restaurar -->
-    <div class="menu-dropdown">
-      <button class="icon-btn" id="btn-subst" title="Substituições (abrir painel)" onclick="toggleSubstMenu(event)">
-        <img src="icones/substituicoes.png" alt="Substituições">
-      </button>
-
-      <!-- pequeno menu mostrado quando NÃO há arquivo carregado -->
-      <div class="menu-dropdown-content" id="dropdown-subst-short" aria-labelledby="btn-subst" style="min-width:180px; display:none;">
-        <a href="#" onclick="openAnotherFile(); fecharTodosMenus(); return false;">Carregar planilha</a>
-        <a href="#" onclick="showToast('Substituições: carregue uma planilha primeiro'); fecharTodosMenus(); return false;">Como usar</a>
-      </div>
-
-      <!-- painel completo (aberto apenas quando há arquivo) -->
-      <div class="menu-dropdown-content" id="dropdown-subst" aria-labelledby="btn-subst" style="min-width:520px;padding:0; max-height: 80vh; overflow-y: auto;">
-        <div class="subst-panel" style="padding:0; min-width:520px;">
-          <div class="subst-header">Painel de Substituições</div>
-          <div style="padding:10px;">
-            <div style="display:flex;gap:12px;align-items:flex-start;justify-content:space-between;">
-              <div class="subst-left">
-                <div class="subst-toolbar">
-                  <div class="subst-toolbar-top">
-                    <select id="subst-sets" class="subst-sets"></select>
-                    <button class="edit-mode-btn" id="btn-edit-set" title="Editar conjunto">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 3.99997H6C4.89543 3.99997 4 4.8954 4 5.99997V18C4 19.1045 4.89543 20 6 20H18C19.1046 20 20 19.1045 20 18V12M18.4142 8.41417L19.5 7.32842C20.281 6.54737 20.281 5.28104 19.5 4.5C18.7189 3.71895 17.4526 3.71895 16.6715 4.50001L15.5858 5.58575M18.4142 8.41417L12.3779 14.4505C12.0987 14.7297 11.7431 14.9201 11.356 14.9975L8.41422 15.5858L9.00257 12.6441C9.08001 12.2569 9.27032 11.9013 9.54951 11.6221L15.5858 5.58575M18.4142 8.41417L15.5858 5.58575" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </button>
-                  </div>
-                  <div class="action-buttons-top">
-                    <button class="btn" id="btn-new" onclick="showNewModal()">Novo</button>
-                    <button class="btn" id="btn-save-as" onclick="showSaveAsModal()">Salvar como...</button>
-                    <button class="btn" id="btn-delete-set" onclick="showDeleteModal()">Excluir</button>
-                  </div>
-                </div>
-
-                <!-- Aviso quando não há arquivo -->
-                <div id="no-file-warning" class="no-file-warning" style="display:none;">
-                  Carregue uma planilha para usar as substituições.
-                </div>
-
-                <!-- aviso inline (não pop-up) -->
-                <div id="subst-warning" class="subst-warning" role="status" aria-live="polite"></div>
-
-                <!-- agora usamos caixinhas (linhas) ao invés de textarea -->
-                <div class="subst-list" id="subst-list" aria-live="polite"></div>
-
-                <!-- Botão de adicionar (aparece apenas se não for o conjunto Padrão e estiver em modo de edição) -->
-                <button class="add-mapping-btn" id="btn-add-mapping" title="Adicionar mapeamento">Adicionar</button>
-
-                <div class="separator">
-                  <div class="action-buttons-bottom">
-                    <button class="btn btn-primaria" id="btn-apply-subst" onclick="applySubstitutionsFromUI()">Aplicar substituições</button>
-                    <button class="btn" id="btn-restore-original" onclick="restoreOriginalsFromUI()">Restaurar original</button>
-                    <button class="btn" id="btn-sort-subst" title="Ordenar A–Z (1ª coluna)" onclick="toggleSortSheetAtiva()">Ordenar A–Z</button>
-                  </div>
-                </div>
-
-              </div>
-
-              <div class="subst-right">
-                <!-- Esta seção foi removida conforme solicitado -->
-              </div>
-            </div>
+        <div class="dropdown-section">
+          <div class="section-header" onclick="toggleSubmenu(this)">
+            <span>MACS</span><small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="mac77.html"><span class="mac-code">77</span>MAC Bairro São Geraldo</a>
+            <a href="mac78.html"><span class="mac-code">78</span>MAC Bairro Planalto</a>
+            <a href="mac79.html"><span class="mac-code">79</span>MAC Romeu Duarte</a>
+            <a href="mac80.html"><span class="mac-code">80</span>MAC Rua São Geraldo / Centro 2</a>
+            <a href="mac277.html"><span class="mac-code">277</span>MAC Matriz</a>
+            <a href="mac853.html"><span class="mac-code">853</span>MAC Concesso</a>
+            <a href="mac1249.html"><span class="mac-code">1249</span>MAC Jardim do Lago</a>
+            <a href="mac989.html"><span class="mac-code">989</span>MAC Araújos</a>
+            <a href="mac1436.html"><span class="mac-code">1436</span>MAC São Gonçalo do Pará</a>
           </div>
         </div>
-      </div>
 
+        <div class="dropdown-section">
+          <div class="section-header" onclick="toggleSubmenu(this)">
+            <span>São José</span><small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="saojose.html">Pedido São José</a>
+            <a href="paototal.html">Pedido Pão Total</a>
+          </div>
+        </div>
+
+        <div class="dropdown-section">
+          <div class="section-header" onclick="toggleSubmenu(this)">
+            <span>Tabelas</span><small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="pdfs/Tabela 2025 Geral.pdf">Tabela de Preços Geral</a>
+            <a href="pdfs/Tabela 2025 Empresa.pdf">Tabela de Preços Empresa</a>
+            <a href="https://github.com/henriteodoro/paratestes/releases/download/v1.0/Catalogo.Sao.Jose.2025.AT03.pdf">Catálogo de Produtos</a>
+          </div>
+        </div>
+
+        <div class="dropdown-section">
+          <div class="section-header" onclick="toggleSubmenu(this)">
+            <span>Ferramentas</span><small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="processadordepedidos.html">Processador de Pedidos</a>
+            <a href="ods.html">Visualizar Planilhas</a>
+            <a href="simularpedido.html">Simulador de Pedido</a>
+            <a href="anotacoes/anotacoes.html">Anotações</a>
+            <a href="planilhaautocontrole.html">Planilhas de Autocontrole</a>
+          </div>
+        </div>
+
+      </div>
     </div>
+
+    <!-- Home -->
+    <button class="icon-btn" title="Início" onclick="voltarMenu()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+    </button>
+
+    <!-- Close -->
+    <button class="icon-btn" title="Fechar" onclick="fecharPagina()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <line x1="15" y1="9" x2="9" y2="15"/>
+        <line x1="9" y1="9" x2="15" y2="15"/>
+      </svg>
+    </button>
+
+    <div class="topbar-divider"></div>
+
+    <!-- Brand — nome NUNCA muda -->
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <line x1="3" y1="9" x2="21" y2="9"/>
+          <line x1="9" y1="21" x2="9" y2="9"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">Visualizador de Planilhas</div>
+        <div class="brand-sub">.ods · .xlsx · .xls · .csv</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER — chip de seleção -->
+  <div class="topbar-center">
+    <div class="sel-chip" id="sel-chip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+      </svg>
+      <span>Selecionadas: <span class="val" id="sel-count">0</span></span>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="topbar-right">
+
+    <!-- Save dropdown -->
+    <div class="menu-dropdown menu-right">
+      <button class="icon-btn" title="Salvar" onclick="toggleMenu('dd-save')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v13"/>
+          <polyline points="7 11 12 16 17 11"/>
+          <path d="M5 20h14"/>
+        </svg>
+      </button>
+      <div class="menu-dropdown-content" id="dd-save">
+        <div class="dd-label">Exportar como</div>
+        <a href="#" onclick="exportarXLSX();fecharMenus();return false;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Salvar como XLSX
+        </a>
+        <a href="#" onclick="exportarCSVAtivo();fecharMenus();return false;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>
+          Salvar CSV (aba ativa)
+        </a>
+        <a href="#" onclick="exportarJSON();fecharMenus();return false;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Salvar como JSON
+        </a>
+      </div>
+    </div>
+
+    <!-- Print -->
+    <button class="icon-btn" title="Imprimir" onclick="imprimirAtual()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="8" y1="13" x2="16" y2="13"/>
+        <line x1="8" y1="17" x2="16" y2="17"/>
+        <line x1="10" y1="9" x2="14" y2="9"/>
+      </svg>
+    </button>
+
+    <!-- Copy -->
+    <button class="icon-btn" title="Copiar tabela ativa" onclick="copiarTabelaAtiva()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="18" cy="5" r="3"/>
+        <circle cx="6" cy="12" r="3"/>
+        <circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+      </svg>
+    </button>
+
+    <div class="topbar-divider"></div>
+
+    <!-- Processamento toggle -->
+    <button class="icon-btn" id="btn-proc" title="Painel de Processamento" onclick="togglePanel()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/>
+      </svg>
+    </button>
 
   </div>
 </header>
 
-<!-- Título -->
-<div class="titulo-nav">
-  <h1 id="titulo">Visualizador de Planilhas (.ods, .xlsx)</h1>
-</div>
+<!-- ████████████████ SIDE PANEL ████████████████ -->
+<aside class="side-panel" id="side-panel">
 
-<div class="wrap">
-  <!-- ===== Uploader ===== -->
-  <section id="uploader" aria-label="Carregar planilha">
+  <div class="sp-hd">
+    <div class="sp-hd-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+      </svg>
+    </div>
+    <span class="sp-hd-title">Painel de Processamento</span>
+    <button class="sp-close" onclick="togglePanel()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="sp-body">
+
+    <!-- Warning inline -->
+    <div class="sp-warning" id="sp-warning"></div>
+
+    <div id="sp-content" style="display:flex; flex-direction:column; gap:14px;">
+
+      <!-- Seção: Conjuntos -->
+      <div>
+        <div class="sp-stitle">Predefinições</div>
+
+        <!-- Botões ACIMA do select -->
+        <div class="sp-set-btns" style="margin-bottom:8px;">
+          <button class="sp-sbtn novo" id="btn-new" title="Criar nova predefinição">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Novo
+          </button>
+          <button class="sp-sbtn load" id="btn-load" title="Carregar predefinição de arquivo JSON">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Carregar
+          </button>
+          <button class="sp-sbtn saveas" id="btn-saveas" title="Salvar predefinição atual como arquivo JSON">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+            Salvar como
+          </button>
+          <button class="sp-sbtn del" id="btn-del-set" title="Excluir predefinição atual">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            Excluir
+          </button>
+        </div>
+
+        <!-- Custom Select row com X e botão editar -->
+        <div class="sp-select-row">
+          <div class="custom-select-wrap" id="custom-select-wrap">
+            <button class="custom-select-btn" id="custom-select-btn" onclick="toggleCustomSelect(event)" type="button">
+              <span class="custom-select-label" id="custom-select-label">Padrão</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="custom-select-options" id="custom-select-options"></div>
+          </div>
+          <button class="sp-clear-btn" id="btn-clear-set" title="Voltar ao Padrão">×</button>
+          <button class="sp-sbtn novo" id="btn-edit-set" title="Editar predefinição" style="flex:0; width:36px; height:36px; min-width:36px; border-radius:9px; padding:0; display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+              <path d="M15 5l4 4"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mapeamentos -->
+      <div>
+        <div class="sp-map-card">
+          <!-- Header só aparece com items -->
+          <div class="sp-map-hd" id="sp-map-hd">
+            <span>Original</span>
+            <div class="sp-map-hd-arr">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </div>
+            <span>Processamento</span>
+          </div>
+          <div class="sp-list" id="subst-list"></div>
+          <!-- ver mais wrapper -->
+          <div id="sp-more-wrap" style="display:none;" class="sp-more-wrap"></div>
+        </div>
+      </div>
+
+      <!-- Botão adicionar -->
+      <button class="sp-add-btn" id="btn-add-map">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Adicionar mapeamento
+      </button>
+
+      <!-- Ações principais -->
+      <div class="sp-sep">
+        <div class="sp-stitle">Ações na aba ativa</div>
+        <div class="sp-main-actions">
+          <button class="sp-main-btn primary" id="btn-apply">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            Aplicar processamento
+          </button>
+          <button class="sp-main-btn ghost" id="btn-restore">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+            Restaurar original
+          </button>
+          <button class="sp-main-btn ghost" id="btn-sort">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg>
+            Ordenar A–Z
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</aside>
+
+<!-- ████████████████ MAIN ████████████████ -->
+<div class="page-wrapper">
+
+  <!-- Uploader -->
+  <section id="uploader">
     <input id="file-input" type="file" accept=".ods,.xlsx,.xls,.csv" />
-    <label class="dropzone" id="dropzone" for="file-input">
-      <div class="title">Arraste e solte seu arquivo .ods / .xlsx aqui</div>
-      <div class="hint">ou clique nesta área para selecionar do computador</div>
-    </label>
+    <div class="dropzone-outer">
+      <label class="dropzone-card" id="dropzone" for="file-input">
+        <div class="dz-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
+        <div class="dz-title">Arraste e solte seu arquivo aqui</div>
+        <div class="dz-hint">ou clique para selecionar do computador</div>
+        <div class="dz-types">
+          <span class="dz-badge">.xlsx</span>
+          <span class="dz-badge">.ods</span>
+          <span class="dz-badge">.xls</span>
+          <span class="dz-badge">.csv</span>
+        </div>
+      </label>
+    </div>
   </section>
 
-  <!-- ===== Viewer ===== -->
-  <section id="viewer" aria-label="Visualização da planilha">
-    <!-- Informações do arquivo movidas para baixo -->
-    <div class="file-info">
-      <span>Arquivo: <strong id="nome-arquivo">—</strong></span>
+  <!-- Viewer -->
+  <section id="viewer">
+
+    <div class="file-bar">
+      <div class="file-bar-l">
+        <div class="file-bar-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+        </div>
+        <div>
+          <div class="file-bar-name" id="file-name">—</div>
+          <div class="file-bar-meta" id="file-meta">—</div>
+        </div>
+      </div>
+      <div class="file-bar-r">
+        <button class="btn-open-other" onclick="openAnotherFile()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Abrir outro arquivo
+        </button>
+      </div>
     </div>
 
-    <div class="actions-top">
-      <div class="left-actions">
-        <button class="btn" id="btn-open-other" onclick="openAnotherFile()" title="Abrir outro arquivo">Abrir outro arquivo</button>
-      </div>
-      <div class="right-actions" id="viewer-controls-right">
-        <div id="right-selection" style="font-size:12px;color:#333;">Selecionadas: <strong id="selection-count">0</strong></div>
-      </div>
-    </div>
+    <div class="tabs-wrap" id="tabs"></div>
 
-    <div class="tabs" id="tabs"></div>
-
-    <div class="sheets" id="sheets"></div>
+    <div class="sheet-panel" id="sheets"></div>
 
     <div class="viewer-footer">
-      <div class="status" id="status">Pronto.</div>
-      <div id="viewer-footer-actions" style="display:flex;gap:8px;align-items:center;">
-        <!-- mantemos apenas status / pequenos controles aqui; exportação no menu salvar -->
+      <div class="status-badge">
+        <div class="status-dot" id="status-dot"></div>
+        <span id="status">Pronto.</span>
       </div>
     </div>
+
   </section>
 </div>
 
-<!-- Modal para Novo -->
-<div class="modal-overlay" id="newModal">
+<!-- ████████████████ MODAIS ████████████████ -->
+
+<!-- Novo conjunto -->
+<div class="modal-overlay" id="modal-new">
   <div class="modal-content">
-    <div class="modal-header">Novo Conjunto</div>
-    <div class="modal-body">
-      <input type="text" id="newName" placeholder="Nome do conjunto" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-family:monospace;" />
+    <div class="modal-hd">
+      <div class="modal-hd-icon blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+      Nova Predefinição
     </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="confirmNew()">Confirmar</button>
-      <button class="btn" onclick="closeNewModal()">Cancelar</button>
+    <div class="modal-grp">
+      <label for="modal-new-name">Nome da predefinição</label>
+      <input type="text" id="modal-new-name" placeholder="Ex: Supermercado Josildo" />
+    </div>
+    <div class="modal-ft">
+      <button class="btn-m cancel" onclick="closeModal('modal-new')">Cancelar</button>
+      <button class="btn-m confirm" onclick="confirmNew()">Criar</button>
     </div>
   </div>
 </div>
 
-<!-- Modal para Salvar Como -->
-<div class="modal-overlay" id="saveAsModal">
+<!-- Excluir -->
+<div class="modal-overlay" id="modal-del">
   <div class="modal-content">
-    <div class="modal-header">Salvar conjunto como</div>
-    <div class="modal-body">
-      <input type="text" id="saveAsName" placeholder="Nome do conjunto" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-family:monospace;" />
+    <div class="modal-hd">
+      <div class="modal-hd-icon red">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      </div>
+      Excluir Predefinição
     </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="confirmSaveAs()">Confirmar</button>
-      <button class="btn" onclick="closeSaveAsModal()">Cancelar</button>
+    <p class="modal-body-txt">Tem certeza que deseja excluir <strong>"<span id="modal-del-name"></span>"</strong>? Esta ação não pode ser desfeita.</p>
+    <div class="modal-ft">
+      <button class="btn-m cancel" onclick="closeModal('modal-del')">Cancelar</button>
+      <button class="btn-m danger" onclick="confirmDelete()">Excluir</button>
     </div>
   </div>
 </div>
 
-<!-- Modal para Excluir -->
-<div class="modal-overlay" id="deleteModal">
-  <div class="modal-content">
-    <div class="modal-header">Confirmar exclusão</div>
-    <div class="modal-body">
-      Tem certeza que deseja excluir o conjunto "<span id="delete-set-name"></span>"?
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-perigo" onclick="confirmDelete()">Excluir</button>
-      <button class="btn" onclick="closeDeleteModal()">Cancelar</button>
-    </div>
-  </div>
-</div>
+<!-- Carregar arquivo (input oculto) -->
+<input type="file" id="load-json-input" accept=".json" style="position:absolute;left:-9999px;" />
 
-<div id="copy-notice">Copiado!</div>
+<div id="toast"></div>
 
 <script>
-// ========= VARIÁVEIS GLOBAIS =========
-let currentWB = null;         // workbook carregado
-let currentFileName = null;   // nome do arquivo
-let activeSheetName = null;   // aba ativa
-let originalSheetsAOA = {};    // snapshot AOA por aba (para restaurar)
-let sortedSheets = new Set();  // abas atualmente ordenadas
+/* ═══════════════════════════════════════════
+   CONSTANTES / SETS PADRÃO
+═══════════════════════════════════════════ */
+const DEFAULT_SETS = {
+  'Padrão': [],
+  'Supermercado Josildo': [
+    {k:'BISC.PARA FRITAR 1KG',          v:'Biscoitinho de doce 1 kg'},
+    {k:'BOLO FUBA CREMOSO',             v:'Bolo cremoso de fubá 1 unidade'},
+    {k:'BOLO PAMONHA',                  v:'Bolo cremoso de milho 1 unidade'},
+    {k:'CHIPA PACOTE 7 KG',             v:'Biscoito chipa 7kg'},
+    {k:'COXINHA GRANDE UND.',           v:'Coxinha de frango grande 10 unidades'},
+    {k:'CROISSANT FRANGO',              v:'Croissant de frango 7kg'},
+    {k:'EMPADA FGO UND',                v:'Empada de frango grande 10 unidades'},
+    {k:'ENROLADO PRES.MUSSARELA GDE',   v:'Enroladinho presunto mussarela grande 10 unidades'},
+    {k:'ENROLADO SALSICHA GDE',         v:'Enroladinho de salsicha grande 10 unidades'},
+    {k:'PAO 6 HORAS',                   v:'Pão francês 06h 7kg'},
+    {k:'PAO 12 HORAS',                  v:'Pão francês 12h 7kg'},
+    {k:'PAO 18 HORAS',                  v:'Pão francês 18h 7kg'},
+    {k:'PAO CARIOCA  5KG',              v:'Carioca 7kg'},
+    {k:'PAO DE BATATA 5KG',             v:'Pão de batata 7kg'},
+    {k:'PAO DE MILHO 5KG',             v:'Pão de milho 7kg'},
+    {k:'PAO FRANCES  BOLINHA 6HS',      v:'Panhoca 06h 7kg'},
+    {k:'PAO INTEGRAL PACT. 6 HORAS',    v:'Pão francês integral 06h 7kg'},
+    {k:'PAO ROSCOVADO',                 v:'Roscovado comum 1 unidade'},
+    {k:'PASTEL FRANGO UND',             v:'Pastel assado de frango grande 10 unidades'},
+    {k:'QUIBE REDONDO',                 v:'Quibe grande 10 unidades'},
+    {k:'ROSCA  REDONDA CREME',          v:'Rosca creme e coco redonda 5 unidades'},
+    {k:'ROSCA COMPRIDA CREME',          v:'Rosca creme e coco comprida 5 unidades'},
+    {k:'ROSCA COMPRIDA FRUTAS',         v:'Rosca frutas cristalizadas comprida 5 unidades'},
+    {k:'ROSCA REDONDA FRUTAS',          v:'Rosca frutas cristalizadas redonda 5 unidades'},
+    {k:'TORTA CATUPIRY UND.',           v:'Empadão de frango com catupiry 10 unidades'}
+  ]
+};
 
-// substituições
-let substitutionDict = {};              // mapa internalizado (chave normalizada -> valor)
-let substitutionAppliedSheets = new Set(); // quais abas já receberam substituições
-const SUBST_LS_KEY = 'viewer_substitutions_v3';
+/* ═══════════════════════════════════════════
+   ESTADO GLOBAL
+═══════════════════════════════════════════ */
+// Conjuntos são APENAS sessão (não persistem no localStorage)
+let sessionSets  = deepClone(DEFAULT_SETS);
+let currentSetName = 'Padrão';   // nome corrente rastreado por JS (não native select)
+let currentWB    = null;
+let currentFileName = null;
+let activeSheetName = null;
+let originalSheetsAOA = {};
+let sortedSheets      = new Set();
+let substApplied      = new Set();
+let substDict         = {};
+
+let panelOpen   = false;
+let isEditMode  = false;
+let expandedSets = {};     // { setName: true/false }
 
 // seleção de células
 let isSelecting = false;
 let selectStart = null;
 let selectedCells = new Set();
 
-// Controle de exibição das listas
-let expandedSets = {};
+/* ═══════════════════════════════════════════
+   UTILITÁRIOS
+═══════════════════════════════════════════ */
+function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
 
-// Modo de edição
-let isEditMode = false;
-let previousStatus = 'Pronto.'; // Para armazenar o status anterior à seleção
-
-// ========= ELEMENTOS DOM =========
-const uploader = document.getElementById('uploader');
-const viewer = document.getElementById('viewer');
-const dropzone = document.getElementById('dropzone');
-const fileInput = document.getElementById('file-input');
-const tabs = document.getElementById('tabs');
-const sheets = document.getElementById('sheets');
-const statusEl = document.getElementById('status');
-const selCountEl = document.getElementById('selection-count');
-
-// ========= FUNÇÕES DE UTILIDADE =========
-function showToast(msg) {
-  const el = document.getElementById('copy-notice');
+function showToast(msg, dur = 2000) {
+  const el = document.getElementById('toast');
   el.textContent = msg;
   el.style.display = 'block';
   clearTimeout(showToast._t);
-  showToast._t = setTimeout(() => { el.style.display = 'none'; }, 1700);
+  showToast._t = setTimeout(() => { el.style.display = 'none'; }, dur);
 }
 
+/* ── Menu helpers ── */
 function toggleMenu(id) {
   document.querySelectorAll('.menu-dropdown-content').forEach(el => {
-    if (el.id !== id) { el.style.display = 'none'; el.style.opacity = 0; }
+    if (el.id !== id) el.classList.remove('open');
   });
   const el = document.getElementById(id);
   if (!el) return;
-  if (el.style.display === 'block') { el.style.opacity = 0; setTimeout(() => el.style.display = 'none', 180); }
-  else { el.style.display = 'block'; el.style.opacity = 0; setTimeout(() => el.style.opacity = 1, 10); }
+  el.classList.toggle('open');
 }
 
-function fecharTodosMenus() {
-  document.querySelectorAll('.menu-dropdown-content').forEach(el => { el.style.display = 'none'; el.style.opacity = 0; });
+function fecharMenus() {
+  document.querySelectorAll('.menu-dropdown-content').forEach(el => el.classList.remove('open'));
+  closeAllSubmenus();
 }
 
-document.addEventListener('click', (ev) => {
-  if (!ev.target.closest('.menu-dropdown')) fecharTodosMenus();
+function toggleSubmenu(headerEl) {
+  const sub = headerEl.nextElementSibling;
+  if (!sub) return;
+  const chev = headerEl.querySelector('.chev');
+  const isOpen = sub.style.display === 'block';
+  // Close all other submenus
+  document.querySelectorAll('.submenu').forEach(s => { if (s !== sub) s.style.display = 'none'; });
+  document.querySelectorAll('.chev').forEach(c => { if (c !== chev) c.textContent = '▸'; });
+  sub.style.display = isOpen ? 'none' : 'block';
+  if (chev) chev.textContent = isOpen ? '▸' : '▾';
+}
+
+function closeAllSubmenus() {
+  document.querySelectorAll('.submenu').forEach(s => s.style.display = 'none');
+  document.querySelectorAll('.chev').forEach(c => c.textContent = '▸');
+}
+
+document.addEventListener('click', ev => {
+  if (!ev.target.closest('.menu-dropdown')) fecharMenus();
+  // Custom select: close on outside click
+  if (!ev.target.closest('.custom-select-wrap')) closeCustomSelect();
 });
 
-function fecharPagina() { if (confirm('Fechar a página? (pode não funcionar em todos navegadores)')) { try { window.close(); } catch (e) { } } }
-function voltarMenu() { showToast('Voltar ao menu (configure o redirecionamento).'); }
+function fecharPagina() {
+  if (confirm('Fechar a página?')) { try { window.close(); } catch(e){} }
+}
+function voltarMenu() { window.location.href = 'index.html'; }
 
-// ========= PROCESSAMENTO DE ARQUIVOS =========
+function setStatus(msg, type) {
+  const el  = document.getElementById('status');
+  const dot = document.getElementById('status-dot');
+  if (el) el.textContent = msg;
+  if (dot) {
+    dot.style.background =
+      type === 'ok'  ? 'var(--success)' :
+      type === 'err' ? 'var(--danger)'  :
+                       'var(--amber)';
+  }
+}
+
+function normalizeKey(s) { return (s || '').toString().replace(/\s+/g,' ').trim().toUpperCase(); }
+
+/* ═══════════════════════════════════════════
+   CUSTOM SELECT
+═══════════════════════════════════════════ */
+function toggleCustomSelect(e) {
+  if (e) e.stopPropagation();
+  const btn  = document.getElementById('custom-select-btn');
+  const opts = document.getElementById('custom-select-options');
+  const isOpen = opts.classList.contains('open');
+  if (isOpen) {
+    opts.classList.remove('open');
+    btn.classList.remove('open');
+  } else {
+    buildCustomOptions();
+    opts.classList.add('open');
+    btn.classList.add('open');
+  }
+}
+
+function closeCustomSelect() {
+  const btn  = document.getElementById('custom-select-btn');
+  const opts = document.getElementById('custom-select-options');
+  if (opts) opts.classList.remove('open');
+  if (btn)  btn.classList.remove('open');
+}
+
+function buildCustomOptions() {
+  const opts = document.getElementById('custom-select-options');
+  opts.innerHTML = '';
+  Object.keys(sessionSets).forEach(name => {
+    const div = document.createElement('div');
+    div.className = 'custom-select-option' + (name === currentSetName ? ' selected' : '');
+    div.textContent = name;
+    div.title = name;
+    div.onclick = (e) => {
+      e.stopPropagation();
+      setCurrentSet(name);
+      closeCustomSelect();
+    };
+    opts.appendChild(div);
+  });
+}
+
+function setCurrentSet(name) {
+  currentSetName = name;
+  const label = document.getElementById('custom-select-label');
+  if (label) { label.textContent = name; label.title = name; }
+  onSetChange();
+}
+
+/* ═══════════════════════════════════════════
+   PROCESSAMENTO DE ARQUIVO
+═══════════════════════════════════════════ */
+const fileInput = document.getElementById('file-input');
+const dropzone  = document.getElementById('dropzone');
+
 function processFile(file) {
-  statusEl.textContent = 'Lendo arquivo...';
-  previousStatus = 'Lendo arquivo...';
+  setStatus('Lendo arquivo…', 'loading');
   originalSheetsAOA = {};
   sortedSheets = new Set();
-  substitutionAppliedSheets = new Set();
+  substApplied = new Set();
   currentFileName = file.name;
-  document.getElementById('titulo').textContent = `Visualizador de Planilhas — ${currentFileName}`;
-  document.getElementById('nome-arquivo').textContent = currentFileName;
+
+  // Mostrar nome do arquivo na barra — mas NÃO alterar o brand
+  document.getElementById('file-name').textContent = file.name;
+  document.getElementById('file-meta').textContent = 'Carregando…';
 
   const reader = new FileReader();
-  reader.onload = function (evt) {
+  reader.onload = evt => {
     try {
       const data = new Uint8Array(evt.target.result);
       const wb = XLSX.read(data, { type: 'array' });
       currentWB = wb;
       renderWorkbook(wb);
-      uploader.style.display = 'none';
-      viewer.style.display = 'block';
-      statusEl.textContent = `Carregado: ${file.name} (${wb.SheetNames.length} aba${wb.SheetNames.length > 1 ? 's' : ''})`;
-      previousStatus = statusEl.textContent;
-    } catch (err) {
+      document.getElementById('uploader').style.display = 'none';
+      document.getElementById('viewer').style.display = 'block';
+      const msg = `Carregado: ${file.name} (${wb.SheetNames.length} aba${wb.SheetNames.length > 1 ? 's' : ''})`;
+      setStatus(msg, 'ok');
+      document.getElementById('file-meta').textContent =
+        `${wb.SheetNames.length} aba${wb.SheetNames.length > 1 ? 's' : ''}`;
+    } catch(err) {
       console.error(err);
-      statusEl.textContent = 'Erro ao ler o arquivo.';
-      previousStatus = statusEl.textContent;
+      setStatus('Erro ao ler o arquivo.', 'err');
       showToast('Não consegui abrir esse arquivo.');
     }
   };
-  reader.onerror = function () {
-    statusEl.textContent = 'Falha na leitura do arquivo.';
-    previousStatus = statusEl.textContent;
-    showToast('Falha na leitura do arquivo.');
-  };
+  reader.onerror = () => { setStatus('Falha na leitura.', 'err'); showToast('Falha na leitura.'); };
   reader.readAsArrayBuffer(file);
 }
 
 function renderWorkbook(wb) {
-  tabs.innerHTML = '';
-  sheets.innerHTML = '';
-  sheets.style.display = 'block';
-  tabs.style.display = 'flex';
+  const tabsEl   = document.getElementById('tabs');
+  const sheetsEl = document.getElementById('sheets');
+  tabsEl.innerHTML = '';
+  sheetsEl.innerHTML = '';
 
   wb.SheetNames.forEach((name, idx) => {
     const btn = document.createElement('button');
     btn.className = 'tab-btn';
-    btn.textContent = name || `Aba ${idx + 1}`;
+    btn.textContent = name || `Aba ${idx+1}`;
     btn.addEventListener('click', () => setActiveSheet(name));
-    tabs.appendChild(btn);
+    tabsEl.appendChild(btn);
 
-    const ws = wb.Sheets[name];
-    const __aoa = XLSX.utils.sheet_to_json(ws, { header: 1 });
-    originalSheetsAOA[name] = __aoa.map(r => Array.isArray(r) ? r.slice() : []);
-    const html = XLSX.utils.sheet_to_html(ws, { id: `sheet-${idx}`, header: '', footer: '' });
+    const ws  = wb.Sheets[name];
+    const aoa = XLSX.utils.sheet_to_json(ws, { header: 1 });
+    originalSheetsAOA[name] = aoa.map(r => Array.isArray(r) ? r.slice() : []);
+    const html = XLSX.utils.sheet_to_html(ws, { id:`sheet-${idx}`, header:'', footer:'' });
 
     const pane = document.createElement('div');
     pane.className = 'sheet';
     pane.dataset.name = name;
     pane.innerHTML = html;
-    sheets.appendChild(pane);
-
+    sheetsEl.appendChild(pane);
     bindTableInteractions(pane);
   });
 
@@ -779,836 +1468,629 @@ function renderWorkbook(wb) {
 
 function setActiveSheet(name) {
   activeSheetName = name;
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.textContent === name);
-  });
-  document.querySelectorAll('.sheet').forEach(p => {
-    p.classList.toggle('active', p.dataset.name === name);
-  });
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.textContent === name));
+  document.querySelectorAll('.sheet').forEach(p => p.classList.toggle('active', p.dataset.name === name));
   clearSelection();
-  updateSubstUIState();
-}
-
-// ========= EXPORTAÇÃO =========
-function exportarXLSX() {
-  if (!currentWB) { showToast('Nada para salvar.'); return; }
-  const nome = (currentFileName || 'planilha') + '.xlsx';
-  XLSX.writeFile(currentWB, nome);
-  showToast('Baixando XLSX…');
-}
-
-function exportarCSVAtivo() {
-  if (!currentWB || !activeSheetName) { showToast('Nenhuma aba ativa.'); return; }
-  const ws = currentWB.Sheets[activeSheetName];
-  const csv = XLSX.utils.sheet_to_csv(ws);
-  downloadText(csv, sanitizeFileName(activeSheetName) + '.csv', 'text/csv;charset=utf-8;');
-  showToast('CSV gerado.');
-}
-
-function exportarJSON() {
-  if (!currentWB) { showToast('Nada para salvar.'); return; }
-  const out = {};
-  currentWB.SheetNames.forEach(name => {
-    const ws = currentWB.Sheets[name];
-    out[name] = XLSX.utils.sheet_to_json(ws, { defval: null });
-  });
-  downloadText(JSON.stringify(out, null, 2), (currentFileName || 'planilha') + '.json', 'application/json;charset=utf-8;');
-  showToast('JSON gerado.');
-}
-
-function downloadText(content, filename, type) {
-  const blob = new Blob([content], { type });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-}
-
-function sanitizeFileName(s) { return (s || '').toString().replace(/[\\/:*?"<>|]+/g, '_').trim() || 'aba'; }
-
-// ========= COPIAR =========
-function copiarTabelaAtiva() {
-  if (!activeSheetName || !currentWB) { showToast('Nada para copiar.'); return; }
-
-  if (selectedCells.size > 0) {
-    copiarSelecao();
-  } else {
-    const ws = currentWB.Sheets[activeSheetName];
-    const tsv = XLSX.utils.sheet_to_csv(ws, { FS: "\t" });
-    navigator.clipboard.writeText(tsv).then(() => showToast('Copiado!')).catch(() => showToast('Não foi possível copiar.'));
-  }
-}
-
-function copiarSelecao() {
-  const activePane = document.querySelector('.sheet.active');
-  if (!activePane) return;
-
-  const table = activePane.querySelector('table');
-  if (!table) return;
-
-  let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
-  selectedCells.forEach(cellKey => {
-    const [r, c] = cellKey.split('|').map(Number);
-    if (r < minR) minR = r;
-    if (r > maxR) maxR = r;
-    if (c < minC) minC = c;
-    if (c > maxC) maxC = c;
-  });
-
-  const data = [];
-  for (let r = minR; r <= maxR; r++) {
-    const row = [];
-    for (let c = minC; c <= maxC; c++) {
-      const cell = table.rows[r]?.cells[c];
-      const text = cell ? cell.textContent : '';
-      row.push(text);
-    }
-    data.push(row);
-  }
-
-  const tsv = data.map(row => row.join('\t')).join('\n');
-
-  navigator.clipboard.writeText(tsv).then(() => {
-    showToast('Seleção copiada!');
-  }).catch(() => {
-    showToast('Não foi possível copiar a seleção.');
-  });
-}
-
-// ========= IMPRIMIR =========
-function hasConteudoImprimivel() {
-  if (!currentWB) return false;
-  const ativa = document.querySelector('.sheet.active table');
-  if (!ativa) return false;
-  return ativa.querySelector('td,th') !== null;
-}
-
-function imprimirAtual() {
-  if (!hasConteudoImprimivel()) { showToast('Nada para imprimir.'); return; }
-  window.print();
-}
-
-// ========= RESET =========
-function resetViewer() {
-  tabs.innerHTML = '';
-  sheets.innerHTML = '';
-  currentWB = null; activeSheetName = null;
-  originalSheetsAOA = {}; sortedSheets = new Set(); substitutionAppliedSheets = new Set();
-  document.getElementById('nome-arquivo').textContent = '—';
-  document.getElementById('titulo').textContent = 'Visualizador de Planilhas (.ods, .xlsx)';
-  statusEl.textContent = 'Pronto.';
-  previousStatus = 'Pronto.';
-  try { fileInput.value = ''; } catch (e) { }
-  viewer.style.display = 'none';
-  uploader.style.display = 'block';
+  updateSortBtn();
 }
 
 function openAnotherFile() {
-  try { fileInput.value = ''; } catch (e) { }
+  try { fileInput.value = ''; } catch(e) {}
   fileInput.click();
 }
 
-// ========= ACESSIBILIDADE/UX =========
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    fecharTodosMenus();
-    clearSelection();
-  }
-});
-
-document.addEventListener('mousedown', (e) => {
-  if (!e.target.closest('.sheet') && !e.target.closest('.menu-dropdown-content')) {
-    clearSelection();
-  }
-});
-
-// ========= ORDENAR A–Z (1ª coluna) =========
-function toggleSortSheetAtiva() {
+/* ═══════════════════════════════════════════
+   EXPORTAÇÃO
+═══════════════════════════════════════════ */
+function exportarXLSX() {
+  if (!currentWB) { showToast('Nada para salvar.'); return; }
+  XLSX.writeFile(currentWB, (currentFileName || 'planilha') + '.xlsx');
+  showToast('Baixando XLSX…');
+}
+function exportarCSVAtivo() {
   if (!currentWB || !activeSheetName) { showToast('Nenhuma aba ativa.'); return; }
+  const csv = XLSX.utils.sheet_to_csv(currentWB.Sheets[activeSheetName]);
+  dlText(csv, sanitize(activeSheetName) + '.csv', 'text/csv;charset=utf-8;');
+  showToast('CSV gerado.');
+}
+function exportarJSON() {
+  if (!currentWB) { showToast('Nada para salvar.'); return; }
+  const out = {};
+  currentWB.SheetNames.forEach(n => { out[n] = XLSX.utils.sheet_to_json(currentWB.Sheets[n], { defval: null }); });
+  dlText(JSON.stringify(out, null, 2), (currentFileName || 'planilha') + '.json', 'application/json;charset=utf-8;');
+  showToast('JSON gerado.');
+}
+function dlText(content, filename, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type }));
+  a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function sanitize(s) { return (s || '').toString().replace(/[\\/:*?"<>|]+/g, '_').trim() || 'aba'; }
 
-  const ws0 = currentWB.Sheets[activeSheetName];
-  const aoa0 = XLSX.utils.sheet_to_json(ws0, { header: 1 });
+/* ═══════════════════════════════════════════
+   COPIAR
+═══════════════════════════════════════════ */
+function copiarTabelaAtiva() {
+  if (!activeSheetName || !currentWB) { showToast('Nada para copiar.'); return; }
+  if (selectedCells.size > 0) { copiarSelecao(); return; }
+  const tsv = XLSX.utils.sheet_to_csv(currentWB.Sheets[activeSheetName], { FS: '\t' });
+  navigator.clipboard.writeText(tsv).then(() => showToast('Copiado!')).catch(() => showToast('Não foi possível copiar.'));
+}
+function copiarSelecao() {
+  const pane = document.querySelector('.sheet.active'); if (!pane) return;
+  const table = pane.querySelector('table');            if (!table) return;
+  let minR=Infinity,maxR=-Infinity,minC=Infinity,maxC=-Infinity;
+  selectedCells.forEach(k => {
+    const [r,c] = k.split('|').map(Number);
+    minR=Math.min(minR,r); maxR=Math.max(maxR,r);
+    minC=Math.min(minC,c); maxC=Math.max(maxC,c);
+  });
+  const rows = [];
+  for (let r=minR; r<=maxR; r++) {
+    const row = [];
+    for (let c=minC; c<=maxC; c++) row.push(table.rows[r]?.cells[c]?.textContent || '');
+    rows.push(row);
+  }
+  navigator.clipboard.writeText(rows.map(r=>r.join('\t')).join('\n'))
+    .then(() => showToast('Seleção copiada!')).catch(() => showToast('Falha ao copiar.'));
+}
 
+/* ═══════════════════════════════════════════
+   IMPRIMIR
+═══════════════════════════════════════════ */
+function imprimirAtual() {
+  if (!currentWB) { showToast('Nada para imprimir.'); return; }
+  window.print();
+}
+
+/* ═══════════════════════════════════════════
+   SIDE PANEL
+═══════════════════════════════════════════ */
+function togglePanel() {
+  // Só abre se houver arquivo carregado
+  if (!panelOpen && !currentWB) {
+    showToast('Carregue uma planilha primeiro.');
+    return;
+  }
+  panelOpen = !panelOpen;
+  const panel = document.getElementById('side-panel');
+  const btn   = document.getElementById('btn-proc');
+  panel.classList.toggle('open', panelOpen);
+  document.body.classList.toggle('panel-open', panelOpen);
+  if (btn) btn.classList.toggle('active', panelOpen);
+}
+
+/* ═══════════════════════════════════════════
+   ORDENAR A–Z
+═══════════════════════════════════════════ */
+function toggleSort() {
+  if (!currentWB || !activeSheetName) { showToast('Nenhuma aba ativa.'); return; }
   const isSorted = sortedSheets.has(activeSheetName);
-
   let novoWS;
   if (isSorted) {
     const base = originalSheetsAOA[activeSheetName].map(r => r.slice());
     novoWS = XLSX.utils.aoa_to_sheet(base);
     sortedSheets.delete(activeSheetName);
-    statusEl.textContent = `Ordem restaurada A–Z na aba "${activeSheetName}"`;
-    previousStatus = statusEl.textContent;
+    setStatus(`Ordem restaurada na aba "${activeSheetName}"`, 'ok');
     showToast('Ordem original restaurada.');
   } else {
+    const ws0  = currentWB.Sheets[activeSheetName];
+    const aoa0 = XLSX.utils.sheet_to_json(ws0, { header: 1 });
     if (aoa0.length <= 1) { showToast('Nada para ordenar.'); return; }
     const header = aoa0[0].slice();
     const linhas = aoa0.slice(1).map(r => r.slice());
-
-    const collator = new Intl.Collator('pt', { sensitivity: 'base', numeric: true });
+    const col = new Intl.Collator('pt', { sensitivity: 'base', numeric: true });
     const norm = v => (v ?? '').toString().trim();
     linhas.sort((a, b) => {
-      const A = norm(a[0]);
-      const B = norm(b[0]);
-      if (!A && !B) return 0;
-      if (!A) return 1;
-      if (!B) return -1;
-      return collator.compare(A, B);
+      const A = norm(a[0]), B = norm(b[0]);
+      if (!A && !B) return 0; if (!A) return 1; if (!B) return -1;
+      return col.compare(A, B);
     });
-    const novaMatriz = [header, ...linhas];
-    novoWS = XLSX.utils.aoa_to_sheet(novaMatriz);
+    novoWS = XLSX.utils.aoa_to_sheet([header, ...linhas]);
     sortedSheets.add(activeSheetName);
-    statusEl.textContent = `Ordenado A–Z por 1ª coluna na aba "${activeSheetName}"`;
-    previousStatus = statusEl.textContent;
+    setStatus(`Ordenado A–Z na aba "${activeSheetName}"`, 'ok');
     showToast('Ordenado com sucesso!');
   }
-
   currentWB.Sheets[activeSheetName] = novoWS;
-  const idx = currentWB.SheetNames.indexOf(activeSheetName);
-  const html = XLSX.utils.sheet_to_html(novoWS, { id: `sheet-${idx}`, header: '', footer: '' });
-  const pane = document.querySelector(`.sheet[data-name="${CSS.escape(activeSheetName)}"]`);
-  if (pane) {
-    pane.innerHTML = html;
-    bindTableInteractions(pane);
+  refreshSheetPane(activeSheetName, novoWS);
+  updateSortBtn();
+}
+
+function updateSortBtn() {
+  const btn = document.getElementById('btn-sort');
+  if (!btn) return;
+  const sorted = activeSheetName && sortedSheets.has(activeSheetName);
+  btn.innerHTML = sorted
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg> Desordenar`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg> Ordenar A–Z`;
+}
+
+function refreshSheetPane(name, ws) {
+  const idx  = currentWB.SheetNames.indexOf(name);
+  const html = XLSX.utils.sheet_to_html(ws, { id:`sheet-${idx}`, header:'', footer:'' });
+  const pane = document.querySelector(`.sheet[data-name="${CSS.escape(name)}"]`);
+  if (pane) { pane.innerHTML = html; bindTableInteractions(pane); }
+}
+
+/* ═══════════════════════════════════════════
+   GESTÃO DE PREDEFINIÇÕES (SESSÃO ONLY)
+═══════════════════════════════════════════ */
+function populateSelect() {
+  // Ensure currentSetName still valid
+  if (!sessionSets[currentSetName]) {
+    currentSetName = Object.keys(sessionSets)[0] || 'Padrão';
   }
+  const label = document.getElementById('custom-select-label');
+  if (label) { label.textContent = currentSetName; label.title = currentSetName; }
+  onSetChange();
 }
 
-// ========= SUBSTITUIÇÕES =========
-function normalizeKey(s) { return (s || '').toString().replace(/\s+/g, ' ').trim().toUpperCase(); }
-
-function loadSubstSets() {
-  try {
-    const raw = localStorage.getItem(SUBST_LS_KEY);
-    if (!raw) {
-      const sets = {
-        'Padrão': [],
-        'Supermercado Josildo': [
-          { k: 'BISC.PARA FRITAR 1KG', v: 'Biscoitinho de doce 1 kg' },
-          { k: 'BOLO FUBA CREMOSO', v: 'Bolo cremoso de fubá 1 unidade' },
-          { k: 'BOLO PAMONHA', v: 'Bolo cremoso de milho 1 unidade' },
-          { k: 'CHIPA PACOTE 7 KG', v: 'Biscoito chipa 7kg' },
-          { k: 'COXINHA GRANDE UND.', v: 'Coxinha de frango grande 10 unidades' },
-          { k: 'CROISSANT FRANGO', v: 'Croissant de frango 7kg' },
-          { k: 'EMPADA FGO UND', v: 'Empada de frango grande 10 unidades' },
-          { k: 'ENROLADO PRES.MUSSARELA GDE', v: 'Enroladinho presunto mussarela grande 10 unidades' },
-          { k: 'ENROLADO SALSICHA GDE', v: 'Enroladinho de salsicha grande 10 unidades' },
-          { k: 'PAO 6 HORAS', v: 'Pão francês 06h 7kg' },
-          { k: 'PAO 12 HORAS', v: 'Pão francês 12h 7kg' },
-          { k: 'PAO 18 HORAS', v: 'Pão francês 18h 7kg' },
-          { k: 'PAO CARIOCA  5KG', v: 'Carioca 7kg' },
-          { k: 'PAO DE BATATA 5KG', v: 'Pão de batata 7kg' },
-          { k: 'PAO DE MILHO 5KG', v: 'Pão de milho 7kg' },
-          { k: 'PAO FRANCES  BOLINHA 6HS', v: 'Panhoca 06h 7kg' },
-          { k: 'PAO INTEGRAL PACT. 6 HORAS', v: 'Pão francês integral 06h 7kg' },
-          { k: 'PAO ROSCOVADO', v: 'Roscovado comum 1 unidade' },
-          { k: 'PASTEL FRANGO UND', v: 'Pastel assado de frango grande 10 unidades' },
-          { k: 'QUIBE REDONDO', v: 'Quibe grande 10 unidades' },
-          { k: 'ROSCA  REDONDA CREME', v: 'Rosca creme e coco redonda 5 unidades' },
-          { k: 'ROSCA COMPRIDA CREME', v: 'Rosca creme e coco comprida 5 unidades' },
-          { k: 'ROSCA COMPRIDA FRUTAS', v: 'Rosca frutas cristalizadas comprida 5 unidades' },
-          { k: 'ROSCA REDONDA FRUTAS', v: 'Rosca frutas cristalizadas redonda 5 unidades' },
-          { k: 'TORTA CATUPIRY UND.', v: 'Empadão de frango com catupiry 10 unidades' }
-        ]
-      };
-      saveSubstSets(sets);
-      return sets;
-    }
-    const parsed = JSON.parse(raw);
-    const out = {};
-    Object.keys(parsed).forEach(name => {
-      const val = parsed[name];
-      if (typeof val === 'string') {
-        const dict = parseMappingFromText(val);
-        out[name] = Object.keys(dict).map(k => ({ k: k, v: dict[k] }));
-      } else if (Array.isArray(val)) {
-        out[name] = val.map(item => ({ k: item.k || '', v: item.v || '' }));
-      } else if (typeof val === 'object') {
-        out[name] = Object.keys(val).map(k => ({ k: k, v: val[k] }));
-      } else {
-        out[name] = [];
-      }
-    });
-    return out;
-  } catch (e) { console.warn(e); return null; }
+function onSetChange() {
+  renderMappingSet(currentSetName);
+  updateClearBtn(currentSetName);
+  updateEditBtn(currentSetName);
 }
 
-function parseMappingFromText(text) {
-  const dict = {};
-  const lines = text.split(/\r?\n/);
-  lines.forEach(line => {
-    let t = line.trim();
-    if (!t) return;
-    if (t.startsWith('#')) return;
-    const parts = t.split(/\s*(?:⇢|=>|=|->|\t)\s*/);
-    const left = (parts[0] || '').trim();
-    const right = (parts.slice(1).join(' = ') || '').trim();
-    if (!left) return;
-    dict[normalizeKey(left)] = right;
-  });
-  return dict;
+function updateClearBtn(name) {
+  const btn = document.getElementById('btn-clear-set');
+  if (!btn) return;
+  btn.classList.toggle('visible', name !== 'Padrão');
 }
 
-function saveSubstSets(obj) {
-  try { localStorage.setItem(SUBST_LS_KEY, JSON.stringify(obj)); } catch (e) { console.warn(e); }
-}
-
-function populateSubstSetsUI() {
-  const select = document.getElementById('subst-sets');
-  select.innerHTML = '';
-  let sets = loadSubstSets();
-  if (!sets) {
-    sets = {
-      'Padrão': [],
-      'Supermercado Josildo': [
-        { k: 'BISC.PARA FRITAR 1KG', v: 'Biscoitinho de doce 1 kg' },
-        { k: 'BOLO FUBA CREMOSO', v: 'Bolo cremoso de fubá 1 unidade' },
-        { k: 'BOLO PAMONHA', v: 'Bolo cremoso de milho 1 unidade' },
-        { k: 'CHIPA PACOTE 7 KG', v: 'Biscoito chipa 7kg' },
-        { k: 'COXINHA GRANDE UND.', v: 'Coxinha de frango grande 10 unidades' },
-        { k: 'CROISSANT FRANGO', v: 'Croissant de frango 7kg' },
-        { k: 'EMPADA FGO UND', v: 'Empada de frango grande 10 unidades' },
-        { k: 'ENROLADO PRES.MUSSARELA GDE', v: 'Enroladinho presunto mussarela grande 10 unidades' },
-        { k: 'ENROLADO SALSICHA GDE', v: 'Enroladinho de salsicha grande 10 unidades' },
-        { k: 'PAO 6 HORAS', v: 'Pão francês 06h 7kg' },
-        { k: 'PAO 12 HORAS', v: 'Pão francês 12h 7kg' },
-        { k: 'PAO 18 HORAS', v: 'Pão francês 18h 7kg' },
-        { k: 'PAO CARIOCA  5KG', v: 'Carioca 7kg' },
-        { k: 'PAO DE BATATA 5KG', v: 'Pão de batata 7kg' },
-        { k: 'PAO DE MILHO 5KG', v: 'Pão de milho 7kg' },
-        { k: 'PAO FRANCES  BOLINHA 6HS', v: 'Panhoca 06h 7kg' },
-        { k: 'PAO INTEGRAL PACT. 6 HORAS', v: 'Pão francês integral 06h 7kg' },
-        { k: 'PAO ROSCOVADO', v: 'Roscovado comum 1 unidade' },
-        { k: 'PASTEL FRANGO UND', v: 'Pastel assado de frango grande 10 unidades' },
-        { k: 'QUIBE REDONDO', v: 'Quibe grande 10 unidades' },
-        { k: 'ROSCA  REDONDA CREME', v: 'Rosca creme e coco redonda 5 unidades' },
-        { k: 'ROSCA COMPRIDA CREME', v: 'Rosca creme e coco comprida 5 unidades' },
-        { k: 'ROSCA COMPRIDA FRUTAS', v: 'Rosca frutas cristalizadas comprida 5 unidades' },
-        { k: 'ROSCA REDONDA FRUTAS', v: 'Rosca frutas cristalizadas redonda 5 unidades' },
-        { k: 'TORTA CATUPIRY UND.', v: 'Empadão de frango com catupiry 10 unidades' }
-      ]
-    };
-    saveSubstSets(sets);
+function updateEditBtn(name) {
+  const btn = document.getElementById('btn-edit-set');
+  if (!btn) return;
+  btn.style.display = name === 'Padrão' ? 'none' : 'inline-flex';
+  if (isEditMode) {
+    isEditMode = false;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/><path d="M15 5l4 4"/></svg>`;
+    btn.title = 'Editar predefinição';
   }
-  Object.keys(sets).forEach(name => {
-    const opt = document.createElement('option'); opt.value = name; opt.textContent = name; select.appendChild(opt);
-  });
-
-  select.onchange = function () {
-    const val = select.value;
-    renderMappingSet(val);
-    updateEditButtonVisibility();
-  };
+  updateAddBtn(name);
 }
 
+function updateAddBtn(name) {
+  const btn = document.getElementById('btn-add-map');
+  if (!btn) return;
+  btn.style.display = (name !== 'Padrão' && isEditMode) ? 'flex' : 'none';
+}
+
+/* ─── Renderizar mapeamentos ───
+   FIX: usa onclick em vez de addEventListener para evitar duplicação
+   FIX: limpa completamente antes de reconstruir
+*/
 function renderMappingSet(name) {
-  const sets = loadSubstSets() || {};
-  const arr = sets[name] || [];
-  const list = document.getElementById('subst-list');
+  const list     = document.getElementById('subst-list');
+  const moreWrap = document.getElementById('sp-more-wrap');
+  const mapHd    = document.getElementById('sp-map-hd');
+
+  // Limpeza completa
   list.innerHTML = '';
-
-  if (expandedSets[name] === undefined) {
-    expandedSets[name] = false;
+  if (moreWrap) {
+    moreWrap.innerHTML = '';
+    moreWrap.style.display = 'none';
   }
 
-  const maxInitial = 5;
-  const showAll = expandedSets[name];
-  const itemsToShow = showAll ? arr : arr.slice(0, maxInitial);
+  const arr = sessionSets[name] || [];
 
-  itemsToShow.forEach(item => addMappingRow(item.k || '', item.v || ''));
-
-  if (arr.length > maxInitial && !showAll) {
-    const moreRow = document.createElement('div');
-    moreRow.className = 'map-row';
-    moreRow.style.justifyContent = 'center';
-    const moreBtn = document.createElement('button');
-    moreBtn.className = 'show-more-btn';
-    moreBtn.textContent = `Ver mais (${arr.length - maxInitial} itens)`;
-    moreBtn.addEventListener('click', () => {
-      expandedSets[name] = true;
-      renderMappingSet(name);
-    });
-    moreRow.appendChild(moreBtn);
-    list.appendChild(moreRow);
-  }
-  else if (showAll && arr.length > maxInitial) {
-    const lessRow = document.createElement('div');
-    lessRow.className = 'map-row';
-    lessRow.style.justifyContent = 'center';
-    const lessBtn = document.createElement('button');
-    lessBtn.className = 'show-more-btn';
-    lessBtn.textContent = `Ver menos`;
-    lessBtn.addEventListener('click', () => {
-      expandedSets[name] = false;
-      renderMappingSet(name);
-    });
-    lessRow.appendChild(lessBtn);
-    list.appendChild(lessRow);
+  // Header só aparece quando não é "Padrão" e tem itens
+  if (mapHd) {
+    mapHd.classList.toggle('visible', arr.length > 0 && name !== 'Padrão');
   }
 
-  updateSubstUIState();
-  updateEditButtonVisibility();
-  updateReadonlyMode();
-}
-
-function updateEditButtonVisibility() {
-  const select = document.getElementById('subst-sets');
-  const currentSet = select.value;
-  const editBtn = document.getElementById('btn-edit-set');
-  const addBtn = document.getElementById('btn-add-mapping');
-
-  if (currentSet === 'Padrão') {
-    editBtn.style.display = 'none';
-    addBtn.style.display = 'none';
-  } else {
-    editBtn.style.display = 'flex';
-    if (isEditMode) {
-      addBtn.style.display = 'flex';
+  // Nada a mostrar
+  if (arr.length === 0) {
+    if (name === 'Padrão') {
+      list.innerHTML = `<div class="sp-empty-set">Selecione uma predefinição para ver os mapeamentos.</div>`;
     } else {
-      addBtn.style.display = 'none';
+      list.innerHTML = `<div class="sp-empty-set">Nenhum mapeamento. Clique em ✎ para editar.</div>`;
     }
+    updateAddBtn(name);
+    return;
   }
+
+  if (expandedSets[name] === undefined) expandedSets[name] = false;
+  const MAX = 6;
+  const showAll = expandedSets[name];
+  const items   = showAll ? arr : arr.slice(0, MAX);
+
+  list.classList.toggle('readonly', !isEditMode);
+
+  items.forEach(item => _addMappingRow(item.k || '', item.v || '', list, name));
+
+  // Ver mais / ver menos — usa onclick para não acumular listeners
+  if (arr.length > MAX && moreWrap) {
+    moreWrap.style.display = 'block';
+    moreWrap.innerHTML = '';
+    const btn = document.createElement('button');
+    btn.className = 'sp-more-btn';
+    if (!showAll) {
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg> Ver mais (${arr.length - MAX} itens)`;
+      btn.onclick = () => {
+        expandedSets[name] = true;
+        renderMappingSet(name);
+      };
+    } else {
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg> Ver menos`;
+      btn.onclick = () => {
+        expandedSets[name] = false;
+        renderMappingSet(name);
+      };
+    }
+    moreWrap.appendChild(btn);
+  }
+
+  updateAddBtn(name);
 }
 
+function _addMappingRow(key, val, listEl, setName) {
+  const row = document.createElement('div');
+  row.className = 'map-row';
+
+  /* ── Campo Original ── */
+  const wrapK = document.createElement('div');
+  wrapK.className = 'map-inp-wrap';
+
+  const inK = document.createElement('input');
+  inK.className    = 'map-inp';
+  inK.value        = key;
+  inK.placeholder  = 'Original';
+  inK.disabled     = !isEditMode;
+
+  // Tooltip para textos longos
+  const ttK = document.createElement('div');
+  ttK.className = 'map-inp-tooltip';
+  ttK.textContent = key || '—';
+
+  inK.addEventListener('input', () => { ttK.textContent = inK.value || '—'; });
+  wrapK.appendChild(inK);
+  wrapK.appendChild(ttK);
+
+  /* ── Seta ── */
+  const arr = document.createElement('div');
+  arr.className = 'map-arr';
+  arr.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
+
+  /* ── Campo Processamento ── */
+  const wrapV = document.createElement('div');
+  wrapV.className = 'map-inp-wrap';
+
+  const inV = document.createElement('input');
+  inV.className    = 'map-inp';
+  inV.value        = val;
+  inV.placeholder  = 'Processamento';
+  inV.disabled     = !isEditMode;
+
+  const ttV = document.createElement('div');
+  ttV.className = 'map-inp-tooltip';
+  ttV.textContent = val || '—';
+
+  inV.addEventListener('input', () => { ttV.textContent = inV.value || '—'; });
+  wrapV.appendChild(inV);
+  wrapV.appendChild(ttV);
+
+  /* ── Botão excluir linha ── */
+  const del = document.createElement('button');
+  del.className = 'map-del-btn';
+  del.title     = 'Remover';
+  del.innerHTML = '✕';
+  del.style.display = isEditMode ? 'flex' : 'none';
+  del.onclick = (e) => {
+    e.stopPropagation();
+    const arr2 = sessionSets[setName] || [];
+    const realIdx = arr2.findIndex(m => m.k === key && m.v === val);
+    if (realIdx > -1) arr2.splice(realIdx, 1);
+    renderMappingSet(setName);
+    showToast('Mapeamento removido.');
+  };
+
+  row.appendChild(wrapK);
+  row.appendChild(arr);
+  row.appendChild(wrapV);
+  row.appendChild(del);
+  listEl.appendChild(row);
+}
+
+/* ─── Modo edição ─── */
 function toggleEditMode() {
   isEditMode = !isEditMode;
-  const editBtn = document.getElementById('btn-edit-set');
-  const addBtn = document.getElementById('btn-add-mapping');
+  const btn  = document.getElementById('btn-edit-set');
+  const name = currentSetName;
 
   if (isEditMode) {
-    editBtn.innerHTML = 'Salvar';
-    editBtn.title = 'Salvar edições';
-    addBtn.style.display = 'flex';
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>`;
+    btn.title = 'Concluir edição';
   } else {
-    editBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 3.99997H6C4.89543 3.99997 4 4.8954 4 5.99997V18C4 19.1045 4.89543 20 6 20H18C19.1046 20 20 19.1045 20 18V12M18.4142 8.41417L19.5 7.32842C20.281 6.54737 20.281 5.28104 19.5 4.5C18.7189 3.71895 17.4526 3.71895 16.6715 4.50001L15.5858 5.58575M18.4142 8.41417L12.3779 14.4505C12.0987 14.7297 11.7431 14.9201 11.356 14.9975L8.41422 15.5858L9.00257 12.6441C9.08001 12.2569 9.27032 11.9013 9.54951 11.6221L15.5858 5.58575M18.4142 8.41417L15.5858 5.58575" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>`;
-    editBtn.title = 'Editar conjunto';
-    addBtn.style.display = 'none';
-    saveCurrentSet();
+    saveMappingsFromUI(name);
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/><path d="M15 5l4 4"/></svg>`;
+    btn.title = 'Editar predefinição';
+    showToast('Edições salvas (sessão atual).');
   }
-
-  updateReadonlyMode();
-  updateEditButtonVisibility();
+  renderMappingSet(name);
 }
 
-function updateReadonlyMode() {
-  const list = document.getElementById('subst-list');
-  const inputs = list.querySelectorAll('.map-key, .map-val');
-
-  if (isEditMode) {
-    list.classList.remove('readonly-mode');
-    inputs.forEach(input => {
-      input.disabled = false;
-    });
-  } else {
-    list.classList.add('readonly-mode');
-    inputs.forEach(input => {
-      input.disabled = true;
-    });
-  }
+function saveMappingsFromUI(name) {
+  const rows = Array.from(document.querySelectorAll('#subst-list .map-row'));
+  sessionSets[name] = rows.map(row => ({
+    k: (row.querySelector('.map-inp:first-child')?.value || '').trim(),
+    v: (row.querySelectorAll('.map-inp')[1]?.value || '').trim()
+  })).filter(m => m.k);
 }
 
-// ========= MODAIS =========
+/* ─── Modais ─── */
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
 function showNewModal() {
-  const modal = document.getElementById('newModal');
-  const input = document.getElementById('newName');
-  input.value = 'Novo conjunto';
-  modal.style.display = 'flex';
-  input.focus();
-}
-
-function closeNewModal() {
-  document.getElementById('newModal').style.display = 'none';
+  document.getElementById('modal-new-name').value = 'Nova predefinição';
+  openModal('modal-new');
+  setTimeout(() => {
+    const inp = document.getElementById('modal-new-name');
+    inp.focus(); inp.select();
+  }, 100);
 }
 
 function confirmNew() {
-  const name = document.getElementById('newName').value.trim();
-  if (!name) { showInlineWarning('Digite um nome válido.'); return; }
-  if (name === 'Padrão') { showInlineWarning('Não é permitido gravar no conjunto "Padrão". Escolha outro nome.'); return; }
-  const sets = loadSubstSets() || {};
-  if (sets[name]) { showInlineWarning('Já existe um conjunto com esse nome. Escolha outro.'); return; }
-
-  sets[name] = [];
-  saveSubstSets(sets);
-  populateSubstSetsUI();
-  document.getElementById('subst-sets').value = name;
-  renderMappingSet(name);
-  closeNewModal();
-  showToast('Conjunto criado.');
-  isEditMode = true;
+  const name = document.getElementById('modal-new-name').value.trim();
+  if (!name) { spWarn('Digite um nome válido.'); return; }
+  if (name === 'Padrão') { spWarn('O nome "Padrão" é reservado.'); return; }
+  if (sessionSets[name]) { spWarn('Já existe uma predefinição com esse nome.'); return; }
+  sessionSets[name] = [];
+  closeModal('modal-new');
+  setCurrentSet(name);
+  showToast('Predefinição criada.');
+  // Entra em modo de edição automaticamente
+  isEditMode = false;
   toggleEditMode();
 }
 
-function showInlineWarning(msg) {
-  const w = document.getElementById('subst-warning');
-  w.textContent = msg; w.style.display = 'block';
-}
-
-function showSaveAsModal() {
-  const modal = document.getElementById('saveAsModal');
-  const input = document.getElementById('saveAsName');
-  const select = document.getElementById('subst-sets');
-  const current = select.value || '';
-  input.value = current ? current + ' - cópia' : 'Novo conjunto';
-  modal.style.display = 'flex';
-  input.focus();
-}
-
-function closeSaveAsModal() {
-  document.getElementById('saveAsModal').style.display = 'none';
-}
-
-function confirmSaveAs() {
-  const name = document.getElementById('saveAsName').value.trim();
-  if (!name) { showInlineWarning('Digite um nome válido.'); return; }
-  if (name === 'Padrão') { showInlineWarning('Não é permitido gravar no conjunto "Padrão". Escolha outro nome.'); return; }
-  const sets = loadSubstSets() || {};
-  if (sets[name]) { showInlineWarning('Já existe um conjunto com esse nome. Escolha outro.'); return; }
-
-  sets[name] = getMappingsFromUI();
-  saveSubstSets(sets);
-  populateSubstSetsUI();
-  document.getElementById('subst-sets').value = name;
-  renderMappingSet(name);
-  closeSaveAsModal();
-  showToast('Conjunto salvo como ' + name);
-  updateEditButtonVisibility();
-}
-
 function showDeleteModal() {
-  const select = document.getElementById('subst-sets');
-  const name = select.value;
-  if (!name) return;
-  if (name === 'Padrão') { showInlineWarning('O conjunto "Padrão" não pode ser excluído.'); return; }
-
-  const modal = document.getElementById('deleteModal');
-  const span = document.getElementById('delete-set-name');
-  span.textContent = name;
-  modal.style.display = 'flex';
-}
-
-function closeDeleteModal() {
-  document.getElementById('deleteModal').style.display = 'none';
+  const name = currentSetName;
+  if (!name || name === 'Padrão') { spWarn('O conjunto "Padrão" não pode ser excluído.'); return; }
+  document.getElementById('modal-del-name').textContent = name;
+  openModal('modal-del');
 }
 
 function confirmDelete() {
-  const select = document.getElementById('subst-sets');
-  const name = select.value;
-  const sets = loadSubstSets() || {};
-  delete sets[name];
-  saveSubstSets(sets);
-  populateSubstSetsUI();
-  document.getElementById('subst-sets').value = Object.keys(loadSubstSets() || {})[0] || '';
-  renderMappingSet(document.getElementById('subst-sets').value);
-  showToast('Conjunto excluído.');
-  updateEditButtonVisibility();
-  closeDeleteModal();
+  const name = currentSetName;
+  delete sessionSets[name];
+  closeModal('modal-del');
+  setCurrentSet('Padrão');
+  showToast('Predefinição excluída.');
 }
 
-function restoreOriginalsFromUI() {
-  restoreOriginals({ allSheets: false });
+/* ─── Salvar como JSON (exportar arquivo) ─── */
+function saveSetAsFile() {
+  const name = currentSetName;
+  if (name === 'Padrão') { spWarn('Selecione uma predefinição para salvar.'); return; }
+  const arr  = sessionSets[name] || [];
+  const json = JSON.stringify({ name, version: 1, mappings: arr }, null, 2);
+  dlText(json, sanitize(name) + '.json', 'application/json;charset=utf-8;');
+  showToast(`"${name}" salvo como arquivo JSON.`);
 }
 
-function restoreOriginals({ allSheets = false } = {}) {
-  if (!currentWB) { showToast('Nenhum arquivo carregado.'); return; }
-  const targetSheets = allSheets ? currentWB.SheetNames.slice() : (activeSheetName ? [activeSheetName] : []);
-  let restoredCount = 0;
-  targetSheets.forEach(name => {
-    const orig = originalSheetsAOA[name];
-    if (!orig) return;
-    const novoWS = XLSX.utils.aoa_to_sheet(orig.map(r => Array.isArray(r) ? r.slice() : []));
-    currentWB.Sheets[name] = novoWS;
-    const idx = currentWB.SheetNames.indexOf(name);
-    const html = XLSX.utils.sheet_to_html(novoWS, { id: `sheet-${idx}`, header: '', footer: '' });
-    const pane = document.querySelector(`.sheet[data-name="${CSS.escape(name)}"]`);
-    if (pane) { pane.innerHTML = html; bindTableInteractions(pane); }
-    substitutionAppliedSheets.delete(name);
-    sortedSheets.delete(name);
-    restoredCount++;
-  });
-  updateSubstUIState();
-  statusEl.textContent = `Restauradas ${restoredCount} aba(s) ao original.`;
-  previousStatus = statusEl.textContent;
-  showToast('Conteúdo original restaurado.');
-}
-
-function getMappingsFromUI() {
-  const rows = Array.from(document.querySelectorAll('.subst-list .map-row'));
-  const out = [];
-  rows.forEach(row => {
-    const k = (row.querySelector('.map-key')?.value || '').toString().trim();
-    const v = (row.querySelector('.map-val')?.value || '').toString().trim();
-    if (k) out.push({ k: k, v: v });
-  });
-  return out;
-}
-
-function addMappingRow(key, val) {
-  const list = document.getElementById('subst-list');
-  const row = document.createElement('div'); row.className = 'map-row';
-  const inputK = document.createElement('input'); inputK.className = 'map-key'; inputK.value = key || '';
-  const arrow = document.createElement('div'); arrow.className = 'map-arrow';
-  arrow.innerHTML = `<svg width="20" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 12h14" stroke="#666" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 5l6 7-6 7" stroke="#666" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const inputV = document.createElement('input'); inputV.className = 'map-val'; inputV.value = val || '';
-  const del = document.createElement('button'); del.className = 'map-del'; del.title = 'Remover mapeamento'; del.innerHTML = '✕';
-  del.addEventListener('click', (e) => {
-    e.stopPropagation();
-    row.remove();
-    const select = document.getElementById('subst-sets');
-    const currentSetName = select.value;
-    const sets = loadSubstSets() || {};
-    const currentSet = sets[currentSetName] || [];
-
-    const rows = Array.from(list.querySelectorAll('.map-row'));
-    const index = rows.indexOf(row);
-    if (index > -1) {
-      currentSet.splice(index, 1);
-      saveSubstSets(sets);
-      renderMappingSet(currentSetName);
-    }
-
-    updateSubstUIState();
-    showToast('Mapeamento removido.');
-  });
-  row.appendChild(inputK); row.appendChild(arrow); row.appendChild(inputV); row.appendChild(del);
-  list.appendChild(row);
-
-  if (!isEditMode) {
-    inputK.disabled = true;
-    inputV.disabled = true;
-  }
-
-  inputK.focus();
-}
-
-function saveCurrentSet() {
-  const select = document.getElementById('subst-sets');
-  const currentSetName = select.value;
-  if (!currentSetName) return;
-  const sets = loadSubstSets() || {};
-  sets[currentSetName] = getMappingsFromUI();
-  saveSubstSets(sets);
-}
-
-function applySubstitutionsFromUI() {
-  if (!currentWB) { showToast('Nenhum arquivo carregado.'); return; }
-  const select = document.getElementById('subst-sets');
-  const currentSetName = select.value;
-  const sets = loadSubstSets() || {};
-  const mappings = sets[currentSetName] || [];
-  substitutionDict = {};
-  mappings.forEach(m => { substitutionDict[normalizeKey(m.k)] = m.v; });
-  applySubstitutions({ allSheets: false });
-}
-
-function applySubstitutions({ allSheets = false } = {}) {
-  if (!currentWB) { showToast('Nenhum arquivo carregado.'); return; }
-  let totalReplacements = 0;
-  const targetSheets = allSheets ? currentWB.SheetNames.slice() : (activeSheetName ? [activeSheetName] : []);
-  targetSheets.forEach(name => {
-    const ws = currentWB.Sheets[name];
-    if (!ws) return;
-    const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-    let replaced = 0;
-    for (let r = 0; r < aoa.length; r++) {
-      for (let c = 0; c < aoa[r].length; c++) {
-        const cell = aoa[r][c];
-        if (cell === null || cell === undefined) continue;
-        const norm = normalizeKey(cell.toString());
-        if (Object.prototype.hasOwnProperty.call(substitutionDict, norm)) {
-          aoa[r][c] = substitutionDict[norm];
-          replaced++;
-        }
+/* ─── Carregar de arquivo JSON ─── */
+const loadJsonInput = document.getElementById('load-json-input');
+loadJsonInput.addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      let name, mappings;
+      if (Array.isArray(data)) {
+        name     = file.name.replace(/\.json$/i, '') || 'Importado';
+        mappings = data;
+      } else if (data.mappings && Array.isArray(data.mappings)) {
+        name     = data.name || file.name.replace(/\.json$/i, '');
+        mappings = data.mappings;
+      } else {
+        spWarn('Formato de arquivo inválido.');
+        return;
       }
+      let finalName = name;
+      let suffix = 1;
+      while (sessionSets[finalName]) { finalName = `${name} (${++suffix})`; }
+      sessionSets[finalName] = mappings.map(m => ({ k: String(m.k||''), v: String(m.v||'') }));
+      setCurrentSet(finalName);
+      showToast(`"${finalName}" carregado!`);
+    } catch(err) {
+      spWarn('Erro ao ler o arquivo JSON.');
+      console.error(err);
     }
-    if (replaced > 0) {
-      const novoWS = XLSX.utils.aoa_to_sheet(aoa);
-      currentWB.Sheets[name] = novoWS;
-      const idx = currentWB.SheetNames.indexOf(name);
-      const html = XLSX.utils.sheet_to_html(novoWS, { id: `sheet-${idx}`, header: '', footer: '' });
-      const pane = document.querySelector(`.sheet[data-name="${CSS.escape(name)}"]`);
-      if (pane) { pane.innerHTML = html; bindTableInteractions(pane); }
-      substitutionAppliedSheets.add(name);
-      totalReplacements += replaced;
-    }
-  });
-  updateSubstUIState();
-  statusEl.textContent = `Substituições aplicadas (${totalReplacements} trocas).`;
-  previousStatus = statusEl.textContent;
-  showToast(`${totalReplacements} substituição(ões) aplicadas.`);
+    loadJsonInput.value = '';
+  };
+  reader.readAsText(file);
+});
+
+/* ─── Clear set → volta ao Padrão ─── */
+function clearSet() {
+  setCurrentSet('Padrão');
 }
 
-function updateSubstUIState() {
-  const btn = document.getElementById('btn-subst');
-  if (!btn) return;
-  const applied = activeSheetName && substitutionAppliedSheets.has(activeSheetName);
-  btn.title = applied ? 'Substituições aplicadas (abrir painel)' : 'Substituições (abrir painel)';
+/* ─── Aplicar processamento ─── */
+function applyProcessing() {
+  if (!currentWB) { showToast('Nenhum arquivo carregado.'); return; }
+  const name     = currentSetName;
+  const mappings = sessionSets[name] || [];
+  substDict = {};
+  mappings.forEach(m => { if (m.k) substDict[normalizeKey(m.k)] = m.v; });
+
+  if (Object.keys(substDict).length === 0) { showToast('Nenhum mapeamento nesta predefinição.'); return; }
+
+  const ws  = currentWB.Sheets[activeSheetName];
+  if (!ws) return;
+  const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+  let n = 0;
+  for (let r=0; r<aoa.length; r++) {
+    for (let c=0; c<aoa[r].length; c++) {
+      const cell = aoa[r][c];
+      if (cell === null || cell === undefined) continue;
+      const key = normalizeKey(cell.toString());
+      if (Object.prototype.hasOwnProperty.call(substDict, key)) { aoa[r][c] = substDict[key]; n++; }
+    }
+  }
+  const novoWS = XLSX.utils.aoa_to_sheet(aoa);
+  currentWB.Sheets[activeSheetName] = novoWS;
+  refreshSheetPane(activeSheetName, novoWS);
+  substApplied.add(activeSheetName);
+  setStatus(`Processamento: ${n} substituição(ões) na aba "${activeSheetName}".`, 'ok');
+  showToast(`${n} substituição(ões) aplicada(s).`);
 }
 
-// ========= SELEÇÃO DE CÉLULAS =========
+/* ─── Restaurar original ─── */
+function restoreOriginal() {
+  if (!currentWB || !activeSheetName) { showToast('Nenhum arquivo carregado.'); return; }
+  const orig = originalSheetsAOA[activeSheetName];
+  if (!orig) return;
+  const novoWS = XLSX.utils.aoa_to_sheet(orig.map(r => Array.isArray(r) ? r.slice() : []));
+  currentWB.Sheets[activeSheetName] = novoWS;
+  refreshSheetPane(activeSheetName, novoWS);
+  substApplied.delete(activeSheetName);
+  sortedSheets.delete(activeSheetName);
+  setStatus(`Original restaurado na aba "${activeSheetName}".`, 'ok');
+  showToast('Original restaurado.');
+  updateSortBtn();
+}
+
+/* ─── Aviso inline no painel ─── */
+function spWarn(msg) {
+  const w = document.getElementById('sp-warning');
+  w.textContent = msg; w.style.display = 'block';
+  clearTimeout(spWarn._t);
+  spWarn._t = setTimeout(() => { w.style.display = 'none'; }, 3500);
+}
+
+/* ═══════════════════════════════════════════
+   SELEÇÃO DE CÉLULAS
+═══════════════════════════════════════════ */
 function bindTableInteractions(pane) {
-  const table = pane.querySelector('table');
-  if (!table) return;
-  const tb = table.tBodies[0];
-  if (!tb) return;
+  const table = pane.querySelector('table'); if (!table) return;
+  const tb    = table.tBodies[0];           if (!tb)    return;
   Array.from(tb.rows).forEach((row, rIdx) => {
     Array.from(row.cells).forEach((td, cIdx) => {
-      td.dataset.r = rIdx;
-      td.dataset.c = cIdx;
+      td.dataset.r = rIdx; td.dataset.c = cIdx;
       td.style.userSelect = 'none';
-      td.addEventListener('mousedown', cell_mouse_down);
-      td.addEventListener('mouseenter', cell_mouse_enter);
-      td.addEventListener('mouseup', cell_mouse_up);
+      td.addEventListener('mousedown',  cell_down);
+      td.addEventListener('mouseenter', cell_enter);
+      td.addEventListener('mouseup',    cell_up);
     });
   });
 }
-
-function cell_mouse_down(e) {
+function cell_down(e) {
   if (e.button !== 0) return;
   isSelecting = true;
   const td = e.currentTarget;
-  selectStart = { r: Number(td.dataset.r), c: Number(td.dataset.c) };
-  if (!e.ctrlKey && !e.metaKey) { clearSelection(); }
-  toggleCellSelection(td);
+  selectStart = { r: +td.dataset.r, c: +td.dataset.c };
+  if (!e.ctrlKey && !e.metaKey) clearSelection();
+  toggleCell(td);
 }
-
-function cell_mouse_enter(e) {
-  if (!isSelecting) return;
+function cell_enter(e) {
+  if (!isSelecting || !selectStart) return;
   const td = e.currentTarget;
-  if (selectStart) {
-    const r2 = Number(td.dataset.r); const c2 = Number(td.dataset.c);
-    selectRange(selectStart.r, selectStart.c, r2, c2);
-  }
+  selectRange(selectStart.r, selectStart.c, +td.dataset.r, +td.dataset.c);
 }
+function cell_up() { isSelecting = false; selectStart = null; }
 
-function cell_mouse_up(e) {
-  isSelecting = false; selectStart = null;
-}
-
-function cellKey(k) { return `${k.r}|${k.c}`; }
-
-function selectRange(r1, c1, r2, c2) {
+function selectRange(r1,c1,r2,c2) {
   clearSelection();
-  const rmin = Math.min(r1, r2); const rmax = Math.max(r1, r2);
-  const cmin = Math.min(c1, c2); const cmax = Math.max(c1, c2);
-  const activePane = document.querySelector('.sheet.active');
-  if (!activePane) return;
-  const table = activePane.querySelector('table'); if (!table) return;
-  const tb = table.tBodies[0]; if (!tb) return;
-  for (let r = rmin; r <= rmax; r++) {
+  const pane  = document.querySelector('.sheet.active'); if (!pane)  return;
+  const table = pane.querySelector('table');             if (!table) return;
+  const tb    = table.tBodies[0];                       if (!tb)    return;
+  for (let r=Math.min(r1,r2); r<=Math.max(r1,r2); r++) {
     const row = tb.rows[r]; if (!row) continue;
-    for (let c = cmin; c <= cmax; c++) {
+    for (let c=Math.min(c1,c2); c<=Math.max(c1,c2); c++) {
       const cell = row.cells[c]; if (!cell) continue;
-      cell.classList.add('cell-selected');
-      selectedCells.add(`${r}|${c}`);
+      cell.classList.add('cell-selected'); selectedCells.add(`${r}|${c}`);
     }
   }
-  updateSelectionCount();
+  updateSelChip();
 }
-
-function toggleCellSelection(td) {
+function toggleCell(td) {
   const key = `${td.dataset.r}|${td.dataset.c}`;
-  if (selectedCells.has(key)) {
-    selectedCells.delete(key); td.classList.remove('cell-selected');
-  } else {
-    selectedCells.add(key); td.classList.add('cell-selected');
-  }
-  updateSelectionCount();
+  if (selectedCells.has(key)) { selectedCells.delete(key); td.classList.remove('cell-selected'); }
+  else { selectedCells.add(key); td.classList.add('cell-selected'); }
+  updateSelChip();
 }
-
 function clearSelection() {
-  const activePane = document.querySelector('.sheet.active');
-  if (activePane) {
-    activePane.querySelectorAll('td.cell-selected').forEach(td => td.classList.remove('cell-selected'));
-  }
+  const pane = document.querySelector('.sheet.active');
+  if (pane) pane.querySelectorAll('td.cell-selected').forEach(td => td.classList.remove('cell-selected'));
   selectedCells.clear();
-  updateSelectionCount();
+  updateSelChip();
 }
-
-function updateSelectionCount() {
-  const activePane = document.querySelector('.sheet.active');
-  if (!activePane) { selCountEl.textContent = '0'; statusEl.textContent = previousStatus; return; }
-  const selected = Array.from(activePane.querySelectorAll('td.cell-selected'));
-  const nonEmptySelected = selected.filter(td => (td.textContent || '').toString().trim() !== '');
-  selCountEl.textContent = nonEmptySelected.length.toString();
-  const rightSel = document.getElementById('right-selection');
-  if (nonEmptySelected.length > 0) {
-    statusEl.textContent = `${nonEmptySelected.length} célula(s) selecionada(s)`;
-  } else {
-    statusEl.textContent = previousStatus;
-  }
+function updateSelChip() {
+  const pane = document.querySelector('.sheet.active');
+  const chip = document.getElementById('sel-chip');
+  const cnt  = document.getElementById('sel-count');
+  if (!pane || selectedCells.size === 0) { if (chip) chip.classList.remove('visible'); return; }
+  const nonEmpty = Array.from(pane.querySelectorAll('td.cell-selected')).filter(td => td.textContent.trim() !== '');
+  if (cnt) cnt.textContent = nonEmpty.length;
+  if (chip) chip.classList.toggle('visible', nonEmpty.length > 0);
 }
+document.addEventListener('mousedown', e => {
+  if (!e.target.closest('.sheet') && !e.target.closest('.side-panel')) clearSelection();
+});
 
-// ========= TOGGLE SUBSTITUIÇÕES =========
-function toggleSubstMenu(e) {
-  if (!currentWB) {
-    const noFileWarning = document.getElementById('no-file-warning');
-    noFileWarning.style.display = 'block';
-    document.getElementById('subst-list').style.display = 'none';
-    document.getElementById('btn-add-mapping').style.display = 'none';
-    document.querySelector('.separator').style.display = 'none';
-    toggleMenu('dropdown-subst');
-    return;
-  } else {
-    document.getElementById('no-file-warning').style.display = 'none';
-    document.getElementById('subst-list').style.display = 'flex';
-    document.querySelector('.separator').style.display = 'block';
-  }
-  toggleMenu('dropdown-subst');
-}
-
-// ========= INICIALIZAÇÃO =========
-(function initSubstDict() {
-  try {
-    populateSubstSetsUI();
-    const select = document.getElementById('subst-sets');
-    select.value = Object.keys(loadSubstSets() || {})[0] || '';
-    renderMappingSet(select.value);
-    const dropdownSubst = document.getElementById('dropdown-subst');
-    if (dropdownSubst) dropdownSubst.addEventListener('click', (e) => { e.stopPropagation(); });
-    ['btn-add-mapping', 'btn-new', 'btn-save-as', 'btn-delete-set', 'btn-apply-subst', 'btn-restore-original', 'btn-sort-subst', 'btn-edit-set'].forEach(id => {
-      const el = document.getElementById(id); if (el) el.addEventListener('click', (e) => e.stopPropagation());
-    });
-    const addBtn = document.getElementById('btn-add-mapping');
-    if (addBtn) addBtn.addEventListener('click', () => {
-      const select = document.getElementById('subst-sets');
-      const currentSetName = select.value;
-      if (currentSetName === 'Padrão') return;
-
-      const sets = loadSubstSets() || {};
-      const currentSet = sets[currentSetName] || [];
-      currentSet.push({ k: '', v: '' });
-      saveSubstSets(sets);
-      renderMappingSet(currentSetName);
-    });
-
-    const editBtn = document.getElementById('btn-edit-set');
-    if (editBtn) {
-      editBtn.addEventListener('click', toggleEditMode);
-    }
-
-    updateEditButtonVisibility();
-    updateReadonlyMode();
-
-    substitutionDict = {};
-  } catch (e) { console.warn('Não foi possível inicializar painel de substituições', e); }
-})();
-
-// ========= EVENTOS DE DRAG & DROP =========
-dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+/* ═══════════════════════════════════════════
+   DRAG & DROP
+═══════════════════════════════════════════ */
+dropzone.addEventListener('dragover',  e => { e.preventDefault(); dropzone.classList.add('dragover'); });
 dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
-dropzone.addEventListener('drop', (e) => {
+dropzone.addEventListener('drop', e => {
   e.preventDefault(); dropzone.classList.remove('dragover');
-  const f = e.dataTransfer.files && e.dataTransfer.files[0];
+  const f = e.dataTransfer.files?.[0];
   if (f) processFile(f);
 });
-fileInput.addEventListener('change', (e) => {
-  const f = e.target.files && e.target.files[0];
+fileInput.addEventListener('change', e => {
+  const f = e.target.files?.[0];
   if (f) processFile(f);
 });
 
-updateSubstUIState();
+/* ═══════════════════════════════════════════
+   INICIALIZAÇÃO
+═══════════════════════════════════════════ */
+(function init() {
+  populateSelect();
+
+  // Eventos dos botões do painel
+  document.getElementById('btn-new')?.addEventListener('click',    e => { e.stopPropagation(); showNewModal(); });
+  document.getElementById('btn-load')?.addEventListener('click',   e => { e.stopPropagation(); loadJsonInput.click(); });
+  document.getElementById('btn-saveas')?.addEventListener('click', e => { e.stopPropagation(); saveSetAsFile(); });
+  document.getElementById('btn-del-set')?.addEventListener('click',e => { e.stopPropagation(); showDeleteModal(); });
+  document.getElementById('btn-clear-set')?.addEventListener('click', e => { e.stopPropagation(); clearSet(); });
+  document.getElementById('btn-edit-set')?.addEventListener('click', e => { e.stopPropagation(); toggleEditMode(); });
+  document.getElementById('btn-add-map')?.addEventListener('click', e => {
+    e.stopPropagation();
+    const name = currentSetName;
+    if (name === 'Padrão') return;
+    if (!sessionSets[name]) sessionSets[name] = [];
+    sessionSets[name].push({ k: '', v: '' });
+    renderMappingSet(name);
+  });
+  document.getElementById('btn-apply')?.addEventListener('click',   e => { e.stopPropagation(); applyProcessing(); });
+  document.getElementById('btn-restore')?.addEventListener('click', e => { e.stopPropagation(); restoreOriginal(); });
+  document.getElementById('btn-sort')?.addEventListener('click',    e => { e.stopPropagation(); toggleSort(); });
+
+  // Parar propagação de clicks dentro do painel (mas não fechar custom select)
+  document.getElementById('side-panel')?.addEventListener('click', e => e.stopPropagation());
+
+  // ESC fecha menus e limpa seleção
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fecharMenus(); clearSelection(); closeCustomSelect(); }
+  });
+
+  // Enter nos modais
+  document.getElementById('modal-new-name')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') confirmNew();
+  });
+
+  // Fechar modais ao clicar no overlay
+  ['modal-new', 'modal-del'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('click', e => { if (e.target === el) closeModal(id); });
+  });
+})();
 </script>
 </body>
 </html>

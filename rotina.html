@@ -49,6 +49,22 @@ body::before {
   z-index: 0;
 }
 
+/* ── PRINT ────────────────────────────────────── */
+#print-area { display: none; }
+
+@media print {
+  body::before { display: none !important; }
+  body > .app-wrapper,
+  body > .btn-top { display: none !important; }
+  #print-area {
+    display: block !important;
+    font-family: 'DM Sans', sans-serif;
+    color: #1a2740;
+    background: white;
+  }
+  @page { margin: 14mm 12mm; }
+}
+
 /* ── SCROLLBAR ─────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -219,10 +235,31 @@ body::before {
 }
 
 .sidebar-section {
-  padding: 16px;
   border-bottom: 1px solid var(--border);
 }
 .sidebar-section:last-child { border-bottom: none; }
+
+.sidebar-section-header {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.sidebar-section-header:hover {
+  background: var(--surface2);
+}
+
+.sidebar-section-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
 
 .sidebar-section-title {
   font-family: 'Sora', sans-serif;
@@ -231,26 +268,55 @@ body::before {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-muted);
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 
-.sidebar-section-title button {
+.sidebar-section-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.sidebar-section-actions button {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  text-transform: none;
-  letter-spacing: 0;
   color: var(--accent);
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
-  transition: color 0.15s;
+  padding: 2px 5px;
+  border-radius: 4px;
+  transition: background 0.15s;
+  white-space: nowrap;
 }
-.sidebar-section-title button:hover { color: var(--accent-dark); }
+.sidebar-section-actions button:hover {
+  background: var(--accent-light);
+}
+
+.sidebar-collapse-arrow {
+  width: 16px; height: 16px;
+  color: var(--text-muted);
+  transition: transform 0.22s;
+  flex-shrink: 0;
+}
+.sidebar-collapse-arrow.open {
+  transform: rotate(180deg);
+}
+
+.sidebar-section-body {
+  padding: 0 16px 12px;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.25s ease;
+  max-height: 2000px;
+  opacity: 1;
+}
+.sidebar-section-body.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding-bottom: 0;
+  pointer-events: none;
+}
 
 /* ── DAYS LIST ─────────────────────────────────── */
 .day-item {
@@ -278,12 +344,39 @@ body::before {
 .day-item .day-cb {
   width: 15px; height: 15px;
   border-radius: 4px;
-  border: 1.5px solid var(--border2);
   cursor: pointer;
   flex-shrink: 0;
   accent-color: var(--accent);
+  border: 1.5px solid var(--border2);
+  appearance: none;
+  -webkit-appearance: none;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.15s;
 }
-.day-item.active .day-cb { border-color: rgba(255,255,255,0.5); }
+.day-item .day-cb:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.day-item .day-cb:checked::after {
+  content: '';
+  position: absolute;
+  width: 8px; height: 5px;
+  border-left: 2px solid white;
+  border-bottom: 2px solid white;
+  transform: rotate(-45deg) translate(0, -1px);
+}
+.day-item.active .day-cb {
+  border-color: rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.2);
+}
+.day-item.active .day-cb:checked {
+  background: rgba(255,255,255,0.3);
+  border-color: rgba(255,255,255,0.7);
+}
 .day-item .day-cal {
   width: 15px; height: 15px;
   flex-shrink: 0;
@@ -317,9 +410,9 @@ body::before {
 /* ── FILTER ITEMS ──────────────────────────────── */
 .filter-item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 9px;
-  padding: 9px 10px;
+  padding: 8px 10px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   margin-bottom: 3px;
@@ -342,7 +435,6 @@ body::before {
   background: white;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  margin-top: 1px;
   transition: all 0.18s;
 }
 .filter-item.active .filter-check {
@@ -356,7 +448,6 @@ body::before {
   width: 10px; height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
-  margin-top: 3px;
 }
 
 .filter-info { flex: 1; min-width: 0; }
@@ -380,32 +471,7 @@ body::before {
   font-weight: 600;
 }
 
-/* Day tags shown under category filter */
-.filter-days-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-  margin-top: 5px;
-}
-.day-tag {
-  font-size: 0.65rem;
-  font-weight: 600;
-  background: var(--accent-light);
-  color: var(--accent);
-  padding: 1px 6px;
-  border-radius: 99px;
-  border: 1px solid #c5d5f8;
-  cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-.day-tag:hover {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-}
-
-/* Person filter items (simpler) */
+/* Person filter chips */
 .person-chip {
   display: inline-flex;
   align-items: center;
@@ -484,17 +550,18 @@ body::before {
 }
 .legend-body.open { display: block; }
 
+/* Compact legend grid */
 .legend-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
 }
 
 .legend-card {
   background: var(--surface2);
-  border-radius: var(--radius-sm);
-  padding: 14px;
-  border-left: 5px solid;
+  border-radius: 10px;
+  padding: 10px 12px;
+  border-left: 4px solid;
   transition: box-shadow 0.18s, transform 0.18s;
 }
 .legend-card:hover {
@@ -505,42 +572,65 @@ body::before {
 .legend-card-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 .legend-cat-icon {
-  width: 34px; height: 34px;
-  border-radius: 9px;
+  width: 28px; height: 28px;
+  border-radius: 7px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.12);
 }
-.legend-cat-icon svg { width: 16px; height: 16px; color: #fff; }
+.legend-cat-icon svg { width: 13px; height: 13px; color: #fff; }
 .legend-cat-name {
   font-family: 'Sora', sans-serif;
   font-weight: 600;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   color: var(--text-primary);
-}
-.legend-cat-code {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--text-muted);
+  line-height: 1.3;
 }
 .legend-cat-desc {
-  font-size: 0.83rem;
+  font-size: 0.78rem;
   color: var(--text-secondary);
-  margin-bottom: 8px;
+  margin-bottom: 5px;
+  line-height: 1.4;
 }
+
+/* Collapsible details in legend */
+.legend-details-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 0;
+  font-family: 'DM Sans', sans-serif;
+  transition: color 0.15s;
+}
+.legend-details-toggle:hover { color: var(--accent-dark); }
+.legend-details-toggle svg {
+  width: 11px; height: 11px;
+  transition: transform 0.22s;
+}
+.legend-details-toggle.open svg { transform: rotate(180deg); }
+
 .legend-cat-details {
-  font-size: 0.81rem;
+  font-size: 0.78rem;
   background: white;
-  padding: 8px 10px;
-  border-radius: 9px;
+  padding: 7px 9px;
+  border-radius: 8px;
   border: 1px solid var(--border);
   color: var(--text-primary);
   line-height: 1.5;
+  margin-top: 5px;
+  display: none;
 }
+.legend-cat-details.open { display: block; }
 
 /* ── CONTENT PANEL ──────────────────────────────── */
 .content-panel {
@@ -552,12 +642,12 @@ body::before {
 }
 
 .content-header {
-  padding: 16px 20px;
+  padding: 14px 20px;
   background: var(--surface2);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 .content-header h2 {
   font-family: 'Sora', sans-serif;
@@ -575,6 +665,32 @@ body::before {
   color: var(--warn);
   margin-left: 6px;
 }
+
+/* Day navigation arrows */
+.day-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border2);
+  background: white;
+  color: var(--text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.18s;
+}
+.day-nav-btn svg { width: 14px; height: 14px; }
+.day-nav-btn:hover:not(:disabled) {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.day-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
 .btn-print-day {
   display: flex;
   align-items: center;
@@ -589,6 +705,7 @@ body::before {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.18s;
+  white-space: nowrap;
 }
 .btn-print-day svg { width: 13px; height: 13px; }
 .btn-print-day:hover {
@@ -610,7 +727,6 @@ body::before {
   background: var(--surface2);
   border-radius: var(--radius-md);
   padding: 16px;
-  border-left: 5px solid;
   border: 1px solid var(--border);
   border-left-width: 5px;
   transition: all 0.18s;
@@ -684,7 +800,6 @@ body::before {
 }
 .empty-state p { font-size: 0.92rem; }
 
-/* ── EMPTY ALL-TASKS MSG ────────────────────────── */
 .no-day-selected {
   text-align: center;
   padding: 72px 20px;
@@ -742,27 +857,6 @@ body::before {
 .btn-top.show { opacity: 1; visibility: visible; transform: translateY(0); }
 .btn-top:hover { background: var(--accent-dark); transform: translateY(-2px); }
 .btn-top svg { width: 18px; height: 18px; }
-
-/* ── FILTER TOGGLE BUTTONS ──────────────────────── */
-.filter-toggle-btns {
-  display: flex;
-  gap: 5px;
-}
-.ftb {
-  flex: 1;
-  padding: 5px 8px;
-  border: 1.5px solid var(--border2);
-  border-radius: 7px;
-  background: white;
-  color: var(--text-secondary);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.18s;
-  text-align: center;
-}
-.ftb:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
 
 /* ── ACTIVE FILTERS BAR ─────────────────────────── */
 .active-filters {
@@ -829,12 +923,6 @@ body::before {
   .main-area { padding: 14px; }
   .brand-sub { display: none; }
 }
-
-/* ── ACTIVE FILTER DAY HIGHLIGHTED IN SIDEBAR ───── */
-.day-item.has-filter-match:not(.active) {
-  border-color: var(--border2);
-  background: #f0f7ff;
-}
 </style>
 </head>
 <body>
@@ -878,40 +966,60 @@ body::before {
 
   <div class="body-layout">
 
-    <!-- SIDEBAR -->
+    <!-- SIDEBAR — order: Cats → Persons → Days -->
     <aside class="sidebar">
 
-      <!-- Days -->
-      <div class="sidebar-section">
-        <div class="sidebar-section-title">
-          <span>Dias</span>
-          <div style="display:flex;gap:4px;">
-            <button id="btn-sel-all-days" title="Selecionar todos">Sel. todos</button>
-            <button id="btn-clear-days" title="Limpar seleção">Limpar</button>
-          </div>
-        </div>
-        <div id="days-list"></div>
-      </div>
-
       <!-- Category Filter -->
-      <div class="sidebar-section">
-        <div class="sidebar-section-title">
-          <span>Filtrar por Categoria</span>
-          <div style="display:flex;gap:4px;">
+      <div class="sidebar-section" id="section-cats">
+        <div class="sidebar-section-header" id="header-cats">
+          <div class="sidebar-section-title-row">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:var(--text-muted);flex-shrink:0;"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+            <span class="sidebar-section-title">Filtrar por Categoria</span>
+          </div>
+          <div class="sidebar-section-actions" id="actions-cats">
             <button id="btn-sel-all-cats">Todas</button>
             <button id="btn-clear-cats">Nenhuma</button>
           </div>
+          <svg class="sidebar-collapse-arrow open" id="arrow-cats" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div id="cat-filter-list"></div>
+        <div class="sidebar-section-body" id="body-cats">
+          <div id="cat-filter-list"></div>
+        </div>
       </div>
 
       <!-- Person Filter -->
-      <div class="sidebar-section">
-        <div class="sidebar-section-title">
-          <span>Filtrar por Pessoa</span>
-          <button id="btn-clear-persons">Limpar</button>
+      <div class="sidebar-section" id="section-persons">
+        <div class="sidebar-section-header" id="header-persons">
+          <div class="sidebar-section-title-row">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:var(--text-muted);flex-shrink:0;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="sidebar-section-title">Filtrar por Pessoa</span>
+          </div>
+          <div class="sidebar-section-actions" id="actions-persons">
+            <button id="btn-clear-persons">Limpar</button>
+          </div>
+          <svg class="sidebar-collapse-arrow open" id="arrow-persons" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div id="person-filter-list" style="display:flex;flex-wrap:wrap;gap:4px;padding: 2px 0;"></div>
+        <div class="sidebar-section-body" id="body-persons">
+          <div id="person-filter-list" style="display:flex;flex-wrap:wrap;gap:4px;padding:2px 0;"></div>
+        </div>
+      </div>
+
+      <!-- Days -->
+      <div class="sidebar-section" id="section-days">
+        <div class="sidebar-section-header" id="header-days">
+          <div class="sidebar-section-title-row">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:var(--text-muted);flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
+            <span class="sidebar-section-title">Dias</span>
+          </div>
+          <div class="sidebar-section-actions" id="actions-days">
+            <button id="btn-sel-all-days">Sel. todos</button>
+            <button id="btn-clear-days">Limpar</button>
+          </div>
+          <svg class="sidebar-collapse-arrow open" id="arrow-days" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="sidebar-section-body" id="body-days">
+          <div id="days-list"></div>
+        </div>
       </div>
 
     </aside>
@@ -937,9 +1045,17 @@ body::before {
       <!-- Content Panel -->
       <div class="content-panel" id="content-panel">
         <div class="content-header">
+          <!-- Prev arrow -->
+          <button class="day-nav-btn" id="btn-prev-day" title="Dia anterior" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
           <h2 id="content-title">
             <span class="h2-date">Selecione um dia</span>
           </h2>
+          <!-- Next arrow -->
+          <button class="day-nav-btn" id="btn-next-day" title="Próximo dia" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
           <button class="btn-print-day" id="content-print-day">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
             Imprimir
@@ -964,11 +1080,14 @@ body::before {
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
 </button>
 
+<!-- PRINT AREA — hidden on screen, shown on print -->
+<div id="print-area"></div>
+
 <script>
 (function () {
 'use strict';
 
-// ── SVG ICONS ────────────────────────────────────────────────────────────────
+// ── SVG ICONS ─────────────────────────────────────────────────────────────
 const ICONS = {
   chat: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
   box: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`,
@@ -994,31 +1113,32 @@ const ICONS = {
   check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
   info: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
   cal: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>`,
+  chevDown: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`,
 };
 
-// ── DATA ─────────────────────────────────────────────────────────────────────
+// ── DATA ───────────────────────────────────────────────────────────────────
 const categorias = {
-  N1:  { nome: "Cobranças WhatsApp",         descricao: "Fazer cobranças no WhatsApp dos clientes",                       detalhes: "Tirar relatório de cobranças, procurar cliente no WhatsApp e mandar mensagem pronta. Cobrar comprovante se necessário.",                                                                               cor: "#ef4444", icon: "chat" },
-  N2:  { nome: "Pedidos Clientes",            descricao: "Mandar mensagem para clientes pedindo pedido",                    detalhes: "Na web do sistema, vá em telemarketing, olhe clientes sem pedido e peça para enviarem. Horário: 9:00-9:30.",                                                                                       cor: "#007BFF", icon: "box" },
-  N3:  { nome: "Pedir Café",                  descricao: "Pedir café para produção caso precise",                           detalhes: "Confirmar na produção (embalagem ou setor Ceará) se precisa de café para quem fica até mais tarde.",                                                                                              cor: "#5d4037", icon: "coffee" },
-  N4:  { nome: "Montagem Rotas",              descricao: "Montagem das rotas de entrega",                                   detalhes: "Confira a seção de montagem rotas nas anotações do site.",                                                                                                                                         cor: "#10b981", icon: "map" },
-  N5:  { nome: "Lista Embalagem",             descricao: "Pegar lista da embalagem São José e Pão Total",                   detalhes: "Pegar ou pedir que tragam a lista. Se perderam, perguntar ao Guilherme ou Kauan o que faltou.",                                                                                                  cor: "#fb8c00", icon: "clipboard" },
-  N6:  { nome: "Fechamento Caixas",           descricao: "Fechamento de caixas (Barão)",                                    detalhes: "Confira a seção de fechamento caixas nas anotações do site.",                                                                                                                                     cor: "#8a2be2", icon: "dollarSign" },
-  N7:  { nome: "Café Sábado",                 descricao: "Pedir café para sábado caso precise",                             detalhes: "Se tiver produção sábado, pedir café na padaria para o número de pessoas e solicitar entrega na fábrica.",                                                                                      cor: "#5d4037", icon: "coffee" },
-  N8:  { nome: "Acerto Célio",                descricao: "Acerto com o fornecedor Célio",                                   detalhes: "Confira o tópico Célio (pagamentos e pix) na seção fornecedores.",                                                                                                                                 cor: "#00897b", icon: "handshake" },
-  N9:  { nome: "Lista São José",              descricao: "Fazer lista da São José e Pão Total",                             detalhes: "Confira o tópico São José na seção geral.",                                                                                                                                                        cor: "#f4511e", icon: "fileText" },
-  N10: { nome: "Adiantamento Salarial",       descricao: "Adiantamento salarial no banco",                                  detalhes: "No banco: folha de pagamento → cadastrar → data, funcionários, valores. Depois processar com autenticação de dois fatores.",                                                                      cor: "#00acc1", icon: "landmark" },
-  N11: { nome: "Cheques Início do Mês",       descricao: "Fazer cheques do início do mês",                                  detalhes: "Confira o tópico Cheques Início e Final de Mês na seção geral.",                                                                                                                                   cor: "#2e7d32", icon: "fileText" },
-  N12: { nome: "Pedido São José",             descricao: "Realizar pedido da São José",                                     detalhes: "Fazer o pedido de compras para a São José conforme necessidade do setor.",                                                                                                                          cor: "#9c27b0", icon: "cart" },
-  N13: { nome: "Passar Embalagem São José",   descricao: "Passar embalagem do pedido São José",                             detalhes: "Encaminhar o pedido para o setor de embalagem.",                                                                                                                                                    cor: "#ff9800", icon: "upload" },
-  N14: { nome: "Pegar Embalagem São José",    descricao: "Pegar embalagem do pedido São José",                              detalhes: "Pegar ou pedir que tragam a lista. Se perderam, perguntar ao Guilherme ou Kauan o que faltou.",                                                                                                  cor: "#4caf50", icon: "download" },
-  N15: { nome: "Lista Hora Extra",            descricao: "Fazer lista de quem vai ficar depois do horário",                 detalhes: "Anotar os funcionários que irão fazer hora extra para controle e pagamento.",                                                                                                                       cor: "#795548", icon: "clock" },
-  N16: { nome: "Faturar Pedidos São José",    descricao: "Faturar os pedidos da São José no sistema",                       detalhes: "Realizar o faturamento dos pedidos da São José conforme rotina.",                                                                                                                                   cor: "#2196f3", icon: "creditCard" },
-  N17: { nome: "Lançar Notinhas",             descricao: "Lançar notas de compras e almoxarifado",                          detalhes: "Inserir no sistema as notinhas de compras.",                                                                                                                                                        cor: "#9e9e9e", icon: "receipt" },
-  N18: { nome: "Passar Dinheiro Hora Extra",  descricao: "Passar dinheiro para quem fez hora extra na semana",              detalhes: "Calcular e entregar o valor referente às horas extras da semana.",                                                                                                                                  cor: "#ffc107", icon: "banknote" },
-  N19: { nome: "Separar Dinheiro Sábado",     descricao: "Separar dinheiro para produção de sábado",                        detalhes: "Separar pagamento para produção no sábado.",                                                                                                                                                        cor: "#ff5722", icon: "coins" },
-  N20: { nome: "Entregar Planilhas",          descricao: "Entregar planilhas de autocontrole",                               detalhes: "Entregar as planilhas preenchidas de autocontrole para o setor responsável.",                                                                                                                      cor: "#607d8b", icon: "barChart" },
-  N21: { nome: "Atualização Comodatos",       descricao: "Atualizar contratos de comodato",                                  detalhes: "Revisar e atualizar os contratos de comodato.",                                                                                                                                                     cor: "#3f51b5", icon: "refreshCcw" },
+  N1:  { nome: "Cobranças WhatsApp",        descricao: "Fazer cobranças no WhatsApp dos clientes",                       detalhes: "Tirar relatório de cobranças, procurar cliente no WhatsApp e mandar mensagem pronta. Cobrar comprovante se necessário.",                                                                                  cor: "#ef4444", icon: "chat" },
+  N2:  { nome: "Pedidos Clientes",           descricao: "Mandar mensagem para clientes pedindo pedido",                   detalhes: "Na web do sistema, vá em telemarketing, olhe clientes sem pedido e peça para enviarem. Horário: 9:00-9:30.",                                                                                          cor: "#007BFF", icon: "box" },
+  N3:  { nome: "Pedir Café",                 descricao: "Pedir café para produção caso precise",                          detalhes: "Confirmar na produção (embalagem ou setor Ceará) se precisa de café para quem fica até mais tarde.",                                                                                                 cor: "#5d4037", icon: "coffee" },
+  N4:  { nome: "Montagem Rotas",             descricao: "Montagem das rotas de entrega",                                  detalhes: "Confira a seção de montagem rotas nas anotações do site.",                                                                                                                                            cor: "#10b981", icon: "map" },
+  N5:  { nome: "Lista Embalagem",            descricao: "Pegar lista da embalagem São José e Pão Total",                  detalhes: "Pegar ou pedir que tragam a lista. Se perderam, perguntar ao Guilherme ou Kauan o que faltou.",                                                                                                     cor: "#fb8c00", icon: "clipboard" },
+  N6:  { nome: "Fechamento Caixas",          descricao: "Fechamento de caixas (Barão)",                                   detalhes: "Confira a seção de fechamento caixas nas anotações do site.",                                                                                                                                         cor: "#8a2be2", icon: "dollarSign" },
+  N7:  { nome: "Café Sábado",                descricao: "Pedir café para sábado caso precise",                            detalhes: "Se tiver produção sábado, pedir café na padaria para o número de pessoas e solicitar entrega na fábrica.",                                                                                           cor: "#5d4037", icon: "coffee" },
+  N8:  { nome: "Acerto Célio",               descricao: "Acerto com o fornecedor Célio",                                  detalhes: "Confira o tópico Célio (pagamentos e pix) na seção fornecedores.",                                                                                                                                    cor: "#00897b", icon: "handshake" },
+  N9:  { nome: "Lista São José",             descricao: "Fazer lista da São José e Pão Total",                            detalhes: "Confira o tópico São José na seção geral.",                                                                                                                                                           cor: "#f4511e", icon: "fileText" },
+  N10: { nome: "Adiantamento Salarial",      descricao: "Adiantamento salarial no banco",                                 detalhes: "No banco: folha de pagamento → cadastrar → data, funcionários, valores. Depois processar com autenticação de dois fatores.",                                                                         cor: "#00acc1", icon: "landmark" },
+  N11: { nome: "Cheques Início do Mês",      descricao: "Fazer cheques do início do mês",                                 detalhes: "Confira o tópico Cheques Início e Final de Mês na seção geral.",                                                                                                                                      cor: "#2e7d32", icon: "fileText" },
+  N12: { nome: "Pedido São José",            descricao: "Realizar pedido da São José",                                    detalhes: "Fazer o pedido de compras para a São José conforme necessidade do setor.",                                                                                                                             cor: "#9c27b0", icon: "cart" },
+  N13: { nome: "Passar Embalagem São José",  descricao: "Passar embalagem do pedido São José",                            detalhes: "Encaminhar o pedido para o setor de embalagem.",                                                                                                                                                       cor: "#ff9800", icon: "upload" },
+  N14: { nome: "Pegar Embalagem São José",   descricao: "Pegar embalagem do pedido São José",                             detalhes: "Pegar ou pedir que tragam a lista. Se perderam, perguntar ao Guilherme ou Kauan o que faltou.",                                                                                                     cor: "#4caf50", icon: "download" },
+  N15: { nome: "Lista Hora Extra",           descricao: "Fazer lista de quem vai ficar depois do horário",                detalhes: "Anotar os funcionários que irão fazer hora extra para controle e pagamento.",                                                                                                                          cor: "#795548", icon: "clock" },
+  N16: { nome: "Faturar Pedidos São José",   descricao: "Faturar os pedidos da São José no sistema",                      detalhes: "Realizar o faturamento dos pedidos da São José conforme rotina.",                                                                                                                                      cor: "#2196f3", icon: "creditCard" },
+  N17: { nome: "Lançar Notinhas",            descricao: "Lançar notas de compras e almoxarifado",                         detalhes: "Inserir no sistema as notinhas de compras.",                                                                                                                                                           cor: "#9e9e9e", icon: "receipt" },
+  N18: { nome: "Passar Dinheiro Hora Extra", descricao: "Passar dinheiro para quem fez hora extra na semana",             detalhes: "Calcular e entregar o valor referente às horas extras da semana.",                                                                                                                                     cor: "#ffc107", icon: "banknote" },
+  N19: { nome: "Separar Dinheiro Sábado",    descricao: "Separar dinheiro para produção de sábado",                       detalhes: "Separar pagamento para produção no sábado.",                                                                                                                                                           cor: "#ff5722", icon: "coins" },
+  N20: { nome: "Entregar Planilhas",         descricao: "Entregar planilhas de autocontrole",                              detalhes: "Entregar as planilhas preenchidas de autocontrole para o setor responsável.",                                                                                                                         cor: "#607d8b", icon: "barChart" },
+  N21: { nome: "Atualização Comodatos",      descricao: "Atualizar contratos de comodato",                                 detalhes: "Revisar e atualizar os contratos de comodato.",                                                                                                                                                        cor: "#3f51b5", icon: "refreshCcw" },
 };
 
 const rotinas = [
@@ -1179,60 +1299,59 @@ const rotinas = [
   ]},
 ];
 
-// ── STATE ─────────────────────────────────────────────────────────────────────
+// ── STATE ─────────────────────────────────────────────────────────────────
 const state = {
   activeDay: null,
   selectedDays: new Set(),
   selectedCats: new Set(),
   selectedPersons: new Set(),
   searchTerm: '',
+  sidebarSections: { cats: true, persons: true, days: true }, // true = open
 };
 
-// ── COMPUTED ──────────────────────────────────────────────────────────────────
-// Map: categoria -> list of dates it appears
-function buildCatDatesMap() {
-  const map = {};
-  Object.keys(categorias).forEach(k => map[k] = []);
-  rotinas.forEach(dia => {
-    dia.tarefas.forEach(t => {
-      if (t.categoria && map[t.categoria] !== undefined) {
-        if (!map[t.categoria].includes(dia.data)) map[t.categoria].push(dia.data);
-      }
-    });
-  });
-  return map;
-}
+// ── SORTED ROTINAS ────────────────────────────────────────────────────────
+const sortedRotinas = [...rotinas].sort((a, b) => dateToSortKey(a.data) - dateToSortKey(b.data));
 
-// Collect all unique persons
+// ── COMPUTED ──────────────────────────────────────────────────────────────
 function buildPersonsList() {
   const set = new Set();
   rotinas.forEach(dia => {
     dia.tarefas.forEach(t => {
       if (t.pessoa && t.pessoa.trim()) {
-        // Split "Marina ou Barão" type entries
-        t.pessoa.split(/\s+ou\s+/i).forEach(p => {
-          const name = p.trim();
-          if (name) set.add(name);
-        });
+        t.pessoa.split(/\s+ou\s+/i).forEach(p => { const n = p.trim(); if (n) set.add(n); });
       }
     });
   });
   return [...set].sort();
 }
 
-const catDatesMap = buildCatDatesMap();
 const allPersons = buildPersonsList();
 
-// ── HELPERS ───────────────────────────────────────────────────────────────────
+// Count total task occurrences per category
+function buildCatCountMap() {
+  const map = {};
+  Object.keys(categorias).forEach(k => map[k] = 0);
+  rotinas.forEach(dia => {
+    dia.tarefas.forEach(t => {
+      if (t.categoria && map[t.categoria] !== undefined) map[t.categoria]++;
+    });
+  });
+  return map;
+}
+const catCountMap = buildCatCountMap();
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
 function dateToSortKey(d) {
   const [dd, mm, yyyy] = d.split('/');
-  return new Date(yyyy, mm - 1, dd).getTime();
+  return new Date(+yyyy, +mm - 1, +dd).getTime();
 }
 
-function getShortDate(d) {
-  // Returns "23/02" from "23/02/2026"
-  const parts = d.split('/');
-  return parts[0] + '/' + parts[1];
+function getTodayStr() {
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2, '0');
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const yyyy = now.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
 }
 
 function personMatches(taskPessoa, filterPessoa) {
@@ -1240,7 +1359,11 @@ function personMatches(taskPessoa, filterPessoa) {
   return taskPessoa.split(/\s+ou\s+/i).map(p => p.trim()).includes(filterPessoa);
 }
 
-// ── RENDER LEGEND ─────────────────────────────────────────────────────────────
+function getDayIndex(date) {
+  return sortedRotinas.findIndex(r => r.data === date);
+}
+
+// ── RENDER LEGEND ─────────────────────────────────────────────────────────
 function renderLegend() {
   const grid = document.getElementById('legend-grid');
   let html = '';
@@ -1250,26 +1373,25 @@ function renderLegend() {
       <div class="legend-card" style="border-left-color:${cat.cor};" id="legend-card-${cod}">
         <div class="legend-card-header">
           <div class="legend-cat-icon" style="background:${cat.cor};">${svg}</div>
-          <div>
-            <div class="legend-cat-code">${cod}</div>
-            <div class="legend-cat-name">${cat.nome}</div>
-          </div>
+          <div class="legend-cat-name">${cat.nome}</div>
         </div>
         <div class="legend-cat-desc">${cat.descricao}</div>
-        <div class="legend-cat-details">${cat.detalhes}</div>
+        <button class="legend-details-toggle" data-details="${cod}">
+          ${ICONS.chevDown} Ver detalhes
+        </button>
+        <div class="legend-cat-details" id="legend-details-${cod}">${cat.detalhes}</div>
       </div>`;
   }
   grid.innerHTML = html;
 }
 
-// ── RENDER DAYS SIDEBAR ───────────────────────────────────────────────────────
+// ── RENDER DAYS SIDEBAR ───────────────────────────────────────────────────
 function renderDaysList() {
   const container = document.getElementById('days-list');
-  const todayStr = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  const sorted = [...rotinas].sort((a, b) => dateToSortKey(a.data) - dateToSortKey(b.data));
+  const todayStr = getTodayStr();
 
   let html = '';
-  sorted.forEach(dia => {
+  sortedRotinas.forEach(dia => {
     const isToday = dia.data === todayStr;
     const isActive = state.activeDay === dia.data;
     const isSelected = state.selectedDays.has(dia.data);
@@ -1290,41 +1412,27 @@ function renderDaysList() {
   container.innerHTML = html;
 }
 
-// ── RENDER CATEGORY FILTER ────────────────────────────────────────────────────
+// ── RENDER CATEGORY FILTER ────────────────────────────────────────────────
 function renderCatFilter() {
   const container = document.getElementById('cat-filter-list');
   let html = '';
   for (const [cod, cat] of Object.entries(categorias)) {
     const isActive = state.selectedCats.has(cod);
-    const dates = catDatesMap[cod] || [];
-    const count = dates.length > 0 ? dates.reduce((acc, d) => {
-      const dia = rotinas.find(r => r.data === d);
-      if (!dia) return acc;
-      return acc + dia.tarefas.filter(t => t.categoria === cod).length;
-    }, 0) : 0;
-
-    // Build day tags
-    const dayTagsHtml = dates.length > 0 ? `
-      <div class="filter-days-tags">
-        ${dates.sort((a,b) => dateToSortKey(a)-dateToSortKey(b)).map(d =>
-          `<span class="day-tag" data-date="${d}" title="Ir para ${d}">${getShortDate(d)}</span>`
-        ).join('')}
-      </div>` : '';
+    const count = catCountMap[cod] || 0;
 
     html += `
       <div class="filter-item ${isActive ? 'active' : ''}" data-cat="${cod}">
         <div class="filter-check">${ICONS.check}</div>
-        <div class="filter-dot" style="background:${cat.cor};margin-top:4px;"></div>
+        <div class="filter-dot" style="background:${cat.cor};"></div>
         <div class="filter-info">
           <div class="filter-name">${cat.nome} <span class="filter-count">${count}</span></div>
-          ${dayTagsHtml}
         </div>
       </div>`;
   }
   container.innerHTML = html;
 }
 
-// ── RENDER PERSON FILTER ──────────────────────────────────────────────────────
+// ── RENDER PERSON FILTER ──────────────────────────────────────────────────
 function renderPersonFilter() {
   const container = document.getElementById('person-filter-list');
   let html = '';
@@ -1338,7 +1446,7 @@ function renderPersonFilter() {
   container.innerHTML = html;
 }
 
-// ── RENDER ACTIVE FILTERS BAR ─────────────────────────────────────────────────
+// ── RENDER ACTIVE FILTERS BAR ─────────────────────────────────────────────
 function renderActiveFiltersBar() {
   const bar = document.getElementById('active-filters-bar');
   const items = [];
@@ -1367,8 +1475,47 @@ function renderActiveFiltersBar() {
     <button class="btn-clear-all" id="btn-clear-all-filters">Limpar tudo</button>`;
 }
 
-// ── RENDER CONTENT PANEL ──────────────────────────────────────────────────────
+// ── UPDATE NAV ARROWS ─────────────────────────────────────────────────────
+function updateNavArrows() {
+  const prevBtn = document.getElementById('btn-prev-day');
+  const nextBtn = document.getElementById('btn-next-day');
+  if (!state.activeDay) {
+    prevBtn.disabled = true;
+    nextBtn.disabled = true;
+    return;
+  }
+  const idx = getDayIndex(state.activeDay);
+  prevBtn.disabled = idx <= 0;
+  nextBtn.disabled = idx >= sortedRotinas.length - 1;
+}
+
+// ── FILTER TASKS ──────────────────────────────────────────────────────────
+function filterTasks(tarefas) {
+  let tasks = [...tarefas];
+  if (state.selectedCats.size > 0) {
+    tasks = tasks.filter(t => t.categoria && state.selectedCats.has(t.categoria));
+  }
+  if (state.selectedPersons.size > 0) {
+    tasks = tasks.filter(t => {
+      if (!t.pessoa) return false;
+      return [...state.selectedPersons].some(p => personMatches(t.pessoa, p));
+    });
+  }
+  if (state.searchTerm) {
+    const term = state.searchTerm.toLowerCase();
+    tasks = tasks.filter(t =>
+      t.titulo.toLowerCase().includes(term) ||
+      (t.pessoa && t.pessoa.toLowerCase().includes(term)) ||
+      (t.categoria && categorias[t.categoria]?.nome.toLowerCase().includes(term))
+    );
+  }
+  return tasks;
+}
+
+// ── RENDER CONTENT PANEL ──────────────────────────────────────────────────
 function renderContentPanel() {
+  updateNavArrows();
+
   if (!state.activeDay) {
     document.getElementById('content-title').innerHTML = '<span class="h2-date">Selecione um dia</span>';
     document.getElementById('content-body').innerHTML = `
@@ -1383,7 +1530,6 @@ function renderContentPanel() {
   const dia = rotinas.find(r => r.data === state.activeDay);
   if (!dia) return;
 
-  // Update title
   let titleHtml = `<span class="h2-date">${dia.data}</span> — ${dia.diaSemana}`;
   if (dia.feriado) titleHtml += `<span class="h2-holiday">🎉 ${dia.feriadoNome}</span>`;
   if (dia.semExpediente && !dia.feriado) titleHtml += `<span class="h2-holiday">🚫 Sem expediente</span>`;
@@ -1396,28 +1542,7 @@ function renderContentPanel() {
     return;
   }
 
-  // Filter tasks
-  let tarefas = [...dia.tarefas];
-
-  if (state.selectedCats.size > 0) {
-    tarefas = tarefas.filter(t => t.categoria && state.selectedCats.has(t.categoria));
-  }
-
-  if (state.selectedPersons.size > 0) {
-    tarefas = tarefas.filter(t => {
-      if (!t.pessoa) return false;
-      return [...state.selectedPersons].some(p => personMatches(t.pessoa, p));
-    });
-  }
-
-  if (state.searchTerm) {
-    const term = state.searchTerm.toLowerCase();
-    tarefas = tarefas.filter(t =>
-      t.titulo.toLowerCase().includes(term) ||
-      (t.pessoa && t.pessoa.toLowerCase().includes(term)) ||
-      (t.categoria && categorias[t.categoria]?.nome.toLowerCase().includes(term))
-    );
-  }
+  const tarefas = filterTasks(dia.tarefas);
 
   if (tarefas.length === 0) {
     body.innerHTML = `<div class="empty-state">${ICONS.info}<p>Nenhuma tarefa encontrada com os filtros aplicados.</p></div>`;
@@ -1443,7 +1568,18 @@ function renderContentPanel() {
   body.innerHTML = html;
 }
 
-// ── SEARCH ────────────────────────────────────────────────────────────────────
+// ── SIDEBAR COLLAPSE ──────────────────────────────────────────────────────
+function toggleSection(section) {
+  state.sidebarSections[section] = !state.sidebarSections[section];
+  const body = document.getElementById(`body-${section}`);
+  const arrow = document.getElementById(`arrow-${section}`);
+  const actions = document.getElementById(`actions-${section}`);
+  body.classList.toggle('collapsed', !state.sidebarSections[section]);
+  arrow.classList.toggle('open', state.sidebarSections[section]);
+  if (actions) actions.style.display = state.sidebarSections[section] ? '' : 'none';
+}
+
+// ── SEARCH ────────────────────────────────────────────────────────────────
 function doSearch(term) {
   const dd = document.getElementById('search-dropdown');
   state.searchTerm = term.trim();
@@ -1463,9 +1599,7 @@ function doSearch(term) {
       (t.pessoa && t.pessoa.toLowerCase().includes(tLower)) ||
       (t.categoria && categorias[t.categoria]?.nome.toLowerCase().includes(tLower))
     );
-    if (matched.length) {
-      results.push({ dia, matched });
-    }
+    if (matched.length) results.push({ dia, matched });
   });
 
   if (!results.length) {
@@ -1483,20 +1617,23 @@ function doSearch(term) {
   });
   dd.innerHTML = html;
   dd.style.display = 'block';
-
-  // If current day is active, re-render with search filter
   renderContentPanel();
 }
 
-// ── PRINT ─────────────────────────────────────────────────────────────────────
-function buildPrintHTML(datasToprint) {
+// ── PRINT ─────────────────────────────────────────────────────────────────
+function buildPrintHTML(datasToprint, catFilter, personFilter) {
   const sorted = [...datasToprint].sort((a, b) => dateToSortKey(a) - dateToSortKey(b));
 
-  // Collect used categories
   const usedCats = new Set();
   sorted.forEach(data => {
     const dia = rotinas.find(r => r.data === data);
-    if (dia) dia.tarefas.forEach(t => { if (t.categoria) usedCats.add(t.categoria); });
+    if (!dia) return;
+    dia.tarefas.forEach(t => {
+      if (!t.categoria) return;
+      // Only count cats that pass the filter
+      if (catFilter && catFilter.size > 0 && !catFilter.has(t.categoria)) return;
+      usedCats.add(t.categoria);
+    });
   });
 
   const legendHtml = [...usedCats].map(cod => {
@@ -1507,10 +1644,7 @@ function buildPrintHTML(datasToprint) {
       <div style="background:#f7faff;border-radius:12px;padding:12px 14px;border-left:5px solid ${cat.cor};break-inside:avoid;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
           <div style="width:30px;height:30px;border-radius:8px;background:${cat.cor};display:flex;align-items:center;justify-content:center;flex-shrink:0;">${svg}</div>
-          <div>
-            <div style="font-size:10px;font-weight:700;color:#8fa3bf;">${cod}</div>
-            <div style="font-family:Sora,sans-serif;font-weight:700;font-size:13px;color:#1a2740;">${cat.nome}</div>
-          </div>
+          <div style="font-family:Sora,sans-serif;font-weight:700;font-size:13px;color:#1a2740;">${cat.nome}</div>
         </div>
         <div style="font-size:12px;color:#4e6080;margin-bottom:6px;">${cat.descricao}</div>
         <div style="font-size:11px;background:white;padding:7px 9px;border-radius:8px;border:1px solid #dce8fb;color:#1a2740;line-height:1.5;">${cat.detalhes}</div>
@@ -1520,21 +1654,36 @@ function buildPrintHTML(datasToprint) {
   const diasHtml = sorted.map(data => {
     const dia = rotinas.find(r => r.data === data);
     if (!dia) return '';
-    const tarefasHtml = dia.semExpediente ? `<div style="background:#fff8e6;padding:12px;border-radius:10px;color:#7a5800;font-style:italic;">Sem expediente — Nenhuma tarefa agendada.</div>` :
-      dia.tarefas.map(t => {
-        const cat = t.categoria ? categorias[t.categoria] : null;
-        const cor = cat ? cat.cor : '#94a3b8';
-        const svg = cat ? (ICONS[cat.icon] || ICONS.pin) : ICONS.pin;
-        return `
-          <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:#f7faff;border-radius:12px;border-left:5px solid ${cor};break-inside:avoid;margin-bottom:8px;">
-            <div style="width:30px;height:30px;border-radius:8px;background:${cor};display:flex;align-items:center;justify-content:center;flex-shrink:0;">${svg}</div>
-            <div style="flex:1;">
-              <div style="font-family:Sora,sans-serif;font-weight:700;font-size:13px;color:#1a2740;margin-bottom:2px;">${t.titulo}</div>
-              ${t.descricao ? `<div style="font-size:12px;color:#4e6080;">${t.descricao}</div>` : ''}
-              ${t.pessoa ? `<span style="display:inline-block;background:#e8f0fe;color:#1a56db;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600;margin-top:4px;">👤 ${t.pessoa}</span>` : ''}
-            </div>
-          </div>`;
-      }).join('');
+
+    let tarefas = [...dia.tarefas];
+    if (catFilter && catFilter.size > 0) {
+      tarefas = tarefas.filter(t => t.categoria && catFilter.has(t.categoria));
+    }
+    if (personFilter && personFilter.size > 0) {
+      tarefas = tarefas.filter(t => {
+        if (!t.pessoa) return false;
+        return [...personFilter].some(p => personMatches(t.pessoa, p));
+      });
+    }
+
+    if (!dia.semExpediente && tarefas.length === 0) return '';
+
+    const tarefasHtml = dia.semExpediente
+      ? `<div style="background:#fff8e6;padding:12px;border-radius:10px;color:#7a5800;font-style:italic;">Sem expediente — Nenhuma tarefa agendada.</div>`
+      : tarefas.map(t => {
+          const cat = t.categoria ? categorias[t.categoria] : null;
+          const cor = cat ? cat.cor : '#94a3b8';
+          const svg = cat ? (ICONS[cat.icon] || ICONS.pin) : ICONS.pin;
+          return `
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:#f7faff;border-radius:12px;border-left:5px solid ${cor};break-inside:avoid;margin-bottom:8px;">
+              <div style="width:30px;height:30px;border-radius:8px;background:${cor};display:flex;align-items:center;justify-content:center;flex-shrink:0;">${svg}</div>
+              <div style="flex:1;">
+                <div style="font-family:Sora,sans-serif;font-weight:700;font-size:13px;color:#1a2740;margin-bottom:2px;">${t.titulo}</div>
+                ${t.descricao ? `<div style="font-size:12px;color:#4e6080;">${t.descricao}</div>` : ''}
+                ${t.pessoa ? `<span style="display:inline-block;background:#e8f0fe;color:#1a56db;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600;margin-top:4px;">👤 ${t.pessoa}</span>` : ''}
+              </div>
+            </div>`;
+        }).join('');
 
     return `
       <div style="background:white;border-radius:20px;padding:20px;border:1px solid #dce8fb;break-inside:avoid;margin-bottom:24px;">
@@ -1545,7 +1694,12 @@ function buildPrintHTML(datasToprint) {
         </div>
         ${tarefasHtml}
       </div>`;
-  }).join('');
+  }).filter(Boolean).join('');
+
+  const filterNote = (catFilter && catFilter.size > 0)
+    ? `<div style="background:#e8f0fe;border:1px solid #c8d9f5;border-radius:10px;padding:8px 14px;margin-bottom:16px;font-size:12px;color:#1a56db;font-weight:600;">
+        📌 Filtro ativo: ${[...catFilter].map(c => categorias[c]?.nome).join(', ')}
+       </div>` : '';
 
   return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -1554,13 +1708,10 @@ function buildPrintHTML(datasToprint) {
 <title>Rotinas Diárias — Impressão</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; color: #1a2740; background: white; padding: 28px; }
-  svg { display: inline-block; vertical-align: middle; }
-  @media print {
-    @page { margin: 16mm 14mm; }
-    body { padding: 0; }
-  }
+  * { box-sizing:border-box;margin:0;padding:0; }
+  body { font-family:'DM Sans',sans-serif;color:#1a2740;background:white;padding:28px; }
+  svg { display:inline-block;vertical-align:middle; }
+  @media print { @page { margin:16mm 14mm; } body { padding:0; } }
 </style>
 </head>
 <body>
@@ -1568,43 +1719,43 @@ function buildPrintHTML(datasToprint) {
     <div style="border-left:6px solid #1a56db;padding-left:16px;margin-bottom:6px;">
       <h1 style="font-family:Sora,sans-serif;font-size:1.8rem;font-weight:700;color:#1a56db;">📅 Rotinas Diárias</h1>
     </div>
-    <p style="color:#4e6080;margin-left:22px;margin-bottom:24px;font-size:0.95rem;">Impresso em ${new Date().toLocaleDateString('pt-BR')} — ${sorted.length} dia(s)</p>
-
+    <p style="color:#4e6080;margin-left:22px;margin-bottom:20px;font-size:0.95rem;">Impresso em ${new Date().toLocaleDateString('pt-BR')} — ${sorted.length} dia(s)</p>
+    ${filterNote}
     ${usedCats.size > 0 ? `
     <div style="background:white;border-radius:18px;padding:16px;margin-bottom:28px;border:1px solid #dce8fb;">
       <h3 style="font-family:Sora,sans-serif;font-weight:700;font-size:1rem;color:#1a56db;margin-bottom:14px;">📌 Legenda das categorias</h3>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;">${legendHtml}</div>
     </div>` : ''}
-
     ${diasHtml}
-
     <div style="text-align:center;color:#8fa3bf;font-size:12px;margin-top:24px;padding-top:16px;border-top:1px solid #dce8fb;">Rotinas Diárias — Sistema de gestão</div>
   </div>
-<script>
-  // Auto-print after fonts load
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(function() { setTimeout(function(){ window.print(); }, 300); });
-  } else {
-    setTimeout(function(){ window.print(); }, 800);
-  }
-<\/script>
 </body>
 </html>`;
 }
 
-function printDates(dates) {
+function triggerPrint(dates, catFilter, personFilter) {
   if (!dates || dates.length === 0) return;
-  const html = buildPrintHTML(dates);
-  const win = window.open('', '_blank', 'width=900,height=700');
-  if (!win) { alert('Permita pop-ups para usar a impressão.'); return; }
-  win.document.write(html);
-  win.document.close();
+  const html = buildPrintHTML(dates, catFilter, personFilter);
+  const printArea = document.getElementById('print-area');
+  printArea.innerHTML = html;
+  window.print();
+  // Clean up after print dialog closes
+  setTimeout(() => { printArea.innerHTML = ''; }, 1000);
 }
 
-// ── EVENT BINDINGS ────────────────────────────────────────────────────────────
+// ── EVENT BINDINGS ────────────────────────────────────────────────────────
 function bindEvents() {
 
-  // Day item clicks (delegation)
+  // Sidebar section header clicks (collapse)
+  ['cats', 'persons', 'days'].forEach(section => {
+    document.getElementById(`header-${section}`).addEventListener('click', e => {
+      // Don't collapse if clicking action buttons
+      if (e.target.closest('button') && !e.target.closest('.sidebar-collapse-arrow')) return;
+      toggleSection(section);
+    });
+  });
+
+  // Day item clicks
   document.getElementById('days-list').addEventListener('click', e => {
     const cb = e.target.closest('.day-cb');
     if (cb) {
@@ -1622,29 +1773,39 @@ function bindEvents() {
   });
 
   // Select / clear all days
-  document.getElementById('btn-sel-all-days').addEventListener('click', () => {
+  document.getElementById('btn-sel-all-days').addEventListener('click', e => {
+    e.stopPropagation();
     rotinas.forEach(d => state.selectedDays.add(d.data));
     renderDaysList();
   });
-  document.getElementById('btn-clear-days').addEventListener('click', () => {
+  document.getElementById('btn-clear-days').addEventListener('click', e => {
+    e.stopPropagation();
     state.selectedDays.clear();
     renderDaysList();
   });
 
-  // Category filter (delegation)
-  document.getElementById('cat-filter-list').addEventListener('click', e => {
-    // Day tag click
-    const tag = e.target.closest('.day-tag');
-    if (tag) {
-      e.stopPropagation();
-      const date = tag.getAttribute('data-date');
-      state.activeDay = date;
+  // Prev / Next day navigation
+  document.getElementById('btn-prev-day').addEventListener('click', () => {
+    if (!state.activeDay) return;
+    const idx = getDayIndex(state.activeDay);
+    if (idx > 0) {
+      state.activeDay = sortedRotinas[idx - 1].data;
       renderDaysList();
       renderContentPanel();
-      // Scroll main area to top
-      document.getElementById('main-area').scrollTo({ top: 0, behavior: 'smooth' });
-      return;
     }
+  });
+  document.getElementById('btn-next-day').addEventListener('click', () => {
+    if (!state.activeDay) return;
+    const idx = getDayIndex(state.activeDay);
+    if (idx < sortedRotinas.length - 1) {
+      state.activeDay = sortedRotinas[idx + 1].data;
+      renderDaysList();
+      renderContentPanel();
+    }
+  });
+
+  // Category filter
+  document.getElementById('cat-filter-list').addEventListener('click', e => {
     const item = e.target.closest('.filter-item');
     if (item) {
       const cod = item.getAttribute('data-cat');
@@ -1655,20 +1816,22 @@ function bindEvents() {
     }
   });
 
-  document.getElementById('btn-sel-all-cats').addEventListener('click', () => {
+  document.getElementById('btn-sel-all-cats').addEventListener('click', e => {
+    e.stopPropagation();
     Object.keys(categorias).forEach(k => state.selectedCats.add(k));
     renderCatFilter();
     renderActiveFiltersBar();
     renderContentPanel();
   });
-  document.getElementById('btn-clear-cats').addEventListener('click', () => {
+  document.getElementById('btn-clear-cats').addEventListener('click', e => {
+    e.stopPropagation();
     state.selectedCats.clear();
     renderCatFilter();
     renderActiveFiltersBar();
     renderContentPanel();
   });
 
-  // Person filter chips
+  // Person filter
   document.getElementById('person-filter-list').addEventListener('click', e => {
     const chip = e.target.closest('.person-chip');
     if (chip) {
@@ -1679,50 +1842,59 @@ function bindEvents() {
       renderContentPanel();
     }
   });
-  document.getElementById('btn-clear-persons').addEventListener('click', () => {
+  document.getElementById('btn-clear-persons').addEventListener('click', e => {
+    e.stopPropagation();
     state.selectedPersons.clear();
     renderPersonFilter();
     renderActiveFiltersBar();
     renderContentPanel();
   });
 
-  // Active filters bar delegation
+  // Active filters bar
   document.getElementById('active-filters-bar').addEventListener('click', e => {
     const rmCat = e.target.closest('[data-remove-cat]');
     if (rmCat) {
       state.selectedCats.delete(rmCat.getAttribute('data-remove-cat'));
-      renderCatFilter();
-      renderActiveFiltersBar();
-      renderContentPanel();
-      return;
+      renderCatFilter(); renderActiveFiltersBar(); renderContentPanel(); return;
     }
     const rmPerson = e.target.closest('[data-remove-person]');
     if (rmPerson) {
       state.selectedPersons.delete(rmPerson.getAttribute('data-remove-person'));
-      renderPersonFilter();
-      renderActiveFiltersBar();
-      renderContentPanel();
-      return;
+      renderPersonFilter(); renderActiveFiltersBar(); renderContentPanel(); return;
     }
     if (e.target.id === 'btn-clear-all-filters') {
-      state.selectedCats.clear();
-      state.selectedPersons.clear();
-      renderCatFilter();
-      renderPersonFilter();
-      renderActiveFiltersBar();
-      renderContentPanel();
+      state.selectedCats.clear(); state.selectedPersons.clear();
+      renderCatFilter(); renderPersonFilter(); renderActiveFiltersBar(); renderContentPanel();
     }
   });
 
-  // Task icon click -> scroll to + highlight legend
+  // Legend details toggle (delegation)
+  document.getElementById('legend-grid').addEventListener('click', e => {
+    const btn = e.target.closest('.legend-details-toggle');
+    if (btn) {
+      const cod = btn.getAttribute('data-details');
+      const detailsEl = document.getElementById(`legend-details-${cod}`);
+      detailsEl.classList.toggle('open');
+      btn.classList.toggle('open');
+    }
+  });
+
+  // Task icon click → open legend + highlight card
+  let legendOpen = false;
+  function toggleLegend(force) {
+    const body = document.getElementById('legend-body');
+    const btnEl = document.getElementById('legend-toggle');
+    legendOpen = force !== undefined ? force : !legendOpen;
+    body.classList.toggle('open', legendOpen);
+    btnEl.classList.toggle('open', legendOpen);
+  }
+
   document.getElementById('content-body').addEventListener('click', e => {
     const icon = e.target.closest('.task-icon');
     if (icon) {
       const cod = icon.getAttribute('data-cat');
       if (!cod) return;
-      // Open legend if closed
       if (!legendOpen) toggleLegend(true);
-      // Scroll main to top
       document.getElementById('main-area').scrollTo({ top: 0, behavior: 'smooth' });
       setTimeout(() => {
         const card = document.getElementById(`legend-card-${cod}`);
@@ -1736,20 +1908,10 @@ function bindEvents() {
   });
 
   // Legend toggle
-  let legendOpen = false;
-  function toggleLegend(force) {
-    const body = document.getElementById('legend-body');
-    const btn = document.getElementById('legend-toggle');
-    legendOpen = force !== undefined ? force : !legendOpen;
-    body.classList.toggle('open', legendOpen);
-    btn.classList.toggle('open', legendOpen);
-  }
   document.getElementById('legend-toggle').addEventListener('click', () => toggleLegend());
 
   // Search
-  document.getElementById('search-input').addEventListener('input', e => {
-    doSearch(e.target.value);
-  });
+  document.getElementById('search-input').addEventListener('input', e => { doSearch(e.target.value); });
   document.addEventListener('click', e => {
     if (!e.target.closest('.topbar-search')) {
       document.getElementById('search-dropdown').style.display = 'none';
@@ -1768,21 +1930,21 @@ function bindEvents() {
     }
   });
 
-  // Print buttons
+  // Print buttons — direct, no new tab
   document.getElementById('btn-print-all').addEventListener('click', () => {
-    printDates(rotinas.map(r => r.data));
+    triggerPrint(rotinas.map(r => r.data), null, null);
   });
   document.getElementById('btn-print-selected').addEventListener('click', () => {
     if (state.selectedDays.size === 0) { alert('Selecione pelo menos um dia usando os checkboxes.'); return; }
-    printDates([...state.selectedDays]);
+    triggerPrint([...state.selectedDays], state.selectedCats, state.selectedPersons);
   });
   document.getElementById('btn-print-day').addEventListener('click', () => {
     if (!state.activeDay) { alert('Selecione um dia para imprimir.'); return; }
-    printDates([state.activeDay]);
+    triggerPrint([state.activeDay], state.selectedCats, state.selectedPersons);
   });
   document.getElementById('content-print-day').addEventListener('click', () => {
     if (!state.activeDay) { alert('Selecione um dia para imprimir.'); return; }
-    printDates([state.activeDay]);
+    triggerPrint([state.activeDay], state.selectedCats, state.selectedPersons);
   });
 
   // Back to top
@@ -1791,12 +1953,10 @@ function bindEvents() {
   mainArea.addEventListener('scroll', () => {
     btnTop.classList.toggle('show', mainArea.scrollTop > 300);
   });
-  btnTop.addEventListener('click', () => {
-    mainArea.scrollTo({ top: 0, behavior: 'smooth' });
-  });
+  btnTop.addEventListener('click', () => { mainArea.scrollTo({ top: 0, behavior: 'smooth' }); });
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────────────────
 function init() {
   renderLegend();
   renderDaysList();
@@ -1807,7 +1967,7 @@ function init() {
   bindEvents();
 
   // Auto-select today if present
-  const todayStr = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const todayStr = getTodayStr();
   const todayDia = rotinas.find(r => r.data === todayStr);
   if (todayDia) {
     state.activeDay = todayStr;

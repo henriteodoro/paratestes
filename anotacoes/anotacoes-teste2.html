@@ -1,0 +1,2256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Anotações — MACs & Guias</title>
+<meta name="description" content="Sistema organizado de anotações por tópicos e subtópicos" />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ── VARIABLES ─────────────────────────────────────────── */
+:root {
+  --bg: #eef3fb;
+  --surface: #ffffff;
+  --surface2: #f4f8ff;
+  --border: #dce8fb;
+  --border2: #c8d9f5;
+  --text-primary: #1a2740;
+  --text-secondary: #4e6080;
+  --text-muted: #8fa3bf;
+  --accent: #1a56db;
+  --accent-dark: #1040b0;
+  --accent-light: #e8f0fe;
+  --warn: #f59e0b;
+  --success: #10b981;
+  --danger: #ef4444;
+  --shadow-sm: 0 2px 8px rgba(20,60,120,0.07);
+  --shadow-md: 0 6px 24px rgba(20,60,120,0.10);
+  --shadow-lg: 0 14px 40px rgba(20,60,120,0.14);
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.55;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: radial-gradient(circle, #c0d0eb 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0;
+  margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
+  white-space: nowrap; border: 0;
+}
+
+/* ── APP WRAPPER ───────────────────────────────────────── */
+.app-wrapper {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── TOPBAR ────────────────────────────────────────────── */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 0 20px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.brand-icon {
+  width: 38px; height: 38px;
+  background: var(--accent);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(26,86,219,0.3);
+  flex-shrink: 0;
+}
+.brand-icon svg { width: 20px; height: 20px; color: #fff; }
+.brand-name {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--accent);
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.brand-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.topbar-divider {
+  width: 1px; height: 28px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.topbar-spacer { flex: 1; }
+
+/* ── ICON BUTTONS ──────────────────────────────────────── */
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 7px 8px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s;
+  position: relative;
+  font-family: 'DM Sans', sans-serif;
+}
+.icon-btn svg { width: 20px; height: 20px; display: block; }
+.icon-btn:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+.icon-btn.active {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+/* Rotinas Férias button */
+.btn-ferias-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1.5px solid #86efac;
+  background: #f0fdf4;
+  color: #166534;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn-ferias-top svg { width: 16px; height: 16px; flex-shrink: 0; }
+.btn-ferias-top:hover {
+  background: #dcfce7;
+  border-color: #4ade80;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(22,163,74,0.18);
+}
+
+/* ── HAMBURGER DROPDOWN MENU ───────────────────────────── */
+.menu-dropdown { position: relative; }
+.menu-dropdown-content {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  min-width: 260px;
+  max-width: calc(100vw - 32px);
+  overflow: auto;
+  z-index: 1200;
+  padding: 6px;
+}
+.menu-right .menu-dropdown-content { right: 0; left: auto; }
+.menu-dropdown-content a {
+  display: flex;
+  align-items: center;
+  padding: 9px 11px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.87rem;
+  border-radius: 8px;
+  transition: all 0.15s;
+  gap: 8px;
+}
+.menu-dropdown-content a:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+.dropdown-section {
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  padding-top: 4px;
+}
+.dropdown-section:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 11px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  border-radius: 8px;
+  transition: all 0.15s;
+  user-select: none;
+}
+.section-header:hover {
+  background: var(--surface2);
+  color: var(--text-secondary);
+}
+.mac-code {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--accent);
+  color: white;
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  min-width: 34px;
+  flex-shrink: 0;
+}
+.submenu { display: none; padding-left: 4px; }
+.submenu a { padding-left: 14px; }
+
+/* Save dropdown */
+.save-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  min-width: 200px;
+  z-index: 1200;
+  padding: 6px;
+}
+.save-dropdown a {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 0.87rem;
+  transition: background 0.15s;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+.save-dropdown a svg { width: 15px; height: 15px; color: var(--text-muted); flex-shrink: 0; }
+.save-dropdown a:hover { background: var(--accent-light); color: var(--accent); }
+.save-dropdown a:hover svg { color: var(--accent); }
+
+/* ── TOPBAR SEARCH ─────────────────────────────────────── */
+.topbar-search {
+  flex: 1;
+  max-width: 380px;
+  position: relative;
+}
+.topbar-search input {
+  width: 100%;
+  padding: 9px 36px 9px 38px;
+  border: 1.5px solid var(--border2);
+  border-radius: 99px;
+  background: var(--surface2);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  transition: border 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+.topbar-search input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(26,86,219,0.12);
+}
+.topbar-search input::-webkit-search-cancel-button,
+.topbar-search input::-webkit-search-decoration { display: none; }
+.search-icon-left {
+  position: absolute;
+  left: 12px; top: 50%;
+  transform: translateY(-50%);
+  width: 16px; height: 16px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.search-clear-top {
+  position: absolute;
+  right: 10px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  color: var(--accent);
+  padding: 4px;
+  border-radius: 6px;
+  display: none;
+  align-items: center; justify-content: center;
+  transition: background 0.15s;
+  line-height: 0;
+}
+.search-clear-top:hover { background: var(--accent-light); }
+.search-clear-top svg { width: 14px; height: 14px; display: block; }
+.topbar-search.tem-valor .search-clear-top { display: flex; }
+
+/* Search results dropdown (topbar) */
+.search-results-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0; right: 0;
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  max-height: 420px;
+  overflow-y: auto;
+  z-index: 500;
+  display: none;
+  animation: dropIn 0.15s ease;
+}
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.srd-header {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.srd-header span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.srd-count {
+  background: var(--accent);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+.srd-group {
+  border-bottom: 1px solid var(--border);
+}
+.srd-group:last-child { border-bottom: none; }
+.srd-group-header {
+  padding: 8px 14px;
+  background: var(--surface2);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.srd-group-header:hover { background: var(--accent-light); color: var(--accent); }
+.srd-item {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.srd-item:last-child { border-bottom: none; }
+.srd-item:hover { background: var(--accent-light); }
+.srd-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 99px;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.03px;
+}
+.badge-topico   { background: #dbeafe; color: #1e40af; }
+.badge-subtopico { background: #ede9fe; color: #6d28d9; }
+.badge-conteudo  { background: #dcfce7; color: #166534; }
+.srd-title { font-weight: 600; color: var(--text-primary); font-size: 0.83rem; margin-bottom: 3px; }
+.srd-trecho { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+.srd-empty {
+  text-align: center;
+  padding: 28px 20px;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+.srd-empty svg { width: 28px; height: 28px; opacity: 0.35; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto; }
+
+/* ── BODY LAYOUT ───────────────────────────────────────── */
+.body-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  height: calc(100vh - 62px);
+}
+
+/* ── SIDEBAR ───────────────────────────────────────────── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar::-webkit-scrollbar { width: 5px; }
+.sidebar::-webkit-scrollbar-thumb { background: #c5d5ee; border-radius: 99px; }
+
+.sidebar-section {
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-section-header {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+.sidebar-section-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+.sidebar-section-body {
+  padding: 4px 10px 10px;
+}
+
+/* ── TOPIC ITEMS ───────────────────────────────────────── */
+.topico-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  margin-bottom: 2px;
+  transition: all 0.18s;
+  border: 1.5px solid transparent;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.topico-item:hover {
+  background: var(--accent-light);
+  border-color: var(--border2);
+}
+.topico-item.ativo {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 3px 10px rgba(26,86,219,0.25);
+}
+.topico-item svg {
+  width: 16px; height: 16px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+.topico-item.ativo svg { opacity: 1; }
+
+/* ── MAIN AREA ─────────────────────────────────────────── */
+.main-area {
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.main-area::-webkit-scrollbar { width: 6px; }
+.main-area::-webkit-scrollbar-thumb { background: #c5d5ee; border-radius: 99px; }
+
+/* ── CONTENT PANEL ─────────────────────────────────────── */
+.content-panel {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  flex: 1;
+}
+
+.content-header {
+  padding: 14px 20px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.content-header h2 {
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.content-header h2 svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--accent); }
+
+.content-header-acoes {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+/* ── HEADER ACTION BUTTONS ─────────────────────────────── */
+.btn-acao {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 11px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border2);
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.18s;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+}
+.btn-acao svg { width: 13px; height: 13px; flex-shrink: 0; }
+.btn-acao:hover { background: var(--surface2); border-color: var(--accent); color: var(--accent); }
+
+.btn-salvar-como {
+  border-color: #bbf7d0 !important;
+  background: #f0fdf4 !important;
+  color: var(--success) !important;
+}
+.btn-salvar-como:hover { background: #dcfce7 !important; }
+
+.btn-imprimir {
+  border-color: #bae6fd !important;
+  background: #f0f9ff !important;
+  color: var(--accent) !important;
+}
+.btn-imprimir:hover { background: #e0f2fe !important; }
+
+.btn-fechar-acao {
+  border-color: #fecaca !important;
+  background: #fef2f2 !important;
+  color: var(--danger) !important;
+}
+.btn-fechar-acao:hover { background: #fee2e2 !important; }
+
+/* Salvar dropdown (in content header) */
+.salvar-wrapper { position: relative; }
+.salvar-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  z-index: 300;
+  min-width: 160px;
+  overflow: hidden;
+  display: none;
+  animation: dropIn 0.15s ease;
+}
+.salvar-dropdown.aberto { display: block; }
+.salvar-dropdown button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.83rem;
+  color: var(--text-primary);
+  transition: background 0.15s;
+  font-family: 'DM Sans', sans-serif;
+}
+.salvar-dropdown button:hover { background: var(--accent-light); color: var(--accent); }
+.salvar-dropdown button + button { border-top: 1px solid var(--border); }
+.salvar-dropdown button svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+/* ── CONTENT BODY ──────────────────────────────────────── */
+.content-body { padding: 20px; }
+
+.conteudo-com-subtopicos {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 16px;
+  padding: 16px;
+}
+
+.lista-subtopicos {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  height: fit-content;
+  position: sticky;
+  top: 0;
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+}
+.lista-subtopicos::-webkit-scrollbar { width: 4px; }
+.lista-subtopicos::-webkit-scrollbar-thumb { background: #c5d5ee; border-radius: 99px; }
+
+.lista-subtopicos-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.lista-subtopicos-header h3 {
+  flex: 1;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.btn-icone-editar {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted);
+  padding: 5px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.18s;
+  flex-shrink: 0;
+}
+.btn-icone-editar:hover { background: var(--accent-light); color: var(--accent); }
+.btn-icone-editar svg { width: 15px; height: 15px; }
+
+.subtopico-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 2px;
+  transition: all 0.18s;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  border: 1.5px solid transparent;
+  word-break: break-word;
+}
+.subtopico-item:hover { background: var(--accent-light); border-color: var(--border2); }
+.subtopico-item.ativo {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.subtopico-checkbox {
+  width: 15px; height: 15px;
+  cursor: pointer; flex-shrink: 0;
+  accent-color: var(--accent);
+}
+
+/* ── SELECTION MODE CONTROLS ───────────────────────────── */
+.acoes-header-selecao { display: none; align-items: center; gap: 4px; }
+.acoes-header-selecao.ativo { display: flex; }
+.selecao-segunda-linha {
+  display: none; align-items: center; gap: 8px;
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.selecao-segunda-linha.ativo { display: flex; }
+
+.btn-selecao-icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border2);
+  background: white;
+  cursor: pointer; transition: all 0.18s;
+  color: var(--text-primary); flex-shrink: 0; padding: 0;
+}
+.btn-selecao-icon svg { width: 13px; height: 13px; }
+.btn-selecao-icon:hover { background: var(--surface2); border-color: var(--accent); color: var(--accent); }
+.btn-selecao-icon.danger { color: var(--danger); border-color: #fecaca; background: #fef2f2; }
+.btn-selecao-icon.danger:hover { background: #fee2e2; }
+.btn-selecao-icon.azul { color: var(--accent); border-color: #bae6fd; background: #f0f9ff; }
+.btn-selecao-icon.azul:hover { background: #e0f2fe; }
+
+.selecao-salvar-wrapper { position: relative; margin-left: auto; }
+.btn-selecao-salvar {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 9px;
+  border-radius: 6px;
+  border: 1.5px solid #bbf7d0;
+  background: #f0fdf4;
+  cursor: pointer; font-size: 0.72rem; font-weight: 700;
+  color: var(--success);
+  transition: all 0.18s; white-space: nowrap; font-family: 'DM Sans', sans-serif;
+}
+.btn-selecao-salvar svg { width: 12px; height: 12px; }
+.btn-selecao-salvar:hover { background: #dcfce7; border-color: #6ee7b7; }
+
+/* ── CONTENT STYLES (from loaded HTML) ─────────────────── */
+.conteudo-subtopico { animation: fadeUp 0.25s ease both; min-width: 0; overflow: hidden; }
+.conteudo-carregado { animation: fadeUp 0.25s ease both; max-width: 100%; overflow-x: hidden; word-wrap: break-word; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.conteudo-carregado .container,
+.conteudo-carregado .conteudo-interno {
+  max-width: 100% !important; margin: 0 !important; padding: 0 !important;
+  background: transparent !important; border-radius: 0 !important;
+  box-shadow: none !important; border: none !important;
+}
+.conteudo-carregado h1 {
+  font-family: 'Sora', sans-serif;
+  color: var(--accent); margin-bottom: 10px; font-size: 1.35rem;
+  border-bottom: 2px solid var(--border); padding-bottom: 12px;
+}
+.conteudo-carregado h2 {
+  font-family: 'Sora', sans-serif;
+  color: var(--text-primary); margin: 24px 0 12px 0; font-size: 1.05rem;
+  display: flex; align-items: center; gap: 8px;
+}
+.conteudo-carregado h2::before {
+  content: ""; display: block; width: 4px; height: 18px;
+  background: var(--accent); border-radius: 4px; flex-shrink: 0;
+}
+.conteudo-carregado h3 {
+  color: var(--text-primary); margin: 18px 0 8px 0; font-size: 0.95rem;
+  padding-left: 16px; display: flex; align-items: center; gap: 6px;
+}
+.conteudo-carregado h3::before {
+  content: "›"; color: var(--accent); font-size: 18px; font-weight: bold;
+  flex-shrink: 0; margin-right: 2px;
+}
+.conteudo-carregado h4 { color: var(--text-primary); margin: 14px 0 6px 0; font-size: 0.9rem; padding-left: 16px; }
+.conteudo-carregado p { margin: 8px 0; padding-left: 16px; line-height: 1.6; font-size: 0.9rem; }
+.conteudo-carregado ul { margin: 8px 0; padding-left: 32px; }
+.conteudo-carregado li { margin: 5px 0; font-size: 0.9rem; }
+
+.destaque {
+  background: var(--accent-light); padding: 12px 16px; border-radius: 10px;
+  border-left: 4px solid var(--accent); margin: 12px 0;
+}
+.info-box {
+  background: #fffbeb; padding: 12px 16px; border-radius: 10px;
+  border-left: 4px solid var(--warn); margin: 12px 0; font-size: 0.88rem;
+}
+.ferias-box {
+  background: #f0fff4; padding: 12px 16px; border-radius: 10px;
+  border-left: 4px solid #38a169; margin: 12px 0; font-size: 0.88rem;
+}
+.passo-a-passo {
+  background: #f7fff0; padding: 16px; border-radius: 10px;
+  border: 1px solid var(--border); margin: 16px 0;
+}
+.passo { display: flex; align-items: flex-start; gap: 12px; margin: 8px 0; }
+.passo-num {
+  background: var(--accent); color: white; width: 24px; height: 24px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: bold; flex-shrink: 0;
+}
+.pix-info {
+  background: #f8f0ff; padding: 12px 16px; border-radius: 10px;
+  border-left: 4px solid #8a2be2; margin: 12px 0; font-family: monospace; font-size: 0.88rem;
+}
+.conteudo-carregado .dados-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px; margin: 12px 0 24px 0; padding-left: 16px;
+}
+.conteudo-carregado .dado-item {
+  background: var(--surface2); padding: 12px; border-radius: 10px;
+  border-left: 4px solid var(--accent);
+}
+.conteudo-carregado .tabela-container {
+  overflow-x: auto; margin: 16px 0; border-radius: 10px; border: 1px solid var(--border);
+}
+.conteudo-carregado .tabela-melhorada {
+  width: 100%; border-collapse: collapse; min-width: 400px;
+}
+.conteudo-carregado .tabela-melhorada thead { background: var(--accent); color: white; }
+.conteudo-carregado .tabela-melhorada th { padding: 11px 16px; text-align: left; font-weight: 600; font-size: 0.88rem; }
+.conteudo-carregado .tabela-melhorada tbody tr { border-bottom: 1px solid var(--border); }
+.conteudo-carregado .tabela-melhorada td { padding: 11px 16px; vertical-align: top; font-size: 0.88rem; }
+.conteudo-carregado .tabela-melhorada tbody tr:nth-child(even) { background: var(--surface2); }
+.conteudo-carregado .badge-multiplicador {
+  display: inline-block; background: var(--accent); color: white;
+  padding: 3px 9px; border-radius: 99px; font-weight: 700; font-size: 0.83rem; margin-right: 6px;
+}
+.conteudo-carregado .transportadores {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px; margin: 12px 0 24px 0; padding-left: 16px;
+}
+.conteudo-carregado .transportador {
+  background: var(--surface2); padding: 12px; border-radius: 10px; border-left: 4px solid var(--accent);
+}
+.conteudo-carregado .dado-linha {
+  display: flex; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+}
+.conteudo-carregado .dado-rotulo { font-weight: 600; min-width: 200px; color: var(--text-primary); }
+.conteudo-carregado .dado-valor { color: var(--text-secondary); }
+.conteudo-carregado .informacao-extra {
+  background: #fff9f0; padding: 16px; border-radius: 10px;
+  border: 1px solid #ffd8b2; margin: 16px 0;
+}
+.conteudo-carregado .informacao-extra h4 {
+  color: var(--text-primary); margin-top: 0; margin-bottom: 12px;
+  font-size: 0.9rem; display: flex; align-items: center; gap: 8px; padding-left: 0;
+}
+.conteudo-carregado .informacao-extra h4::before {
+  content: "•"; color: var(--accent); font-size: 22px; flex-shrink: 0;
+}
+.conteudo-carregado .info-list { margin: 0; padding-left: 24px; }
+.conteudo-carregado .info-list li { margin: 6px 0; padding-left: 4px; font-size: 0.88rem; }
+.conteudo-carregado .clientes-container {
+  background: var(--surface2); padding: 16px 20px; border-radius: 10px;
+  border-left: 4px solid var(--accent); margin: 12px 0 24px 0;
+  box-shadow: var(--shadow-sm);
+}
+.conteudo-carregado .rota-jovi      .clientes-container { border-left-color: #4CAF50; }
+.conteudo-carregado .rota-salsicha  .clientes-container { border-left-color: #FF9800; }
+.conteudo-carregado .rota-guilherme .clientes-container { border-left-color: #2196F3; }
+.conteudo-carregado .rota-nelio    .clientes-container { border-left-color: #9C27B0; }
+.conteudo-carregado .rota-stenio   .clientes-container { border-left-color: #9C27B0; }
+.conteudo-carregado .rota-bh       .clientes-container { border-left-color: #9C27B0; }
+.conteudo-carregado .rota-avulsa   .clientes-container { border-left-color: #6c757d; }
+.conteudo-carregado .cliente-item {
+  padding: 6px 0; border-bottom: 1px dotted #e0e0e0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.conteudo-carregado .cliente-item:last-child { border-bottom: none; }
+.conteudo-carregado .cliente-nome { flex-grow: 1; font-size: 0.88rem; }
+.conteudo-carregado .codigo-container { display: flex; align-items: center; gap: 6px; }
+.conteudo-carregado .codigo-box {
+  color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem;
+  font-weight: bold; min-width: 38px; text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+.conteudo-carregado .codigo-box.gerencial { background-color: #28a745; }
+.conteudo-carregado .codigo-box.fiscal    { background-color: #fd7e14; }
+.conteudo-carregado .codigo-box.alternado { background-color: #6f42c1; }
+.conteudo-carregado .total-clientes {
+  background: var(--surface2); padding: 8px 12px; border-radius: 6px; margin: 14px 0;
+  font-size: 0.83rem; color: var(--text-muted); border-left: 3px solid var(--border2);
+}
+.conteudo-carregado .produtos-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px; margin-top: 12px; margin-bottom: 16px; padding-left: 16px;
+}
+.conteudo-carregado .produto-item {
+  background: var(--surface2); padding: 12px; border-radius: 10px; border-left: 4px solid var(--accent);
+}
+.conteudo-carregado .produto-nome { font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.conteudo-carregado .produto-detalhe { font-size: 0.82rem; color: var(--text-muted); }
+
+/* ── STATES ────────────────────────────────────────────── */
+.estado-vazio {
+  text-align: center; padding: 60px 20px; color: var(--text-muted);
+}
+.estado-vazio svg { width: 56px; height: 56px; opacity: 0.3; margin-bottom: 14px; display: block; margin-left: auto; margin-right: auto; }
+.estado-vazio p { font-size: 0.9rem; }
+
+.estado-loading {
+  text-align: center; padding: 48px 20px; color: var(--text-muted); font-size: 0.9rem;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.estado-erro { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+.estado-erro svg { width: 48px; height: 48px; opacity: 0.4; margin-bottom: 14px; display: block; margin-left: auto; margin-right: auto; }
+
+/* ── HIGHLIGHT ─────────────────────────────────────────── */
+mark.hl, mark {
+  background-color: #fef08a; color: #000;
+  padding: 0; border-radius: 2px; display: inline;
+}
+
+/* ── IMAGES IN CONTENT ─────────────────────────────────── */
+.conteudo-carregado img {
+  max-width: 100%; height: auto; border-radius: 10px;
+  margin: 12px 0; cursor: pointer; transition: transform 0.2s;
+}
+.conteudo-carregado img:hover { transform: scale(1.02); }
+.conteudo-carregado .image-container {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px; text-align: center; margin: 16px 0; color: var(--text-muted);
+}
+.conteudo-carregado .image-container img {
+  max-width: 100%; height: auto; display: block; margin: 0 auto;
+  border-radius: 6px; max-height: 400px; object-fit: contain;
+}
+.conteudo-carregado .image-container p { margin: 8px 0 0 0; padding: 0; font-size: 0.8rem; color: var(--text-muted); }
+
+/* ── LIGHTBOX ──────────────────────────────────────────── */
+.image-lightbox {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.88); z-index: 2000;
+  justify-content: center; align-items: center;
+}
+.lightbox-inner {
+  position: relative; max-width: 90%; max-height: 90%;
+}
+.lightbox-close {
+  position: absolute; top: -42px; right: 0;
+  background: none; border: none; color: white; font-size: 28px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+.lightbox-img { max-width: 100%; max-height: 80vh; border-radius: 10px; }
+.lightbox-download {
+  display: block; text-align: center; margin-top: 10px; color: white;
+  text-decoration: none; background: var(--accent); padding: 10px;
+  border-radius: 8px; font-size: 0.85rem; font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+}
+
+/* ── POPUP ─────────────────────────────────────────────── */
+.popup-overlay {
+  position: fixed; inset: 0;
+  background: rgba(15,30,60,0.45); backdrop-filter: blur(4px);
+  display: none; justify-content: center; align-items: center;
+  z-index: 3000;
+}
+.popup-overlay.ativo { display: flex; }
+.popup-container {
+  background: var(--surface); border-radius: var(--radius-lg); padding: 24px;
+  max-width: 400px; width: 90%;
+  box-shadow: var(--shadow-lg);
+  border: 1.5px solid var(--border2);
+  animation: popIn 0.22s ease;
+}
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.94) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.popup-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.popup-header svg { width: 22px; height: 22px; color: var(--warn); }
+.popup-header h4 {
+  font-family: 'Sora', sans-serif; font-size: 1rem; font-weight: 700; color: var(--text-primary);
+}
+.popup-content { margin-bottom: 20px; color: var(--text-secondary); line-height: 1.6; font-size: 0.9rem; }
+.popup-botoes { display: flex; justify-content: flex-end; gap: 8px; }
+.popup-btn {
+  padding: 8px 16px; border-radius: 8px; border: 1.5px solid var(--border2);
+  background: var(--surface2); color: var(--text-secondary);
+  cursor: pointer; font-weight: 600; font-size: 0.85rem;
+  transition: all 0.18s; font-family: 'DM Sans', sans-serif;
+}
+.popup-btn:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+.popup-btn.primario { background: var(--accent); border-color: var(--accent); color: white; }
+.popup-btn.primario:hover { background: var(--accent-dark); }
+
+/* ── PRINT ─────────────────────────────────────────────── */
+@media print {
+  body::before { display: none !important; }
+  .topbar, .sidebar, .content-header .content-header-acoes,
+  .lista-subtopicos, .btn-acao { display: none !important; }
+  .app-wrapper { display: block !important; }
+  .body-layout { display: block !important; }
+  .main-area { overflow: visible !important; padding: 0 !important; }
+  .content-panel { box-shadow: none !important; border: none !important; }
+  .conteudo-com-subtopicos { grid-template-columns: 1fr !important; }
+  @page { margin: 1cm; }
+}
+
+/* ── RESPONSIVE ────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .body-layout { grid-template-columns: 1fr; height: auto; }
+  .sidebar { max-height: 300px; border-right: none; border-bottom: 1px solid var(--border); }
+  .conteudo-com-subtopicos { grid-template-columns: 1fr; }
+  .lista-subtopicos { position: static; max-height: none; }
+}
+@media (max-width: 600px) {
+  .topbar { padding: 0 12px; gap: 6px; }
+  .brand-sub, .btn-ferias-top span { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="app-wrapper">
+
+  <!-- ══════════════════════════════════════════
+       TOPBAR
+  ══════════════════════════════════════════ -->
+  <header class="topbar">
+    <div class="topbar-left">
+
+      <!-- Hamburger Menu -->
+      <div class="menu-dropdown">
+        <button class="icon-btn" id="btn-hamburger" title="Menu"
+                onclick="toggleMenu('dropdown-main')" aria-haspopup="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+            <rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+          <span class="sr-only">Menu</span>
+        </button>
+        <div class="menu-dropdown-content" id="dropdown-main">
+          <div class="dropdown-section">
+            <div class="section-header" tabindex="0"
+                 onclick="toggleSubmenu(this)"
+                 onkeydown="if(event.key==='Enter')toggleSubmenu(this)">
+              <span>MACS</span><small class="chev">▸</small>
+            </div>
+            <div class="submenu">
+              <a href="../mac77.html"><span class="mac-code">77</span>MAC Bairro São Geraldo</a>
+              <a href="../mac78.html"><span class="mac-code">78</span>MAC Bairro Planalto</a>
+              <a href="../mac79.html"><span class="mac-code">79</span>MAC Romeu Duarte</a>
+              <a href="../mac80.html"><span class="mac-code">80</span>MAC Rua São Geraldo / Centro 2</a>
+              <a href="../mac277.html"><span class="mac-code">277</span>MAC Matriz</a>
+              <a href="../mac853.html"><span class="mac-code">853</span>MAC Concesso</a>
+              <a href="../mac989.html"><span class="mac-code">989</span>MAC Araújos</a>
+              <a href="../mac1249.html"><span class="mac-code">1249</span>MAC Jardim do Lago</a>
+              <a href="../mac1436.html"><span class="mac-code">1436</span>MAC São Gonçalo do Pará</a>
+            </div>
+          </div>
+          <div class="dropdown-section">
+            <div class="section-header" tabindex="0"
+                 onclick="toggleSubmenu(this)"
+                 onkeydown="if(event.key==='Enter')toggleSubmenu(this)">
+              <span>São José</span><small class="chev">▸</small>
+            </div>
+            <div class="submenu">
+              <a href="../saojose.html">Pedido São José</a>
+              <a href="../paototal.html">Pedido Pão Total</a>
+            </div>
+          </div>
+          <div class="dropdown-section">
+            <div class="section-header" tabindex="0"
+                 onclick="toggleSubmenu(this)"
+                 onkeydown="if(event.key==='Enter')toggleSubmenu(this)">
+              <span>Tabelas</span><small class="chev">▸</small>
+            </div>
+            <div class="submenu">
+              <a href="../pdfs/Tabela 2025 Geral.pdf" target="_blank">Tabela de Preços Geral</a>
+              <a href="../pdfs/Tabela 2025 Empresa.pdf" target="_blank">Tabela de Preços Empresa</a>
+              <a href="https://github.com/henriteodoro/paratestes/releases/download/v1.0/Catalogo.Sao.Jose.2025.AT03.pdf" target="_blank">Catálogo de Produtos</a>
+            </div>
+          </div>
+          <div class="dropdown-section">
+            <div class="section-header" tabindex="0"
+                 onclick="toggleSubmenu(this)"
+                 onkeydown="if(event.key==='Enter')toggleSubmenu(this)">
+              <span>Ferramentas</span><small class="chev">▸</small>
+            </div>
+            <div class="submenu">
+              <a href="../processadordepedidos.html">Processador de Pedidos</a>
+              <a href="../ods.html">Visualizar Planilhas</a>
+              <a href="../simularpedido.html">Simulador de Pedido</a>
+              <a href="anotacoes.html">Anotações</a>
+              <a href="../planilhaautocontrole.html">Planilhas de Autocontrole</a>
+              <a href="../hora-extra.html">Ficha de Hora Extra</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Home / Back -->
+      <button class="icon-btn" title="Início" onclick="window.location.href='../index.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        <span class="sr-only">Início</span>
+      </button>
+
+      <!-- Close -->
+      <button class="icon-btn" title="Fechar" id="btn-fechar"
+              onclick="window.location.href='../index.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <line x1="15" y1="9" x2="9" y2="15"/>
+          <line x1="9" y1="9" x2="15" y2="15"/>
+        </svg>
+        <span class="sr-only">Fechar</span>
+      </button>
+
+      <div class="topbar-divider"></div>
+
+      <!-- Brand -->
+      <div class="topbar-brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-name">Anotações</div>
+          <div class="brand-sub">MACs & Guias</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="topbar-spacer"></div>
+
+    <!-- Search -->
+    <div class="topbar-search" id="search-container">
+      <svg class="search-icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="search" id="campo-busca"
+             placeholder="Buscar nas anotações…" autocomplete="off" />
+      <button class="search-clear-top" id="btn-limpar-busca" title="Limpar busca">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <!-- Search results dropdown -->
+      <div class="search-results-dropdown" id="resultados-busca"></div>
+    </div>
+
+    <!-- Topbar Actions -->
+    <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;margin-left:10px;">
+      <!-- Rotinas Férias -->
+      <button class="btn-ferias-top" id="btn-ferias">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" xml:space="preserve">
+          <style>.st0{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}</style>
+          <polygon class="st0" points="13,18 21,18 12,28 8,28"/>
+          <polyline class="st0" points="20.2,14 13,6 9,6 13,14"/>
+          <path class="st0" d="M12,20H4L1,9h3l4,5H28c0.8,0,1.6,0.3,2.1,0.9l0,0c1.2,1.2,1.2,3.1,0,4.2l0,0C29.5,19.7,28.8,20,28,20h-8.8"/>
+        </svg>
+        <span>Rotinas Férias</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════
+       BODY LAYOUT
+  ══════════════════════════════════════════ -->
+  <div class="body-layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-header">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" style="color:var(--text-muted);flex-shrink:0;">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="15" y2="12"/>
+            <line x1="3" y1="18" x2="9" y2="18"/>
+          </svg>
+          <span class="sidebar-section-title">Tópicos</span>
+        </div>
+        <div class="sidebar-section-body">
+          <div id="topicos-lista"></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-area" id="main-area">
+      <div class="content-panel">
+        <div class="content-header">
+          <h2 id="topico-titulo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="16"/>
+              <line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+            Bem-vindo
+          </h2>
+          <div class="content-header-acoes" id="topico-acoes"></div>
+        </div>
+        <div id="conteudo-dinamico">
+          <div class="estado-vazio">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <p>Selecione um tópico para visualizar o conteúdo</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+  </div><!-- /body-layout -->
+</div><!-- /app-wrapper -->
+
+<!-- Lightbox -->
+<div class="image-lightbox" id="image-lightbox">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" id="lightbox-close">×</button>
+    <img class="lightbox-img" id="lightbox-image" src="" alt="">
+    <a class="lightbox-download" id="lightbox-download" download>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           style="width:14px;height:14px;vertical-align:middle;margin-right:4px;">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Salvar Imagem
+    </a>
+  </div>
+</div>
+
+<!-- Popup -->
+<div class="popup-overlay" id="popup-overlay">
+  <div class="popup-container">
+    <div class="popup-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <h4 id="popup-titulo">Atenção</h4>
+    </div>
+    <div class="popup-content" id="popup-conteudo">Mensagem</div>
+    <div class="popup-botoes">
+      <button class="popup-btn" id="popup-fechar">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<iframe id="print-iframe" style="display:none;"></iframe>
+
+<script>
+/* ════════════════════════════════════════════════════════
+   CONFIG
+════════════════════════════════════════════════════════ */
+const MOSTRAR_ROTINAS_FERIAS = true;
+
+/* ════════════════════════════════════════════════════════
+   TÓPICOS
+════════════════════════════════════════════════════════ */
+const TOPICOS = [
+  { arquivo: 'fechamento-caixas.html',  nome: 'Fechamento Caixas',
+    icone: `<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 2v4M16 2v4M2 10h20"/>` },
+  { arquivo: 'fornecedores.html',       nome: 'Fornecedores',
+    icone: `<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>` },
+  { arquivo: 'geral.html',              nome: 'Geral',
+    icone: `<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>` },
+  { arquivo: 'uteis-clientes.html',     nome: 'Informações Úteis Clientes',
+    icone: `<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>` },
+  { arquivo: 'clientes-por-rota.html',  nome: 'Clientes por Rota',
+    icone: `<path d="M3 12h4l3 8 4-16 3 8h4"/>` },
+  { arquivo: 'lancamento-pedidos.html', nome: 'Lançamentos Pedidos',
+    icone: `<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>` },
+  { arquivo: 'montagem-rotas.html',     nome: 'Montagem Rotas',
+    icone: `<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>` },
+  { arquivo: 'pedidos-sj-pt.html',      nome: 'Pedidos São José e Pão Total',
+    icone: `<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>` }
+];
+
+/* ════════════════════════════════════════════════════════
+   HAMBURGER MENU
+════════════════════════════════════════════════════════ */
+function toggleMenu(id) {
+  const allDropdowns = document.querySelectorAll('.menu-dropdown-content, .save-dropdown');
+  allDropdowns.forEach(el => {
+    if (el.id !== id) { el.style.display = 'none'; }
+  });
+  const el = document.getElementById(id);
+  if (!el) return;
+  const open = el.style.display === 'block';
+  if (open) { el.style.display = 'none'; closeAllSubmenus(); }
+  else      { closeAllSubmenus(); el.style.display = 'block'; }
+}
+
+function toggleSubmenu(headerEl) {
+  const sub  = headerEl.nextElementSibling;
+  if (!sub) return;
+  const chev = headerEl.querySelector('.chev');
+  const open = sub.style.display === 'block';
+  sub.style.display = open ? 'none' : 'block';
+  if (chev) chev.textContent = open ? '▸' : '▾';
+}
+
+function closeAllSubmenus() {
+  document.querySelectorAll('.submenu').forEach(s => s.style.display = 'none');
+  document.querySelectorAll('.chev').forEach(c => c.textContent = '▸');
+}
+
+/* ════════════════════════════════════════════════════════
+   RENDER TOPICS
+════════════════════════════════════════════════════════ */
+function ordenarAlfabeticamente(topicos) {
+  return [...topicos].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' }));
+}
+
+function renderizarTopicos() {
+  const lista = document.getElementById('topicos-lista');
+  const ordenados = ordenarAlfabeticamente(TOPICOS);
+  lista.innerHTML = ordenados.map(t => `
+    <div class="topico-item" data-arquivo="${t.arquivo}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${t.icone}</svg>
+      ${t.nome}
+    </div>
+  `).join('');
+  lista.querySelectorAll('.topico-item').forEach(item => {
+    item.addEventListener('click', function () {
+      lista.querySelectorAll('.topico-item').forEach(i => i.classList.remove('ativo'));
+      this.classList.add('ativo');
+      gerenciador.carregarTopico(this.getAttribute('data-arquivo'));
+    });
+  });
+}
+
+/* ════════════════════════════════════════════════════════
+   ICONS
+════════════════════════════════════════════════════════ */
+const ICONS = {
+  fechar:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  salvar:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
+  imprimir:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>`,
+  pdf:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
+  txt:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
+  chevron: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><polyline points="6 9 12 15 18 9"/></svg>`,
+  checkAll:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 11l3 3 7-7"/></svg>`,
+  checklistSelect:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><polyline points="3 6 4 7 6 5"/><polyline points="3 12 4 13 6 11"/><polyline points="3 18 4 19 6 17"/></svg>`
+};
+
+/* ════════════════════════════════════════════════════════
+   HEADER ACTIONS HTML
+════════════════════════════════════════════════════════ */
+function gerarHTMLAcoesTopico() {
+  return `
+    <div class="salvar-wrapper">
+      <button class="btn-acao btn-salvar-como" id="btn-salvar-como">
+        ${ICONS.salvar} Salvar como ${ICONS.chevron}
+      </button>
+      <div class="salvar-dropdown" id="salvar-dropdown-topico">
+        <button id="btn-pdf-topico">${ICONS.pdf} PDF</button>
+        <button id="btn-txt-topico">${ICONS.txt} Texto (.txt)</button>
+      </div>
+    </div>
+    <button class="btn-acao btn-imprimir" id="btn-imprimir-topico">
+      ${ICONS.imprimir} Imprimir
+    </button>
+    <button class="btn-acao btn-fechar-acao" id="btn-fechar-topico">
+      ${ICONS.fechar} Fechar
+    </button>`;
+}
+
+/* ════════════════════════════════════════════════════════
+   GERENCIADOR
+════════════════════════════════════════════════════════ */
+class GerenciadorAnotacoes {
+  constructor() {
+    this.topicoAtual = null;
+    this.subtopicoAtual = null;
+    this.cache = new Map();
+    this.conteudoAtual = null;
+    this.modoSelecao = false;
+    this.topicosSelecionados = new Set();
+    this.conteudoSubtopicoAtual = null;
+    this.termoBusca = null;
+    this.pendingScrollTo = null;
+    this.todosCheckados = false;
+  }
+
+  async carregarTopico(arquivo, scrollTo = null) {
+    this.topicoAtual = arquivo;
+    this.subtopicoAtual = null;
+    this.conteudoSubtopicoAtual = null;
+    this.modoSelecao = false;
+    this.topicosSelecionados.clear();
+    this.pendingScrollTo = scrollTo;
+
+    const item = document.querySelector(`[data-arquivo="${arquivo}"]`);
+    const nomeTopico = item ? item.textContent.trim() : arquivo;
+    const iconeSVG   = item ? item.querySelector('svg').innerHTML : '';
+
+    document.getElementById('topico-titulo').innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${iconeSVG}</svg>
+      ${nomeTopico}`;
+    document.getElementById('topico-acoes').innerHTML = gerarHTMLAcoesTopico();
+    document.getElementById('conteudo-dinamico').innerHTML =
+      `<div class="estado-loading"><div class="spinner"></div><span>Carregando…</span></div>`;
+
+    try {
+      if (this.cache.has(arquivo)) {
+        this.processarConteudo(this.cache.get(arquivo), arquivo);
+        return;
+      }
+      const res = await fetch(arquivo);
+      if (!res.ok) throw new Error('Arquivo não encontrado');
+      const html = await res.text();
+      this.cache.set(arquivo, html);
+      this.processarConteudo(html, arquivo);
+    } catch (err) {
+      this.mostrarErro(arquivo);
+    }
+
+    const mainArea = document.getElementById('main-area');
+    if (mainArea) mainArea.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  processarConteudo(html, arquivo) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    tmp.querySelectorAll('script,style,link,meta,title,head').forEach(el => el.remove());
+    const body = tmp.querySelector('body');
+    let conteudo = body ? body.innerHTML : tmp.innerHTML;
+    conteudo = conteudo.replace(/\bclass="container"\b/g, 'class="conteudo-interno"');
+
+    const tmp2 = document.createElement('div');
+    tmp2.innerHTML = conteudo;
+    tmp2.querySelectorAll('script,style').forEach(el => el.remove());
+
+    const topicoInfo = TOPICOS.find(t => t.arquivo === arquivo);
+    const titulo = (tmp2.querySelector('h1')?.textContent || (topicoInfo ? topicoInfo.nome : arquivo))
+      .replace('| °', '').trim();
+    const subtopicos = Array.from(tmp2.querySelectorAll('h2'));
+
+    this.conteudoAtual = {
+      html: tmp2.innerHTML,
+      titulo,
+      subtopicos: subtopicos.map(h2 => ({
+        titulo:   h2.textContent.replace('| °', '').trim(),
+        id:       this.criarId(h2.textContent),
+        conteudo: this.extrairConteudoSubtopico(h2, tmp2)
+      }))
+    };
+
+    if (subtopicos.length > 0) {
+      this.criarInterfaceComSubtopicos();
+    } else {
+      this.mostrarConteudoDireto(tmp2);
+    }
+
+    this.adicionarEventosImagens();
+
+    if (this.pendingScrollTo) {
+      const nav = this.pendingScrollTo;
+      this.pendingScrollTo = null;
+      setTimeout(() => this.navegarParaResultado(nav), 250);
+    }
+  }
+
+  extrairConteudoSubtopico(h2, container) {
+    let conteudo = '';
+    let el = h2.nextElementSibling;
+    while (el && el.tagName !== 'H2') {
+      conteudo += el.outerHTML;
+      el = el.nextElementSibling;
+    }
+    return `<h2>${h2.textContent.replace('| °', '').trim()}</h2>${conteudo}`;
+  }
+
+  criarInterfaceComSubtopicos() {
+    const menuSubtopicos = this.conteudoAtual.subtopicos.map((s, i) => `
+      <div class="subtopico-item" data-subtopico="${s.id}" data-index="${i}">
+        <div style="display:flex;align-items:center;flex:1;">
+          <label style="cursor:pointer;flex:1;">${s.titulo}</label>
+        </div>
+      </div>`).join('');
+
+    document.getElementById('conteudo-dinamico').innerHTML = `
+      <div class="conteudo-com-subtopicos">
+        <div class="lista-subtopicos">
+          <div class="lista-subtopicos-header" id="subtopicos-header">
+            <h3>TÓPICOS</h3>
+            <div id="acoes-header-normal">
+              <button class="btn-icone-editar" id="btn-selecionar-topicos" title="Selecionar tópicos">
+                ${ICONS.checklistSelect}
+              </button>
+            </div>
+            <div id="acoes-header-selecao" class="acoes-header-selecao">
+              <button class="btn-selecao-icon danger" id="btn-cancelar-selecao" title="Cancelar">
+                ${ICONS.fechar}
+              </button>
+              <button class="btn-selecao-icon azul" id="btn-imprimir-selecionados" title="Imprimir">
+                ${ICONS.imprimir}
+              </button>
+            </div>
+          </div>
+          <div class="selecao-segunda-linha" id="selecao-segunda-linha">
+            <button class="btn-selecao-icon" id="btn-selecionar-todos" title="Selecionar todos">
+              ${ICONS.checkAll}
+            </button>
+            <div class="selecao-salvar-wrapper">
+              <button class="btn-selecao-salvar" id="btn-salvar-como-selecao">
+                ${ICONS.salvar} Salvar como ${ICONS.chevron}
+              </button>
+              <div class="salvar-dropdown" id="salvar-dropdown-selecao">
+                <button id="btn-pdf-selecionados">${ICONS.pdf} PDF</button>
+                <button id="btn-txt-selecionados">${ICONS.txt} Texto (.txt)</button>
+              </div>
+            </div>
+          </div>
+          <div id="lista-subtopicos-conteudo">${menuSubtopicos}</div>
+        </div>
+        <div id="conteudo-subtopico" class="conteudo-subtopico">
+          <div class="estado-vazio" style="padding:40px 20px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <p>Selecione um subtópico</p>
+          </div>
+        </div>
+      </div>`;
+
+    this.adicionarEventosSubtopicos();
+    this.adicionarEventosSelecao();
+  }
+
+  mostrarConteudoDireto(tmpDiv) {
+    const h1 = tmpDiv.querySelector('h1');
+    if (h1) h1.remove();
+    document.getElementById('conteudo-dinamico').innerHTML =
+      '<div style="padding:20px;"><div class="conteudo-carregado">' + tmpDiv.innerHTML + '</div></div>';
+  }
+
+  adicionarEventosSubtopicos() {
+    document.querySelectorAll('.subtopico-item').forEach(item => {
+      item.addEventListener('click', () => {
+        if (this.modoSelecao) {
+          const cb = item.querySelector('.subtopico-checkbox');
+          if (cb) {
+            cb.checked = !cb.checked;
+            const idx = parseInt(item.getAttribute('data-index'));
+            this.topicosSelecionados[cb.checked ? 'add' : 'delete'](idx);
+          }
+          return;
+        }
+        this.mostrarSubtopico(parseInt(item.getAttribute('data-index')));
+      });
+    });
+  }
+
+  adicionarEventosSelecao() {
+    const btn = id => document.getElementById(id);
+    btn('btn-selecionar-topicos')?.addEventListener('click', () => this.ativarModoSelecao());
+    btn('btn-cancelar-selecao')?.addEventListener('click', () => this.desativarModoSelecao());
+    btn('btn-imprimir-selecionados')?.addEventListener('click', () => this.salvarSubtopicosSelecionados('imprimir'));
+    btn('btn-selecionar-todos')?.addEventListener('click', () => {
+      const cbs = document.querySelectorAll('.subtopico-checkbox');
+      this.todosCheckados = !this.todosCheckados;
+      cbs.forEach(cb => {
+        cb.checked = this.todosCheckados;
+        const idx = parseInt(cb.getAttribute('data-index'));
+        this.topicosSelecionados[this.todosCheckados ? 'add' : 'delete'](idx);
+      });
+      const b = btn('btn-selecionar-todos');
+      if (b) b.title = this.todosCheckados ? 'Desmarcar todos' : 'Selecionar todos';
+    });
+    btn('btn-salvar-como-selecao')?.addEventListener('click', e => {
+      e.stopPropagation();
+      document.getElementById('salvar-dropdown-selecao')?.classList.toggle('aberto');
+    });
+    btn('btn-pdf-selecionados')?.addEventListener('click', () => {
+      document.getElementById('salvar-dropdown-selecao')?.classList.remove('aberto');
+      this.salvarSubtopicosSelecionados('pdf');
+    });
+    btn('btn-txt-selecionados')?.addEventListener('click', () => {
+      document.getElementById('salvar-dropdown-selecao')?.classList.remove('aberto');
+      this.salvarSubtopicosSelecionados('texto');
+    });
+  }
+
+  ativarModoSelecao() {
+    this.modoSelecao = true;
+    this.topicosSelecionados.clear();
+    this.todosCheckados = false;
+    const container = document.getElementById('lista-subtopicos-conteudo');
+    if (!container) return;
+    document.getElementById('acoes-header-normal').style.display = 'none';
+    document.getElementById('acoes-header-selecao').classList.add('ativo');
+    document.getElementById('selecao-segunda-linha').classList.add('ativo');
+    container.innerHTML = this.conteudoAtual.subtopicos.map((s, i) => `
+      <div class="subtopico-item" data-index="${i}">
+        <div style="display:flex;align-items:center;flex:1;gap:6px;">
+          <input type="checkbox" class="subtopico-checkbox" id="check-${i}" data-index="${i}">
+          <label for="check-${i}" style="margin-left:4px;cursor:pointer;flex:1;font-size:0.82rem;">${s.titulo}</label>
+        </div>
+      </div>`).join('');
+    document.querySelectorAll('.subtopico-checkbox').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const idx = parseInt(cb.getAttribute('data-index'));
+        this.topicosSelecionados[cb.checked ? 'add' : 'delete'](idx);
+      });
+    });
+  }
+
+  desativarModoSelecao() {
+    this.modoSelecao = false;
+    this.topicosSelecionados.clear();
+    this.todosCheckados = false;
+    const container = document.getElementById('lista-subtopicos-conteudo');
+    if (!container) return;
+    document.getElementById('acoes-header-normal').style.display = '';
+    document.getElementById('acoes-header-selecao').classList.remove('ativo');
+    document.getElementById('selecao-segunda-linha').classList.remove('ativo');
+    document.getElementById('salvar-dropdown-selecao')?.classList.remove('aberto');
+    container.innerHTML = this.conteudoAtual.subtopicos.map((s, i) => `
+      <div class="subtopico-item" data-subtopico="${s.id}" data-index="${i}">
+        <div style="display:flex;align-items:center;flex:1;">
+          <label style="cursor:pointer;flex:1;">${s.titulo}</label>
+        </div>
+      </div>`).join('');
+    if (this.subtopicoAtual !== null) {
+      document.querySelector(`[data-index="${this.subtopicoAtual}"]`)?.classList.add('ativo');
+    }
+    this.adicionarEventosSubtopicos();
+  }
+
+  mostrarSubtopico(index) {
+    const container = document.getElementById('conteudo-subtopico');
+    if (!container || !this.conteudoAtual?.subtopicos[index]) return;
+    const subtopico = this.conteudoAtual.subtopicos[index];
+    this.subtopicoAtual = index;
+    this.conteudoSubtopicoAtual = subtopico.conteudo;
+    container.innerHTML = '<div class="conteudo-carregado">' + subtopico.conteudo + '</div>';
+    document.querySelectorAll('.subtopico-item').forEach(i => i.classList.remove('ativo'));
+    document.querySelector(`[data-index="${index}"]`)?.classList.add('ativo');
+    this.adicionarEventosImagens();
+    container.scrollTo?.({ top: 0, behavior: 'smooth' });
+  }
+
+  navegarParaResultado(dados) {
+    if (!dados || !this.conteudoAtual) return;
+    if (dados.tipo === 'subtopico') {
+      let idx = -1;
+      for (let i = 0; i < this.conteudoAtual.subtopicos.length; i++) {
+        const s = this.conteudoAtual.subtopicos[i];
+        if (s.id === dados.valor || s.titulo === dados.valor ||
+            s.titulo.toLowerCase() === (dados.valor || '').toLowerCase()) { idx = i; break; }
+      }
+      if (idx >= 0) {
+        this.mostrarSubtopico(idx);
+        setTimeout(() => { if (this.termoBusca) this.aplicarHighlight(this.termoBusca); }, 200);
+      }
+    } else if (dados.tipo === 'conteudo') {
+      if (this.conteudoAtual.subtopicos.length > 0) {
+        const idx = this.encontrarSubtopicoDoConteudo(dados.valor);
+        if (idx >= 0) {
+          this.mostrarSubtopico(idx);
+          setTimeout(() => {
+            if (this.termoBusca) {
+              this.aplicarHighlight(this.termoBusca);
+              document.querySelector('#conteudo-dinamico mark.hl')
+                ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }, 250);
+        }
+      } else {
+        setTimeout(() => {
+          if (this.termoBusca) {
+            this.aplicarHighlight(this.termoBusca);
+            document.querySelector('#conteudo-dinamico mark.hl')
+              ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 200);
+      }
+    }
+  }
+
+  encontrarSubtopicoDoConteudo(texto) {
+    if (!this.conteudoAtual || !texto) return -1;
+    const t = texto.toLowerCase();
+    for (let i = 0; i < this.conteudoAtual.subtopicos.length; i++) {
+      const d = document.createElement('div');
+      d.innerHTML = this.conteudoAtual.subtopicos[i].conteudo;
+      if ((d.textContent || '').toLowerCase().includes(t)) return i;
+    }
+    return -1;
+  }
+
+  aplicarHighlight(termo) {
+    if (!termo) return;
+    const alvo = document.getElementById('conteudo-subtopico') ||
+                 document.querySelector('#conteudo-dinamico .conteudo-carregado');
+    if (!alvo) return;
+    this.removerHighlights();
+    this.highlightNode(alvo, termo);
+    document.querySelector('#conteudo-dinamico mark.hl')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  highlightNode(node, termo) {
+    if (!node) return;
+    if (node.nodeType === 3) {
+      const txt = node.textContent;
+      if (!txt.toLowerCase().includes(termo.toLowerCase())) return;
+      const escaped = termo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const parts = txt.split(new RegExp(`(${escaped})`, 'gi'));
+      if (parts.length <= 1) return;
+      const frag = document.createDocumentFragment();
+      parts.forEach(p => {
+        if (p.toLowerCase() === termo.toLowerCase()) {
+          const mark = document.createElement('mark');
+          mark.className = 'hl'; mark.textContent = p;
+          frag.appendChild(mark);
+        } else { frag.appendChild(document.createTextNode(p)); }
+      });
+      node.parentNode?.replaceChild(frag, node);
+    } else if (node.nodeType === 1) {
+      const tag = node.tagName?.toUpperCase() || '';
+      if (['SCRIPT','STYLE','MARK','INPUT','TEXTAREA','SELECT'].includes(tag)) return;
+      Array.from(node.childNodes).forEach(c => this.highlightNode(c, termo));
+    }
+  }
+
+  removerHighlights() {
+    document.querySelectorAll('#conteudo-dinamico mark.hl').forEach(mark => {
+      const p = mark.parentNode;
+      if (p) { p.replaceChild(document.createTextNode(mark.textContent), mark); try { p.normalize(); } catch(e){} }
+    });
+  }
+
+  adicionarEventosImagens() {
+    document.querySelectorAll('#conteudo-dinamico img').forEach(img => {
+      img.addEventListener('click', () => this.abrirLightbox(img.src));
+    });
+  }
+
+  abrirLightbox(src) {
+    const lb  = document.getElementById('image-lightbox');
+    const img = document.getElementById('lightbox-image');
+    const dl  = document.getElementById('lightbox-download');
+    if (!lb || !img || !dl) return;
+    img.src = src; dl.href = src;
+    dl.download = src.split('/').pop() || 'imagem.png';
+    lb.style.display = 'flex';
+  }
+
+  fecharLightbox() {
+    const lb = document.getElementById('image-lightbox');
+    if (lb) lb.style.display = 'none';
+  }
+
+  criarId(texto) {
+    return texto.toLowerCase().replace(/\s+/g, '-').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
+  mostrarErro(arquivo) {
+    document.getElementById('conteudo-dinamico').innerHTML = `
+      <div class="estado-erro" style="padding:40px 20px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p>Arquivo não encontrado: <strong>${arquivo}</strong></p>
+        <p style="font-size:0.82rem;margin-top:8px;">Crie o arquivo na mesma pasta para ver o conteúdo.</p>
+      </div>`;
+  }
+
+  fecharTopico() {
+    this.topicoAtual = null;
+    this.subtopicoAtual = null;
+    this.conteudoAtual = null;
+    this.conteudoSubtopicoAtual = null;
+    this.modoSelecao = false;
+    this.topicosSelecionados.clear();
+    document.querySelectorAll('.topico-item').forEach(i => i.classList.remove('ativo'));
+    document.getElementById('topico-titulo').innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="16"/>
+        <line x1="8" y1="12" x2="16" y2="12"/>
+      </svg>
+      Bem-vindo`;
+    document.getElementById('topico-acoes').innerHTML = '';
+    document.getElementById('conteudo-dinamico').innerHTML = `
+      <div class="estado-vazio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+        <p>Selecione um tópico para visualizar o conteúdo</p>
+      </div>`;
+    document.getElementById('main-area')?.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ─── SAVE / PRINT ───────────────────────────────────── */
+  salvarSubtopicoAtual(formato) {
+    if (!this.conteudoSubtopicoAtual) { this.mostrarPopup('Selecione um subtópico primeiro.'); return; }
+    const s = this.conteudoAtual.subtopicos[this.subtopicoAtual];
+    const titulo = `${this.conteudoAtual.titulo} - ${s.titulo}`;
+    this.gerarSaida(`<h1>${titulo}</h1>${this.conteudoSubtopicoAtual}`, titulo, formato);
+  }
+
+  salvarTopicoCompleto(formato) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = this.conteudoAtual.html;
+    tmp.querySelector('h1')?.remove();
+    this.gerarSaida(`<h1>${this.conteudoAtual.titulo}</h1>${tmp.innerHTML}`, this.conteudoAtual.titulo, formato);
+  }
+
+  salvarSubtopicosSelecionados(formato) {
+    if (this.topicosSelecionados.size === 0) { this.mostrarPopup('Selecione pelo menos um tópico.'); return; }
+    let conteudo = `<h1>${this.conteudoAtual.titulo}</h1>`;
+    this.topicosSelecionados.forEach(i => { conteudo += this.conteudoAtual.subtopicos[i].conteudo; });
+    this.gerarSaida(conteudo, this.conteudoAtual.titulo, formato);
+  }
+
+  async gerarSaida(conteudo, titulo, formato) {
+    if (formato === 'texto') {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = conteudo;
+      const texto = (tmp.textContent || tmp.innerText || '').trim();
+      const blob = new Blob([texto], { type: 'text/plain;charset=utf-8' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url; a.download = `${titulo.replace(/\s+/g,'_').replace(/[^\w\s]/gi,'')}.txt`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      return;
+    }
+    const converterImagens = async htmlStr => {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = htmlStr;
+      for (const img of tmp.querySelectorAll('img')) {
+        const src = img.src || img.getAttribute('src');
+        if (!src || src.startsWith('data:')) continue;
+        try {
+          const r = await fetch(src.startsWith('http') ? src : new URL(src, window.location.href).href);
+          if (!r.ok) continue;
+          const blob = await r.blob();
+          await new Promise((res, rej) => {
+            const rd = new FileReader();
+            rd.onloadend = () => { img.src = rd.result; res(); };
+            rd.onerror = rej;
+            rd.readAsDataURL(blob);
+          });
+        } catch(e) {}
+      }
+      return tmp.innerHTML;
+    };
+    try {
+      const conteudoCI = await converterImagens(conteudo);
+      const estilos = `<style>
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap');
+        body{font-family:'DM Sans',system-ui;line-height:1.6;margin:40px;color:#1a2740;background:white;}
+        h1{font-family:'Sora',sans-serif;color:#1a56db;border-bottom:2px solid #dce8fb;padding-bottom:10px;margin-bottom:24px;font-size:22px;}
+        h2{font-family:'Sora',sans-serif;color:#1a2740;margin-top:24px;padding-left:14px;border-left:4px solid #1a56db;font-size:17px;}
+        h3{color:#1a2740;margin:18px 0 8px 0;font-size:15px;}
+        h4{color:#1a2740;margin:14px 0 6px 0;font-size:14px;}
+        p{line-height:1.6;margin:8px 0;}
+        .destaque{background:#e8f0fe;padding:12px 16px;border-radius:8px;border-left:4px solid #1a56db;margin:14px 0;}
+        .info-box{background:#fffbeb;padding:12px 16px;border-radius:8px;border-left:4px solid #f59e0b;margin:14px 0;}
+        .ferias-box{background:#f0fff4;padding:12px 16px;border-radius:8px;border-left:4px solid #38a169;margin:14px 0;}
+        .pix-info{background:#f8f0ff;padding:12px 16px;border-radius:8px;border-left:4px solid #8a2be2;margin:12px 0;font-family:monospace;}
+        .tabela-melhorada{width:100%;border-collapse:collapse;}
+        .tabela-melhorada thead{background:#1a56db;color:white;}
+        .tabela-melhorada th{padding:11px 16px;text-align:left;}
+        .tabela-melhorada td{padding:11px 16px;border-bottom:1px solid #dce8fb;vertical-align:top;}
+        .tabela-melhorada tbody tr:nth-child(even){background:#f4f8ff;}
+        .clientes-container{background:#f4f8ff;padding:16px;border-radius:8px;border-left:4px solid #1a56db;margin:12px 0;}
+        .codigo-box{color:white;padding:2px 8px;border-radius:5px;font-size:12px;font-weight:bold;}
+        .codigo-box.gerencial{background:#28a745;} .codigo-box.fiscal{background:#fd7e14;} .codigo-box.alternado{background:#6f42c1;}
+        @media print{body{margin:20px;}@page{margin:1cm;}}
+      </style>`;
+      const htmlFull = `<!DOCTYPE html><html><head><title>${titulo}</title><meta charset="utf-8">${estilos}</head><body>${conteudoCI}</body></html>`;
+
+      if (formato === 'imprimir') {
+        const iframe = document.getElementById('print-iframe');
+        const blob = new Blob([htmlFull], { type: 'text/html' });
+        const url  = URL.createObjectURL(blob);
+        iframe.src = url;
+        iframe.onload = () => {
+          try { iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
+          catch(e) { this.mostrarPopup('Erro ao imprimir. Tente novamente.'); }
+        };
+      } else {
+        const blob = new Blob([htmlFull], { type: 'text/html' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href = url; a.download = `${titulo.replace(/\s+/g,'_').replace(/[^\w\s]/gi,'')}.html`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+    } catch(e) { this.mostrarPopup('Erro ao processar. Tente novamente.'); }
+  }
+
+  mostrarPopup(mensagem, titulo = 'Atenção') {
+    const pop = document.getElementById('popup-overlay');
+    const pt  = document.getElementById('popup-titulo');
+    const pc  = document.getElementById('popup-conteudo');
+    if (!pop || !pt || !pc) return;
+    pt.textContent = titulo; pc.textContent = mensagem;
+    pop.classList.add('ativo');
+  }
+
+  fecharPopup() {
+    document.getElementById('popup-overlay')?.classList.remove('ativo');
+  }
+
+  /* ─── SEARCH ─────────────────────────────────────────── */
+  async buscarConteudo(termo) {
+    const container   = document.getElementById('resultados-busca');
+    const searchWrap  = document.getElementById('search-container');
+    const termoTrim   = termo.trim();
+
+    if (!termoTrim) {
+      this.termoBusca = null;
+      this.removerHighlights();
+      if (container) container.style.display = 'none';
+      return;
+    }
+
+    this.termoBusca = termoTrim;
+    container.style.display = 'block';
+    container.innerHTML = `
+      <div class="srd-header">
+        <span>Buscando…</span>
+      </div>
+      <div style="padding:18px;text-align:center;color:var(--text-muted);font-size:0.85rem;">
+        Pesquisando em todos os tópicos…
+      </div>`;
+
+    const termoLower = termoTrim.toLowerCase();
+    const resultadosPorArquivo = new Map();
+
+    for (const topico of TOPICOS) {
+      const arq = topico.arquivo;
+      try {
+        let html;
+        if (this.cache.has(arq)) { html = this.cache.get(arq); }
+        else {
+          const res = await fetch(arq);
+          if (!res.ok) continue;
+          html = await res.text();
+          this.cache.set(arq, html);
+        }
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        tmp.querySelectorAll('script,style,link,meta,title,head').forEach(el => el.remove());
+
+        const resultados = [];
+        const vistos     = new Set();
+        const adicionar  = item => {
+          const chave = item.tipo + '::' + (item.titulo || '').trim().toLowerCase().substring(0, 80);
+          if (!vistos.has(chave)) { vistos.add(chave); resultados.push(item); }
+        };
+
+        const walker = document.createTreeWalker(tmp, NodeFilter.SHOW_TEXT, {
+          acceptNode(node) {
+            const par = node.parentElement;
+            if (!par) return NodeFilter.FILTER_REJECT;
+            const tag = par.tagName.toUpperCase();
+            if (['SCRIPT','STYLE'].includes(tag)) return NodeFilter.FILTER_REJECT;
+            const txt = node.textContent.trim();
+            if (!txt) return NodeFilter.FILTER_REJECT;
+            return txt.toLowerCase().includes(termoLower) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+          }
+        });
+        let node;
+        while ((node = walker.nextNode())) {
+          const texto = node.textContent.trim();
+          if (!texto) continue;
+          const par  = node.parentElement;
+          const tag  = par ? par.tagName.toUpperCase() : '';
+          const tipo = ['H1','H2'].includes(tag) ? 'subtopico' : 'conteudo';
+          adicionar({
+            tipo, titulo: texto.length > 100 ? texto.substring(0, 100) + '…' : texto,
+            textoCompleto: texto, trecho: texto,
+            id: tipo === 'subtopico' ? this.criarId(texto) : undefined,
+            posicao: tag.toLowerCase()
+          });
+        }
+        const nomeMatch = topico.nome.toLowerCase().includes(termoLower);
+        if (resultados.length > 0 || nomeMatch) {
+          resultadosPorArquivo.set(arq, { topico, itens: resultados, nomeMatch });
+        }
+      } catch(e) {}
+    }
+    this.exibirResultados(resultadosPorArquivo, termoTrim);
+  }
+
+  exibirResultados(mapa, termo) {
+    const container = document.getElementById('resultados-busca');
+    if (!container) return;
+
+    if (mapa.size === 0) {
+      container.innerHTML = `
+        <div class="srd-header">
+          <span>Resultados</span><span class="srd-count">0</span>
+        </div>
+        <div class="srd-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          Nenhum resultado para "<strong>${termo}</strong>"
+        </div>`;
+      container.style.display = 'block';
+      return;
+    }
+
+    let total = 0;
+    mapa.forEach(({ itens }) => { total += Math.max(itens.length, 1); });
+
+    let html = `
+      <div class="srd-header">
+        <span>Resultados para "${termo}"</span>
+        <span class="srd-count">${total}</span>
+      </div>`;
+
+    mapa.forEach(({ topico, itens, nomeMatch }, arq) => {
+      html += `<div class="srd-group">
+        <div class="srd-group-header" data-arquivo="${arq}" data-abrir-topico="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          ${topico.nome}
+          ${nomeMatch ? '<span style="margin-left:auto;font-size:0.68rem;background:#dbeafe;color:#1e40af;padding:2px 7px;border-radius:99px;text-transform:none;font-weight:700;">Tópico</span>' : ''}
+        </div>`;
+
+      itens.forEach(item => {
+        const bc = item.tipo === 'subtopico' ? 'badge-subtopico' : 'badge-conteudo';
+        const bl = item.tipo === 'subtopico' ? 'Subtópico' : 'Conteúdo';
+        const trecho = item.trecho || item.titulo || '';
+        const trechoHL = this.destacarTermo(trecho.substring(0, 120), termo);
+        html += `
+          <div class="srd-item"
+               data-arquivo="${arq}" data-tipo="${item.tipo}"
+               data-id="${item.id || ''}"
+               data-texto="${(item.textoCompleto || '').substring(0, 200).replace(/"/g,'&quot;')}"
+               data-posicao="${item.posicao || ''}">
+            <span class="srd-badge ${bc}">${bl}</span>
+            <div class="srd-title">${item.titulo}</div>
+            ${trecho && trecho !== item.titulo ? `<div class="srd-trecho">${trechoHL}</div>` : ''}
+          </div>`;
+      });
+
+      if (itens.length === 0 && nomeMatch) {
+        html += `
+          <div class="srd-item" data-arquivo="${arq}" data-tipo="topico" data-posicao="topico">
+            <span class="srd-badge badge-topico">Tópico</span>
+            <div class="srd-title">${topico.nome}</div>
+            <div class="srd-trecho">Clique para abrir este tópico</div>
+          </div>`;
+      }
+      html += `</div>`;
+    });
+
+    container.innerHTML = html;
+    container.style.display = 'block';
+
+    container.querySelectorAll('.srd-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const arq   = item.getAttribute('data-arquivo');
+        const tipo  = item.getAttribute('data-tipo');
+        const id    = item.getAttribute('data-id');
+        const texto = item.getAttribute('data-texto');
+        let scrollTo = null;
+        if (tipo === 'subtopico' && id)     scrollTo = { tipo: 'subtopico', valor: id };
+        else if (tipo === 'conteudo' && texto) scrollTo = { tipo: 'conteudo', valor: texto };
+        document.querySelectorAll('.topico-item').forEach(i => i.classList.remove('ativo'));
+        document.querySelector(`[data-arquivo="${arq}"]`)?.classList.add('ativo');
+        gerenciador.carregarTopico(arq, scrollTo);
+        container.style.display = 'none';
+      });
+    });
+
+    container.querySelectorAll('[data-abrir-topico="true"]').forEach(hdr => {
+      hdr.addEventListener('click', e => {
+        e.stopPropagation();
+        const arq = hdr.getAttribute('data-arquivo');
+        document.querySelectorAll('.topico-item').forEach(i => i.classList.remove('ativo'));
+        document.querySelector(`[data-arquivo="${arq}"]`)?.classList.add('ativo');
+        gerenciador.carregarTopico(arq);
+        container.style.display = 'none';
+      });
+    });
+  }
+
+  destacarTermo(texto, termo) {
+    if (!texto || !termo) return texto || '';
+    const escaped = termo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return texto.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
+  }
+}
+
+/* ════════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════════ */
+let gerenciador;
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderizarTopicos();
+  gerenciador = new GerenciadorAnotacoes();
+
+  // Rotinas Férias button
+  const btnFerias = document.getElementById('btn-ferias');
+  if (!MOSTRAR_ROTINAS_FERIAS && btnFerias) btnFerias.style.display = 'none';
+  if (btnFerias) btnFerias.addEventListener('click', () => {
+    window.location.href = '../rotinas.html';
+  });
+
+  /* ── Search with debounce ─── */
+  const searchContainer = document.getElementById('search-container');
+  const searchInput     = document.getElementById('campo-busca');
+  let timeout;
+
+  document.getElementById('btn-limpar-busca').addEventListener('click', () => {
+    searchInput.value = '';
+    searchContainer.classList.remove('tem-valor');
+    if (gerenciador) {
+      gerenciador.termoBusca = null;
+      gerenciador.removerHighlights();
+      gerenciador.buscarConteudo('');
+    }
+    searchInput.focus();
+  });
+
+  searchInput.addEventListener('input', function () {
+    const val = this.value;
+    searchContainer.classList.toggle('tem-valor', !!val);
+    if (!val && gerenciador) {
+      gerenciador.termoBusca = null;
+      gerenciador.removerHighlights();
+    }
+    clearTimeout(timeout);
+    timeout = setTimeout(() => { gerenciador.buscarConteudo(val); }, 350);
+  });
+
+  /* ── Global click: close dropdowns / search ─── */
+  document.addEventListener('click', e => {
+    // Close hamburger
+    if (!e.target.closest('.menu-dropdown') && !e.target.closest('.menu-right')) {
+      document.querySelectorAll('.menu-dropdown-content').forEach(el => { el.style.display = 'none'; });
+      closeAllSubmenus();
+    }
+    // Close salvar dropdowns
+    const inBtn = e.target.closest('[id^="btn-salvar-como"]') ||
+                  e.target.closest('[id^="btn-salvar-como-selecao"]');
+    if (!inBtn && !e.target.closest('.salvar-dropdown')) {
+      document.querySelectorAll('.salvar-dropdown.aberto').forEach(dd => dd.classList.remove('aberto'));
+    }
+    // Close search results
+    if (!e.target.closest('.topbar-search')) {
+      const res = document.getElementById('resultados-busca');
+      if (res && res.style.display !== 'none') res.style.display = 'none';
+    }
+  });
+
+  /* ── ESC ─── */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeAllSubmenus();
+      document.querySelectorAll('.menu-dropdown-content').forEach(el => { el.style.display = 'none'; });
+      document.querySelectorAll('.salvar-dropdown.aberto').forEach(dd => dd.classList.remove('aberto'));
+      const res = document.getElementById('resultados-busca');
+      if (res && res.style.display !== 'none') {
+        res.style.display = 'none';
+        searchInput.value = '';
+        searchContainer.classList.remove('tem-valor');
+        if (gerenciador) { gerenciador.termoBusca = null; gerenciador.removerHighlights(); }
+      }
+      if (gerenciador?.modoSelecao) gerenciador.desativarModoSelecao();
+    }
+  });
+
+  /* ── Lightbox ─── */
+  document.getElementById('lightbox-close').addEventListener('click', () => gerenciador.fecharLightbox());
+  document.getElementById('image-lightbox').addEventListener('click', function (e) {
+    if (e.target === this) gerenciador.fecharLightbox();
+  });
+
+  /* ── Popup ─── */
+  document.getElementById('popup-fechar').addEventListener('click', () => gerenciador.fecharPopup());
+  document.getElementById('popup-overlay').addEventListener('click', function (e) {
+    if (e.target === this) gerenciador.fecharPopup();
+  });
+
+  /* ── Delegated: content header actions ─── */
+  document.addEventListener('click', e => {
+    // Fechar tópico
+    if (e.target.id === 'btn-fechar-topico' || e.target.closest('#btn-fechar-topico')) {
+      gerenciador.fecharTopico();
+    }
+    // Toggle salvar dropdown (header)
+    if (e.target.id === 'btn-salvar-como' || e.target.closest('#btn-salvar-como')) {
+      e.stopPropagation();
+      document.getElementById('salvar-dropdown-topico')?.classList.toggle('aberto');
+    }
+    // PDF (header)
+    if (e.target.id === 'btn-pdf-topico' || e.target.closest('#btn-pdf-topico')) {
+      document.getElementById('salvar-dropdown-topico')?.classList.remove('aberto');
+      if (gerenciador.subtopicoAtual !== null) gerenciador.salvarSubtopicoAtual('pdf');
+      else gerenciador.salvarTopicoCompleto('pdf');
+    }
+    // TXT (header)
+    if (e.target.id === 'btn-txt-topico' || e.target.closest('#btn-txt-topico')) {
+      document.getElementById('salvar-dropdown-topico')?.classList.remove('aberto');
+      if (gerenciador.subtopicoAtual !== null) gerenciador.salvarSubtopicoAtual('texto');
+      else gerenciador.salvarTopicoCompleto('texto');
+    }
+    // Imprimir (header)
+    if (e.target.id === 'btn-imprimir-topico' || e.target.closest('#btn-imprimir-topico')) {
+      if (gerenciador.subtopicoAtual !== null) gerenciador.salvarSubtopicoAtual('imprimir');
+      else gerenciador.salvarTopicoCompleto('imprimir');
+    }
+  });
+});
+</script>
+</body>
+</html>

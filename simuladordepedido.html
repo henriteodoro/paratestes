@@ -5,1255 +5,1206 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Simulador de Pedido</title>
 
-<!-- bibliotecas -->
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
-  /* ===== base / tipografia (mantive seu visual) ===== */
-  :root {
-    --azul: #007BFF;
-    --azul-escuro: #0056b3;
-    --amarelo: #FFD700;
-    --vermelho: #b22222;
-    --verde: #28a745;
-    --laranja: #FF8C00;
-    --roxo: #8A2BE2;
-    --bg: #ffffff;
-    --muted: #666;
-  }
-  html,body { height:100%; }
-  body {
-    font-family: monospace;
-    margin: 0;
-    padding: 0;
-    color: #111;
-    background: #f7f9fb;
-  }
+:root {
+  --bg: #eef3fb;
+  --surface: #ffffff;
+  --surface2: #f4f8ff;
+  --border: #dce8fb;
+  --border2: #c8d9f5;
+  --text-primary: #1a2740;
+  --text-secondary: #4e6080;
+  --text-muted: #8fa3bf;
+  --accent: #1a56db;
+  --accent-dark: #1040b0;
+  --accent-light: #e8f0fe;
+  --success: #10b981;
+  --danger: #dc2626;
+  --purple: #7c3aed;
+  --orange: #ea580c;
+  --amber: #f59e0b;
+  --shadow-sm: 0 2px 8px rgba(20,60,120,0.07);
+  --shadow-md: 0 6px 24px rgba(20,60,120,0.10);
+  --shadow-lg: 0 14px 40px rgba(20,60,120,0.14);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+}
 
-  /* ===== header ===== */
-  header {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    background: var(--azul);
-    color: white;
-    padding: 10px 14px;
-    gap: 12px;
-    position: sticky;
-    top: 0;
-    z-index: 999;
-  }
-  .menu-left, .menu-right {
-    display:flex;
-    gap: 8px;
-    align-items:center;
-  }
-  .icon-btn {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 18px;
-    cursor: pointer;
-    padding: 6px 8px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .icon-btn:hover { background: rgba(255,255,255,0.08); }
-  .icon-btn img {
-    width: 20px;
-    height: 20px;
-    filter: brightness(0) invert(1); /* torna as imagens brancas */
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
 
-  /* dropdowns */
-  .menu-dropdown { position: relative; }
-  .menu-dropdown-content {
-    display: none;
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
-    background: white;
-    color: #111;
-    border-radius: 6px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-    min-width: 220px;
-    max-width: calc(100vw - 40px);
-    overflow: auto;
-    z-index: 1200;
-    padding: 6px 0;
-    white-space: normal;
-  }
-  .menu-right .menu-dropdown-content { right: 0; left: auto; }
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  line-height: 1.55;
+}
 
-  .menu-dropdown-content a {
-    display:block;
-    padding: 8px 12px;
-    color: #111;
-    text-decoration: none;
-    font-family: monospace;
-  }
-  .menu-dropdown-content a:hover { background: #f2f2f2; }
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: radial-gradient(circle, #c0d0eb 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+}
 
-  .dropdown-section { border-top: 1px solid #f0f0f0; padding-top: 6px; margin-top: 6px; }
-  .section-header {
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:8px;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-weight:700;
-  }
-  .section-header small { font-weight:400; color:#666; }
-  .submenu { display:none; padding-left: 6px; padding-bottom:6px; }
-  .submenu a { padding-left: 18px; font-weight:500; }
+.sr-only { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0; }
 
-  /* ===== título com setas e seletor de preço ===== */
-  .titulo-nav {
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap: 16px;
-    margin: 14px 10px 8px;
-  }
-  .titulo-nav h1 {
-    margin:0;
-    font-size:18px;
-    color:#111;
-  }
-  .titulo-nav a {
-    color: var(--azul);
-    text-decoration:none;
-    font-size:22px;
-    user-select:none;
-  }
-  .titulo-nav .arrow {
-    width:28px;
-    height:28px;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:6px;
-    cursor:pointer;
-    color:var(--azul-escuro);
-    text-decoration:none;
-  }
-  .titulo-nav .arrow:hover { background:#f0f8ff; }
+/* ── TOPBAR ─────────────────────────────────── */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 0 20px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topbar-left  { display:flex;align-items:center;gap:4px;flex-shrink:0; }
+.topbar-spacer { flex:1; }
+.topbar-actions { display:flex;gap:4px;align-items:center;flex-shrink:0; }
+.topbar-divider { width:1px;height:28px;background:var(--border);flex-shrink:0; }
 
-  /* ===== container ===== */
-  .container {
-    display:flex;
-    justify-content:center;
-    gap: 48px;
-    align-items:flex-start;
-    padding: 10px 14px 24px;
-    flex-wrap:wrap;
-  }
+.topbar-brand { display:flex;align-items:center;gap:10px;flex-shrink:0; }
+.brand-icon {
+  width:38px;height:38px;
+  background:var(--accent);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 12px rgba(26,86,219,0.3);
+  font-family:'Sora',sans-serif;font-weight:800;font-size:0.68rem;
+  color:white;letter-spacing:-0.5px;flex-shrink:0;
+}
+.brand-name { font-family:'Sora',sans-serif;font-weight:700;font-size:1rem;color:var(--accent);line-height:1.1;white-space:nowrap; }
+.brand-sub  { font-size:0.7rem;color:var(--text-muted);font-weight:500; }
 
-  /* center table */
-  .table-wrap {
-    width:100%;
-    max-width:1100px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 6px 20px rgba(2,6,23,0.08);
-    overflow: auto;
-    border: 1px solid #e6eef8;
-  }
-  table {
-    width:100%;
-    border-collapse: collapse;
-    min-width: 760px;
-  }
-  thead th{position:sticky;top:0;background:#f8fafc;text-align:left;font-weight:700;color:#0b1225;border-bottom:1px solid #e6eef8;padding:12px}
-  
-  /* Classes para diferentes alturas de linha */
-  .linha-padrao td { padding: 10px 12px; }
-  .linha-compacta td { padding: 6px 12px; }
-  .linha-minima td { padding: 4px 12px; }
-  
-  tbody td{border-bottom:1px solid #f1f5f9}
-  tfoot td{padding:14px 12px;font-weight:700;background:#f8fafc;border-top:1px solid #e6eef8}
-  .col-prod{width:48%}
-  .col-preco{width:16%}
-  .col-qtd{width:16%}
-  .col-total{width:20%}
+/* ── ICON BUTTONS ─────────────────────────── */
+.icon-btn {
+  background:none;border:none;color:var(--text-secondary);cursor:pointer;
+  padding:7px 8px;border-radius:8px;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:all 0.18s;position:relative;
+}
+.icon-btn svg { width:20px;height:20px;display:block; }
+.icon-btn:hover { background:var(--accent-light);color:var(--accent); }
 
-  /* CAMPO DE QUANTIDADE ATUALIZADO - SEM PLACEHOLDER */
-  input.qty{
-    width:100%;
-    max-width:86px;
-    padding:8px;
-    border-radius:6px;
-    border:1px solid #ddd;
-    text-align:center; /* CENTRALIZADO */
-    font-family: monospace; /* MESMA FONTE DO SITE */
-    font-size: 14px;
-    box-sizing: border-box;
-  }
-  input.qty:focus { 
-    outline:none; 
-    border-color:var(--azul-escuro); 
-    box-shadow:0 0 0 3px rgba(0,123,255,.12); 
-  }
-  .row-total{font-variant-numeric:tabular-nums}
+/* ── DROPDOWNS ───────────────────────────── */
+.menu-dropdown { position:relative; }
+.menu-dropdown-content {
+  display:none;position:absolute;top:calc(100% + 8px);left:0;
+  background:var(--surface);border:1.5px solid var(--border2);
+  border-radius:var(--radius-md);box-shadow:var(--shadow-lg);
+  min-width:265px;max-width:calc(100vw - 32px);
+  overflow:auto;z-index:1200;padding:6px;
+}
+.menu-right .menu-dropdown-content { right:0;left:auto; }
 
-  /* ===== MIDDLE CONTROLS ATUALIZADO ===== */
-  #middle-controls {
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-    align-items:center;
-    justify-content:flex-start;
-    min-width:170px;
-    max-width: 200px;
-  }
-  
-  #middle-controls button {
-    width:170px;
-    padding:10px 12px;
-    font-size:14px;
-    border-radius:6px;
-    border:none;
-    cursor:pointer;
-    font-family: monospace;
-    text-align: center;
-  }
-  
-  .btn-amarelo{background:var(--amarelo);color:#000}
-  .btn-vermelho{background:var(--vermelho);color:#fff}
-  .btn-azul{background:var(--azul);color:#fff}
-  .btn-verde{background:var(--verde);color:#fff}
-  .btn-laranja{background:var(--laranja);color:#fff}
-  .btn-roxo{background:var(--roxo);color:#fff}
-  
-  /* Divisória */
-  .divisoria {
-    width: 100%;
-    height: 1px;
-    background: #e0e0e0;
-    margin: 10px 0;
-  }
-  
-  /* Seletor de preço estilizado como botão - AGORA VERDE */
-  .seletor-preco {
-    width:170px;
-    padding:10px 12px;
-    font-size:14px;
-    border-radius:6px;
-    border:none;
-    cursor:pointer;
-    font-family: monospace;
-    text-align: center;
-    background: var(--verde);
-    color: #fff;
-  }
-  
-  /* Botão de seções - NOVA COR (AMARELO) E ESTILO PARA FILTRO ATIVO */
-  .btn-secoes {
-    width:170px;
-    padding:10px 12px;
-    font-size:14px;
-    border-radius:6px;
-    border:none;
-    cursor:pointer;
-    font-family: monospace;
-    text-align: center;
-    background: var(--amarelo);
-    color: #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-  }
-  
-  .btn-secoes.com-filtro {
-    background: var(--laranja);
-    color: #fff;
-    box-shadow: 0 0 0 2px var(--laranja);
-  }
-  
-  /* Dropdown de seções */
-  .secoes-dropdown {
-    display: none;
-    position: absolute;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-    padding: 8px;
-    z-index: 1000;
-    margin-top: 5px;
-    width: 170px;
-    max-height: 200px;
-    overflow-y: auto;
-  }
-  
-  .filtros-container {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-  }
-  
-  .filtro-secao {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 8px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  
-  .filtro-secao:hover {
-    background: #e9ecef;
-  }
-  
-  .filtro-secao.ativo {
-    background: var(--azul);
-    color: white;
-  }
-  
-  /* Checkbox mais arredondado */
-  .filtro-checkbox {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    cursor: pointer;
-    accent-color: var(--azul);
-  }
-  
-  .filtro-label {
-    font-size: 13px;
-    flex: 1;
-  }
+.menu-dropdown-content a {
+  display:flex;align-items:center;
+  padding:9px 11px;color:var(--text-primary);text-decoration:none;
+  font-family:'DM Sans',sans-serif;font-size:0.87rem;
+  border-radius:8px;transition:all 0.15s;gap:8px;
+}
+.menu-dropdown-content a svg { width:15px;height:15px;color:var(--text-muted);flex-shrink:0; }
+.menu-dropdown-content a:hover { background:var(--accent-light);color:var(--accent); }
+.menu-dropdown-content a:hover svg { color:var(--accent); }
 
-  #contador-linhas{ text-align:center; margin: 12px 0 24px; font-weight:700; }
+.dropdown-section { border-top:1px solid var(--border);margin-top:4px;padding-top:4px; }
+.dropdown-section:first-child { border-top:none;margin-top:0;padding-top:0; }
 
-  #copy-notice{position: fixed;right: 18px;bottom: 18px;background: rgba(0,0,0,0.78);color: white;padding: 8px 12px;border-radius: 6px;display: none;z-index: 2000;font-family: monospace;font-size: 13px}
+.section-header {
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:8px 11px;cursor:pointer;font-weight:600;font-size:0.78rem;
+  text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);
+  border-radius:8px;transition:all 0.15s;
+}
+.section-header:hover { background:var(--surface2);color:var(--text-secondary); }
 
-  /* Campo flutuante para soma total - FONTE MELHORADA */
-  #floating-total {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: var(--azul);
-    color: white;
-    padding: 12px 16px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 1000;
-    font-family: monospace;
-    font-size: 14px;
-    font-weight: normal; /* Removido o negrito */
-    transition: opacity 0.3s;
-    line-height: 1.4;
-  }
-  
-  #floating-total.hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
-  
-  #floating-total-content {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
+.mac-code {
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--accent);color:white;
+  padding:2px 6px;border-radius:5px;
+  font-size:0.72rem;font-weight:700;min-width:30px;flex-shrink:0;
+}
 
-  /* Espaço vazio no final da página */
-  .espaco-final {
-    height: 60px;
-    width: 100%;
-  }
+.submenu { display:none;padding-left:4px; }
+.submenu a { padding-left:10px; }
 
-  @media (max-width:900px){.container{gap:20px;padding:10px}#middle-controls{order:2}}
-  @media (max-width:520px){.container{flex-direction:column;align-items:center}#middle-controls{flex-direction:row;gap:8px;max-width:100%}#middle-controls button, #middle-controls select{width:140px}}
+/* ── PAGE WRAPPER ─────────────────────────── */
+.page-wrapper {
+  position:relative;z-index:1;
+  padding:20px 20px 100px;
+  max-width:1300px;margin:0 auto;
+}
 
-  /* ===== ESTILOS DE IMPRESSÃO ===== */
-  @media print {
-    header, #middle-controls, #contador-linhas, #copy-notice, #floating-total, .espaco-final { 
-      display: none !important; 
-    }
-    html, body { 
-      background: #fff !important; 
-      height: auto !important; 
-      overflow: visible !important; 
-      font-size: 12px !important;
-    }
-    .container { 
-      padding: 0 !important; 
-      max-width: none !important; 
-      page-break-after: avoid; 
-      break-after: avoid-page;
-      justify-content: flex-start !important;
-    }
-    .titulo-nav { 
-      margin: 0 0 6px 0 !important; 
-      text-align: center !important;
-    }
-    .titulo-nav h1 {
-      font-size: 16px !important;
-    }
-    .table-wrap { 
-      border: none !important; 
-      box-shadow: none !important;
-      border-radius: 0 !important;
-      max-width: none !important;
-      width: 100 !important;
-    }
-    table { 
-      font-size: 10px !important; 
-      page-break-inside: auto !important;
-      min-width: auto !important;
-    }
-    tr, td, th { 
-      page-break-inside: avoid !important; 
-      break-inside: avoid !important;
-    }
-    thead th {
-      position: static !important;
-      background: #f8f8f8 !important;
-    }
-    tfoot td {
-      background: #f8f8f8 !important;
-    }
-    @page { 
-      size: A4 portrait; 
-      margin: 10mm; 
-    }
-  }
+/* ── STAT BAR ─────────────────────────────── */
+.stat-bar { display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap; }
+.stat-chip {
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 14px;background:var(--surface);
+  border:1.5px solid var(--border);border-radius:99px;
+  font-size:0.82rem;font-weight:600;color:var(--text-secondary);
+  box-shadow:var(--shadow-sm);
+}
+.stat-chip svg { width:14px;height:14px;color:var(--accent); }
+.stat-chip .val { color:var(--accent);font-family:'Sora',sans-serif; }
+
+/* ── CONTAINER ───────────────────────────── */
+.container { display:flex;justify-content:center;gap:20px;align-items:flex-start;flex-wrap:wrap; }
+
+/* ── TABLE PANEL ─────────────────────────── */
+.table-wrap {
+  flex:1;min-width:0;
+  background:var(--surface);border-radius:var(--radius-lg);
+  border:1px solid var(--border);box-shadow:var(--shadow-sm);overflow:auto;
+}
+table { width:100%;border-collapse:collapse;min-width:580px;font-family:'DM Sans',sans-serif; }
+
+thead th {
+  position:sticky;top:0;background:var(--surface2);
+  text-align:left;font-family:'Sora',sans-serif;font-weight:700;
+  font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;
+  color:var(--text-secondary);border-bottom:1px solid var(--border);padding:13px 14px;
+}
+
+.linha-padrao td  { padding:9px 14px; }
+.linha-compacta td{ padding:5px 14px; }
+.linha-minima td  { padding:2px 14px; }
+
+tbody td { border-bottom:1px solid var(--border);font-size:0.875rem;color:var(--text-primary);vertical-align:middle; }
+tbody tr:hover td { background:#f8fbff; }
+tbody tr:last-child td { border-bottom:none; }
+
+tfoot td {
+  padding:13px 14px;font-family:'Sora',sans-serif;font-weight:700;font-size:0.88rem;
+  background:var(--surface2);border-top:2px solid var(--border2);color:var(--text-primary);
+}
+
+.col-prod  { width:46%; }
+.col-preco { width:15%; }
+.col-qtd   { width:22%; }
+.col-total { width:17%; }
+
+/* ── QTY WRAPPER COM BOTÕES ──────────────── */
+.qty-wrap {
+  display:inline-flex;align-items:center;
+  border:1.5px solid var(--border2);border-radius:9px;
+  overflow:hidden;background:var(--surface);
+  transition:border-color 0.15s,box-shadow 0.15s;
+  max-width:112px;
+}
+.qty-wrap:focus-within {
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(26,86,219,0.12);
+}
+
+.qty-btn {
+  background:var(--surface2);border:none;color:var(--text-secondary);
+  width:30px;height:34px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.15s;flex-shrink:0;user-select:none;
+}
+.qty-btn svg { width:13px;height:13px;pointer-events:none; }
+.qty-btn:hover { background:var(--accent-light);color:var(--accent); }
+.qty-btn:active { background:var(--accent);color:white; }
+
+input.qty {
+  width:48px;padding:6px 2px;border:none;text-align:center;
+  font-family:'Sora',sans-serif;font-size:0.85rem;font-weight:600;
+  color:var(--text-primary);background:transparent;outline:none;
+  -moz-appearance:textfield;
+}
+input.qty::-webkit-outer-spin-button,
+input.qty::-webkit-inner-spin-button { -webkit-appearance:none;margin:0; }
+
+.row-total {
+  font-variant-numeric:tabular-nums;font-weight:600;
+  color:var(--accent-dark);font-family:'Sora',sans-serif;font-size:0.83rem;
+}
+
+/* ── CONTROLS ────────────────────────────── */
+#middle-controls {
+  display:flex;flex-direction:column;gap:8px;align-items:center;
+  min-width:174px;max-width:200px;
+}
+
+.ctrl-btn {
+  width:170px;padding:10px 14px;
+  font-size:0.84rem;font-family:'DM Sans',sans-serif;font-weight:600;
+  border-radius:10px;border:none;cursor:pointer;
+  transition:all 0.18s;display:flex;align-items:center;justify-content:center;
+  gap:7px;box-shadow:var(--shadow-sm);text-align:center;white-space:nowrap;
+}
+.ctrl-btn svg { width:14px;height:14px;flex-shrink:0; }
+.ctrl-btn:hover { transform:translateY(-1px);box-shadow:var(--shadow-md); }
+.ctrl-btn:active { transform:translateY(0); }
+
+.ctrl-btn.amber  { background:var(--amber); color:white; }
+.ctrl-btn.amber:hover  { background:#d97706; }
+.ctrl-btn.red    { background:var(--danger);color:white; }
+.ctrl-btn.red:hover    { background:#b91c1c; }
+.ctrl-btn.blue   { background:var(--accent);color:white; }
+.ctrl-btn.blue:hover   { background:var(--accent-dark); }
+.ctrl-btn.green  { background:var(--success);color:white; }
+.ctrl-btn.green:hover  { background:#059669; }
+.ctrl-btn.purple { background:var(--purple);color:white; }
+.ctrl-btn.purple:hover { background:#6d28d9; }
+.ctrl-btn.orange { background:var(--orange);color:white; }
+.ctrl-btn.orange:hover { background:#c2410c; }
+
+.ctrl-divider { width:100%;height:1px;background:var(--border);margin:2px 0; }
+
+/* ── SEÇÕES INLINE ───────────────────────── */
+.secoes-inline {
+  display:none;width:170px;
+  background:var(--surface);border:1.5px solid var(--border2);
+  border-radius:var(--radius-sm);box-shadow:var(--shadow-md);
+  padding:6px;
+  animation:slideDown 0.2s ease;
+}
+@keyframes slideDown {
+  from { opacity:0;transform:translateY(-6px); }
+  to   { opacity:1;transform:translateY(0); }
+}
+
+.filtro-secao {
+  display:flex;align-items:center;gap:9px;
+  padding:7px 9px;border-radius:8px;cursor:pointer;
+  transition:background 0.15s;font-size:0.82rem;color:var(--text-primary);user-select:none;
+}
+.filtro-secao:hover { background:var(--surface2); }
+.filtro-secao.ativo { background:var(--accent-light);color:var(--accent);font-weight:600; }
+
+/* Checkbox circular totalmente customizado */
+.filtro-checkbox {
+  appearance:none;-webkit-appearance:none;
+  width:17px;height:17px;border-radius:50%;
+  border:2px solid var(--border2);background:white;
+  cursor:pointer;flex-shrink:0;transition:all 0.15s;
+  position:relative;display:inline-block;
+}
+.filtro-checkbox:checked,
+.filtro-secao.ativo .filtro-checkbox {
+  background:var(--accent);border-color:var(--accent);
+}
+.filtro-checkbox:checked::after,
+.filtro-secao.ativo .filtro-checkbox::after {
+  content:'';position:absolute;
+  width:6px;height:6px;background:white;border-radius:50%;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+}
+
+/* ── TOAST ───────────────────────────────── */
+#copy-notice {
+  position:fixed;right:20px;bottom:105px;
+  background:var(--text-primary);color:white;
+  padding:10px 16px;border-radius:10px;display:none;
+  z-index:3000;font-family:'DM Sans',sans-serif;
+  font-size:0.85rem;font-weight:500;box-shadow:var(--shadow-lg);
+}
+
+/* ── FLOATING TOTAL — estética do site ────── */
+#floating-total {
+  position:fixed;bottom:20px;right:20px;
+  background:var(--surface);border:1.5px solid var(--border2);
+  border-radius:var(--radius-md);box-shadow:var(--shadow-lg);
+  z-index:1000;padding:14px 18px;min-width:215px;
+  font-family:'DM Sans',sans-serif;
+  transition:opacity 0.3s,transform 0.3s;
+}
+#floating-total.hidden { opacity:0;pointer-events:none;transform:translateY(8px); }
+
+.ft-header {
+  display:flex;align-items:center;gap:6px;
+  font-family:'Sora',sans-serif;font-weight:700;
+  font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;
+  color:var(--text-muted);margin-bottom:10px;
+  padding-bottom:8px;border-bottom:1px solid var(--border);
+}
+.ft-header svg { width:12px;height:12px;color:var(--accent); }
+
+.ft-row {
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:5px 0;
+}
+.ft-row + .ft-row { border-top:1px solid var(--border); }
+.ft-label { font-size:0.82rem;color:var(--text-secondary);font-weight:500; }
+.ft-val   { font-family:'Sora',sans-serif;font-weight:700;font-size:0.92rem;color:var(--accent); }
+
+/* ── PRINT ───────────────────────────────── */
+@media print {
+  .topbar,#middle-controls,.stat-bar,#copy-notice,#floating-total,body::before { display:none !important; }
+  body { background:white;font-family:Arial,sans-serif; }
+  .page-wrapper { padding:0;max-width:100%; }
+  .table-wrap { border:none;box-shadow:none;border-radius:0; }
+  table { font-size:10px;min-width:auto; }
+  thead th { position:static;background:#f0f0f0; }
+  tfoot td  { background:#f0f0f0; }
+  .qty-btn  { display:none !important; }
+  @page { size:A4 portrait;margin:10mm; }
+}
+
+/* ── RESPONSIVE ──────────────────────────── */
+@media (max-width:900px) {
+  .container { gap:14px; }
+  #middle-controls { order:2;flex-direction:row;flex-wrap:wrap;max-width:100%;justify-content:center; }
+  .ctrl-btn { width:152px; }
+  .secoes-inline { width:152px; }
+}
+@media (max-width:600px) {
+  .page-wrapper { padding:14px 12px 100px; }
+  .topbar { padding:0 12px; }
+  .brand-name,.brand-sub { display:none; }
+}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="menu-left">
+<header class="topbar">
+  <div class="topbar-left">
+
+    <!-- Hamburger -->
     <div class="menu-dropdown">
-      <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')">
-        <img src="icones/menu-hamburger.png" alt="Menu">
+      <button class="icon-btn" title="Menu" onclick="toggleMenu('dropdown-menu')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        <span class="sr-only">Menu</span>
       </button>
 
       <div class="menu-dropdown-content" id="dropdown-menu" role="menu" aria-hidden="true">
+
+        <!-- MACS -->
         <div class="dropdown-section">
-          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)">
-            <span>MACS</span>
-            <small class="chev">▸</small>
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter')toggleSubmenu(this)">
+            <span>MACS</span><small class="chev">▸</small>
           </div>
           <div class="submenu">
-            <a href="#" data-mac="77" onclick="abrirMac(event, 'MAC Bairro São Geraldo - Cód. 77')">MAC Bairro São Geraldo - Cód. 77</a>
-            <a href="#" data-mac="78" onclick="abrirMac(event, 'MAC Bairro Planalto - Cód. 78')">MAC Bairro Planalto - Cód. 78</a>
-            <a href="#" data-mac="79" onclick="abrirMac(event, 'MAC Romeu Duarte - Cód. 79')">MAC Romeu Duarte - Cód. 79</a>
-            <a href="#" data-mac="80" onclick="abrirMac(event, 'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC Rua São Geraldo / Centro 2 - Cód. 80</a>
+            <a href="mac77.html"   onclick="abrirMac(event,'MAC Bairro São Geraldo')">  <span class="mac-code">77</span>   MAC Bairro São Geraldo</a>
+            <a href="mac78.html"   onclick="abrirMac(event,'MAC Bairro Planalto')">     <span class="mac-code">78</span>   MAC Bairro Planalto</a>
+            <a href="mac79.html"   onclick="abrirMac(event,'MAC Romeu Duarte')">        <span class="mac-code">79</span>   MAC Romeu Duarte</a>
+            <a href="mac80.html"   onclick="abrirMac(event,'MAC São Geraldo / Centro 2')"><span class="mac-code">80</span>   MAC Rua São Geraldo / Centro 2</a>
+            <a href="mac277.html"  onclick="abrirMac(event,'MAC Matriz')">              <span class="mac-code">277</span>  MAC Matriz</a>
+            <a href="mac853.html"  onclick="abrirMac(event,'MAC Concesso')">            <span class="mac-code">853</span>  MAC Concesso</a>
+            <a href="mac1249.html" onclick="abrirMac(event,'MAC Jardim do Lago')">      <span class="mac-code">1249</span> MAC Jardim do Lago</a>
+            <a href="mac989.html"  onclick="abrirMac(event,'MAC Araújos')">             <span class="mac-code">989</span>  MAC Araújos</a>
+            <a href="mac1436.html" onclick="abrirMac(event,'MAC São Gonçalo do Pará')"> <span class="mac-code">1436</span> MAC São Gonçalo do Pará</a>
           </div>
         </div>
+
+        <!-- São José -->
+        <div class="dropdown-section">
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter')toggleSubmenu(this)">
+            <span>São José</span><small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="saojose.html"  onclick="abrirLocal(event)">Pedido São José</a>
+            <a href="paototal.html" onclick="abrirLocal(event)">Pedido Pão Total</a>
+          </div>
+        </div>
+
+        <!-- Tabelas -->
+        <div class="dropdown-section">
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter')toggleSubmenu(this)">
+            <span>Tabelas</span><small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="pdfs/Tabela 2025 Geral.pdf"   onclick="abrirLocal(event)">Tabela de Preços Geral</a>
+            <a href="pdfs/Tabela 2025 Empresa.pdf" onclick="abrirLocal(event)">Tabela de Preços Empresa</a>
+            <a href="https://github.com/henriteodoro/paratestes/releases/download/v1.0/Catalogo.Sao.Jose.2025.AT03.pdf" onclick="abrirLocal(event)">Catálogo de Produtos</a>
+          </div>
+        </div>
+
+        <!-- Ferramentas -->
+        <div class="dropdown-section">
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter')toggleSubmenu(this)">
+            <span>Ferramentas</span><small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="processadordepedidos.html" onclick="abrirLocal(event)">Processador de Pedidos</a>
+            <a href="ods.html"                  onclick="abrirLocal(event)">Visualizar Planilhas</a>
+            <a href="simularpedido.html"         onclick="abrirLocal(event)">Simulador de Pedido</a>
+            <a href="anotacoes/anotacoes.html"  onclick="abrirLocal(event)">Anotações</a>
+            <a href="planilhaautocontrole.html" onclick="abrirLocal(event)">Planilhas de Autocontrole</a>
+          </div>
+        </div>
+
       </div>
     </div>
 
-    <button class="icon-btn" id="btn-close" title="Fechar" onclick="fecharPagina()">
-      <img src="icones/fechar.png" alt="Fechar">
+    <!-- Fechar -->
+    <button class="icon-btn" title="Fechar" onclick="fecharPagina()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+      </svg>
+      <span class="sr-only">Fechar</span>
     </button>
-    <button class="icon-btn" id="btn-home" title="Menu inicial" onclick="voltarMenu()">
-      <img src="icones/home.png" alt="Início">
+
+    <!-- Menu inicial -->
+    <button class="icon-btn" title="Menu inicial" onclick="voltarMenu()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      <span class="sr-only">Menu inicial</span>
     </button>
+
+    <div class="topbar-divider"></div>
+
+    <div class="topbar-brand">
+      <div class="brand-icon">SIM</div>
+      <div>
+        <div class="brand-name" id="titulo-principal">Simulador de Pedido</div>
+        <div class="brand-sub">Calcule seu pedido</div>
+      </div>
+    </div>
+
   </div>
 
-  <div class="menu-right">
-    <div class="menu-dropdown">
-      <button class="icon-btn" id="btn-salvar" title="Salvar" onclick="toggleMenu('dropdown-save')">
-        <img src="icones/salvar.png" alt="Salvar">
+  <div class="topbar-spacer"></div>
+
+  <div class="topbar-actions menu-right">
+
+    <!-- Salvar -->
+    <div class="menu-dropdown" style="position:relative;">
+      <button class="icon-btn" title="Salvar" onclick="toggleMenu('dropdown-save')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v13"/><polyline points="7 11 12 16 17 11"/><path d="M5 20h14"/>
+        </svg>
+        <span class="sr-only">Salvar</span>
       </button>
-      <div class="menu-dropdown-content" id="dropdown-save" aria-labelledby="btn-salvar">
-        <a href="#" onclick="salvarComoTXT(event)" title="Salvar como TXT">Salvar como TXT</a>
-        <a href="#" onclick="salvarComoPDF(event)" title="Salvar como PDF">Salvar como PDF</a>
-        <a href="#" onclick="salvarComoExcel(event)" title="Salvar como Excel">Salvar como Excel</a>
+      <div class="menu-dropdown-content" id="dropdown-save">
+        <a href="#" onclick="salvarComoTXT(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Salvar como TXT
+        </a>
+        <a href="#" onclick="salvarComoPDF(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          Salvar como PDF
+        </a>
+        <a href="#" onclick="salvarComoExcel(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+          Salvar como Excel
+        </a>
       </div>
     </div>
 
+    <!-- Imprimir -->
     <button class="icon-btn" id="btn-print" title="Imprimir">
-      <img src="icones/imprimir.png" alt="Imprimir">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><line x1="10" y1="9" x2="14" y2="9"/>
+      </svg>
+      <span class="sr-only">Imprimir</span>
     </button>
-    <button class="icon-btn" id="btn-copy" title="Copiar" onclick="copiarTabela()">
-      <img src="icones/copiar.png" alt="Copiar">
+
+    <!-- Copiar -->
+    <button class="icon-btn" title="Copiar" onclick="copiarTabela()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+      </svg>
+      <span class="sr-only">Copiar</span>
     </button>
-    <!-- Botão de repetir removido conforme solicitado -->
+
   </div>
 </header>
 
-<div class="titulo-nav" role="navigation" aria-label="Navegação MAC">
-  <h1 id="titulo-principal">Simulador de Pedido</h1>
-</div>
+<div class="page-wrapper">
 
-<div class="container">
-  <div class="table-wrap" id="table-wrap">
-    <table id="tabela-produtos" aria-label="Tabela de produtos">
-      <thead>
-        <tr>
-          <th class="col-prod">PRODUTO</th>
-          <th class="col-preco">VALOR PCT</th>
-          <th class="col-qtd">QUANTIDADE</th>
-          <th class="col-total">VALOR TOTAL</th>
-        </tr>
-      </thead>
-      <tbody id="tbody-produtos">
-        <!-- preenchido dinamicamente -->
-      </tbody>
-      <tfoot>
-        <tr>
-          <td colspan="3" class="sticky-total">SOMA TOTAL</td>
-          <td class="sticky-total" id="grandTotal">R$ 0,00</td>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
-
-  <div id="middle-controls" aria-hidden="false">
-    <!-- Primeiros botões: Remover Linhas Vazias, Resetar Tudo, Salvar em Excel -->
-    <button id="btn-hide" class="btn-amarelo" onclick="toggleVazias()">Remover Linhas Vazias</button>
-    <button id="btn-reset" class="btn-vermelho" onclick="resetarTudo()">Resetar Tudo</button>
-    <button id="btn-export" class="btn-azul" onclick="salvarComoExcel()">Salvar em Excel</button>
-    
-    <!-- Divisória -->
-    <div class="divisoria"></div>
-    
-    <!-- Segundo grupo: Seletor de preço, Altura da linha, Seções, Limpar Filtros -->
-    <!-- BOTÃO DE PREÇO ATUALIZADO - AGORA VERDE -->
-    <button class="seletor-preco" onclick="alternarTipoPreco()" id="btn-tipo-preco">Preço: Atacado</button>
-    
-    <button class="btn-roxo" onclick="alternarAlturaLinha()" id="btn-altura">Altura: Padrão</button>
-    
-    <!-- Botão de seções com dropdown - NOVA COR E INDICADOR DE FILTRO -->
-    <div style="position: relative;">
-      <button class="btn-secoes" id="btn-secoes" onclick="toggleSecoesDropdown()">
-        <span>Seções</span>
-      </button>
-      <div class="secoes-dropdown" id="secoes-dropdown">
-        <div class="filtros-container">
-          <div class="filtro-secao" data-secao="paes-de-sal" onclick="toggleSecao('paes-de-sal')">
-            <input type="checkbox" class="filtro-checkbox">
-            <span class="filtro-label">Pães de Sal</span>
-          </div>
-          <div class="filtro-secao" data-secao="paes-de-doce" onclick="toggleSecao('paes-de-doce')">
-            <input type="checkbox" class="filtro-checkbox">
-            <span class="filtro-label">Pães de Doce</span>
-          </div>
-          <div class="filtro-secao" data-secao="paes-de-queijo" onclick="toggleSecao('paes-de-queijo')">
-            <input type="checkbox" class="filtro-checkbox">
-            <span class="filtro-label">Pães de Queijo</span>
-          </div>
-          <div class="filtro-secao" data-secao="quitandas" onclick="toggleSecao('quitandas')">
-            <input type="checkbox" class="filtro-checkbox">
-            <span class="filtro-label">Quitandas</span>
-          </div>
-          <div class="filtro-secao" data-secao="paes-especiais" onclick="toggleSecao('paes-especiais')">
-            <input type="checkbox" class="filtro-checkbox">
-            <span class="filtro-label">Pães Especiais</span>
-          </div>
-          <div class="filtro-secao" data-secao="bolos" onclick="toggleSecao('bolos')">
-            <input type="checkbox" class="filtro-checkbox">
-            <span class="filtro-label">Bolos</span>
-          </div>
-          <div class="filtro-secao" data-secao="salgados-pequenos" onclick="toggleSecao('salgados-pequenos')">
-            <input type="checkbox" class="filtro-checkbox">
-            <span class="filtro-label">Salgados Pequenos</span>
-          </div>
-          <div class="filtro-secao" data-secao="salgados-grandes" onclick="toggleSecao('salgados-grandes')">
-            <input type="checkbox" class="filtro-checkbox">
-            <span class="filtro-label">Salgados Grandes</span>
-          </div>
-          <div class="filtro-secao" data-secao="complementos" onclick="toggleSecao('complementos')">
-            <input type="checkbox" class="filtro-checkbox">
-            <span class="filtro-label">Complementos</span>
-          </div>
-        </div>
-      </div>
+  <div class="stat-bar">
+    <div class="stat-chip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      Preenchidas: <span class="val" id="contador-val">0</span>
     </div>
-    
-    <button class="btn-azul" onclick="limparFiltrosSecoes()">Limpar Filtros</button>
+    <div class="stat-chip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Total: <span class="val" id="grand-total-stat">R$ 0,00</span>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <div class="table-wrap" id="table-wrap">
+      <table id="tabela-produtos">
+        <thead>
+          <tr>
+            <th class="col-prod">Produto</th>
+            <th class="col-preco">Valor PCT</th>
+            <th class="col-qtd">Quantidade</th>
+            <th class="col-total">Valor Total</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-produtos"></tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3">Soma Total</td>
+            <td id="grandTotal">R$ 0,00</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div id="middle-controls">
+
+      <button class="ctrl-btn amber" id="btn-hide" onclick="toggleVazias()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Ocultar Vazios
+      </button>
+      <button class="ctrl-btn red" onclick="resetarTudo()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+        Resetar Tudo
+      </button>
+      <button class="ctrl-btn blue" onclick="salvarComoExcel()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v13"/><polyline points="7 11 12 16 17 11"/><path d="M5 20h14"/></svg>
+        Salvar Excel
+      </button>
+
+      <div class="ctrl-divider"></div>
+
+      <button class="ctrl-btn green" id="btn-tipo-preco" onclick="alternarTipoPreco()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span>Preço: Atacado</span>
+      </button>
+
+      <button class="ctrl-btn purple" id="btn-altura" onclick="alternarAlturaLinha()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="21" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="3" y2="18"/></svg>
+        <span>Altura: Padrão</span>
+      </button>
+
+      <button class="ctrl-btn orange" id="btn-secoes" onclick="toggleSecoesInline()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="3" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="3" cy="18" r="1.2" fill="currentColor" stroke="none"/></svg>
+        <span id="btn-secoes-label">Seções</span>
+      </button>
+
+      <!-- Painel inline de seções — aparece aqui empurrando Limpar Filtros -->
+      <div class="secoes-inline" id="secoes-inline">
+        <div class="filtro-secao" data-secao="paes-de-sal"       onclick="toggleSecao('paes-de-sal')">       <input type="checkbox" class="filtro-checkbox"> Pães de Sal</div>
+        <div class="filtro-secao" data-secao="paes-de-doce"      onclick="toggleSecao('paes-de-doce')">      <input type="checkbox" class="filtro-checkbox"> Pães de Doce</div>
+        <div class="filtro-secao" data-secao="paes-de-queijo"    onclick="toggleSecao('paes-de-queijo')">    <input type="checkbox" class="filtro-checkbox"> Pães de Queijo</div>
+        <div class="filtro-secao" data-secao="quitandas"         onclick="toggleSecao('quitandas')">         <input type="checkbox" class="filtro-checkbox"> Quitandas</div>
+        <div class="filtro-secao" data-secao="paes-especiais"    onclick="toggleSecao('paes-especiais')">    <input type="checkbox" class="filtro-checkbox"> Pães Especiais</div>
+        <div class="filtro-secao" data-secao="bolos"             onclick="toggleSecao('bolos')">             <input type="checkbox" class="filtro-checkbox"> Bolos</div>
+        <div class="filtro-secao" data-secao="salgados-pequenos" onclick="toggleSecao('salgados-pequenos')"> <input type="checkbox" class="filtro-checkbox"> Salgados Pequenos</div>
+        <div class="filtro-secao" data-secao="salgados-grandes"  onclick="toggleSecao('salgados-grandes')">  <input type="checkbox" class="filtro-checkbox"> Salgados Grandes</div>
+        <div class="filtro-secao" data-secao="complementos"      onclick="toggleSecao('complementos')">      <input type="checkbox" class="filtro-checkbox"> Complementos</div>
+      </div>
+
+      <button class="ctrl-btn blue" onclick="limparFiltrosSecoes()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Limpar Filtros
+      </button>
+
+    </div>
   </div>
 </div>
-
-<div id="contador-linhas">Linhas preenchidas: 0</div>
-
-<!-- Espaço vazio no final da página -->
-<div class="espaco-final"></div>
 
 <div id="copy-notice">Copiado!</div>
 
-<!-- Campo flutuante para soma total - FONTE MELHORADA -->
+<!-- Floating total — estética fiel ao site -->
 <div id="floating-total" class="hidden">
-  <div id="floating-total-content">
-    <div>Total: <span id="floating-grand-total">R$ 0,00</span></div>
-    <div>Linhas: <span id="floating-line-count">0</span></div>
+  <div class="ft-header">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    Resumo do pedido
+  </div>
+  <div class="ft-row">
+    <span class="ft-label">Total</span>
+    <span class="ft-val" id="floating-grand-total">R$ 0,00</span>
+  </div>
+  <div class="ft-row">
+    <span class="ft-label">Preenchidas</span>
+    <span class="ft-val" id="floating-line-count">0</span>
   </div>
 </div>
 
 <script>
-/* ==========================
-   Lista de produtos atualizada com três tipos de preço e seções
-   ========================== */
+/* ═══════════════════════════════════════════
+   PRODUTOS — a ordenação alfabética acontece
+   no renderTable(), todos os preços ficam intactos
+   ═══════════════════════════════════════════ */
 const produtos = [
   // Pães de Sal
-  {nome: 'Baguete 06h 7kg', precoAtacado: 50.68, precoVarejo: 55.75, precoSt: 52.21, secao: 'paes-de-sal'},
-  {nome: 'Baguete 12h 7kg', precoAtacado: 58.68, precoVarejo: 64.55, precoSt: 60.44, secao: 'paes-de-sal'},
-  {nome: 'Mini pão francês 06h 7kg', precoAtacado: 47.74, precoVarejo: 52.51, precoSt: 49.17, secao: 'paes-de-sal'},
-  {nome: 'Mini pão francês 12h 7kg', precoAtacado: 47.74, precoVarejo: 52.51, precoSt: 49.17, secao: 'paes-de-sal'},
-  {nome: 'Panhoca 06h 7kg', precoAtacado: 50.68, precoVarejo: 55.75, precoSt: 52.21, secao: 'paes-de-sal'},
-  {nome: 'Panhoca 12h 7kg', precoAtacado: 50.68, precoVarejo: 55.75, precoSt: 52.21, secao: 'paes-de-sal'},
-  {nome: 'Pão francês 04h 7kg', precoAtacado: 47.74, precoVarejo: 52.51, precoSt: 49.17, secao: 'paes-de-sal'},
-  {nome: 'Pão francês 06h 7kg', precoAtacado: 47.74, precoVarejo: 52.51, precoSt: 49.17, secao: 'paes-de-sal'},
-  {nome: 'Pão francês 12h 7kg', precoAtacado: 47.74, precoVarejo: 52.51, precoSt: 49.17, secao: 'paes-de-sal'},
-  {nome: 'Pão francês 18h 7kg', precoAtacado: 47.74, precoVarejo: 52.51, precoSt: 49.17, secao: 'paes-de-sal'},
-
+  {nome:'Baguete 06h 7kg',precoAtacado:50.68,precoVarejo:55.75,precoSt:52.21,secao:'paes-de-sal'},
+  {nome:'Baguete 12h 7kg',precoAtacado:58.68,precoVarejo:64.55,precoSt:60.44,secao:'paes-de-sal'},
+  {nome:'Mini pão francês 06h 7kg',precoAtacado:47.74,precoVarejo:52.51,precoSt:49.17,secao:'paes-de-sal'},
+  {nome:'Mini pão francês 12h 7kg',precoAtacado:47.74,precoVarejo:52.51,precoSt:49.17,secao:'paes-de-sal'},
+  {nome:'Panhoca 06h 7kg',precoAtacado:50.68,precoVarejo:55.75,precoSt:52.21,secao:'paes-de-sal'},
+  {nome:'Panhoca 12h 7kg',precoAtacado:50.68,precoVarejo:55.75,precoSt:52.21,secao:'paes-de-sal'},
+  {nome:'Pão francês 04h 7kg',precoAtacado:47.74,precoVarejo:52.51,precoSt:49.17,secao:'paes-de-sal'},
+  {nome:'Pão francês 06h 7kg',precoAtacado:47.74,precoVarejo:52.51,precoSt:49.17,secao:'paes-de-sal'},
+  {nome:'Pão francês 12h 7kg',precoAtacado:47.74,precoVarejo:52.51,precoSt:49.17,secao:'paes-de-sal'},
+  {nome:'Pão francês 18h 7kg',precoAtacado:47.74,precoVarejo:52.51,precoSt:49.17,secao:'paes-de-sal'},
   // Pães de Doce
-  {nome: 'Caracol 7kg', precoAtacado: 71.12, precoVarejo: 78.23, precoSt: 73.25, secao: 'paes-de-doce'},
-  {nome: 'Carioca 7kg', precoAtacado: 60.97, precoVarejo: 67.07, precoSt: 62.80, secao: 'paes-de-doce'},
-  {nome: 'Mandi 7kg', precoAtacado: 60.97, precoVarejo: 67.07, precoSt: 62.80, secao: 'paes-de-doce'},
-  {nome: 'Mini carioca 7kg', precoAtacado: 60.97, precoVarejo: 67.07, precoSt: 62.80, secao: 'paes-de-doce'},
-  {nome: 'Mini roscovado 1 unidade', precoAtacado: 2.84, precoVarejo: 3.12, precoSt: 2.93, secao: 'paes-de-doce'},
-  {nome: 'Roscovado comum 1 unidade', precoAtacado: 4.94, precoVarejo: 5.43, precoSt: 5.09, secao: 'paes-de-doce'},
-  {nome: 'Trança 3kg com 10 unidades', precoAtacado: 33.60, precoVarejo: 36.96, precoSt: 34.61, secao: 'paes-de-doce'},
-  {nome: 'Trancinha 3kg', precoAtacado: 29.67, precoVarejo: 32.64, precoSt: 30.56, secao: 'paes-de-doce'},
-  {nome: 'Trancinha redonda 3kg', precoAtacado: 29.67, precoVarejo: 32.64, precoSt: 30.56, secao: 'paes-de-doce'},
-
+  {nome:'Caracol 7kg',precoAtacado:71.12,precoVarejo:78.23,precoSt:73.25,secao:'paes-de-doce'},
+  {nome:'Carioca 7kg',precoAtacado:60.97,precoVarejo:67.07,precoSt:62.80,secao:'paes-de-doce'},
+  {nome:'Mandi 7kg',precoAtacado:60.97,precoVarejo:67.07,precoSt:62.80,secao:'paes-de-doce'},
+  {nome:'Mini carioca 7kg',precoAtacado:60.97,precoVarejo:67.07,precoSt:62.80,secao:'paes-de-doce'},
+  {nome:'Mini roscovado 1 unidade',precoAtacado:2.84,precoVarejo:3.12,precoSt:2.93,secao:'paes-de-doce'},
+  {nome:'Roscovado comum 1 unidade',precoAtacado:4.94,precoVarejo:5.43,precoSt:5.09,secao:'paes-de-doce'},
+  {nome:'Trança 3kg com 10 unidades',precoAtacado:33.60,precoVarejo:36.96,precoSt:34.61,secao:'paes-de-doce'},
+  {nome:'Trancinha 3kg',precoAtacado:29.67,precoVarejo:32.64,precoSt:30.56,secao:'paes-de-doce'},
+  {nome:'Trancinha redonda 3kg',precoAtacado:29.67,precoVarejo:32.64,precoSt:30.56,secao:'paes-de-doce'},
   // Pães de Queijo
-  {nome: 'Meia lua 1kg com 10 unidades', precoAtacado: 18.80, precoVarejo: 20.68, precoSt: 19.36, secao: 'paes-de-queijo'},
-  {nome: 'Palitão de provolone 1kg com 10 unidades', precoAtacado: 18.80, precoVarejo: 20.68, precoSt: 19.36, secao: 'paes-de-queijo'},
-  {nome: 'Pão de queijo com frango grande 1kg', precoAtacado: 32.30, precoVarejo: 35.53, precoSt: 33.27, secao: 'paes-de-queijo'},
-  {nome: 'Pão de queijo com frango pequeno 1kg', precoAtacado: 23.65, precoVarejo: 26.02, precoSt: 24.36, secao: 'paes-de-queijo'},
-  {nome: 'Pão de queijo com frango pequeno 7kg', precoAtacado: 157.85, precoVarejo: 173.64, precoSt: 162.59, secao: 'paes-de-queijo'},
-  {nome: 'Pão de queijo tradicional grande 1kg', precoAtacado: 17.20, precoVarejo: 18.92, precoSt: 17.72, secao: 'paes-de-queijo'},
-  {nome: 'Pão de queijo tradicional pequeno 1kg', precoAtacado: 16.92, precoVarejo: 18.61, precoSt: 17.43, secao: 'paes-de-queijo'},
-  {nome: 'Pão de queijo tradicional pequeno 7kg', precoAtacado: 111.44, precoVarejo: 122.58, precoSt: 114.78, secao: 'paes-de-queijo'},
-
+  {nome:'Meia lua 1kg com 10 unidades',precoAtacado:18.80,precoVarejo:20.68,precoSt:19.36,secao:'paes-de-queijo'},
+  {nome:'Palitão de provolone 1kg com 10 unidades',precoAtacado:18.80,precoVarejo:20.68,precoSt:19.36,secao:'paes-de-queijo'},
+  {nome:'Pão de queijo com frango grande 1kg',precoAtacado:32.30,precoVarejo:35.53,precoSt:33.27,secao:'paes-de-queijo'},
+  {nome:'Pão de queijo com frango pequeno 1kg',precoAtacado:23.65,precoVarejo:26.02,precoSt:24.36,secao:'paes-de-queijo'},
+  {nome:'Pão de queijo com frango pequeno 7kg',precoAtacado:157.85,precoVarejo:173.64,precoSt:162.59,secao:'paes-de-queijo'},
+  {nome:'Pão de queijo tradicional grande 1kg',precoAtacado:17.20,precoVarejo:18.92,precoSt:17.72,secao:'paes-de-queijo'},
+  {nome:'Pão de queijo tradicional pequeno 1kg',precoAtacado:16.92,precoVarejo:18.61,precoSt:17.43,secao:'paes-de-queijo'},
+  {nome:'Pão de queijo tradicional pequeno 7kg',precoAtacado:111.44,precoVarejo:122.58,precoSt:114.78,secao:'paes-de-queijo'},
   // Quitandas
-  {nome: 'Biscoitinho de doce 1 kg', precoAtacado: 17.84, precoVarejo: 19.62, precoSt: 18.37, secao: 'quitandas'},
-  {nome: 'Biscoitinho de doce grande 1kg com 10 unidades', precoAtacado: 18.94, precoVarejo: 20.83, precoSt: '*', secao: 'quitandas'},
-  {nome: 'Biscoito chipa 1kg', precoAtacado: 20.40, precoVarejo: 22.44, precoSt: 21.01, secao: 'quitandas'},
-  {nome: 'Biscoito chipa 7kg', precoAtacado: 139.30, precoVarejo: 153.23, precoSt: 143.48, secao: 'quitandas'},
-  {nome: 'Biscoito de queijo 1kg', precoAtacado: 20.62, precoVarejo: 22.68, precoSt: 21.24, secao: 'quitandas'},
-  {nome: 'Biscoito de queijo 7kg', precoAtacado: 135.17, precoVarejo: 148.69, precoSt: 139.22, secao: 'quitandas'},
-  {nome: 'Biscoito três queijos 1kg', precoAtacado: 20.95, precoVarejo: 23.05, precoSt: 21.58, secao: 'quitandas'},
-  {nome: 'Biscoito três queijos 7kg', precoAtacado: 141.12, precoVarejo: 155.23, precoSt: 145.35, secao: 'quitandas'},
-  {nome: 'Broa de fubá grande com 10 unidades', precoAtacado: 13.70, precoVarejo: 15.07, precoSt: 14.11, secao: 'quitandas'},
-  {nome: 'Broinha de fubá doce 1kg', precoAtacado: 16.92, precoVarejo: 18.61, precoSt: 17.43, secao: 'quitandas'},
-  {nome: 'Broinha de fubá doce 7kg', precoAtacado: 111.44, precoVarejo: 122.58, precoSt: 114.78, secao: 'quitandas'},
-  {nome: 'Broinha de sal e queijo 1kg', precoAtacado: 16.92, precoVarejo: 18.61, precoSt: 17.43, secao: 'quitandas'},
-  {nome: 'Broinha de sal e queijo 7kg', precoAtacado: 111.44, precoVarejo: 122.58, precoSt: 114.78, secao: 'quitandas'},
-  {nome: 'Broinha temperada com bacon 1kg', precoAtacado: 20.50, precoVarejo: 22.55, precoSt: 21.12, secao: 'quitandas'},
-  {nome: 'Broinha temperada com bacon 7KG', precoAtacado: 136.50, precoVarejo: 150.15, precoSt: 140.60, secao: 'quitandas'},
-  {nome: 'Mistura biscoito sequilho 4,5kg', precoAtacado: 69.21, precoVarejo: 76.13, precoSt: 71.29, secao: 'quitandas'},
-
+  {nome:'Biscoitinho de doce 1 kg',precoAtacado:17.84,precoVarejo:19.62,precoSt:18.37,secao:'quitandas'},
+  {nome:'Biscoitinho de doce grande 1kg com 10 unidades',precoAtacado:18.94,precoVarejo:20.83,precoSt:'*',secao:'quitandas'},
+  {nome:'Biscoito chipa 1kg',precoAtacado:20.40,precoVarejo:22.44,precoSt:21.01,secao:'quitandas'},
+  {nome:'Biscoito chipa 7kg',precoAtacado:139.30,precoVarejo:153.23,precoSt:143.48,secao:'quitandas'},
+  {nome:'Biscoito de queijo 1kg',precoAtacado:20.62,precoVarejo:22.68,precoSt:21.24,secao:'quitandas'},
+  {nome:'Biscoito de queijo 7kg',precoAtacado:135.17,precoVarejo:148.69,precoSt:139.22,secao:'quitandas'},
+  {nome:'Biscoito três queijos 1kg',precoAtacado:20.95,precoVarejo:23.05,precoSt:21.58,secao:'quitandas'},
+  {nome:'Biscoito três queijos 7kg',precoAtacado:141.12,precoVarejo:155.23,precoSt:145.35,secao:'quitandas'},
+  {nome:'Broa de fubá grande com 10 unidades',precoAtacado:13.70,precoVarejo:15.07,precoSt:14.11,secao:'quitandas'},
+  {nome:'Broinha de fubá doce 1kg',precoAtacado:16.92,precoVarejo:18.61,precoSt:17.43,secao:'quitandas'},
+  {nome:'Broinha de fubá doce 7kg',precoAtacado:111.44,precoVarejo:122.58,precoSt:114.78,secao:'quitandas'},
+  {nome:'Broinha de sal e queijo 1kg',precoAtacado:16.92,precoVarejo:18.61,precoSt:17.43,secao:'quitandas'},
+  {nome:'Broinha de sal e queijo 7kg',precoAtacado:111.44,precoVarejo:122.58,precoSt:114.78,secao:'quitandas'},
+  {nome:'Broinha temperada com bacon 1kg',precoAtacado:20.50,precoVarejo:22.55,precoSt:21.12,secao:'quitandas'},
+  {nome:'Broinha temperada com bacon 7kg',precoAtacado:136.50,precoVarejo:150.15,precoSt:140.60,secao:'quitandas'},
+  {nome:'Mistura biscoito sequilho 4,5kg',precoAtacado:69.21,precoVarejo:76.13,precoSt:71.29,secao:'quitandas'},
   // Pães Especiais
-  {nome: 'Canudinho de queijo 7kg', precoAtacado: 157.50, precoVarejo: 173.25, precoSt: 162.23, secao: 'paes-especiais'},
-  {nome: 'Canudinho Romeu e Julieta 7kg', precoAtacado: 157.50, precoVarejo: 173.25, precoSt: 162.23, secao: 'paes-especiais'},
-  {nome: 'Croissant de frango 7kg', precoAtacado: 189.49, precoVarejo: 208.44, precoSt: 195.17, secao: 'paes-especiais'},
-  {nome: 'Croissant de presunto 7kg', precoAtacado: 189.49, precoVarejo: 208.44, precoSt: 195.17, secao: 'paes-especiais'},
-  {nome: 'Pão de batata 7kg', precoAtacado: 71.05, precoVarejo: 78.16, precoSt: 73.18, secao: 'paes-especiais'},
-  {nome: 'Pão de milho 7kg', precoAtacado: 71.05, precoVarejo: 78.16, precoSt: 73.18, secao: 'paes-especiais'},
-  {nome: 'Rosca caseira 10 unidades', precoAtacado: 33.60, precoVarejo: 36.96, precoSt: 34.61, secao: 'paes-especiais'},
-  {nome: 'Rosca creme e coco comprida 5 unidades', precoAtacado: 26.35, precoVarejo: 28.99, precoSt: 27.14, secao: 'paes-especiais'},
-  {nome: 'Rosca creme e coco redonda 5 unidades', precoAtacado: 26.35, precoVarejo: 28.99, precoSt: 27.14, secao: 'paes-especiais'},
-  {nome: 'Rosca frutas cristalizadas comprida 5 unidades', precoAtacado: 26.35, precoVarejo: 28.99, precoSt: 27.14, secao: 'paes-especiais'},
-  {nome: 'Rosca frutas cristalizadas redonda 5 unidades', precoAtacado: 26.35, precoVarejo: 28.99, precoSt: 27.14, secao: 'paes-especiais'},
-  {nome: 'Sonho 3kg', precoAtacado: 32.07, precoVarejo: 35.28, precoSt: 33.03, secao: 'paes-especiais'},
-
+  {nome:'Canudinho de queijo 7kg',precoAtacado:157.50,precoVarejo:173.25,precoSt:162.23,secao:'paes-especiais'},
+  {nome:'Canudinho Romeu e Julieta 7kg',precoAtacado:157.50,precoVarejo:173.25,precoSt:162.23,secao:'paes-especiais'},
+  {nome:'Croissant de frango 7kg',precoAtacado:189.49,precoVarejo:208.44,precoSt:195.17,secao:'paes-especiais'},
+  {nome:'Croissant de presunto 7kg',precoAtacado:189.49,precoVarejo:208.44,precoSt:195.17,secao:'paes-especiais'},
+  {nome:'Pão de batata 7kg',precoAtacado:71.05,precoVarejo:78.16,precoSt:73.18,secao:'paes-especiais'},
+  {nome:'Pão de milho 7kg',precoAtacado:71.05,precoVarejo:78.16,precoSt:73.18,secao:'paes-especiais'},
+  {nome:'Rosca caseira 10 unidades',precoAtacado:33.60,precoVarejo:36.96,precoSt:34.61,secao:'paes-especiais'},
+  {nome:'Rosca creme e coco comprida 5 unidades',precoAtacado:26.35,precoVarejo:28.99,precoSt:27.14,secao:'paes-especiais'},
+  {nome:'Rosca creme e coco redonda 5 unidades',precoAtacado:26.35,precoVarejo:28.99,precoSt:27.14,secao:'paes-especiais'},
+  {nome:'Rosca frutas cristalizadas comprida 5 unidades',precoAtacado:26.35,precoVarejo:28.99,precoSt:27.14,secao:'paes-especiais'},
+  {nome:'Rosca frutas cristalizadas redonda 5 unidades',precoAtacado:26.35,precoVarejo:28.99,precoSt:27.14,secao:'paes-especiais'},
+  {nome:'Sonho 3kg',precoAtacado:32.07,precoVarejo:35.28,precoSt:33.03,secao:'paes-especiais'},
   // Bolos
-  {nome: 'Bolo cremoso de fubá 1 unidade', precoAtacado: 8.25, precoVarejo: 9.08, precoSt: 8.50, secao: 'bolos'},
-  {nome: 'Bolo cremoso de milho 1 unidade', precoAtacado: 8.92, precoVarejo: 9.81, precoSt: 9.19, secao: 'bolos'},
-  {nome: 'Mistura de bolo de chocolate 4kg', precoAtacado: 55.40, precoVarejo: 60.94, precoSt: 57.06, secao: 'bolos'},
-  {nome: 'Mistura de bolo de farinha 4kg', precoAtacado: 44.48, precoVarejo: 48.93, precoSt: 45.81, secao: 'bolos'},
-
+  {nome:'Bolo cremoso de fubá 1 unidade',precoAtacado:8.25,precoVarejo:9.08,precoSt:8.50,secao:'bolos'},
+  {nome:'Bolo cremoso de milho 1 unidade',precoAtacado:8.92,precoVarejo:9.81,precoSt:9.19,secao:'bolos'},
+  {nome:'Mistura de bolo de chocolate 4kg',precoAtacado:55.40,precoVarejo:60.94,precoSt:57.06,secao:'bolos'},
+  {nome:'Mistura de bolo de farinha 4kg',precoAtacado:44.48,precoVarejo:48.93,precoSt:45.81,secao:'bolos'},
   // Salgados Pequenos
-  {nome: 'Bolinha de carne pequeno 1kg', precoAtacado: 21.78, precoVarejo: 23.96, precoSt: 22.43, secao: 'salgados-pequenos'},
-  {nome: 'Coxinha de frango pequeno 1kg', precoAtacado: 19.06, precoVarejo: 20.97, precoSt: 19.63, secao: 'salgados-pequenos'},
-  {nome: 'Empadinha de frango pequeno 1kg', precoAtacado: 28.83, precoVarejo: 31.71, precoSt: 29.70, secao: 'salgados-pequenos'},
-  {nome: 'Enroladinho presunto mussarela pequeno  1kg', precoAtacado: 19.06, precoVarejo: 20.97, precoSt: 19.63, secao: 'salgados-pequenos'},
-  {nome: 'Pastelzinho catupiry pequeno 1kg', precoAtacado: 19.06, precoVarejo: 20.97, precoSt: 19.63, secao: 'salgados-pequenos'},
-  {nome: 'Quibe com catupiry pequeno 1KG', precoAtacado: 21.75, precoVarejo: 23.93, precoSt: 22.40, secao: 'salgados-pequenos'},
-
+  {nome:'Bolinha de carne pequeno 1kg',precoAtacado:21.78,precoVarejo:23.96,precoSt:22.43,secao:'salgados-pequenos'},
+  {nome:'Coxinha de frango pequeno 1kg',precoAtacado:19.06,precoVarejo:20.97,precoSt:19.63,secao:'salgados-pequenos'},
+  {nome:'Empadinha de frango pequeno 1kg',precoAtacado:28.83,precoVarejo:31.71,precoSt:29.70,secao:'salgados-pequenos'},
+  {nome:'Enroladinho presunto mussarela pequeno 1kg',precoAtacado:19.06,precoVarejo:20.97,precoSt:19.63,secao:'salgados-pequenos'},
+  {nome:'Pastelzinho catupiry pequeno 1kg',precoAtacado:19.06,precoVarejo:20.97,precoSt:19.63,secao:'salgados-pequenos'},
+  {nome:'Quibe com catupiry pequeno 1kg',precoAtacado:21.75,precoVarejo:23.93,precoSt:22.40,secao:'salgados-pequenos'},
   // Salgados Grandes
-  {nome: 'Coxinha de frango grande 10 unidades', precoAtacado: 23.90, precoVarejo: 26.29, precoSt: 24.62, secao: 'salgados-grandes'},
-  {nome: 'Empada de frango grande 10 unidades', precoAtacado: 30.80, precoVarejo: 33.88, precoSt: 31.72, secao: 'salgados-grandes'},
-  {nome: 'Empadão de frango com catupiry 10 unidades', precoAtacado: 41.00, precoVarejo: 45.10, precoSt: 42.23, secao: 'salgados-grandes'},
-  {nome: 'Enroladinho presunto mussarela grande 10 unidades', precoAtacado: 28.90, precoVarejo: 31.79, precoSt: 29.77, secao: 'salgados-grandes'},
-  {nome: 'Enroladinho de salsicha grande 10 unidades', precoAtacado: 23.00, precoVarejo: 25.30, precoSt: 23.69, secao: 'salgados-grandes'},
-  {nome: 'Pastel assado de frango grande 10 unidades', precoAtacado: 29.90, precoVarejo: 32.89, precoSt: 30.80, secao: 'salgados-grandes'},
-  {nome: 'Pastel português de carne grande 10 unidades', precoAtacado: 27.00, precoVarejo: 29.70, precoSt: 27.81, secao: 'salgados-grandes'},
-  {nome: 'Quibe grande 10 unidades', precoAtacado: 31.60, precoVarejo: 34.76, precoSt: 32.55, secao: 'salgados-grandes'},
-  {nome: 'Tortinha de frango, abacaxi e passas 10 unidades', precoAtacado: 41.00, precoVarejo: 45.10, precoSt: 42.23, secao: 'salgados-grandes'},
-
+  {nome:'Coxinha de frango grande 10 unidades',precoAtacado:23.90,precoVarejo:26.29,precoSt:24.62,secao:'salgados-grandes'},
+  {nome:'Empada de frango grande 10 unidades',precoAtacado:30.80,precoVarejo:33.88,precoSt:31.72,secao:'salgados-grandes'},
+  {nome:'Empadão de frango com catupiry 10 unidades',precoAtacado:41.00,precoVarejo:45.10,precoSt:42.23,secao:'salgados-grandes'},
+  {nome:'Enroladinho de salsicha grande 10 unidades',precoAtacado:23.00,precoVarejo:25.30,precoSt:23.69,secao:'salgados-grandes'},
+  {nome:'Enroladinho presunto mussarela grande 10 unidades',precoAtacado:28.90,precoVarejo:31.79,precoSt:29.77,secao:'salgados-grandes'},
+  {nome:'Pastel assado de frango grande 10 unidades',precoAtacado:29.90,precoVarejo:32.89,precoSt:30.80,secao:'salgados-grandes'},
+  {nome:'Pastel português de carne grande 10 unidades',precoAtacado:27.00,precoVarejo:29.70,precoSt:27.81,secao:'salgados-grandes'},
+  {nome:'Quibe grande 10 unidades',precoAtacado:31.60,precoVarejo:34.76,precoSt:32.55,secao:'salgados-grandes'},
+  {nome:'Tortinha de frango, abacaxi e passas 10 unidades',precoAtacado:41.00,precoVarejo:45.10,precoSt:42.23,secao:'salgados-grandes'},
   // Complementos
-  {nome: 'Coco ralado fino seco', precoAtacado: 19.00, precoVarejo: 20.90, precoSt: '*', secao: 'complementos'},
-  {nome: 'Creme de confeiteiro preparado 1kg', precoAtacado: 9.62, precoVarejo: 10.58, precoSt: 9.91, secao: 'complementos'},
-  {nome: 'Inseticida de citronela', precoAtacado: 19.25, precoVarejo: 21.18, precoSt: '*', secao: 'complementos'},
-  {nome: 'Unta forma carlo 5 litros', precoAtacado: 130.95, precoVarejo: 144.05, precoSt: '*', secao: 'complementos'},
-  {nome: 'Par de luvas', precoAtacado: 31.99, precoVarejo: 35.19, precoSt: '*', secao: 'complementos'}
+  {nome:'Coco ralado fino seco',precoAtacado:19.00,precoVarejo:20.90,precoSt:'*',secao:'complementos'},
+  {nome:'Creme de confeiteiro preparado 1kg',precoAtacado:9.62,precoVarejo:10.58,precoSt:9.91,secao:'complementos'},
+  {nome:'Inseticida de citronela',precoAtacado:19.25,precoVarejo:21.18,precoSt:'*',secao:'complementos'},
+  {nome:'Par de luvas',precoAtacado:31.99,precoVarejo:35.19,precoSt:'*',secao:'complementos'},
+  {nome:'Unta forma carlo 5 litros',precoAtacado:130.95,precoVarejo:144.05,precoSt:'*',secao:'complementos'},
 ];
 
-/* ===== utilidades ===== */
-const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+/* ═══════════════════════════════════════════
+   ESTADO
+   ═══════════════════════════════════════════ */
+const BRL = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'});
 const tbody = document.getElementById('tbody-produtos');
 const grandTotalEl = document.getElementById('grandTotal');
-const contadorEl = document.getElementById('contador-linhas');
-let hideEmpty = false;
-let hiddenRows = [];
-let tipoPrecoAtual = 'atacado'; // Valor padrão
-let secoesAtivas = new Set(); // Para armazenar as seções ativas
-let modoAlturaLinha = 'padrao'; // 'padrao', 'compacta', 'minima'
 
-// FUNÇÃO ALTERADA: Agora alterna entre os tipos de preço ciclicamente
-function alternarTipoPreco() {
-  const tipos = ['atacado', 'varejo', 'st'];
-  const currentIndex = tipos.indexOf(tipoPrecoAtual);
-  tipoPrecoAtual = tipos[(currentIndex + 1) % tipos.length];
-  
-  // Atualiza o texto do botão
-  const btn = document.getElementById('btn-tipo-preco');
-  btn.textContent = `Preço: ${tipoPrecoAtual.charAt(0).toUpperCase() + tipoPrecoAtual.slice(1)}`;
-  
-  // Atualiza os preços na tabela
+let hideEmpty       = false;
+let tipoPrecoAtual  = 'atacado';
+let secoesAtivas    = new Set();
+let modoAlturaLinha = 'padrao';
+let secoesAbertas   = false;
+
+/* ═══════════════════════════════════════════
+   RENDER — ordena alfabeticamente mantendo preços
+   ═══════════════════════════════════════════ */
+function renderTable() {
+  // Filtrar por seções ativas
+  let lista = secoesAtivas.size > 0
+    ? produtos.filter(p => secoesAtivas.has(p.secao))
+    : produtos;
+
+  // Ordenar alfabeticamente (objeto completo com preços preservados)
+  lista = [...lista].sort((a, b) =>
+    a.nome.localeCompare(b.nome, 'pt-BR', {sensitivity:'base'})
+  );
+
+  const frag = document.createDocumentFragment();
+
+  lista.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.className = 'linha-' + modoAlturaLinha;
+
+    // Coluna nome
+    const tdNome = document.createElement('td');
+    tdNome.className = 'col-prod';
+    tdNome.textContent = p.nome;
+
+    // Coluna preço (guarda todos os preços em dataset)
+    const tdPreco = document.createElement('td');
+    tdPreco.className = 'col-preco';
+    tdPreco.dataset.precoAtacado = String(p.precoAtacado);
+    tdPreco.dataset.precoVarejo  = String(p.precoVarejo);
+    tdPreco.dataset.precoSt      = String(p.precoSt);
+    tdPreco.textContent = BRL.format(p.precoAtacado);
+
+    // Coluna quantidade com botões customizados
+    const tdQtd = document.createElement('td');
+    tdQtd.className = 'col-qtd';
+
+    const wrap = document.createElement('div');
+    wrap.className = 'qty-wrap';
+
+    const btnMinus = document.createElement('button');
+    btnMinus.className = 'qty-btn';
+    btnMinus.type = 'button';
+    btnMinus.setAttribute('aria-label','Diminuir');
+    btnMinus.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+    btnMinus.addEventListener('click', () => adjustQty(btnMinus, -1));
+
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.className = 'qty';
+    input.min = '0';
+    input.step = '1';
+    input.setAttribute('aria-label', `Quantidade de ${p.nome}`);
+    input.addEventListener('input', () => { updateRow(tr); if (hideEmpty) applyHide(); });
+    input.addEventListener('focus', () => input.select());
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const next = tr.nextElementSibling;
+        if (next) next.querySelector('input.qty')?.focus();
+        else tbody.querySelector('tr')?.querySelector('input.qty')?.focus();
+      }
+    });
+
+    const btnPlus = document.createElement('button');
+    btnPlus.className = 'qty-btn';
+    btnPlus.type = 'button';
+    btnPlus.setAttribute('aria-label','Aumentar');
+    btnPlus.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+    btnPlus.addEventListener('click', () => adjustQty(btnPlus, 1));
+
+    wrap.appendChild(btnMinus);
+    wrap.appendChild(input);
+    wrap.appendChild(btnPlus);
+    tdQtd.appendChild(wrap);
+
+    // Coluna total
+    const tdTotal = document.createElement('td');
+    tdTotal.className = 'col-total row-total';
+    tdTotal.textContent = BRL.format(0);
+
+    tr.appendChild(tdNome);
+    tr.appendChild(tdPreco);
+    tr.appendChild(tdQtd);
+    tr.appendChild(tdTotal);
+    frag.appendChild(tr);
+  });
+
+  tbody.innerHTML = '';
+  tbody.appendChild(frag);
   atualizarTodosPrecos();
 }
 
-// FUNÇÃO NOVA: Atualizar indicador de filtro nas seções
-function atualizarIndicadorFiltro() {
-  const btnSecoes = document.getElementById('btn-secoes');
-  if (secoesAtivas.size > 0) {
-    btnSecoes.classList.add('com-filtro');
-    btnSecoes.innerHTML = `<span>Seções (${secoesAtivas.size})</span>`;
-  } else {
-    btnSecoes.classList.remove('com-filtro');
-    btnSecoes.innerHTML = `<span>Seções</span>`;
-  }
+/* ═══════════════════════════════════════════
+   BOTÕES + / - DE QUANTIDADE
+   ═══════════════════════════════════════════ */
+function adjustQty(btn, delta) {
+  const input = btn.closest('.qty-wrap').querySelector('input.qty');
+  input.value = Math.max(0, parseQty(input.value) + delta);
+  const tr = btn.closest('tr');
+  updateRow(tr);
+  if (hideEmpty) applyHide();
 }
 
-function renderTable(){
-  const frag = document.createDocumentFragment();
-  
-  // Filtrar produtos pelas seções ativas
-  let produtosParaRenderizar = produtos;
-  if (secoesAtivas.size > 0) {
-    produtosParaRenderizar = produtos.filter(p => secoesAtivas.has(p.secao));
-  }
-  
-  produtosParaRenderizar.forEach((p, i) => {
-    const tr = document.createElement('tr');
-    
-    // Aplicar classe de altura conforme o modo atual
-    if (modoAlturaLinha === 'compacta') {
-      tr.className = 'linha-compacta';
-    } else if (modoAlturaLinha === 'minima') {
-      tr.className = 'linha-minima';
-    } else {
-      tr.className = 'linha-padrao';
-    }
-    
-    // nome
-    const tdNome = document.createElement('td'); tdNome.className='col-prod'; tdNome.textContent = p.nome;
-    // preco - agora depende do tipo selecionado
-    const tdPreco = document.createElement('td'); tdPreco.className='col-preco'; 
-    tdPreco.textContent = BRL.format(p.precoAtacado); 
-    tdPreco.dataset.precoAtacado = String(p.precoAtacado);
-    tdPreco.dataset.precoVarejo = String(p.precoVarejo);
-    tdPreco.dataset.precoSt = String(p.precoSt);
-    // quantidade - SEM PLACEHOLDER
-    const tdQtd = document.createElement('td'); tdQtd.className='col-qtd';
-    const input = document.createElement('input'); input.type='number'; input.className='qty'; input.min='0'; input.step='1';
-    input.addEventListener('input', () => { updateRow(tr); if(hideEmpty) applyHide(); });
-    input.addEventListener('focus', ()=>input.select());
-    
-    // Adicionar evento para navegação com Enter
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const nextRow = tr.nextElementSibling;
-        if (nextRow) {
-          const nextInput = nextRow.querySelector('input.qty');
-          if (nextInput) nextInput.focus();
-        } else {
-          // Vai para a primeira linha
-          const firstRow = tbody.querySelector('tr:first-child');
-          if (firstRow) {
-            const firstInput = firstRow.querySelector('input.qty');
-            if (firstInput) firstInput.focus();
-          }
-        }
-      }
-    });
-    
-    tdQtd.appendChild(input);
-    // total
-    const tdTotal = document.createElement('td'); tdTotal.className='col-total row-total'; tdTotal.textContent = BRL.format(0);
-
-    tr.appendChild(tdNome); tr.appendChild(tdPreco); tr.appendChild(tdQtd); tr.appendChild(tdTotal);
-    frag.appendChild(tr);
-  });
-  tbody.innerHTML = ''; // Limpar antes de adicionar
-  tbody.appendChild(frag);
-  updateGrand();
+/* ═══════════════════════════════════════════
+   TIPO DE PREÇO
+   ═══════════════════════════════════════════ */
+function keyPreco(tipo) {
+  return 'preco' + tipo.charAt(0).toUpperCase() + tipo.slice(1);
 }
 
-function alternarAlturaLinha() {
-  const btn = document.getElementById('btn-altura');
-  
-  if (modoAlturaLinha === 'padrao') {
-    modoAlturaLinha = 'compacta';
-    btn.textContent = 'Altura: Compacta';
-  } else if (modoAlturaLinha === 'compacta') {
-    modoAlturaLinha = 'minima';
-    btn.textContent = 'Altura: Mínima';
-  } else {
-    modoAlturaLinha = 'padrao';
-    btn.textContent = 'Altura: Padrão';
-  }
-  
-  // Reaplicar as classes de altura a todas as linhas
-  const linhas = tbody.querySelectorAll('tr');
-  linhas.forEach(linha => {
-    if (modoAlturaLinha === 'compacta') {
-      linha.className = 'linha-compacta';
-    } else if (modoAlturaLinha === 'minima') {
-      linha.className = 'linha-minima';
-    } else {
-      linha.className = 'linha-padrao';
-    }
-  });
+function alternarTipoPreco() {
+  const tipos  = ['atacado','varejo','st'];
+  const labels = {atacado:'Preço: Atacado',varejo:'Preço: Varejo',st:'Preço: ST'};
+  tipoPrecoAtual = tipos[(tipos.indexOf(tipoPrecoAtual)+1) % tipos.length];
+  document.getElementById('btn-tipo-preco').querySelector('span').textContent = labels[tipoPrecoAtual];
+  atualizarTodosPrecos();
 }
 
 function atualizarTodosPrecos() {
+  const k = keyPreco(tipoPrecoAtual);
   tbody.querySelectorAll('tr').forEach(tr => {
     const tdPreco = tr.querySelector('td.col-preco');
-    const preco = tdPreco.dataset[`preco${tipoPrecoAtual.charAt(0).toUpperCase() + tipoPrecoAtual.slice(1)}`];
-    
-    // Se for ST e o preço for *, exibir asterisco
-    if (tipoPrecoAtual === 'st' && preco === '*') {
-      tdPreco.textContent = '*';
-    } else {
-      tdPreco.textContent = BRL.format(parseFloat(preco));
-    }
-    
-    // Atualizar o total da linha se houver quantidade
-    const inputQtd = tr.querySelector('input.qty');
-    if (inputQtd.value && inputQtd.value !== '0') {
-      updateRow(tr);
-    }
+    const val = tdPreco.dataset[k];
+    tdPreco.textContent = (tipoPrecoAtual==='st' && val==='*') ? '*' : BRL.format(parseFloat(val));
+    const inp = tr.querySelector('input.qty');
+    if (inp && inp.value && inp.value!=='0') updateRow(tr);
   });
   updateGrand();
 }
 
-function parseQty(val){
-  const s = String(val).trim();
-  if(s === '') return 0;
-  // aceitar inteiros
-  const n = parseInt(s.replace(/[^0-9\-]/g,''), 10);
-  return Number.isFinite(n) ? Math.max(0, n) : 0;
+/* ═══════════════════════════════════════════
+   CÁLCULOS DE LINHA E TOTAL
+   ═══════════════════════════════════════════ */
+function parseQty(val) {
+  const n = parseInt(String(val).replace(/[^0-9]/g,''), 10);
+  return Number.isFinite(n) ? Math.max(0,n) : 0;
 }
 
-function updateRow(tr){
-  const tdPreco = tr.querySelector('td.col-preco');
-  const precoStr = tdPreco.dataset[`preco${tipoPrecoAtual.charAt(0).toUpperCase() + tipoPrecoAtual.slice(1)}`];
-  
-  let total = 0;
-  
-  // Se for ST e o preço for *, não calcular total
-  if (!(tipoPrecoAtual === 'st' && precoStr === '*')) {
-    const preco = parseFloat(precoStr);
-    const qtd = parseQty(tr.querySelector('input.qty').value);
-    total = preco * qtd;
-  }
-  
+function updateRow(tr) {
+  const val = tr.querySelector('td.col-preco').dataset[keyPreco(tipoPrecoAtual)];
+  const total = (tipoPrecoAtual==='st' && val==='*') ? 0 : parseFloat(val) * parseQty(tr.querySelector('input.qty').value);
   tr.querySelector('td.row-total').textContent = BRL.format(total);
   updateGrand();
 }
 
-function updateGrand(){
-  let sum = 0; 
-  let filled = 0;
-  
+function updateGrand() {
+  let sum=0, filled=0;
   tbody.querySelectorAll('tr').forEach(tr => {
-    const tdPreco = tr.querySelector('td.col-preco');
-    const precoStr = tdPreco.dataset[`preco${tipoPrecoAtual.charAt(0).toUpperCase() + tipoPrecoAtual.slice(1)}`];
+    const val = tr.querySelector('td.col-preco').dataset[keyPreco(tipoPrecoAtual)];
     const qtd = parseQty(tr.querySelector('input.qty').value);
-    
-    // Se for ST e o preço for *, não somar
-    if (!(tipoPrecoAtual === 'st' && precoStr === '*')) {
-      const preco = parseFloat(precoStr);
-      sum += preco * qtd;
-    }
-    
-    if(qtd > 0) filled++;
+    if (!(tipoPrecoAtual==='st' && val==='*')) sum += parseFloat(val) * qtd;
+    if (qtd > 0) filled++;
   });
-  
   grandTotalEl.textContent = BRL.format(sum);
-  contadorEl.textContent = `Linhas preenchidas: ${filled}`;
-  
-  // Atualizar o campo flutuante
+  document.getElementById('contador-val').textContent = filled;
+  document.getElementById('grand-total-stat').textContent = BRL.format(sum);
   updateFloatingTotal(sum, filled);
 }
 
-function applyHide(){
-  hiddenRows = [];
+/* ═══════════════════════════════════════════
+   OCULTAR / MOSTRAR VAZIOS
+   ═══════════════════════════════════════════ */
+function applyHide() {
   tbody.querySelectorAll('tr').forEach(tr => {
-    const qtd = parseQty(tr.querySelector('input.qty').value);
-    if(hideEmpty && qtd === 0){ 
-      tr.style.display = 'none'; 
-      hiddenRows.push(tr); 
-    }
-    else tr.style.display = '';
+    tr.style.display = (hideEmpty && parseQty(tr.querySelector('input.qty').value)===0) ? 'none' : '';
   });
   updateGrand();
 }
 
-function toggleVazias(){
+function toggleVazias() {
   hideEmpty = !hideEmpty;
-  document.getElementById('btn-hide').textContent = hideEmpty ? 'Restaurar Linhas Vazias' : 'Remover Linhas Vazias';
+  const btn = document.getElementById('btn-hide');
+  if (hideEmpty) {
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span>Mostrar Todos</span>`;
+  } else {
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>Ocultar Vazios</span>`;
+  }
   applyHide();
 }
 
-function resetarTudo(){
+function resetarTudo() {
   tbody.querySelectorAll('tr').forEach(tr => {
-    tr.querySelector('input.qty').value = '';
-    tr.style.display = '';
-    tr.querySelector('td.row-total').textContent = BRL.format(0);
+    tr.querySelector('input.qty').value='';
+    tr.style.display='';
+    tr.querySelector('td.row-total').textContent=BRL.format(0);
   });
-  hideEmpty = false; 
-  document.getElementById('btn-hide').textContent = 'Remover Linhas Vazias';
+  hideEmpty=false;
+  document.getElementById('btn-hide').innerHTML=
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>Ocultar Vazios</span>`;
   updateGrand();
 }
 
-/* =========================
-   Filtros por seções
-   ========================= */
+/* ═══════════════════════════════════════════
+   ALTURA DE LINHA
+   ═══════════════════════════════════════════ */
+function alternarAlturaLinha() {
+  const modos  = ['padrao','compacta','minima'];
+  const labels = {padrao:'Altura: Padrão',compacta:'Altura: Compacta',minima:'Altura: Mínima'};
+  modoAlturaLinha = modos[(modos.indexOf(modoAlturaLinha)+1) % modos.length];
+  tbody.querySelectorAll('tr').forEach(tr => { tr.className='linha-'+modoAlturaLinha; });
+  document.getElementById('btn-altura').querySelector('span').textContent = labels[modoAlturaLinha];
+}
+
+/* ═══════════════════════════════════════════
+   SEÇÕES — inline (empurra Limpar Filtros pra baixo)
+   ═══════════════════════════════════════════ */
+function toggleSecoesInline() {
+  secoesAbertas = !secoesAbertas;
+  document.getElementById('secoes-inline').style.display = secoesAbertas ? 'block' : 'none';
+}
+
 function toggleSecao(secao) {
-  if (secoesAtivas.has(secao)) {
-    secoesAtivas.delete(secao);
-  } else {
-    secoesAtivas.add(secao);
-  }
-  
-  // Atualizar estado visual dos checkboxes
-  const elemento = document.querySelector(`.filtro-secao[data-secao="${secao}"]`);
-  const checkbox = elemento.querySelector('.filtro-checkbox');
-  checkbox.checked = secoesAtivas.has(secao);
-  
-  // Atualizar estado visual dos itens
-  if (secoesAtivas.has(secao)) {
-    elemento.classList.add('ativo');
-  } else {
-    elemento.classList.remove('ativo');
-  }
-  
-  // Atualizar indicador de filtro
-  atualizarIndicadorFiltro();
-  
-  // Re-renderizar a tabela com os filtros aplicados
+  if (secoesAtivas.has(secao)) secoesAtivas.delete(secao);
+  else secoesAtivas.add(secao);
+  const el = document.querySelector(`.filtro-secao[data-secao="${secao}"]`);
+  el.querySelector('.filtro-checkbox').checked = secoesAtivas.has(secao);
+  el.classList.toggle('ativo', secoesAtivas.has(secao));
+  atualizarBotaoSecoes();
   renderTable();
 }
 
 function limparFiltrosSecoes() {
   secoesAtivas.clear();
-  
-  // Atualizar estado visual dos checkboxes
-  const checkboxes = document.querySelectorAll('.filtro-checkbox');
-  checkboxes.forEach(checkbox => {
-    checkbox.checked = false;
-  });
-  
-  // Atualizar estado visual dos itens
-  const elementos = document.querySelectorAll('.filtro-secao');
-  elementos.forEach(elemento => {
-    elemento.classList.remove('ativo');
-  });
-  
-  // Atualizar indicador de filtro
-  atualizarIndicadorFiltro();
-  
-  // Re-renderizar a tabela sem filtros
+  document.querySelectorAll('.filtro-checkbox').forEach(c => c.checked=false);
+  document.querySelectorAll('.filtro-secao').forEach(e => e.classList.remove('ativo'));
+  atualizarBotaoSecoes();
   renderTable();
 }
 
-function toggleSecoesDropdown() {
-  const dropdown = document.getElementById('secoes-dropdown');
-  if (dropdown.style.display === 'block') {
-    dropdown.style.display = 'none';
-  } else {
-    dropdown.style.display = 'block';
-  }
+function atualizarBotaoSecoes() {
+  const n = secoesAtivas.size;
+  document.getElementById('btn-secoes-label').textContent = n>0 ? `Seções (${n})` : 'Seções';
 }
 
-// Fechar dropdown de seções ao clicar fora
-document.addEventListener('click', function(event) {
-  const dropdown = document.getElementById('secoes-dropdown');
-  const btnSecoes = document.querySelector('.btn-secoes');
-  
-  if (!btnSecoes.contains(event.target) && !dropdown.contains(event.target)) {
-    dropdown.style.display = 'none';
-  }
-});
-
-/* =========================
-   Campo flutuante para soma total
-   ========================= */
+/* ═══════════════════════════════════════════
+   FLOATING TOTAL
+   ═══════════════════════════════════════════ */
 function updateFloatingTotal(total, filled) {
-  const floatingTotal = document.getElementById('floating-total');
-  const floatingGrandTotal = document.getElementById('floating-grand-total');
-  const floatingLineCount = document.getElementById('floating-line-count');
-  
-  floatingGrandTotal.textContent = BRL.format(total);
-  floatingLineCount.textContent = filled;
-  
-  // Verificar se o rodapé está visível
-  const tfoot = document.querySelector('tfoot');
-  const tfootRect = tfoot.getBoundingClientRect();
-  const isTfootVisible = tfootRect.top < window.innerHeight && tfootRect.bottom >= 0;
-  
-  if (isTfootVisible) {
-    floatingTotal.classList.add('hidden');
-  } else {
-    floatingTotal.classList.remove('hidden');
-  }
+  document.getElementById('floating-grand-total').textContent = BRL.format(total);
+  document.getElementById('floating-line-count').textContent  = filled;
+  const r = document.querySelector('tfoot').getBoundingClientRect();
+  const visible = r.top < window.innerHeight && r.bottom >= 0;
+  document.getElementById('floating-total').classList.toggle('hidden', visible);
+}
+window.addEventListener('scroll', updateGrand);
+
+/* ═══════════════════════════════════════════
+   COPIAR
+   ═══════════════════════════════════════════ */
+function copiarTabela() {
+  const lines=[];
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const qtd = tr.querySelector('input.qty').value.trim();
+    if (qtd) lines.push(`${tr.querySelector('td.col-prod').textContent}: ${qtd} - ${tr.querySelector('td.row-total').textContent}`);
+  });
+  if (!lines.length) { showBottomNotice('Nada para copiar',1600); return; }
+  lines.push(`TOTAL: ${grandTotalEl.textContent}`);
+  navigator.clipboard.writeText(lines.join('\n'))
+    .then(()=>showBottomNotice('Copiado!',1400))
+    .catch(()=>showBottomNotice('Falha ao copiar',1600));
 }
 
-// Verificar visibilidade do rodapé ao rolar
-window.addEventListener('scroll', function() {
-  updateGrand();
+/* ═══════════════════════════════════════════
+   SALVAR TXT
+   ═══════════════════════════════════════════ */
+function salvarComoTXT(e) {
+  if(e) e.preventDefault();
+  const lines=[];
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const qtd=tr.querySelector('input.qty').value.trim();
+    if(qtd) lines.push(`${tr.querySelector('td.col-prod').textContent}: ${qtd} - ${tr.querySelector('td.row-total').textContent}`);
+  });
+  if(!lines.length){showBottomNotice('Nenhum item preenchido',1600);return;}
+  lines.push(`TOTAL: ${grandTotalEl.textContent}`);
+  baixarArquivo(lines.join('\n'),'pedido.txt','text/plain');
+  showBottomNotice('Arquivo TXT salvo',1400);
+}
+
+/* ═══════════════════════════════════════════
+   SALVAR PDF
+   ═══════════════════════════════════════════ */
+function salvarComoPDF(e) {
+  if(e) e.preventDefault();
+  const linhas=[];
+  tbody.querySelectorAll('tr').forEach(tr=>{
+    const qtd=tr.querySelector('input.qty').value.trim();
+    if(qtd) linhas.push({nome:tr.querySelector('td.col-prod').textContent,qtd,total:tr.querySelector('td.row-total').textContent});
+  });
+  if(!linhas.length){showBottomNotice('Nenhum item preenchido',1600);return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'pt',format:'a4'});
+  doc.setFont('courier');doc.setFontSize(11);
+  const m=40;let y=40;
+  doc.text(document.getElementById('titulo-principal').textContent,m,y);y+=18;
+  doc.text(`Tipo de preço: ${tipoPrecoAtual}`,m,y);y+=18;
+  linhas.forEach(({nome,qtd,total})=>{
+    if(y>doc.internal.pageSize.getHeight()-60){doc.addPage();y=40;}
+    doc.text(nome,m,y,{maxWidth:300});
+    doc.text(String(qtd),m+320,y);
+    doc.text(total,m+380,y);
+    y+=14;
+  });
+  y+=8;
+  if(y>doc.internal.pageSize.getHeight()-30){doc.addPage();y=40;}
+  doc.text(`Total: ${grandTotalEl.textContent}`,m,y);y+=14;
+  doc.text(`Preenchidas: ${linhas.length}`,m,y);
+  try{
+    const win=window.open('','_blank');
+    if(!win){doc.save('pedido.pdf');showBottomNotice('PDF baixado',1400);return;}
+    const url=URL.createObjectURL(doc.output('blob'));
+    win.location.href=url;
+    setTimeout(()=>{try{URL.revokeObjectURL(url);}catch(e){}},60000);
+  }catch(err){doc.save('pedido.pdf');showBottomNotice('PDF baixado',1400);}
+}
+
+/* ═══════════════════════════════════════════
+   SALVAR EXCEL
+   ═══════════════════════════════════════════ */
+function salvarComoExcel(e) {
+  if(e) e.preventDefault();
+  const rows=[['PRODUTO','VALOR PCT','QUANTIDADE','VALOR TOTAL']];
+  let soma=0;
+  tbody.querySelectorAll('tr').forEach(tr=>{
+    const k=keyPreco(tipoPrecoAtual);
+    const val=tr.querySelector('td.col-preco').dataset[k];
+    const qtd=parseQty(tr.querySelector('input.qty').value);
+    if(qtd>0){
+      const preco=(tipoPrecoAtual==='st'&&val==='*')?0:parseFloat(val);
+      const total=preco*qtd;
+      rows.push([tr.querySelector('td.col-prod').textContent,preco,qtd,total]);
+      soma+=total;
+    }
+  });
+  if(rows.length===1){showBottomNotice('Nenhum item preenchido',1600);return;}
+  rows.push(['','','TOTAL',soma]);
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  const range=XLSX.utils.decode_range(ws['!ref']);
+  for(let R=range.s.r+1;R<=range.e.r;R++){
+    [1,3].forEach(c=>{
+      const cell=ws[XLSX.utils.encode_cell({r:R,c})];
+      if(cell) cell.z='"R$"#,##0.00';
+    });
+  }
+  ws['!cols']=[{wch:52},{wch:12},{wch:12},{wch:14}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Pedido');
+  const now=new Date();
+  const p=n=>String(n).padStart(2,'0');
+  XLSX.writeFile(wb,`pedido_${now.getFullYear()}-${p(now.getMonth()+1)}-${p(now.getDate())}_${p(now.getHours())}${p(now.getMinutes())}.xlsx`);
+  showBottomNotice('Excel salvo',1400);
+}
+
+/* ═══════════════════════════════════════════
+   UTIL
+   ═══════════════════════════════════════════ */
+function baixarArquivo(conteudo,nome,tipo){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([conteudo],{type:tipo}));
+  a.download=nome;document.body.appendChild(a);a.click();a.remove();
+}
+
+function showBottomNotice(msg='Copiado!',dur=2000){
+  const el=document.getElementById('copy-notice');
+  if(!el)return;
+  if(el._t){clearTimeout(el._t);el._t=null;}
+  el.textContent=msg;el.style.display='block';
+  el._t=setTimeout(()=>{el.style.display='none';el._t=null;},dur);
+}
+
+/* ═══════════════════════════════════════════
+   MENUS / DROPDOWNS
+   ═══════════════════════════════════════════ */
+function toggleMenu(id){
+  document.querySelectorAll('.menu-dropdown-content').forEach(el=>{
+    if(el.id!==id){el.style.display='none';el.setAttribute('aria-hidden','true');}
+  });
+  const el=document.getElementById(id);if(!el)return;
+  const open=el.style.display==='block';
+  el.style.display=open?'none':'block';
+  el.setAttribute('aria-hidden',String(open));
+  if(open)closeAllSubmenus();
+}
+
+function toggleSubmenu(headerEl){
+  const sub=headerEl.nextElementSibling;if(!sub)return;
+  const isOpen=sub.style.display==='block';
+  sub.style.display=isOpen?'none':'block';
+  const chev=headerEl.querySelector('.chev');
+  if(chev)chev.textContent=isOpen?'▸':'▾';
+}
+
+function closeAllSubmenus(){
+  document.querySelectorAll('.submenu').forEach(s=>s.style.display='none');
+  document.querySelectorAll('.chev').forEach(c=>c.textContent='▸');
+}
+
+document.addEventListener('click',ev=>{
+  if(!ev.target.closest('.menu-dropdown')&&!ev.target.closest('.topbar-actions')){
+    document.querySelectorAll('.menu-dropdown-content').forEach(el=>{
+      el.style.display='none';el.setAttribute('aria-hidden','true');
+    });
+    closeAllSubmenus();
+  }
 });
 
-/* =========================
-   Export / copiar / imprimir
-   ========================= */
-
-// FUNÇÃO ATUALIZADA: Agora inclui o valor total ao copiar
-function copiarTabela(){
-  const lines = [];
-  let total = 0;
-  
-  tbody.querySelectorAll('tr').forEach(tr => {
-    const nome = tr.querySelector('td.col-prod').textContent;
-    const qtd = tr.querySelector('input.qty').value.trim();
-    const valorTotal = tr.querySelector('td.row-total').textContent;
-    
-    if(qtd !== '') {
-      lines.push(`${nome}: ${qtd} - ${valorTotal}`);
-      
-      // Calcular o total para verificação
-      const valor = parseFloat(valorTotal.replace('R$', '').replace('.', '').replace(',', '.').trim()) || 0;
-      total += valor;
-    }
-  });
-  
-  if(lines.length === 0){ 
-    showBottomNotice('Nada para copiar', 1600); 
-    return; 
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    document.querySelectorAll('.menu-dropdown-content').forEach(el=>{
+      el.style.display='none';el.setAttribute('aria-hidden','true');
+    });
+    closeAllSubmenus();
   }
-  
-  // Adicionar linha com o total
-  lines.push(`TOTAL: ${grandTotalEl.textContent}`);
-  
-  const texto = lines.join('\n');
-  navigator.clipboard.writeText(texto).then(()=> showBottomNotice('Copiado!', 1400)).catch(()=>{ showBottomNotice('Falha ao copiar', 1600); });
-}
+});
 
-function salvarComoTXT(e){ if(e) e.preventDefault();
-  const lines = [];
-  tbody.querySelectorAll('tr').forEach(tr => {
-    const nome = tr.querySelector('td.col-prod').textContent;
-    const qtd = tr.querySelector('input.qty').value.trim();
-    const valorTotal = tr.querySelector('td.row-total').textContent;
-    
-    if(qtd !== '') lines.push(`${nome}: ${qtd} - ${valorTotal}`);
-  });
-  
-  if(lines.length === 0){ 
-    showBottomNotice('Nenhum item preenchido para salvar', 1600); 
-    return; 
-  }
-  
-  // Adicionar linha com o total
-  lines.push(`TOTAL: ${grandTotalEl.textContent}`);
-  
-  baixarArquivo(lines.join('\n'), 'pedido.txt', 'text/plain');
-  showBottomNotice('Arquivo TXT salvo', 1400);
-}
+/* ═══════════════════════════════════════════
+   NAVEGAÇÃO
+   ═══════════════════════════════════════════ */
+function fecharPagina(){try{window.close();}catch(e){}window.location.href='index.html';}
+function voltarMenu(){window.location.href='index.html';}
 
-// FUNÇÃO ATUALIZADA: Impressão igual ao segundo código
-function imprimirDireto(){
-  // Apenas chamar a função de impressão do navegador
-  window.print();
-}
-
-function salvarComoPDF(e){ if(e) e.preventDefault();
-  const linhas = [];
-  tbody.querySelectorAll('tr').forEach(tr => {
-    const nome = tr.querySelector('td.col-prod').textContent;
-    const qtd = tr.querySelector('input.qty').value.trim();
-    const valorTotal = tr.querySelector('td.row-total').textContent;
-    
-    if(qtd !== '') linhas.push({nome, qtd, valorTotal});
-  });
-  
-  if(linhas.length === 0){ 
-    showBottomNotice('Nenhum item preenchido para salvar em PDF', 1600); 
-    return; 
-  }
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-  doc.setFont('courier'); 
-  doc.setFontSize(11);
-  
-  const margin = 40; 
-  let y = 40;
-  
-  // Título
-  doc.text(document.getElementById('titulo-principal').textContent, margin, y);
-  y += 18;
-  
-  // Tipo de preço
-  doc.text(`Tipo de preço: ${tipoPrecoAtual.charAt(0).toUpperCase() + tipoPrecoAtual.slice(1)}`, margin, y);
-  y += 18;
-  
-  // Linhas dos produtos
-  linhas.forEach(({nome, qtd, valorTotal}) => {
-    // Verificar se precisa de nova página
-    if(y > doc.internal.pageSize.getHeight() - 60){ 
-      doc.addPage(); 
-      y = 40; 
-    }
-    
-    doc.text(nome, margin, y, { maxWidth: 300 });
-    doc.text(String(qtd), margin + 320, y);
-    doc.text(valorTotal, margin + 380, y);
-    y += 14;
-  });
-  
-  // Total
-  y += 8; 
-  if(y > doc.internal.pageSize.getHeight() - 30){ 
-    doc.addPage(); 
-    y = 40; 
-  }
-  doc.text(`Total: ${grandTotalEl.textContent}`, margin, y);
-  y += 14;
-  doc.text(`Linhas preenchidas: ${linhas.length}`, margin, y);
-
-  // Abrir em nova aba
+function abrirMac(e,nome){
   try{
-    const newWin = window.open('', '_blank');
-    if(!newWin){ 
-      doc.save('pedido.pdf'); 
-      showBottomNotice('PDF baixado',1400); 
-      return; 
+    if(e&&e.currentTarget){
+      const href=e.currentTarget.getAttribute('href');
+      if(href&&href!=='#'){
+        closeAllSubmenus();
+        document.querySelectorAll('.menu-dropdown-content').forEach(el=>el.style.display='none');
+        window.location.href=href;return;
+      }
     }
-    const pdfBlob = doc.output('blob');
-    const url = URL.createObjectURL(pdfBlob);
-    newWin.location.href = url;
-    setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} }, 60000);
-  }catch(err){ 
-    console.error(err); 
-    doc.save('pedido.pdf'); 
-    showBottomNotice('PDF baixado',1400); 
-  }
+  }catch(err){}
+  if(e)e.preventDefault();
+  document.getElementById('titulo-principal').textContent=nome;
+  toggleMenu('dropdown-menu');
 }
 
-function salvarComoExcel(){
-  const rows = [['PRODUTO','VALOR PCT','QUANTIDADE','VALOR TOTAL']];
-  let soma = 0;
-  tbody.querySelectorAll('tr').forEach(tr => {
-    const nome = tr.querySelector('td.col-prod').textContent;
-    const tdPreco = tr.querySelector('td.col-preco');
-    const precoStr = tdPreco.dataset[`preco${tipoPrecoAtual.charAt(0).toUpperCase() + tipoPrecoAtual.slice(1)}`];
-    const qtd = parseQty(tr.querySelector('input.qty').value);
-    
-    let preco = 0;
-    let total = 0;
-    
-    // Se for ST e o preço for *, usar 0
-    if (tipoPrecoAtual === 'st' && precoStr === '*') {
-      preco = 0;
-      total = 0;
-    } else {
-      preco = parseFloat(precoStr);
-      total = preco * qtd;
+function abrirLocal(e){
+  try{
+    if(e&&e.currentTarget){
+      const href=e.currentTarget.getAttribute('href');
+      if(href&&href!=='#'){
+        closeAllSubmenus();
+        document.querySelectorAll('.menu-dropdown-content').forEach(el=>el.style.display='none');
+        window.location.href=href;return;
+      }
     }
-    
-    if(qtd > 0){ 
-      rows.push([nome, preco, qtd, total]); 
-      soma += total; 
-    }
-  });
-  
-  if(rows.length === 1){ showBottomNotice('Nenhum item preenchido para exportar Excel', 1600); return; }
-  rows.push(['','', 'TOTAL', soma]);
-  const ws = XLSX.utils.aoa_to_sheet(rows);
-  
-  // Formatar colunas B e D como moeda
-  const range = XLSX.utils.decode_range(ws['!ref']);
-  for (let R = range.s.r + 1; R <= range.e.r; R++) {
-    // Coluna B (VALOR PCT)
-    if (ws[XLSX.utils.encode_cell({r: R, c: 1})]) {
-      ws[XLSX.utils.encode_cell({r: R, c: 1})].z = '"R$"#,##0.00';
-    }
-    // Coluna D (VALOR TOTAL)
-    if (ws[XLSX.utils.encode_cell({r: R, c: 3})]) {
-      ws[XLSX.utils.encode_cell({r: R, c: 3})].z = '"R$"#,##0.00';
-    }
-  }
-  
-  ws['!cols'] = [{wch:50},{wch:12},{wch:12},{wch:14}];
-  const wb = XLSX.utils.book_new(); 
-  XLSX.utils.book_append_sheet(wb, ws, 'Pedido');
-  const now = new Date(); 
-  const pad = n=>String(n).padStart(2,'0');
-  const fname = `pedido_${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}.xlsx`;
-  XLSX.writeFile(wb, fname);
-  showBottomNotice('Excel salvo', 1400);
+  }catch(err){}
+  if(e)e.preventDefault();
 }
 
-function baixarArquivo(conteudo, nomeArquivo, tipo){
-  const blob = new Blob([conteudo], { type: tipo });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nomeArquivo; document.body.appendChild(a); a.click(); a.remove();
-}
-
-/* ==================== toasts ==================== */
-function showBottomNotice(message = 'Copiado!', duration = 2000){
-  const el = document.getElementById('copy-notice');
-  if(!el) return; if(el._hideTimeout){ clearTimeout(el._hideTimeout); el._hideTimeout = null; }
-  el.textContent = message; el.style.display = 'block'; el._hideTimeout = setTimeout(()=>{ el.style.display = 'none'; el._hideTimeout = null; }, duration);
-}
-
-/* ==================== dropdown helpers ==================== */
-function toggleMenu(id){
-  document.querySelectorAll('.menu-dropdown-content').forEach(el => { if(el.id !== id){ el.style.display = 'none'; el.style.opacity = 0; el.setAttribute('aria-hidden','true'); }});
-  const el = document.getElementById(id); if(!el) return; if(el.style.display === 'block'){ el.style.opacity = 0; setTimeout(()=>{ el.style.display = 'none'; el.setAttribute('aria-hidden','true'); }, 180); } else { el.style.display = 'block'; el.style.opacity = 0; el.setAttribute('aria-hidden','false'); setTimeout(()=> el.style.opacity = 1, 10); }
-}
-function toggleSubmenu(headerEl){ const submenu = headerEl.nextElementSibling; if(!submenu) return; const chev = headerEl.querySelector('.chev'); if(submenu.style.display === 'block'){ submenu.style.display = 'none'; if(chev) chev.textContent = '▸'; } else { submenu.style.display = 'block'; if(chev) chev.textContent = '▾'; }}
-
-document.addEventListener('click', (ev)=>{ if(!ev.target.closest('.menu-dropdown')){ document.querySelectorAll('.menu-dropdown-content').forEach(el=>{ el.style.display='none'; el.style.opacity=0; el.setAttribute('aria-hidden','true'); }); }});
-
-/* ====== placeholders do seu código ====== */
-function fecharPagina(){ try{ window.close(); }catch(e){} }
-function voltarMenu(){ /* placeholder */ }
-function navegarProximo(){ /* placeholder */ }
-function abrirMac(e, nome){ if(e) e.preventDefault(); document.getElementById('titulo-principal').textContent = nome; toggleMenu('dropdown-menu'); }
-function abrirLocal(e, nome){ if(e) e.preventDefault(); toggleMenu('dropdown-menu'); }
-
-/* ====== inicialização ====== */
-// Inicializar a tabela
+/* ═══════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════ */
 renderTable();
 
-// Inicializar o indicador de filtro
-atualizarIndicadorFiltro();
-
-// print button listener — evita onclick inline
-const printBtn = document.getElementById('btn-print');
-if(printBtn){ printBtn.addEventListener('click', (ev)=>{ ev.preventDefault(); if(printBtn.disabled) return; printBtn.disabled = true; try{ imprimirDireto(); }finally{ setTimeout(()=>printBtn.disabled=false, 800); } }); }
-
+document.getElementById('btn-print').addEventListener('click',ev=>{
+  ev.preventDefault();
+  const btn=document.getElementById('btn-print');
+  if(btn.disabled)return;
+  btn.disabled=true;
+  try{window.print();}finally{setTimeout(()=>btn.disabled=false,800);}
+});
 </script>
 </body>
 </html>
-

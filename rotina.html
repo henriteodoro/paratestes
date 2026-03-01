@@ -1,2001 +1,1823 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Rotinas Diárias — MACs & Guias</title>
-<meta name="description" content="Sistema organizado de rotinas diárias por semana" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rotinas Diárias — Fev/Mar 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
-  /* === ESTILOS ORIGINAIS (mantidos intactos) === */
-  :root{
-    --azul:#007BFF;
-    --accent:#0b5ed7;
-    --fundo:#f7fbff;
-    --card:#ffffff;
-    --muted:#6b7280;
-    --borda:#e6eefc;
-    --borda-ativa:#cfe0ff;
-    --ink:#0b3b6b;
-    --ink-strong:#0b4fa0;
-    --warn:#f59e0b;
-    --success:#10b981;
-    --danger:#ef4444;
-    --verde-suave: #f0fff4;
-    --verde-borda: #38a169;
-    --roxo: #8a2be2;
-    --laranja: #fb8c00;
-    --teal: #00897b;
-    --cinza-escuro: #5d4037;
-    --verde-escuro: #2e7d32;
-  }
-  body{
-    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    background: linear-gradient(180deg, var(--fundo), #f3f7ff);
-    min-height:100vh;
-    margin:0;
-    padding:18px;
-    color:#111;
-  }
-  .wrap{max-width:1300px;margin:0 auto}
-  h1{margin:0 0 8px 0;font-size:22px;color:var(--accent)}
-  p.lead{margin:4px 0 16px 0;color:var(--muted);font-size:13px}
-
-  .toolbar{
-    display:flex;
-    gap:10px;
-    align-items:center;
-    flex-wrap:wrap;
-    background:var(--card);
-    border:1px solid var(--borda);
-    border-radius:12px;
-    padding:12px;
-    box-shadow: 0 10px 30px rgba(11,78,167,.06);
-    position:sticky;
-    top:14px;
-    z-index:60;
-    margin-bottom: 20px;
-  }
-
-  .btn-toolbar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 14px;
-    border: 1px solid var(--borda);
-    border-radius: 8px;
-    background: var(--card);
-    color: var(--ink);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 14px;
-    font-weight: 500;
-  }
-
-  .btn-toolbar:hover {
-    background: #f3f8ff;
-    border-color: var(--borda-ativa);
-  }
-
-  .btn-toolbar svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  /* LAYOUT PRINCIPAL */
-  .rotinas-container {
-    display: grid;
-    grid-template-columns: 320px 1fr;
-    gap: 20px;
-    margin-top: 20px;
-  }
-
-  .dias-sidebar {
-    background: var(--card);
-    border: 1px solid var(--borda);
-    border-radius: 14px;
-    padding: 16px;
-    box-shadow: 0 10px 30px rgba(11,78,167,.06);
-    height: fit-content;
-    position: sticky;
-    top: 90px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    max-height: calc(100vh - 120px);
-    overflow-y: auto;
-  }
-
-  .periodo-secao {
-    margin-bottom: 0;
-  }
-
-  .periodo-secao h3 {
-    font-size: 14px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--borda);
-  }
-
-  .dia-item {
-    padding: 12px 14px;
-    border-radius: 10px;
-    cursor: pointer;
-    margin-bottom: 8px;
-    transition: all 0.2s ease;
-    font-weight: 600;
-    font-size: 14px;
-    color: var(--ink);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border: 1px solid transparent;
-    position: relative;
-  }
-
-  .dia-item:hover {
-    background: #f3f8ff;
-    border-color: var(--borda-ativa);
-  }
-
-  .dia-item.ativo {
-    background: var(--azul);
-    color: white;
-  }
-
-  .dia-item svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .dia-item.hoje {
-    background: #fff7f0;
-    border-color: #fed7aa;
-    color: #f59e0b;
-  }
-
-  .dia-item.feriado {
-    background: #fff7f0;
-    border-color: #fed7aa;
-    color: #e67e22;
-  }
-
-  .dia-item.sem-expediente {
-    background: #f8f9fa;
-    color: var(--muted);
-  }
-
-  .checkbox-dia {
-    position: absolute;
-    right: 12px;
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-  }
-
-  .conteudo-area {
-    background: var(--card);
-    border: 1px solid var(--borda);
-    border-radius: 14px;
-    padding: 20px;
-    box-shadow: 0 10px 30px rgba(11,78,167,.06);
-    min-height: 400px;
-    position: relative;
-  }
-
-  .conteudo-header {
-    border-bottom: 1px solid var(--borda);
-    padding-bottom: 16px;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .conteudo-header h2 {
-    margin: 0;
-    font-size: 18px;
-    color: var(--ink-strong);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .conteudo-header h2 svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  .conteudo-header-acoes {
-    display: flex;
-    gap: 8px;
-  }
-
-  .btn-acao {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid var(--borda);
-    background: var(--card);
-    color: var(--ink);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 12px;
-    font-weight: 500;
-  }
-
-  .btn-acao:hover {
-    background: #f3f8ff;
-    border-color: var(--borda-ativa);
-  }
-
-  .btn-imprimir {
-    background: #f0f9ff !important;
-    border-color: #bae6fd !important;
-    color: var(--azul) !important;
-  }
-
-  .btn-imprimir:hover {
-    background: #e0f2fe !important;
-  }
-
-  /* FILTRO DE CATEGORIAS */
-  .filtro-categorias {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 16px;
-    border: 1px solid var(--borda);
-  }
-
-  .filtro-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-    cursor: pointer;
-  }
-
-  .filtro-header h3 {
-    margin: 0;
-    font-size: 14px;
-    color: var(--ink-strong);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .filtro-header h3 svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  .filtro-conteudo {
-    max-height: 300px;
-    overflow-y: auto;
-    transition: max-height 0.3s ease;
-  }
-
-  .filtro-conteudo.recolhido {
-    max-height: 0;
-    overflow: hidden;
-  }
-
-  .categoria-filtro-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: 8px;
-    margin-bottom: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid transparent;
-  }
-
-  .categoria-filtro-item:hover {
-    background: white;
-    border-color: var(--borda);
-  }
-
-  .categoria-filtro-item.ativo {
-    background: white;
-    border-color: var(--borda-ativa);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-
-  .categoria-filtro-checkbox {
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-    border: 2px solid var(--borda);
-    background: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-  }
-
-  .categoria-filtro-item.ativo .categoria-filtro-checkbox {
-    background: var(--azul);
-    border-color: var(--azul);
-  }
-
-  .categoria-filtro-checkbox svg {
-    width: 12px;
-    height: 12px;
-    color: white;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
-
-  .categoria-filtro-item.ativo .categoria-filtro-checkbox svg {
-    opacity: 1;
-  }
-
-  .categoria-filtro-cor {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .categoria-filtro-nome {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--ink);
-    flex: 1;
-  }
-
-  .contador-categoria {
-    font-size: 11px;
-    background: #e5e7eb;
-    color: #6b7280;
-    padding: 2px 6px;
-    border-radius: 10px;
-    min-width: 24px;
-    text-align: center;
-  }
-
-  .botoes-filtro {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid var(--borda);
-  }
-
-  .btn-filtro {
-    flex: 1;
-    padding: 8px;
-    border-radius: 6px;
-    border: 1px solid var(--borda);
-    background: white;
-    color: var(--ink);
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-  }
-
-  .btn-filtro:hover {
-    background: #f3f8ff;
-    border-color: var(--borda-ativa);
-  }
-
-  .btn-filtro.ativo {
-    background: var(--azul);
-    color: white;
-    border-color: var(--azul);
-  }
-
-  /* LEGENDA */
-  .legenda-container {
-    background: var(--card);
-    border: 1px solid var(--borda);
-    border-radius: 14px;
-    padding: 20px;
-    box-shadow: 0 10px 30px rgba(11,78,167,.06);
-    margin-bottom: 20px;
-  }
-
-  .legenda-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    cursor: pointer;
-    padding: 12px 16px;
-    border-radius: 10px;
-    background: #f8f9fa;
-    border: 1px solid var(--borda);
-    transition: all 0.2s ease;
-  }
-
-  .legenda-header:hover {
-    background: #f3f8ff;
-    border-color: var(--borda-ativa);
-  }
-
-  .legenda-header h3 {
-    margin: 0;
-    font-size: 16px;
-    color: var(--ink-strong);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .legenda-header h3 svg {
-    width: 18px;
-    height: 18px;
-    transition: transform 0.3s ease;
-  }
-
-  .legenda-header.ativo h3 svg {
-    transform: rotate(180deg);
-  }
-
-  .legenda-conteudo {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-  }
-
-  .legenda-conteudo.ativo {
-    max-height: 500px;
-    overflow-y: auto;
-  }
-
-  .legenda-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 16px;
-    padding: 16px 0;
-  }
-
-  .legenda-item {
-    padding: 16px;
-    border-radius: 10px;
-    background: #f8f9fa;
-    border: 1px solid var(--borda);
-    transition: all 0.2s ease;
-  }
-
-  .legenda-item:hover {
-    background: white;
-    border-color: var(--borda-ativa);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  }
-
-  .legenda-item-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-
-  .legenda-icone-grande {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .legenda-icone-grande svg {
-    width: 18px;
-    height: 18px;
-    color: white;
-  }
-
-  .legenda-titulo {
-    font-weight: 600;
-    color: var(--ink-strong);
-    font-size: 15px;
-  }
-
-  .legenda-desc {
-    font-size: 13px;
-    color: var(--muted);
-    line-height: 1.5;
-  }
-
-  .legenda-detalhes {
-    margin-top: 12px;
-    padding: 12px;
-    background: white;
-    border-radius: 8px;
-    border-left: 4px solid var(--borda);
-    font-size: 13px;
-    color: var(--ink);
-    line-height: 1.5;
-  }
-
-  .legenda-item.destaque {
-    background: #f0f7ff;
-    border-color: var(--azul);
-    box-shadow: 0 4px 12px rgba(0,123,255,0.1);
-  }
-
-  /* TAREFAS DO DIA */
-  .tarefas-dia {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 16px;
-  }
-
-  .tarefa-card {
-    background: var(--fundo);
-    border: 1px solid var(--borda);
-    border-radius: 12px;
-    padding: 18px;
-    transition: all 0.2s ease;
-    border-left: 4px solid var(--azul);
-  }
-
-  .tarefa-card:hover {
-    border-color: var(--borda-ativa);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    transform: translateY(-2px);
-  }
-
-  .tarefa-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 12px;
-  }
-
-  .tarefa-titulo {
-    font-weight: 600;
-    color: var(--ink-strong);
-    font-size: 15px;
-    line-height: 1.4;
-    flex: 1;
-  }
-
-  .tarefa-icone {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid transparent;
-    flex-shrink: 0;
-    margin-left: 12px;
-  }
-
-  .tarefa-icone:hover {
-    transform: scale(1.1);
-    border-color: white;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  }
-
-  .tarefa-icone svg {
-    width: 16px;
-    height: 16px;
-    color: white;
-  }
-
-  .tarefa-desc {
-    font-size: 14px;
-    color: var(--ink);
-    line-height: 1.5;
-    margin-bottom: 12px;
-  }
-
-  .tarefa-pessoa {
-    display: inline-block;
-    background: #e3f2fd;
-    color: var(--azul);
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
-    margin-top: 8px;
-  }
-
-  .sem-tarefas {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--muted);
-    grid-column: 1 / -1;
-  }
-
-  .sem-tarefas svg {
-    width: 64px;
-    height: 64px;
-    opacity: 0.5;
-    margin-bottom: 16px;
-  }
-
-  /* CATEGORIAS */
-  .categoria-N1 { border-left-color: var(--danger); }
-  .categoria-N2 { border-left-color: var(--azul); }
-  .categoria-N3 { border-left-color: var(--cinza-escuro); }
-  .categoria-N4 { border-left-color: var(--success); }
-  .categoria-N5 { border-left-color: var(--laranja); }
-  .categoria-N6 { border-left-color: var(--roxo); }
-  .categoria-N7 { border-left-color: #5d4037; }
-  .categoria-N8 { border-left-color: var(--teal); }
-  .categoria-N9 { border-left-color: #f4511e; }
-  .categoria-N10 { border-left-color: #00acc1; }
-  .categoria-N11 { border-left-color: #2e7d32; }
-
-  .categoria-N1 .tarefa-icone { background: var(--danger); }
-  .categoria-N2 .tarefa-icone { background: var(--azul); }
-  .categoria-N3 .tarefa-icone { background: var(--cinza-escuro); }
-  .categoria-N4 .tarefa-icone { background: var(--success); }
-  .categoria-N5 .tarefa-icone { background: var(--laranja); }
-  .categoria-N6 .tarefa-icone { background: var(--roxo); }
-  .categoria-N7 .tarefa-icone { background: #5d4037; }
-  .categoria-N8 .tarefa-icone { background: var(--teal); }
-  .categoria-N9 .tarefa-icone { background: #f4511e; }
-  .categoria-N10 .tarefa-icone { background: #00acc1; }
-  .categoria-N11 .tarefa-icone { background: #2e7d32; }
-
-  .legenda-N1 .legenda-icone-grande { background: var(--danger); }
-  .legenda-N2 .legenda-icone-grande { background: var(--azul); }
-  .legenda-N3 .legenda-icone-grande { background: var(--cinza-escuro); }
-  .legenda-N4 .legenda-icone-grande { background: var(--success); }
-  .legenda-N5 .legenda-icone-grande { background: var(--laranja); }
-  .legenda-N6 .legenda-icone-grande { background: var(--roxo); }
-  .legenda-N7 .legenda-icone-grande { background: #5d4037; }
-  .legenda-N8 .legenda-icone-grande { background: var(--teal); }
-  .legenda-N9 .legenda-icone-grande { background: #f4511e; }
-  .legenda-N10 .legenda-icone-grande { background: #00acc1; }
-  .legenda-N11 .legenda-icone-grande { background: #2e7d32; }
-
-  /* INFO BOXES */
-  .info-box {
-    background: #f0f7ff;
-    padding: 16px;
-    border-radius: 10px;
-    border-left: 4px solid var(--azul);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .info-box svg {
-    width: 24px;
-    height: 24px;
-    color: var(--azul);
-    flex-shrink: 0;
-  }
-
-  .info-box p {
-    margin: 0;
-    color: var(--ink);
-    font-size: 14px;
-    line-height: 1.5;
-  }
-
-  .feriado-box {
-    background: #fff7f0;
-    border-left-color: var(--warn);
-  }
-
-  .feriado-box svg {
-    color: var(--warn);
-  }
-
-  /* SEARCH */
-  .search {
-    position: relative;
-    flex: 1 1 200px;
-  }
-
-  .search input {
-    width: 100%;
-    padding: 12px 40px 12px 40px;
-    border: 1px solid var(--borda);
-    border-radius: 12px;
-    background: #fbfdff;
-    color: var(--ink);
-    font-size: 14px;
-  }
-
-  .search svg {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 18px;
-    height: 18px;
-  }
-
-  .resultados-busca {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid var(--borda);
-    border-radius: 8px;
-    margin-top: 4px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    max-height: 300px;
-    overflow-y: auto;
-    z-index: 100;
-    display: none;
-  }
-
-  .resultado-item {
-    padding: 12px 16px;
-    cursor: pointer;
-    border-bottom: 1px solid var(--borda);
-    transition: background 0.2s ease;
-  }
-
-  .resultado-item:hover {
-    background: #f3f8ff;
-  }
-
-  .resultado-data {
-    font-weight: 600;
-    color: var(--ink-strong);
-    margin-bottom: 4px;
-  }
-
-  .resultado-tarefa {
-    font-size: 13px;
-    color: var(--ink);
-    margin-left: 8px;
-  }
-
-  /* ANIMAÇÕES */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .fade-in {
-    animation: fadeIn 0.3s ease;
-  }
-
-  /* RESPONSIVO */
-  @media (max-width: 768px) {
-    .rotinas-container {
-      grid-template-columns: 1fr;
+:root {
+  --bg: #eef3fb;
+  --surface: #ffffff;
+  --surface2: #f4f8ff;
+  --border: #dce8fb;
+  --border2: #c8d9f5;
+  --text-primary: #1a2740;
+  --text-secondary: #4e6080;
+  --text-muted: #8fa3bf;
+  --accent: #1a56db;
+  --accent-dark: #1040b0;
+  --accent-light: #e8f0fe;
+  --warn: #f59e0b;
+  --success: #10b981;
+  --danger: #ef4444;
+  --shadow-sm: 0 2px 8px rgba(20,60,120,0.07);
+  --shadow-md: 0 6px 24px rgba(20,60,120,0.10);
+  --shadow-lg: 0 14px 40px rgba(20,60,120,0.14);
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.55;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: radial-gradient(circle, #c0d0eb 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── SCROLLBAR ─────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c5d5ee; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #9ab5e0; }
+
+/* ── LAYOUT ────────────────────────────────────── */
+.app-wrapper {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.brand-icon {
+  width: 38px; height: 38px;
+  background: var(--accent);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(26,86,219,0.3);
+}
+.brand-icon svg { width: 20px; height: 20px; color: #fff; }
+
+.brand-name {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--accent);
+  line-height: 1.1;
+}
+.brand-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.topbar-search {
+  flex: 1;
+  max-width: 380px;
+  position: relative;
+}
+.topbar-search input {
+  width: 100%;
+  padding: 9px 14px 9px 38px;
+  border: 1.5px solid var(--border2);
+  border-radius: 99px;
+  background: var(--surface2);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  transition: border 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+.topbar-search input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(26,86,219,0.12);
+}
+.topbar-search .search-icon {
+  position: absolute;
+  left: 12px; top: 50%;
+  transform: translateY(-50%);
+  width: 16px; height: 16px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.search-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0; right: 0;
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 200;
+  display: none;
+}
+.search-result-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.search-result-item:last-child { border-bottom: none; }
+.search-result-item:hover { background: var(--accent-light); }
+.sri-date { font-weight: 600; font-size: 0.85rem; color: var(--accent); margin-bottom: 2px; }
+.sri-task { font-size: 0.82rem; color: var(--text-secondary); padding-left: 6px; }
+
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.btn-print {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text-secondary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-print svg { width: 15px; height: 15px; flex-shrink: 0; }
+.btn-print:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.btn-print.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(26,86,219,0.25);
+}
+.btn-print.primary:hover {
+  background: var(--accent-dark);
+  border-color: var(--accent-dark);
+}
+
+/* ── BODY LAYOUT ───────────────────────────────── */
+.body-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 0;
+  height: calc(100vh - 64px);
+}
+
+/* ── SIDEBAR ───────────────────────────────────── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.sidebar-section {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-section:last-child { border-bottom: none; }
+
+.sidebar-section-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-section-title button {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+.sidebar-section-title button:hover { color: var(--accent-dark); }
+
+/* ── DAYS LIST ─────────────────────────────────── */
+.day-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  margin-bottom: 3px;
+  transition: all 0.18s;
+  border: 1.5px solid transparent;
+  position: relative;
+}
+.day-item:hover {
+  background: var(--accent-light);
+  border-color: var(--border2);
+}
+.day-item.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(26,86,219,0.25);
+}
+.day-item .day-cb {
+  width: 15px; height: 15px;
+  border-radius: 4px;
+  border: 1.5px solid var(--border2);
+  cursor: pointer;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+}
+.day-item.active .day-cb { border-color: rgba(255,255,255,0.5); }
+.day-item .day-cal {
+  width: 15px; height: 15px;
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+.day-item.active .day-cal { opacity: 0.8; }
+.day-label {
+  font-size: 0.83rem;
+  font-weight: 500;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.day-item.today-item:not(.active) {
+  background: #fff8e6;
+  border-color: #fde68a;
+}
+.today-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: var(--warn);
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 99px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.day-item.active .today-badge { background: rgba(255,255,255,0.3); color: #fff; }
+
+/* ── FILTER ITEMS ──────────────────────────────── */
+.filter-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  margin-bottom: 3px;
+  transition: all 0.18s;
+  border: 1.5px solid transparent;
+}
+.filter-item:hover {
+  background: var(--surface2);
+  border-color: var(--border);
+}
+.filter-item.active {
+  background: var(--surface2);
+  border-color: var(--border2);
+}
+
+.filter-check {
+  width: 17px; height: 17px;
+  border-radius: 5px;
+  border: 2px solid var(--border2);
+  background: white;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: all 0.18s;
+}
+.filter-item.active .filter-check {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.filter-check svg { width: 10px; height: 10px; color: white; opacity: 0; transition: opacity 0.18s; }
+.filter-item.active .filter-check svg { opacity: 1; }
+
+.filter-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.filter-info { flex: 1; min-width: 0; }
+.filter-name {
+  font-size: 0.83rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.filter-count {
+  display: inline-block;
+  font-size: 0.7rem;
+  background: #e5e7eb;
+  color: var(--text-secondary);
+  padding: 1px 6px;
+  border-radius: 99px;
+  margin-left: 4px;
+  vertical-align: middle;
+  font-weight: 600;
+}
+
+/* Day tags shown under category filter */
+.filter-days-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 5px;
+}
+.day-tag {
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: var(--accent-light);
+  color: var(--accent);
+  padding: 1px 6px;
+  border-radius: 99px;
+  border: 1px solid #c5d5f8;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.day-tag:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* Person filter items (simpler) */
+.person-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 99px;
+  border: 1.5px solid var(--border2);
+  background: white;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s;
+  margin: 2px;
+  color: var(--text-secondary);
+}
+.person-chip:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.person-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.person-chip svg { width: 12px; height: 12px; }
+
+/* ── MAIN AREA ──────────────────────────────────── */
+.main-area {
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── LEGEND ─────────────────────────────────────── */
+.legend-panel {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.legend-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  cursor: pointer;
+  background: var(--surface2);
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--accent);
+  transition: background 0.18s;
+  border-bottom: 1px solid var(--border);
+}
+.legend-toggle:hover { background: var(--accent-light); }
+.legend-toggle svg { width: 18px; height: 18px; flex-shrink: 0; }
+.legend-toggle .arrow {
+  margin-left: auto;
+  width: 16px; height: 16px;
+  color: var(--text-muted);
+  transition: transform 0.25s;
+}
+.legend-toggle.open .arrow { transform: rotate(180deg); }
+
+.legend-body {
+  display: none;
+  padding: 16px;
+}
+.legend-body.open { display: block; }
+
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.legend-card {
+  background: var(--surface2);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  border-left: 5px solid;
+  transition: box-shadow 0.18s, transform 0.18s;
+}
+.legend-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.legend-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.legend-cat-icon {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+.legend-cat-icon svg { width: 16px; height: 16px; color: #fff; }
+.legend-cat-name {
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+}
+.legend-cat-code {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.legend-cat-desc {
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+.legend-cat-details {
+  font-size: 0.81rem;
+  background: white;
+  padding: 8px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+/* ── CONTENT PANEL ──────────────────────────────── */
+.content-panel {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.content-header {
+  padding: 16px 20px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.content-header h2 {
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  flex: 1;
+}
+.content-header h2 .h2-date {
+  color: var(--accent);
+}
+.content-header h2 .h2-holiday {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--warn);
+  margin-left: 6px;
+}
+.btn-print-day {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 7px;
+  border: 1.5px solid var(--border2);
+  background: white;
+  color: var(--text-secondary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.btn-print-day svg { width: 13px; height: 13px; }
+.btn-print-day:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.content-body { padding: 20px; }
+
+/* ── TASKS GRID ─────────────────────────────────── */
+.tasks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.task-card {
+  background: var(--surface2);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  border-left: 5px solid;
+  border: 1px solid var(--border);
+  border-left-width: 5px;
+  transition: all 0.18s;
+  animation: slideUp 0.25s ease both;
+}
+.task-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.task-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.task-icon {
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.15s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.task-icon:hover { transform: scale(1.1); }
+.task-icon svg { width: 15px; height: 15px; color: #fff; }
+.task-title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  line-height: 1.4;
+  flex: 1;
+}
+.task-desc {
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  line-height: 1.45;
+}
+.task-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--accent-light);
+  color: var(--accent);
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+.task-person svg { width: 11px; height: 11px; }
+
+/* ── EMPTY STATE ────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 56px 20px;
+  color: var(--text-muted);
+}
+.empty-state svg {
+  width: 56px; height: 56px;
+  opacity: 0.35;
+  margin-bottom: 12px;
+}
+.empty-state p { font-size: 0.92rem; }
+
+/* ── EMPTY ALL-TASKS MSG ────────────────────────── */
+.no-day-selected {
+  text-align: center;
+  padding: 72px 20px;
+  color: var(--text-muted);
+}
+.no-day-selected .big-icon {
+  width: 72px; height: 72px;
+  background: var(--accent-light);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+}
+.no-day-selected .big-icon svg { width: 36px; height: 36px; color: var(--accent); opacity: 0.7; }
+.no-day-selected h3 {
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.no-day-selected p { font-size: 0.87rem; }
+
+/* ── HOLIDAY/NO SHIFT BOX ───────────────────────── */
+.info-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: var(--radius-sm);
+  background: #fff8e6;
+  border-left: 5px solid var(--warn);
+  color: #7a5800;
+  font-size: 0.9rem;
+}
+.info-box svg { width: 22px; height: 22px; color: var(--warn); flex-shrink: 0; }
+
+/* ── BACK TO TOP ────────────────────────────────── */
+.btn-top {
+  position: fixed;
+  bottom: 20px; right: 20px;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 14px rgba(26,86,219,0.35);
+  transition: all 0.2s;
+  z-index: 50;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+}
+.btn-top.show { opacity: 1; visibility: visible; transform: translateY(0); }
+.btn-top:hover { background: var(--accent-dark); transform: translateY(-2px); }
+.btn-top svg { width: 18px; height: 18px; }
+
+/* ── FILTER TOGGLE BUTTONS ──────────────────────── */
+.filter-toggle-btns {
+  display: flex;
+  gap: 5px;
+}
+.ftb {
+  flex: 1;
+  padding: 5px 8px;
+  border: 1.5px solid var(--border2);
+  border-radius: 7px;
+  background: white;
+  color: var(--text-secondary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  text-align: center;
+}
+.ftb:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+
+/* ── ACTIVE FILTERS BAR ─────────────────────────── */
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  background: #f0f6ff;
+  align-items: center;
+}
+.active-filters:empty { display: none; }
+.active-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: var(--accent);
+  color: white;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.active-filter-chip button {
+  background: none; border: none; color: white; cursor: pointer;
+  padding: 0; line-height: 1; font-size: 14px; opacity: 0.7;
+  transition: opacity 0.15s;
+}
+.active-filter-chip button:hover { opacity: 1; }
+.active-filters-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-right: 2px;
+}
+.btn-clear-all {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  padding: 2px 6px;
+  border-radius: 5px;
+  transition: background 0.15s;
+}
+.btn-clear-all:hover { background: var(--accent-light); }
+
+/* ── RESPONSIVE ─────────────────────────────────── */
+@media (max-width: 900px) {
+  .body-layout { grid-template-columns: 1fr; height: auto; }
+  .sidebar { max-height: 360px; border-right: none; border-bottom: 1px solid var(--border); }
+  .topbar-actions { display: none; }
+  .tasks-grid { grid-template-columns: 1fr; }
+  .legend-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .topbar { padding: 0 14px; gap: 10px; }
+  .main-area { padding: 14px; }
+  .brand-sub { display: none; }
+}
+
+/* ── ACTIVE FILTER DAY HIGHLIGHTED IN SIDEBAR ───── */
+.day-item.has-filter-match:not(.active) {
+  border-color: var(--border2);
+  background: #f0f7ff;
+}
+</style>
+</head>
+<body>
+<div class="app-wrapper">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">Rotinas Diárias</div>
+        <div class="brand-sub">Fev/Mar 2026</div>
+      </div>
+    </div>
+
+    <div class="topbar-search">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" id="search-input" placeholder="Buscar tarefas, categorias, pessoas…" autocomplete="off">
+      <div class="search-dropdown" id="search-dropdown"></div>
+    </div>
+
+    <div class="topbar-actions">
+      <button class="btn-print" id="btn-print-day">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir Dia
+      </button>
+      <button class="btn-print" id="btn-print-selected">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir Selecionados
+      </button>
+      <button class="btn-print primary" id="btn-print-all">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir Tudo
+      </button>
+    </div>
+  </header>
+
+  <div class="body-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <!-- Days -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">
+          <span>Dias</span>
+          <div style="display:flex;gap:4px;">
+            <button id="btn-sel-all-days" title="Selecionar todos">Sel. todos</button>
+            <button id="btn-clear-days" title="Limpar seleção">Limpar</button>
+          </div>
+        </div>
+        <div id="days-list"></div>
+      </div>
+
+      <!-- Category Filter -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">
+          <span>Filtrar por Categoria</span>
+          <div style="display:flex;gap:4px;">
+            <button id="btn-sel-all-cats">Todas</button>
+            <button id="btn-clear-cats">Nenhuma</button>
+          </div>
+        </div>
+        <div id="cat-filter-list"></div>
+      </div>
+
+      <!-- Person Filter -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">
+          <span>Filtrar por Pessoa</span>
+          <button id="btn-clear-persons">Limpar</button>
+        </div>
+        <div id="person-filter-list" style="display:flex;flex-wrap:wrap;gap:4px;padding: 2px 0;"></div>
+      </div>
+
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-area" id="main-area">
+
+      <!-- Active Filters Bar -->
+      <div class="active-filters" id="active-filters-bar"></div>
+
+      <!-- Legend -->
+      <div class="legend-panel" id="legend-panel">
+        <button class="legend-toggle" id="legend-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          Legenda das Categorias
+          <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="legend-body" id="legend-body">
+          <div class="legend-grid" id="legend-grid"></div>
+        </div>
+      </div>
+
+      <!-- Content Panel -->
+      <div class="content-panel" id="content-panel">
+        <div class="content-header">
+          <h2 id="content-title">
+            <span class="h2-date">Selecione um dia</span>
+          </h2>
+          <button class="btn-print-day" id="content-print-day">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Imprimir
+          </button>
+        </div>
+        <div class="content-body" id="content-body">
+          <div class="no-day-selected">
+            <div class="big-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
+            </div>
+            <h3>Nenhum dia selecionado</h3>
+            <p>Clique em um dia na barra lateral para visualizar as tarefas.</p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<button class="btn-top" id="btn-top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<script>
+(function () {
+'use strict';
+
+// ── SVG ICONS ────────────────────────────────────────────────────────────────
+const ICONS = {
+  chat: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+  box: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`,
+  coffee: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>`,
+  map: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>`,
+  clipboard: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>`,
+  dollarSign: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+  handshake: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"/></svg>`,
+  fileText: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
+  landmark: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>`,
+  cart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>`,
+  upload: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>`,
+  download: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>`,
+  clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  creditCard: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>`,
+  receipt: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/></svg>`,
+  banknote: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="22" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>`,
+  coins: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><line x1="16.71" y1="13.88" x2="13.29" y2="10.47"/></svg>`,
+  barChart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>`,
+  refreshCcw: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>`,
+  pin: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
+  user: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  info: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+  cal: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>`,
+};
+
+// ── DATA ─────────────────────────────────────────────────────────────────────
+const categorias = {
+  N1:  { nome: "Cobranças WhatsApp",         descricao: "Fazer cobranças no WhatsApp dos clientes",                       detalhes: "Tirar relatório de cobranças, procurar cliente no WhatsApp e mandar mensagem pronta. Cobrar comprovante se necessário.",                                                                               cor: "#ef4444", icon: "chat" },
+  N2:  { nome: "Pedidos Clientes",            descricao: "Mandar mensagem para clientes pedindo pedido",                    detalhes: "Na web do sistema, vá em telemarketing, olhe clientes sem pedido e peça para enviarem. Horário: 9:00-9:30.",                                                                                       cor: "#007BFF", icon: "box" },
+  N3:  { nome: "Pedir Café",                  descricao: "Pedir café para produção caso precise",                           detalhes: "Confirmar na produção (embalagem ou setor Ceará) se precisa de café para quem fica até mais tarde.",                                                                                              cor: "#5d4037", icon: "coffee" },
+  N4:  { nome: "Montagem Rotas",              descricao: "Montagem das rotas de entrega",                                   detalhes: "Confira a seção de montagem rotas nas anotações do site.",                                                                                                                                         cor: "#10b981", icon: "map" },
+  N5:  { nome: "Lista Embalagem",             descricao: "Pegar lista da embalagem São José e Pão Total",                   detalhes: "Pegar ou pedir que tragam a lista. Se perderam, perguntar ao Guilherme ou Kauan o que faltou.",                                                                                                  cor: "#fb8c00", icon: "clipboard" },
+  N6:  { nome: "Fechamento Caixas",           descricao: "Fechamento de caixas (Barão)",                                    detalhes: "Confira a seção de fechamento caixas nas anotações do site.",                                                                                                                                     cor: "#8a2be2", icon: "dollarSign" },
+  N7:  { nome: "Café Sábado",                 descricao: "Pedir café para sábado caso precise",                             detalhes: "Se tiver produção sábado, pedir café na padaria para o número de pessoas e solicitar entrega na fábrica.",                                                                                      cor: "#5d4037", icon: "coffee" },
+  N8:  { nome: "Acerto Célio",                descricao: "Acerto com o fornecedor Célio",                                   detalhes: "Confira o tópico Célio (pagamentos e pix) na seção fornecedores.",                                                                                                                                 cor: "#00897b", icon: "handshake" },
+  N9:  { nome: "Lista São José",              descricao: "Fazer lista da São José e Pão Total",                             detalhes: "Confira o tópico São José na seção geral.",                                                                                                                                                        cor: "#f4511e", icon: "fileText" },
+  N10: { nome: "Adiantamento Salarial",       descricao: "Adiantamento salarial no banco",                                  detalhes: "No banco: folha de pagamento → cadastrar → data, funcionários, valores. Depois processar com autenticação de dois fatores.",                                                                      cor: "#00acc1", icon: "landmark" },
+  N11: { nome: "Cheques Início do Mês",       descricao: "Fazer cheques do início do mês",                                  detalhes: "Confira o tópico Cheques Início e Final de Mês na seção geral.",                                                                                                                                   cor: "#2e7d32", icon: "fileText" },
+  N12: { nome: "Pedido São José",             descricao: "Realizar pedido da São José",                                     detalhes: "Fazer o pedido de compras para a São José conforme necessidade do setor.",                                                                                                                          cor: "#9c27b0", icon: "cart" },
+  N13: { nome: "Passar Embalagem São José",   descricao: "Passar embalagem do pedido São José",                             detalhes: "Encaminhar o pedido para o setor de embalagem.",                                                                                                                                                    cor: "#ff9800", icon: "upload" },
+  N14: { nome: "Pegar Embalagem São José",    descricao: "Pegar embalagem do pedido São José",                              detalhes: "Pegar ou pedir que tragam a lista. Se perderam, perguntar ao Guilherme ou Kauan o que faltou.",                                                                                                  cor: "#4caf50", icon: "download" },
+  N15: { nome: "Lista Hora Extra",            descricao: "Fazer lista de quem vai ficar depois do horário",                 detalhes: "Anotar os funcionários que irão fazer hora extra para controle e pagamento.",                                                                                                                       cor: "#795548", icon: "clock" },
+  N16: { nome: "Faturar Pedidos São José",    descricao: "Faturar os pedidos da São José no sistema",                       detalhes: "Realizar o faturamento dos pedidos da São José conforme rotina.",                                                                                                                                   cor: "#2196f3", icon: "creditCard" },
+  N17: { nome: "Lançar Notinhas",             descricao: "Lançar notas de compras e almoxarifado",                          detalhes: "Inserir no sistema as notinhas de compras.",                                                                                                                                                        cor: "#9e9e9e", icon: "receipt" },
+  N18: { nome: "Passar Dinheiro Hora Extra",  descricao: "Passar dinheiro para quem fez hora extra na semana",              detalhes: "Calcular e entregar o valor referente às horas extras da semana.",                                                                                                                                  cor: "#ffc107", icon: "banknote" },
+  N19: { nome: "Separar Dinheiro Sábado",     descricao: "Separar dinheiro para produção de sábado",                        detalhes: "Separar pagamento para produção no sábado.",                                                                                                                                                        cor: "#ff5722", icon: "coins" },
+  N20: { nome: "Entregar Planilhas",          descricao: "Entregar planilhas de autocontrole",                               detalhes: "Entregar as planilhas preenchidas de autocontrole para o setor responsável.",                                                                                                                      cor: "#607d8b", icon: "barChart" },
+  N21: { nome: "Atualização Comodatos",       descricao: "Atualizar contratos de comodato",                                  detalhes: "Revisar e atualizar os contratos de comodato.",                                                                                                                                                     cor: "#3f51b5", icon: "refreshCcw" },
+};
+
+const rotinas = [
+  { data: "23/02/2026", diaSemana: "Segunda-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
+    { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
+    { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "" },
+    { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "" },
+    { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+    { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+  ]},
+  { data: "24/02/2026", diaSemana: "Terça-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+    { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" },
+    { titulo: "Faturar pedidos São José", categoria: "N16", descricao: "", pessoa: "" },
+    { titulo: "Lançar notinhas de compras, almoxarifado", categoria: "N17", descricao: "", pessoa: "" }
+  ]},
+  { data: "25/02/2026", diaSemana: "Quarta-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
+    { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+    { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+  ]},
+  { data: "26/02/2026", diaSemana: "Quinta-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
+    { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+    { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" },
+    { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "" }
+  ]},
+  { data: "27/02/2026", diaSemana: "Sexta-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
+    { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "" },
+    { titulo: "Passar dinheiro de quem ficou depois do horário na semana", categoria: "N18", descricao: "", pessoa: "" },
+    { titulo: "Acerto Célio e ajudantes", categoria: "N8", descricao: "", pessoa: "" },
+    { titulo: "Pedir café para sábado", categoria: "N7", descricao: "", pessoa: "" },
+    { titulo: "Separar dinheiro para sábado", categoria: "N19", descricao: "", pessoa: "" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+  ]},
+  { data: "02/03/2026", diaSemana: "Segunda-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
+    { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
+    { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "" },
+    { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "" },
+    { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+    { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+    { titulo: "Entregar planilhas de autocontrole", categoria: "N20", descricao: "", pessoa: "" },
+    { titulo: "Fazer cheques início do mês e frango machado", categoria: "N11", descricao: "", pessoa: "" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+  ]},
+  { data: "03/03/2026", diaSemana: "Terça-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+    { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" },
+    { titulo: "Faturar pedidos São José", categoria: "N16", descricao: "", pessoa: "" },
+    { titulo: "Lançar notinhas de compras, almoxarifado", categoria: "N17", descricao: "", pessoa: "" },
+    { titulo: "Ajeitar Joice (caso esteja errado)", categoria: null, descricao: "", pessoa: "" }
+  ]},
+  { data: "04/03/2026", diaSemana: "Quarta-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "Gleyce" },
+    { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+    { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "Adeilton" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "Adeilton" }
+  ]},
+  { data: "05/03/2026", diaSemana: "Quinta-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "Emillie" },
+    { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+    { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "Adeilton" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "Adeilton" },
+    { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "Adeilton" }
+  ]},
+  { data: "06/03/2026", diaSemana: "Sexta-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "Gleyce" },
+    { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "Emillie" },
+    { titulo: "Passar dinheiro de quem ficou depois do horário na semana", categoria: "N18", descricao: "", pessoa: "Marina ou Barão" },
+    { titulo: "Acerto Célio e ajudantes", categoria: "N8", descricao: "", pessoa: "Marina ou Barão" },
+    { titulo: "Pedir café para sábado", categoria: "N7", descricao: "", pessoa: "Luiz Felipe" },
+    { titulo: "Separar dinheiro para sábado", categoria: "N19", descricao: "", pessoa: "Marina ou Barão" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "Adeilton" }
+  ]},
+  { data: "09/03/2026", diaSemana: "Segunda-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "Gleyce" },
+    { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "Emillie" },
+    { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "Escritório" },
+    { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "Emillie" },
+    { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+    { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "Adeilton" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "Adeilton" }
+  ]},
+  { data: "10/03/2026", diaSemana: "Terça-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+    { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "Adeilton" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "Adeilton" }
+  ]},
+  { data: "11/03/2026", diaSemana: "Quarta-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "Gleyce" },
+    { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+    { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "Adeilton" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "Adeilton" }
+  ]},
+  { data: "12/03/2026", diaSemana: "Quinta-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "Emillie" },
+    { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "Luiz Felipe" },
+    { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "Adeilton" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "Adeilton" },
+    { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "Adeilton" }
+  ]},
+  { data: "13/03/2026", diaSemana: "Sexta-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "Gleyce" },
+    { titulo: "Adiantamento salarial (13/03 para agendar 15/03)", categoria: "N10", descricao: "", pessoa: "Marina" },
+    { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "Emillie" },
+    { titulo: "Passar dinheiro de quem ficou depois do horário na semana", categoria: "N18", descricao: "", pessoa: "Marina ou Barão" },
+    { titulo: "Acerto Célio e ajudantes", categoria: "N8", descricao: "", pessoa: "Marina ou Barão" },
+    { titulo: "Pedir café para sábado", categoria: "N7", descricao: "", pessoa: "Luiz Felipe" },
+    { titulo: "Separar dinheiro para sábado", categoria: "N19", descricao: "", pessoa: "Marina ou Barão" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "Adeilton" }
+  ]},
+  { data: "16/03/2026", diaSemana: "Segunda-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
+    { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
+    { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "" },
+    { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "" },
+    { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+    { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+  ]},
+  { data: "17/03/2026", diaSemana: "Terça-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+    { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" },
+    { titulo: "Faturar pedidos São José", categoria: "N16", descricao: "", pessoa: "" },
+    { titulo: "Lançar notinhas de compras, almoxarifado", categoria: "N17", descricao: "", pessoa: "" },
+    { titulo: "Atualização comodatos", categoria: "N21", descricao: "", pessoa: "" }
+  ]},
+  { data: "18/03/2026", diaSemana: "Quarta-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
+    { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+    { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+  ]},
+  { data: "19/03/2026", diaSemana: "Quinta-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Pedido São José", categoria: "N12", descricao: "", pessoa: "" },
+    { titulo: "Pedir café", categoria: "N3", descricao: "", pessoa: "" },
+    { titulo: "Fazer lista de quem vai ficar depois do horário", categoria: "N15", descricao: "", pessoa: "" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" },
+    { titulo: "Passar embalagem pedido São José", categoria: "N13", descricao: "", pessoa: "" }
+  ]},
+  { data: "20/03/2026", diaSemana: "Sexta-feira", feriado: false, semExpediente: false, tarefas: [
+    { titulo: "Fazer as cobranças", categoria: "N1", descricao: "", pessoa: "" },
+    { titulo: "Pegar embalagem pedido São José", categoria: "N14", descricao: "", pessoa: "" },
+    { titulo: "Passar dinheiro de quem ficou depois do horário na semana", categoria: "N18", descricao: "", pessoa: "" },
+    { titulo: "Acerto Célio e ajudantes", categoria: "N8", descricao: "", pessoa: "" },
+    { titulo: "Pedir café para sábado", categoria: "N7", descricao: "", pessoa: "" },
+    { titulo: "Separar dinheiro para sábado", categoria: "N19", descricao: "", pessoa: "" },
+    { titulo: "Montagem rotas", categoria: "N4", descricao: "", pessoa: "" }
+  ]},
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+const state = {
+  activeDay: null,
+  selectedDays: new Set(),
+  selectedCats: new Set(),
+  selectedPersons: new Set(),
+  searchTerm: '',
+};
+
+// ── COMPUTED ──────────────────────────────────────────────────────────────────
+// Map: categoria -> list of dates it appears
+function buildCatDatesMap() {
+  const map = {};
+  Object.keys(categorias).forEach(k => map[k] = []);
+  rotinas.forEach(dia => {
+    dia.tarefas.forEach(t => {
+      if (t.categoria && map[t.categoria] !== undefined) {
+        if (!map[t.categoria].includes(dia.data)) map[t.categoria].push(dia.data);
+      }
+    });
+  });
+  return map;
+}
+
+// Collect all unique persons
+function buildPersonsList() {
+  const set = new Set();
+  rotinas.forEach(dia => {
+    dia.tarefas.forEach(t => {
+      if (t.pessoa && t.pessoa.trim()) {
+        // Split "Marina ou Barão" type entries
+        t.pessoa.split(/\s+ou\s+/i).forEach(p => {
+          const name = p.trim();
+          if (name) set.add(name);
+        });
+      }
+    });
+  });
+  return [...set].sort();
+}
+
+const catDatesMap = buildCatDatesMap();
+const allPersons = buildPersonsList();
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function dateToSortKey(d) {
+  const [dd, mm, yyyy] = d.split('/');
+  return new Date(yyyy, mm - 1, dd).getTime();
+}
+
+function getShortDate(d) {
+  // Returns "23/02" from "23/02/2026"
+  const parts = d.split('/');
+  return parts[0] + '/' + parts[1];
+}
+
+function personMatches(taskPessoa, filterPessoa) {
+  if (!taskPessoa) return false;
+  return taskPessoa.split(/\s+ou\s+/i).map(p => p.trim()).includes(filterPessoa);
+}
+
+// ── RENDER LEGEND ─────────────────────────────────────────────────────────────
+function renderLegend() {
+  const grid = document.getElementById('legend-grid');
+  let html = '';
+  for (const [cod, cat] of Object.entries(categorias)) {
+    const svg = ICONS[cat.icon] || ICONS.pin;
+    html += `
+      <div class="legend-card" style="border-left-color:${cat.cor};" id="legend-card-${cod}">
+        <div class="legend-card-header">
+          <div class="legend-cat-icon" style="background:${cat.cor};">${svg}</div>
+          <div>
+            <div class="legend-cat-code">${cod}</div>
+            <div class="legend-cat-name">${cat.nome}</div>
+          </div>
+        </div>
+        <div class="legend-cat-desc">${cat.descricao}</div>
+        <div class="legend-cat-details">${cat.detalhes}</div>
+      </div>`;
+  }
+  grid.innerHTML = html;
+}
+
+// ── RENDER DAYS SIDEBAR ───────────────────────────────────────────────────────
+function renderDaysList() {
+  const container = document.getElementById('days-list');
+  const todayStr = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const sorted = [...rotinas].sort((a, b) => dateToSortKey(a.data) - dateToSortKey(b.data));
+
+  let html = '';
+  sorted.forEach(dia => {
+    const isToday = dia.data === todayStr;
+    const isActive = state.activeDay === dia.data;
+    const isSelected = state.selectedDays.has(dia.data);
+
+    let extraClass = '';
+    if (isToday) extraClass += ' today-item';
+    if (isActive) extraClass += ' active';
+
+    html += `
+      <div class="day-item${extraClass}" data-date="${dia.data}">
+        <input type="checkbox" class="day-cb" data-date="${dia.data}" ${isSelected ? 'checked' : ''}>
+        <svg class="day-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
+        <span class="day-label">${dia.data} — ${dia.diaSemana.split('-')[0].trim()}</span>
+        ${isToday ? '<span class="today-badge">HOJE</span>' : ''}
+      </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+// ── RENDER CATEGORY FILTER ────────────────────────────────────────────────────
+function renderCatFilter() {
+  const container = document.getElementById('cat-filter-list');
+  let html = '';
+  for (const [cod, cat] of Object.entries(categorias)) {
+    const isActive = state.selectedCats.has(cod);
+    const dates = catDatesMap[cod] || [];
+    const count = dates.length > 0 ? dates.reduce((acc, d) => {
+      const dia = rotinas.find(r => r.data === d);
+      if (!dia) return acc;
+      return acc + dia.tarefas.filter(t => t.categoria === cod).length;
+    }, 0) : 0;
+
+    // Build day tags
+    const dayTagsHtml = dates.length > 0 ? `
+      <div class="filter-days-tags">
+        ${dates.sort((a,b) => dateToSortKey(a)-dateToSortKey(b)).map(d =>
+          `<span class="day-tag" data-date="${d}" title="Ir para ${d}">${getShortDate(d)}</span>`
+        ).join('')}
+      </div>` : '';
+
+    html += `
+      <div class="filter-item ${isActive ? 'active' : ''}" data-cat="${cod}">
+        <div class="filter-check">${ICONS.check}</div>
+        <div class="filter-dot" style="background:${cat.cor};margin-top:4px;"></div>
+        <div class="filter-info">
+          <div class="filter-name">${cat.nome} <span class="filter-count">${count}</span></div>
+          ${dayTagsHtml}
+        </div>
+      </div>`;
+  }
+  container.innerHTML = html;
+}
+
+// ── RENDER PERSON FILTER ──────────────────────────────────────────────────────
+function renderPersonFilter() {
+  const container = document.getElementById('person-filter-list');
+  let html = '';
+  allPersons.forEach(person => {
+    const isActive = state.selectedPersons.has(person);
+    html += `
+      <span class="person-chip ${isActive ? 'active' : ''}" data-person="${person}">
+        ${ICONS.user} ${person}
+      </span>`;
+  });
+  container.innerHTML = html;
+}
+
+// ── RENDER ACTIVE FILTERS BAR ─────────────────────────────────────────────────
+function renderActiveFiltersBar() {
+  const bar = document.getElementById('active-filters-bar');
+  const items = [];
+
+  state.selectedCats.forEach(cod => {
+    const cat = categorias[cod];
+    items.push(`<span class="active-filter-chip" style="background:${cat.cor};">
+      ${cat.nome} <button data-remove-cat="${cod}" title="Remover">×</button>
+    </span>`);
+  });
+
+  state.selectedPersons.forEach(person => {
+    items.push(`<span class="active-filter-chip" style="background:#4e6080;">
+      👤 ${person} <button data-remove-person="${person}" title="Remover">×</button>
+    </span>`);
+  });
+
+  if (items.length === 0) {
+    bar.innerHTML = '';
+    bar.style.display = 'none';
+    return;
+  }
+
+  bar.style.display = 'flex';
+  bar.innerHTML = `<span class="active-filters-label">Filtros:</span>${items.join('')}
+    <button class="btn-clear-all" id="btn-clear-all-filters">Limpar tudo</button>`;
+}
+
+// ── RENDER CONTENT PANEL ──────────────────────────────────────────────────────
+function renderContentPanel() {
+  if (!state.activeDay) {
+    document.getElementById('content-title').innerHTML = '<span class="h2-date">Selecione um dia</span>';
+    document.getElementById('content-body').innerHTML = `
+      <div class="no-day-selected">
+        <div class="big-icon">${ICONS.cal}</div>
+        <h3>Nenhum dia selecionado</h3>
+        <p>Clique em um dia na barra lateral para visualizar as tarefas.</p>
+      </div>`;
+    return;
+  }
+
+  const dia = rotinas.find(r => r.data === state.activeDay);
+  if (!dia) return;
+
+  // Update title
+  let titleHtml = `<span class="h2-date">${dia.data}</span> — ${dia.diaSemana}`;
+  if (dia.feriado) titleHtml += `<span class="h2-holiday">🎉 ${dia.feriadoNome}</span>`;
+  if (dia.semExpediente && !dia.feriado) titleHtml += `<span class="h2-holiday">🚫 Sem expediente</span>`;
+  document.getElementById('content-title').innerHTML = titleHtml;
+
+  const body = document.getElementById('content-body');
+
+  if (dia.semExpediente) {
+    body.innerHTML = `<div class="info-box">${ICONS.info}<p>${dia.feriado ? dia.feriadoNome : 'Sem expediente'} — Nenhuma tarefa agendada.</p></div>`;
+    return;
+  }
+
+  // Filter tasks
+  let tarefas = [...dia.tarefas];
+
+  if (state.selectedCats.size > 0) {
+    tarefas = tarefas.filter(t => t.categoria && state.selectedCats.has(t.categoria));
+  }
+
+  if (state.selectedPersons.size > 0) {
+    tarefas = tarefas.filter(t => {
+      if (!t.pessoa) return false;
+      return [...state.selectedPersons].some(p => personMatches(t.pessoa, p));
+    });
+  }
+
+  if (state.searchTerm) {
+    const term = state.searchTerm.toLowerCase();
+    tarefas = tarefas.filter(t =>
+      t.titulo.toLowerCase().includes(term) ||
+      (t.pessoa && t.pessoa.toLowerCase().includes(term)) ||
+      (t.categoria && categorias[t.categoria]?.nome.toLowerCase().includes(term))
+    );
+  }
+
+  if (tarefas.length === 0) {
+    body.innerHTML = `<div class="empty-state">${ICONS.info}<p>Nenhuma tarefa encontrada com os filtros aplicados.</p></div>`;
+    return;
+  }
+
+  let html = '<div class="tasks-grid">';
+  tarefas.forEach((t, i) => {
+    const cat = t.categoria ? categorias[t.categoria] : null;
+    const cor = cat ? cat.cor : '#94a3b8';
+    const iconSvg = cat ? (ICONS[cat.icon] || ICONS.pin) : ICONS.pin;
+    html += `
+      <div class="task-card" style="border-left-color:${cor}; animation-delay:${i * 0.04}s">
+        <div class="task-header">
+          <div class="task-icon" style="background:${cor};" data-cat="${t.categoria || ''}" title="${cat ? cat.nome : ''}">${iconSvg}</div>
+          <div class="task-title">${t.titulo}</div>
+        </div>
+        ${t.descricao ? `<div class="task-desc">${t.descricao}</div>` : ''}
+        ${t.pessoa ? `<div class="task-person">${ICONS.user} ${t.pessoa}</div>` : ''}
+      </div>`;
+  });
+  html += '</div>';
+  body.innerHTML = html;
+}
+
+// ── SEARCH ────────────────────────────────────────────────────────────────────
+function doSearch(term) {
+  const dd = document.getElementById('search-dropdown');
+  state.searchTerm = term.trim();
+
+  if (!state.searchTerm) {
+    dd.style.display = 'none';
+    renderContentPanel();
+    return;
+  }
+
+  const tLower = term.toLowerCase();
+  let results = [];
+
+  rotinas.forEach(dia => {
+    const matched = dia.tarefas.filter(t =>
+      t.titulo.toLowerCase().includes(tLower) ||
+      (t.pessoa && t.pessoa.toLowerCase().includes(tLower)) ||
+      (t.categoria && categorias[t.categoria]?.nome.toLowerCase().includes(tLower))
+    );
+    if (matched.length) {
+      results.push({ dia, matched });
     }
-    .dias-sidebar {
-      position: static;
-      margin-bottom: 20px;
-      max-height: none;
-    }
-    .tarefas-dia {
-      grid-template-columns: 1fr;
-    }
-    .legenda-grid {
-      grid-template-columns: 1fr;
-    }
+  });
+
+  if (!results.length) {
+    dd.innerHTML = '<div class="search-result-item"><span style="color:#999;">Nenhum resultado.</span></div>';
+    dd.style.display = 'block';
+    return;
   }
 
-  /* SCROLL TO TOP */
-  .btn-voltar-topo {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: var(--azul);
-    color: white;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(0,123,255,0.3);
-    transition: all 0.2s ease;
-    z-index: 50;
-    opacity: 0;
-    visibility: hidden;
-  }
+  let html = '';
+  results.forEach(({ dia, matched }) => {
+    html += `<div class="search-result-item" data-date="${dia.data}">
+      <div class="sri-date">${dia.data} — ${dia.diaSemana}</div>
+      ${matched.map(t => `<div class="sri-task">• ${t.titulo}</div>`).join('')}
+    </div>`;
+  });
+  dd.innerHTML = html;
+  dd.style.display = 'block';
 
-  .btn-voltar-topo.visivel {
-    opacity: 1;
-    visibility: visible;
-  }
+  // If current day is active, re-render with search filter
+  renderContentPanel();
+}
 
-  .btn-voltar-topo:hover {
-    background: var(--accent);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0,123,255,0.4);
-  }
+// ── PRINT ─────────────────────────────────────────────────────────────────────
+function buildPrintHTML(datasToprint) {
+  const sorted = [...datasToprint].sort((a, b) => dateToSortKey(a) - dateToSortKey(b));
 
-  .btn-voltar-topo svg {
-    width: 20px;
-    height: 20px;
-  }
+  // Collect used categories
+  const usedCats = new Set();
+  sorted.forEach(data => {
+    const dia = rotinas.find(r => r.data === data);
+    if (dia) dia.tarefas.forEach(t => { if (t.categoria) usedCats.add(t.categoria); });
+  });
 
-  /* ===== NOVOS ESTILOS DE IMPRESSÃO (baseados no segundo HTML) ===== */
+  const legendHtml = [...usedCats].map(cod => {
+    const cat = categorias[cod];
+    if (!cat) return '';
+    const svg = ICONS[cat.icon] || ICONS.pin;
+    return `
+      <div style="background:#f7faff;border-radius:12px;padding:12px 14px;border-left:5px solid ${cat.cor};break-inside:avoid;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <div style="width:30px;height:30px;border-radius:8px;background:${cat.cor};display:flex;align-items:center;justify-content:center;flex-shrink:0;">${svg}</div>
+          <div>
+            <div style="font-size:10px;font-weight:700;color:#8fa3bf;">${cod}</div>
+            <div style="font-family:Sora,sans-serif;font-weight:700;font-size:13px;color:#1a2740;">${cat.nome}</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:#4e6080;margin-bottom:6px;">${cat.descricao}</div>
+        <div style="font-size:11px;background:white;padding:7px 9px;border-radius:8px;border:1px solid #dce8fb;color:#1a2740;line-height:1.5;">${cat.detalhes}</div>
+      </div>`;
+  }).join('');
+
+  const diasHtml = sorted.map(data => {
+    const dia = rotinas.find(r => r.data === data);
+    if (!dia) return '';
+    const tarefasHtml = dia.semExpediente ? `<div style="background:#fff8e6;padding:12px;border-radius:10px;color:#7a5800;font-style:italic;">Sem expediente — Nenhuma tarefa agendada.</div>` :
+      dia.tarefas.map(t => {
+        const cat = t.categoria ? categorias[t.categoria] : null;
+        const cor = cat ? cat.cor : '#94a3b8';
+        const svg = cat ? (ICONS[cat.icon] || ICONS.pin) : ICONS.pin;
+        return `
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:#f7faff;border-radius:12px;border-left:5px solid ${cor};break-inside:avoid;margin-bottom:8px;">
+            <div style="width:30px;height:30px;border-radius:8px;background:${cor};display:flex;align-items:center;justify-content:center;flex-shrink:0;">${svg}</div>
+            <div style="flex:1;">
+              <div style="font-family:Sora,sans-serif;font-weight:700;font-size:13px;color:#1a2740;margin-bottom:2px;">${t.titulo}</div>
+              ${t.descricao ? `<div style="font-size:12px;color:#4e6080;">${t.descricao}</div>` : ''}
+              ${t.pessoa ? `<span style="display:inline-block;background:#e8f0fe;color:#1a56db;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600;margin-top:4px;">👤 ${t.pessoa}</span>` : ''}
+            </div>
+          </div>`;
+      }).join('');
+
+    return `
+      <div style="background:white;border-radius:20px;padding:20px;border:1px solid #dce8fb;break-inside:avoid;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:10px 16px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px dashed #d5e4fb;">
+          <span style="font-family:Sora,sans-serif;font-size:1.2rem;font-weight:700;color:#1a56db;background:#e8f0fe;padding:4px 16px;border-radius:40px;">${dia.data}</span>
+          <span style="font-size:1rem;font-weight:500;color:#4e6080;">${dia.diaSemana}</span>
+          ${dia.feriado ? `<span style="background:#fff8e6;color:#7a5800;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600;border:1px solid #fde68a;">🎉 ${dia.feriadoNome}</span>` : ''}
+        </div>
+        ${tarefasHtml}
+      </div>`;
+  }).join('');
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Rotinas Diárias — Impressão</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; color: #1a2740; background: white; padding: 28px; }
+  svg { display: inline-block; vertical-align: middle; }
   @media print {
-    /* Esconde elementos não desejados */
-    .toolbar,
-    .legenda-container,
-    .dias-sidebar,
-    .conteudo-header-acoes,
-    .btn-voltar-topo,
-    .search,
-    .btn-toolbar,
-    .filtro-categorias {
-      display: none !important;
-    }
-
-    /* Ajustes gerais */
-    body {
-      background: white !important;
-      font-family: 'Segoe UI', Roboto, system-ui, sans-serif !important;
-      color: #1e293b !important;
-      line-height: 1.5 !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-
-    .wrap {
-      max-width: 1000px !important;
-      margin: 0 auto !important;
-      padding: 20px !important;
-    }
-
-    /* Container de impressão */
-    .print-container {
-      width: 100%;
-    }
-
-    /* Título e subtítulo */
-    .print-title {
-      font-size: 2rem;
-      font-weight: 600;
-      color: #0b4f8b;
-      margin-bottom: 0.25rem;
-      border-left: 6px solid #0b4f8b;
-      padding-left: 1rem;
-    }
-
-    .print-subtitle {
-      color: #475569;
-      margin-bottom: 2rem;
-      font-size: 1.1rem;
-      margin-left: 1.2rem;
-    }
-
-    /* Legenda */
-    .print-legenda {
-      background: white;
-      border-radius: 20px;
-      padding: 1.2rem;
-      margin-bottom: 2rem;
-      border: 1px solid #e2edff;
-      page-break-inside: avoid;
-    }
-
-    .print-legenda h3 {
-      font-weight: 600;
-      font-size: 1.2rem;
-      color: #0b4f8b;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-top: 0;
-      margin-bottom: 1rem;
-    }
-
-    .print-legenda-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1rem;
-    }
-
-    .print-legenda-item {
-      background: #f8fcff;
-      border-radius: 16px;
-      padding: 1rem;
-      border-left: 5px solid;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-      page-break-inside: avoid;
-    }
-
-    .print-legenda-titulo {
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .print-legenda-icone {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #007BFF;
-      color: white;
-      font-size: 14px;
-    }
-
-    .print-legenda-icone svg {
-      width: 14px;
-      height: 14px;
-      color: white;
-    }
-
-    .print-legenda-desc {
-      font-size: 0.95rem;
-      color: #334155;
-      margin-bottom: 0.5rem;
-    }
-
-    .print-legenda-detalhes {
-      font-size: 0.9rem;
-      background: white;
-      padding: 0.75rem;
-      border-radius: 12px;
-      border: 1px solid #dbeafe;
-      color: #1e3a5f;
-    }
-
-    /* Dias */
-    .print-dias-container {
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-    }
-
-    .print-dia-card {
-      background: white;
-      border-radius: 24px;
-      padding: 1.5rem;
-      border: 1px solid #e0edff;
-      page-break-inside: avoid;
-    }
-
-    .print-dia-cabecalho {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 0.75rem 1.5rem;
-      margin-bottom: 1.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 2px dashed #cbd5e1;
-    }
-
-    .print-dia-data {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #0b4f8b;
-      background: #e8f0fe;
-      padding: 0.3rem 1.2rem;
-      border-radius: 40px;
-      letter-spacing: 0.5px;
-    }
-
-    .print-dia-semana {
-      font-size: 1.2rem;
-      font-weight: 500;
-      color: #2c3e50;
-    }
-
-    .print-dia-observacao {
-      background: #fff3cd;
-      color: #856404;
-      padding: 0.3rem 1rem;
-      border-radius: 30px;
-      font-size: 0.95rem;
-      font-weight: 500;
-      border: 1px solid #ffe69c;
-    }
-
-    /* Tarefas */
-    .print-tarefas-lista {
-      display: flex;
-      flex-direction: column;
-      gap: 0.8rem;
-    }
-
-    .print-tarefa-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.8rem;
-      padding: 0.8rem 1rem;
-      background: #fafdff;
-      border-radius: 18px;
-      border-left: 6px solid;
-      page-break-inside: avoid;
-    }
-
-    .print-tarefa-icone {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      background: #007BFF;
-      color: white;
-    }
-
-    .print-tarefa-icone svg {
-      width: 16px;
-      height: 16px;
-      color: white;
-    }
-
-    .print-tarefa-conteudo {
-      flex: 1;
-    }
-
-    .print-tarefa-titulo {
-      font-weight: 600;
-      font-size: 1.05rem;
-      margin-bottom: 0.2rem;
-    }
-
-    .print-tarefa-descricao {
-      font-size: 0.95rem;
-      color: #475569;
-    }
-
-    .print-tarefa-pessoa {
-      display: inline-block;
-      background: #dbeafe;
-      color: #0b4f8b;
-      padding: 0.2rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      margin-top: 0.3rem;
-    }
-
-    .print-sem-tarefas {
-      font-style: italic;
-      color: #6b7280;
-      background: #f1f5f9;
-      padding: 1rem;
-      border-radius: 16px;
-      text-align: center;
-    }
-
-    .print-footer {
-      margin-top: 3rem;
-      text-align: center;
-      color: #64748b;
-      font-size: 0.9rem;
-      border-top: 1px solid #cbd5e1;
-      padding-top: 1.5rem;
-    }
+    @page { margin: 16mm 14mm; }
+    body { padding: 0; }
   }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>Rotinas Diárias</h1>
-    <p class="lead">Sistema organizado de rotinas por dia da semana — Dados carregados de rotina-cronograma.html</p>
-  </header>
-
-  <div class="toolbar">
-    <div class="search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-      <input type="search" id="campo-busca" placeholder="Buscar nas rotinas..." />
-      <div class="resultados-busca" id="resultados-busca"></div>
+  <div style="max-width:860px;margin:0 auto;">
+    <div style="border-left:6px solid #1a56db;padding-left:16px;margin-bottom:6px;">
+      <h1 style="font-family:Sora,sans-serif;font-size:1.8rem;font-weight:700;color:#1a56db;">📅 Rotinas Diárias</h1>
     </div>
-    <button class="btn-toolbar" id="btn-imprimir-tudo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-        <rect x="6" y="14" width="12" height="8"/>
-      </svg>
-      Imprimir Tudo
-    </button>
-    <button class="btn-toolbar" id="btn-imprimir-selecionados">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-        <rect x="6" y="14" width="12" height="8"/>
-      </svg>
-      Imprimir Selecionados
-    </button>
+    <p style="color:#4e6080;margin-left:22px;margin-bottom:24px;font-size:0.95rem;">Impresso em ${new Date().toLocaleDateString('pt-BR')} — ${sorted.length} dia(s)</p>
+
+    ${usedCats.size > 0 ? `
+    <div style="background:white;border-radius:18px;padding:16px;margin-bottom:28px;border:1px solid #dce8fb;">
+      <h3 style="font-family:Sora,sans-serif;font-weight:700;font-size:1rem;color:#1a56db;margin-bottom:14px;">📌 Legenda das categorias</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;">${legendHtml}</div>
+    </div>` : ''}
+
+    ${diasHtml}
+
+    <div style="text-align:center;color:#8fa3bf;font-size:12px;margin-top:24px;padding-top:16px;border-top:1px solid #dce8fb;">Rotinas Diárias — Sistema de gestão</div>
   </div>
-
-  <div class="legenda-container">
-    <div class="legenda-header" id="legenda-toggle">
-      <h3>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
-        </svg>
-        Legenda das Categorias
-      </h3>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-        <polyline points="6 9 12 15 18 9"/>
-      </svg>
-    </div>
-    
-    <div class="legenda-conteudo" id="legenda-conteudo">
-      <div class="legenda-grid" id="legenda-grid">
-        <!-- A legenda será carregada dinamicamente -->
-      </div>
-    </div>
-  </div>
-
-  <div class="rotinas-container">
-    <div class="dias-sidebar">
-      <!-- Filtro de categorias -->
-      <div class="filtro-categorias">
-        <div class="filtro-header" id="filtro-toggle">
-          <h3>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
-            </svg>
-            Filtrar por Categoria
-          </h3>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </div>
-        <div class="filtro-conteudo" id="filtro-conteudo">
-          <!-- As categorias serão carregadas aqui -->
-        </div>
-        <div class="botoes-filtro">
-          <button class="btn-filtro" id="btn-selecionar-todas">Todas</button>
-          <button class="btn-filtro" id="btn-limpar-todas">Nenhuma</button>
-        </div>
-      </div>
-
-      <!-- Dias da semana -->
-      <div class="periodo-secao">
-        <h3>Dias</h3>
-        <div id="dias-sidebar-lista"></div>
-      </div>
-    </div>
-
-    <div class="conteudo-area">
-      <div class="conteudo-header">
-        <h2 id="dia-titulo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
-          </svg>
-          Selecione um dia
-        </h2>
-        <div class="conteudo-header-acoes">
-          <button class="btn-acao btn-imprimir" id="btn-imprimir-dia">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-              <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-              <rect x="6" y="14" width="12" height="8"/>
-            </svg>
-            Imprimir Dia
-          </button>
-        </div>
-      </div>
-
-      <div id="conteudo-dinamico">
-        <div class="sem-tarefas">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          <p>Carregando dados do cronograma...</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<button class="btn-voltar-topo" id="btn-voltar-topo">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <polyline points="18 15 12 9 6 15"/>
-  </svg>
-</button>
-
 <script>
-// Sistema principal modificado para carregar dados de rotina-cronograma.html
-class SistemaRotinas {
-  constructor(categorias, rotinas) {
-    this.categorias = categorias;
-    this.rotinas = rotinas;
-    this.diaAtual = null;
-    this.termoBusca = "";
-    this.buscaAtiva = false;
-    this.legendaAberta = false;
-    this.filtroAberto = true;
-    this.diasSelecionados = new Set();
-    this.categoriasSelecionadas = new Set();
-    this.contadoresCategorias = {};
-    
-    this.init();
-  }
-  
-  init() {
-    this.calcularContadoresCategorias();
-    this.carregarLegenda();
-    this.carregarFiltroCategorias();
-    this.carregarSidebar();
-    this.configurarEventos();
-    this.verificarHoje();
-  }
-  
-  calcularContadoresCategorias() {
-    // Inicializar contadores
-    Object.keys(this.categorias).forEach(codigo => {
-      this.contadoresCategorias[codigo] = 0;
-    });
-    
-    // Contar ocorrências de cada categoria em todas as rotinas
-    Object.values(this.rotinas).forEach(dia => {
-      dia.tarefas.forEach(tarefa => {
-        if (tarefa.categoria && this.contadoresCategorias[tarefa.categoria] !== undefined) {
-          this.contadoresCategorias[tarefa.categoria]++;
-        }
-      });
-    });
-  }
-  
-  carregarLegenda() {
-    const grid = document.getElementById("legenda-grid");
-    let html = "";
-    
-    Object.entries(this.categorias).forEach(([codigo, categoria]) => {
-      const contador = this.contadoresCategorias[codigo] || 0;
-      html += `
-        <div class="legenda-item legenda-${codigo}" id="legenda-${codigo}">
-          <div class="legenda-item-header">
-            <div class="legenda-icone-grande">
-              ${categoria.icone}
-            </div>
-            <div>
-              <div class="legenda-titulo">${codigo}: ${categoria.nome} <span style="color: var(--muted); font-size: 12px;">(${contador} tarefa${contador !== 1 ? 's' : ''})</span></div>
-              <div class="legenda-desc">${categoria.descricao}</div>
-            </div>
-          </div>
-          <div class="legenda-detalhes">
-            ${categoria.detalhes}
-          </div>
-        </div>
-      `;
-    });
-    
-    grid.innerHTML = html;
-  }
-  
-  carregarFiltroCategorias() {
-    const conteudo = document.getElementById("filtro-conteudo");
-    let html = "";
-    
-    Object.entries(this.categorias).forEach(([codigo, categoria]) => {
-      const contador = this.contadoresCategorias[codigo] || 0;
-      const ativo = this.categoriasSelecionadas.has(codigo);
-      html += `
-        <div class="categoria-filtro-item ${ativo ? 'ativo' : ''}" data-categoria="${codigo}">
-          <div class="categoria-filtro-checkbox">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-          </div>
-          <div class="categoria-filtro-cor" style="background: ${categoria.cor}"></div>
-          <div class="categoria-filtro-nome">${categoria.nome}</div>
-          <div class="contador-categoria">${contador}</div>
-        </div>
-      `;
-    });
-    
-    conteudo.innerHTML = html;
-  }
-  
-  carregarSidebar() {
-    const container = document.getElementById("dias-sidebar-lista");
-    if (!container) return;
-    
-    // Ordenar as datas
-    const datas = Object.keys(this.rotinas).sort((a, b) => {
-      const [da, ma, aa] = a.split('/');
-      const [db, mb, ab] = b.split('/');
-      return new Date(aa, ma-1, da) - new Date(ab, mb-1, db);
-    });
-    
-    let html = "";
-    datas.forEach(data => {
-      const dia = this.rotinas[data];
-      if (!dia) return;
-      
-      let classeExtra = "";
-      if (dia.feriado) classeExtra = "feriado";
-      if (dia.semExpediente && !dia.feriado) classeExtra = "sem-expediente";
-      
-      html += `
-        <div class="dia-item ${classeExtra}" data-data="${data}">
-          <input type="checkbox" class="checkbox-dia" data-data="${data}">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-            <path d="M8 2v4M16 2v4M2 10h20"/>
-          </svg>
-          ${data} - ${dia.diaSemana}
-        </div>
-      `;
-    });
-    
-    container.innerHTML = html;
-  }
-  
-  configurarEventos() {
-    // Dias da sidebar (delegação)
-    document.addEventListener("click", (e) => {
-      const diaItem = e.target.closest(".dia-item");
-      if (diaItem && !e.target.classList.contains("checkbox-dia")) {
-        const data = diaItem.getAttribute("data-data");
-        this.carregarDia(data);
-      }
-    });
-    
-    // Checkboxes de dias
-    document.addEventListener("change", (e) => {
-      if (e.target.classList.contains("checkbox-dia")) {
-        const data = e.target.getAttribute("data-data");
-        if (e.target.checked) {
-          this.diasSelecionados.add(data);
-        } else {
-          this.diasSelecionados.delete(data);
-        }
-      }
-    });
-    
-    // Checkboxes de categorias (filtro)
-    document.addEventListener("click", (e) => {
-      const filtroItem = e.target.closest(".categoria-filtro-item");
-      if (filtroItem) {
-        const categoria = filtroItem.getAttribute("data-categoria");
-        this.toggleCategoriaFiltro(categoria);
-      }
-    });
-    
-    // Botões do filtro
-    document.getElementById("btn-selecionar-todas").addEventListener("click", () => {
-      this.selecionarTodasCategorias();
-    });
-    
-    document.getElementById("btn-limpar-todas").addEventListener("click", () => {
-      this.limparTodasCategorias();
-    });
-    
-    // Toggle legenda
-    document.getElementById("legenda-toggle").addEventListener("click", () => {
-      this.toggleLegenda();
-    });
-    
-    // Toggle filtro
-    document.getElementById("filtro-toggle").addEventListener("click", () => {
-      this.toggleFiltro();
-    });
-    
-    // Busca
-    document.getElementById("campo-busca").addEventListener("input", (e) => {
-      this.realizarBuscaGlobal(e.target.value);
-    });
-    
-    // Fechar resultados ao clicar fora
-    document.addEventListener("click", (e) => {
-      if (!e.target.closest(".search")) {
-        const resultados = document.getElementById("resultados-busca");
-        if (resultados) resultados.style.display = "none";
-      }
-    });
-    
-    // Botão voltar ao topo
-    const btnTopo = document.getElementById("btn-voltar-topo");
-    window.addEventListener("scroll", () => {
-      if (window.scrollY > 300) {
-        btnTopo.classList.add("visivel");
-      } else {
-        btnTopo.classList.remove("visivel");
-      }
-    });
-    
-    btnTopo.addEventListener("click", () => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-    
-    // Sistema de impressão
-    document.getElementById("btn-imprimir-dia").addEventListener("click", () => {
-      this.imprimirDia();
-    });
-    
-    document.getElementById("btn-imprimir-tudo").addEventListener("click", () => {
-      this.imprimirTudo();
-    });
-    
-    document.getElementById("btn-imprimir-selecionados").addEventListener("click", () => {
-      this.imprimirSelecionados();
-    });
-  }
-  
-  toggleCategoriaFiltro(categoria) {
-    if (this.categoriasSelecionadas.has(categoria)) {
-      this.categoriasSelecionadas.delete(categoria);
-    } else {
-      this.categoriasSelecionadas.add(categoria);
-    }
-    
-    // Atualizar visual
-    const item = document.querySelector(`.categoria-filtro-item[data-categoria="${categoria}"]`);
-    if (item) {
-      item.classList.toggle("ativo");
-    }
-    
-    // Atualizar botões
-    this.atualizarBotoesFiltro();
-    
-    // Aplicar filtro se houver um dia carregado
-    if (this.diaAtual) {
-      this.carregarDia(this.diaAtual);
-    }
-  }
-  
-  selecionarTodasCategorias() {
-    Object.keys(this.categorias).forEach(codigo => {
-      this.categoriasSelecionadas.add(codigo);
-    });
-    
-    // Atualizar visual
-    document.querySelectorAll(".categoria-filtro-item").forEach(item => {
-      item.classList.add("ativo");
-    });
-    
-    // Atualizar botões
-    this.atualizarBotoesFiltro();
-    
-    // Aplicar filtro se houver um dia carregado
-    if (this.diaAtual) {
-      this.carregarDia(this.diaAtual);
-    }
-  }
-  
-  limparTodasCategorias() {
-    this.categoriasSelecionadas.clear();
-    
-    // Atualizar visual
-    document.querySelectorAll(".categoria-filtro-item").forEach(item => {
-      item.classList.remove("ativo");
-    });
-    
-    // Atualizar botões
-    this.atualizarBotoesFiltro();
-    
-    // Aplicar filtro se houver um dia carregado
-    if (this.diaAtual) {
-      this.carregarDia(this.diaAtual);
-    }
-  }
-  
-  atualizarBotoesFiltro() {
-    const btnTodas = document.getElementById("btn-selecionar-todas");
-    const btnNenhuma = document.getElementById("btn-limpar-todas");
-    const totalCategorias = Object.keys(this.categorias).length;
-    
-    if (this.categoriasSelecionadas.size === totalCategorias) {
-      btnTodas.classList.add("ativo");
-      btnNenhuma.classList.remove("ativo");
-    } else if (this.categoriasSelecionadas.size === 0) {
-      btnTodas.classList.remove("ativo");
-      btnNenhuma.classList.add("ativo");
-    } else {
-      btnTodas.classList.remove("ativo");
-      btnNenhuma.classList.remove("ativo");
-    }
-  }
-  
-  carregarDia(data) {
-    this.diaAtual = data;
-    const dia = this.rotinas[data];
-    
-    if (!dia) return;
-    
-    // Atualizar seleção na sidebar
-    document.querySelectorAll(".dia-item").forEach(item => {
-      item.classList.remove("ativo");
-    });
-    
-    const itemAtivo = document.querySelector(`.dia-item[data-data="${data}"]`);
-    if (itemAtivo) itemAtivo.classList.add("ativo");
-    
-    // Atualizar título
-    document.getElementById("dia-titulo").innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
-      </svg>
-      ${dia.data} - ${dia.diaSemana}
-      ${dia.feriado ? `<span style="color: var(--warn); font-size: 14px;"> (${dia.feriadoNome})</span>` : ""}
-      ${dia.semExpediente && !dia.feriado ? `<span style="color: var(--muted); font-size: 14px;"> (Sem expediente)</span>` : ""}
-    `;
-    
-    // Renderizar conteúdo
-    this.renderizarDia(dia);
-  }
-  
-  renderizarDia(dia) {
-    const container = document.getElementById("conteudo-dinamico");
-    
-    if (dia.semExpediente) {
-      container.innerHTML = `
-        <div class="info-box feriado-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          <p>${dia.feriado ? dia.feriadoNome : "Sem expediente"} - Nenhuma tarefa agendada para este dia.</p>
-        </div>
-      `;
-      return;
-    }
-    
-    if (!dia.tarefas || dia.tarefas.length === 0) {
-      container.innerHTML = `
-        <div class="sem-tarefas">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          <p>Nenhuma tarefa agendada para este dia</p>
-        </div>
-      `;
-      return;
-    }
-    
-    // Filtrar tarefas por busca e por categoria
-    let tarefas = dia.tarefas;
-    
-    // Aplicar filtro de categorias
-    if (this.categoriasSelecionadas.size > 0) {
-      tarefas = tarefas.filter(tarefa => {
-        if (!tarefa.categoria) return false;
-        return this.categoriasSelecionadas.has(tarefa.categoria);
-      });
-    }
-    
-    // Aplicar filtro de busca
-    if (this.buscaAtiva && this.termoBusca) {
-      const termo = this.termoBusca.toLowerCase();
-      tarefas = tarefas.filter(tarefa => 
-        tarefa.titulo.toLowerCase().includes(termo) ||
-        (tarefa.pessoa && tarefa.pessoa.toLowerCase().includes(termo)) ||
-        (tarefa.categoria && this.categorias[tarefa.categoria]?.nome.toLowerCase().includes(termo)) ||
-        (tarefa.categoria && this.categorias[tarefa.categoria]?.descricao.toLowerCase().includes(termo))
-      );
-    }
-    
-    if (tarefas.length === 0) {
-      let mensagem = "Nenhuma tarefa encontrada";
-      if (this.categoriasSelecionadas.size > 0) {
-        mensagem = `Nenhuma tarefa encontrada para as categorias selecionadas${this.termoBusca ? ` com o termo "${this.termoBusca}"` : ''}`;
-      } else if (this.termoBusca) {
-        mensagem = `Nenhuma tarefa encontrada com o termo "${this.termoBusca}"`;
-      }
-      
-      container.innerHTML = `
-        <div class="sem-tarefas">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          <p>${mensagem}</p>
-        </div>
-      `;
-      return;
-    }
-    
-    // Renderizar tarefas
-    let html = `<div class="tarefas-dia">`;
-    
-    tarefas.forEach((tarefa, index) => {
-      const categoria = tarefa.categoria ? this.categorias[tarefa.categoria] : null;
-      const classeCategoria = tarefa.categoria ? ` categoria-${tarefa.categoria}` : "";
-      
-      html += `
-        <div class="tarefa-card fade-in${classeCategoria}" style="animation-delay: ${index * 0.05}s">
-          <div class="tarefa-header">
-            <div class="tarefa-titulo">${tarefa.titulo}</div>
-            ${tarefa.categoria ? `
-              <div class="tarefa-icone" data-categoria="${tarefa.categoria}" title="Clique para ver detalhes da categoria">
-                ${categoria.icone}
-              </div>
-            ` : ""}
-          </div>
-          ${tarefa.descricao ? `<div class="tarefa-desc">${tarefa.descricao}</div>` : ""}
-          ${tarefa.pessoa ? `<div class="tarefa-pessoa">${tarefa.pessoa}</div>` : ""}
-        </div>
-      `;
-    });
-    
-    html += `</div>`;
-    container.innerHTML = html;
-    
-    // Adicionar eventos aos ícones
-    document.querySelectorAll(".tarefa-icone").forEach(icone => {
-      icone.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const categoria = icone.getAttribute("data-categoria");
-        this.mostrarCategoria(categoria);
-      });
-    });
-  }
-  
-  realizarBuscaGlobal(termo) {
-    const resultadosContainer = document.getElementById("resultados-busca");
-    
-    if (!termo.trim()) {
-      resultadosContainer.style.display = "none";
-      this.buscaAtiva = false;
-      this.termoBusca = "";
-      if (this.diaAtual) {
-        this.carregarDia(this.diaAtual);
-      }
-      return;
-    }
-    
-    this.termoBusca = termo;
-    this.buscaAtiva = true;
-    let resultadosHTML = "";
-    let encontrouResultados = false;
-    
-    // Buscar em todos os dias
-    Object.entries(this.rotinas).forEach(([data, dia]) => {
-      const tarefasEncontradas = dia.tarefas.filter(tarefa => 
-        tarefa.titulo.toLowerCase().includes(termo.toLowerCase()) ||
-        (tarefa.pessoa && tarefa.pessoa.toLowerCase().includes(termo.toLowerCase())) ||
-        (tarefa.categoria && this.categorias[tarefa.categoria]?.nome.toLowerCase().includes(termo.toLowerCase())) ||
-        (tarefa.categoria && this.categorias[tarefa.categoria]?.descricao.toLowerCase().includes(termo.toLowerCase()))
-      );
-      
-      if (tarefasEncontradas.length > 0) {
-        encontrouResultados = true;
-        resultadosHTML += `<div class="resultado-item" data-data="${data}">`;
-        resultadosHTML += `<div class="resultado-data">${dia.data} - ${dia.diaSemana}</div>`;
-        tarefasEncontradas.forEach(tarefa => {
-          resultadosHTML += `<div class="resultado-tarefa">${tarefa.titulo}</div>`;
-        });
-        resultadosHTML += `</div>`;
-      }
-    });
-    
-    if (encontrouResultados) {
-      resultadosContainer.innerHTML = resultadosHTML;
-      resultadosContainer.style.display = "block";
-      
-      // Adicionar evento de clique para cada resultado
-      document.querySelectorAll(".resultado-item").forEach(item => {
-        item.addEventListener("click", () => {
-          const data = item.getAttribute("data-data");
-          this.carregarDia(data);
-          resultadosContainer.style.display = "none";
-          document.getElementById("campo-busca").value = "";
-          this.buscaAtiva = false;
-          this.termoBusca = "";
-        });
-      });
-    } else {
-      resultadosContainer.innerHTML = '<div class="resultado-item">Nenhum resultado encontrado.</div>';
-      resultadosContainer.style.display = "block";
-    }
-  }
-  
-  mostrarCategoria(codigo) {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    
-    if (!this.legendaAberta) {
-      this.toggleLegenda(true);
-    }
-    
-    setTimeout(() => {
-      const item = document.getElementById(`legenda-${codigo}`);
-      const conteudoLegenda = document.getElementById("legenda-conteudo");
-      
-      if (item && conteudoLegenda) {
-        const offsetTop = item.offsetTop - conteudoLegenda.offsetTop;
-        conteudoLegenda.scrollTop = offsetTop - 20;
-        
-        this.destacarLegendaItem(codigo);
-      }
-    }, 100);
-  }
-  
-  destacarLegendaItem(codigo) {
-    document.querySelectorAll(".legenda-item").forEach(item => {
-      item.classList.remove("destaque");
-    });
-    
-    const item = document.getElementById(`legenda-${codigo}`);
-    if (item) {
-      item.classList.add("destaque");
-      setTimeout(() => {
-        item.classList.remove("destaque");
-      }, 3000);
-    }
-  }
-  
-  toggleLegenda(forcarAbrir = false) {
-    const conteudo = document.getElementById("legenda-conteudo");
-    const toggle = document.getElementById("legenda-toggle");
-    
-    if (forcarAbrir && !this.legendaAberta) {
-      conteudo.classList.add("ativo");
-      toggle.classList.add("ativo");
-      this.legendaAberta = true;
-    } else {
-      conteudo.classList.toggle("ativo");
-      toggle.classList.toggle("ativo");
-      this.legendaAberta = conteudo.classList.contains("ativo");
-    }
-  }
-  
-  toggleFiltro() {
-    const conteudo = document.getElementById("filtro-conteudo");
-    const toggle = document.getElementById("filtro-toggle");
-    
-    conteudo.classList.toggle("recolhido");
-    toggle.classList.toggle("ativo");
-    this.filtroAberto = !conteudo.classList.contains("recolhido");
-  }
-  
-  verificarHoje() {
-    const hoje = new Date();
-    const hojeFormatado = hoje.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-    
-    if (this.rotinas[hojeFormatado]) {
-      setTimeout(() => {
-        this.carregarDia(hojeFormatado);
-        
-        const itemHoje = document.querySelector(`.dia-item[data-data="${hojeFormatado}"]`);
-        if (itemHoje) {
-          itemHoje.classList.add("hoje");
-        }
-      }, 500);
-    }
-  }
-  
-  // ========== NOVOS MÉTODOS DE IMPRESSÃO ==========
-  gerarHTMLParaImpressao(datas, incluirLegenda = true) {
-    // Ordenar datas
-    const datasOrdenadas = [...datas].sort((a, b) => {
-      const [da, ma, aa] = a.split('/');
-      const [db, mb, ab] = b.split('/');
-      return new Date(aa, ma-1, da) - new Date(ab, mb-1, db);
-    });
-
-    let html = `<div class="print-container">`;
-    html += `<h1 class="print-title">📅 Rotinas Diárias</h1>`;
-    html += `<div class="print-subtitle">${new Date().toLocaleDateString()} · versão impressa</div>`;
-
-    // Legenda (se solicitada)
-    if (incluirLegenda) {
-      // Coletar categorias presentes nas datas
-      const categoriasUsadas = new Set();
-      datasOrdenadas.forEach(data => {
-        const dia = this.rotinas[data];
-        if (dia && dia.tarefas) {
-          dia.tarefas.forEach(t => {
-            if (t.categoria) categoriasUsadas.add(t.categoria);
-          });
-        }
-      });
-
-      if (categoriasUsadas.size > 0) {
-        html += `<div class="print-legenda">`;
-        html += `<h3>📌 Legenda das categorias</h3>`;
-        html += `<div class="print-legenda-grid">`;
-        categoriasUsadas.forEach(cod => {
-          const cat = this.categorias[cod];
-          if (cat) {
-            html += `
-              <div class="print-legenda-item" style="border-left-color: ${cat.cor};">
-                <div class="print-legenda-titulo">
-                  <div class="print-legenda-icone" style="background: ${cat.cor};">${cat.icone}</div>
-                  <strong>${cod}:</strong> ${cat.nome}
-                </div>
-                <div class="print-legenda-desc">${cat.descricao}</div>
-                <div class="print-legenda-detalhes">${cat.detalhes}</div>
-              </div>
-            `;
-          }
-        });
-        html += `</div></div>`;
-      }
-    }
-
-    // Dias
-    html += `<div class="print-dias-container">`;
-    datasOrdenadas.forEach(data => {
-      const dia = this.rotinas[data];
-      if (!dia) return;
-
-      html += `<div class="print-dia-card">`;
-      html += `<div class="print-dia-cabecalho">`;
-      html += `<span class="print-dia-data">${dia.data}</span>`;
-      html += `<span class="print-dia-semana">${dia.diaSemana}</span>`;
-      if (dia.feriado) {
-        html += `<span class="print-dia-observacao">🎉 ${dia.feriadoNome}</span>`;
-      } else if (dia.semExpediente) {
-        html += `<span class="print-dia-observacao">🚫 Sem expediente</span>`;
-      }
-      html += `</div>`;
-
-      if (dia.semExpediente || !dia.tarefas || dia.tarefas.length === 0) {
-        html += `<div class="print-sem-tarefas">Nenhuma tarefa agendada.</div>`;
-      } else {
-        html += `<div class="print-tarefas-lista">`;
-        dia.tarefas.forEach(tarefa => {
-          const cat = tarefa.categoria ? this.categorias[tarefa.categoria] : null;
-          const cor = cat ? cat.cor : '#94a3b8';
-          const icone = cat ? cat.icone : '📌';
-          html += `
-            <div class="print-tarefa-item" style="border-left-color: ${cor};">
-              <div class="print-tarefa-icone" style="background: ${cor};">${icone}</div>
-              <div class="print-tarefa-conteudo">
-                <div class="print-tarefa-titulo">${tarefa.titulo}</div>
-                ${tarefa.descricao ? `<div class="print-tarefa-descricao">${tarefa.descricao}</div>` : ''}
-                ${tarefa.pessoa ? `<span class="print-tarefa-pessoa">👤 ${tarefa.pessoa}</span>` : ''}
-              </div>
-            </div>
-          `;
-        });
-        html += `</div>`;
-      }
-      html += `</div>`;
-    });
-    html += `</div>`; // fecha print-dias-container
-    html += `<div class="print-footer">⚡ Dados carregados de rotina-cronograma.html</div>`;
-    html += `</div>`; // fecha print-container
-
-    return html;
-  }
-
-  imprimirDia() {
-    if (!this.diaAtual) {
-      alert("Selecione um dia para imprimir.");
-      return;
-    }
-    const conteudoOriginal = document.getElementById('conteudo-dinamico').innerHTML;
-    const tituloOriginal = document.getElementById('dia-titulo').innerHTML;
-
-    const htmlPrint = this.gerarHTMLParaImpressao([this.diaAtual], true);
-    document.getElementById('conteudo-dinamico').innerHTML = htmlPrint;
-    document.getElementById('dia-titulo').innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Impressão do Dia`;
-
-    setTimeout(() => {
-      window.print();
-      setTimeout(() => {
-        document.getElementById('conteudo-dinamico').innerHTML = conteudoOriginal;
-        document.getElementById('dia-titulo').innerHTML = tituloOriginal;
-        if (this.diaAtual) this.carregarDia(this.diaAtual);
-      }, 100);
-    }, 100);
-  }
-
-  imprimirTudo() {
-    const conteudoOriginal = document.getElementById('conteudo-dinamico').innerHTML;
-    const tituloOriginal = document.getElementById('dia-titulo').innerHTML;
-
-    const todasDatas = Object.keys(this.rotinas);
-    const htmlPrint = this.gerarHTMLParaImpressao(todasDatas, true);
-    document.getElementById('conteudo-dinamico').innerHTML = htmlPrint;
-    document.getElementById('dia-titulo').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Impressão de Todas as Rotinas';
-
-    setTimeout(() => {
-      window.print();
-      setTimeout(() => {
-        document.getElementById('conteudo-dinamico').innerHTML = conteudoOriginal;
-        document.getElementById('dia-titulo').innerHTML = tituloOriginal;
-        if (this.diaAtual) this.carregarDia(this.diaAtual);
-      }, 100);
-    }, 100);
-  }
-
-  imprimirSelecionados() {
-    if (this.diasSelecionados.size === 0) {
-      alert("Selecione pelo menos um dia para imprimir.");
-      return;
-    }
-
-    const conteudoOriginal = document.getElementById('conteudo-dinamico').innerHTML;
-    const tituloOriginal = document.getElementById('dia-titulo').innerHTML;
-
-    const htmlPrint = this.gerarHTMLParaImpressao(Array.from(this.diasSelecionados), true);
-    document.getElementById('conteudo-dinamico').innerHTML = htmlPrint;
-    document.getElementById('dia-titulo').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Impressão de Dias Selecionados';
-
-    setTimeout(() => {
-      window.print();
-      setTimeout(() => {
-        document.getElementById('conteudo-dinamico').innerHTML = conteudoOriginal;
-        document.getElementById('dia-titulo').innerHTML = tituloOriginal;
-        if (this.diaAtual) this.carregarDia(this.diaAtual);
-      }, 100);
-    }, 100);
-  }
-}
-
-// ================= CARREGAMENTO EXTERNO =================
-async function carregarDadosExternos() {
-  try {
-    const resposta = await fetch('rotina-cronograma.html');
-    if (!resposta.ok) throw new Error('Não foi possível carregar o arquivo.');
-    
-    const html = await resposta.text();
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    
-    // Coleta todo o conteúdo dos scripts
-    const scripts = doc.querySelectorAll('script');
-    let scriptContent = '';
-    scripts.forEach(script => {
-      scriptContent += (script.textContent || script.innerText) + '\n';
-    });
-    
-    if (!scriptContent) {
-      throw new Error('Nenhum script encontrado no arquivo.');
-    }
-    
-    // Extrair objeto categorias usando regex
-    const categoriasMatch = scriptContent.match(/const\s+categorias\s*=\s*({[\s\S]*?});/);
-    if (!categoriasMatch) {
-      throw new Error('Não foi possível encontrar a definição de categorias.');
-    }
-    const categoriasTexto = categoriasMatch[1];
-    // Avaliar o objeto de forma segura
-    const categorias = new Function('return ' + categoriasTexto)();
-    
-    // Extrair array rotinas
-    const rotinasMatch = scriptContent.match(/const\s+rotinas\s*=\s*(\[[\s\S]*?\]);/);
-    if (!rotinasMatch) {
-      throw new Error('Não foi possível encontrar a definição de rotinas.');
-    }
-    const rotinasTexto = rotinasMatch[1];
-    const rotinasArray = new Function('return ' + rotinasTexto)();
-    
-    return { categorias, rotinas: rotinasArray };
-  } catch (erro) {
-    console.error('Erro ao carregar dados:', erro);
-    alert('Falha ao carregar os dados do cronograma. Verifique se o arquivo rotina-cronograma.html existe e está acessível.');
-    return null;
-  }
-}
-
-// Inicialização após carregar os dados
-document.addEventListener('DOMContentLoaded', async () => {
-  const dados = await carregarDadosExternos();
-  if (dados) {
-    // Transformar o array rotinas em um objeto indexado por data para facilitar o acesso
-    const rotinasObj = {};
-    dados.rotinas.forEach(item => {
-      rotinasObj[item.data] = item;
-    });
-    
-    new SistemaRotinas(dados.categorias, rotinasObj);
+  // Auto-print after fonts load
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function() { setTimeout(function(){ window.print(); }, 300); });
   } else {
-    // Fallback: exibir mensagem de erro
-    document.getElementById('conteudo-dinamico').innerHTML = `
-      <div class="sem-tarefas">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <p>Erro ao carregar os dados. Verifique o arquivo rotina-cronograma.html.</p>
-      </div>
-    `;
+    setTimeout(function(){ window.print(); }, 800);
   }
-});
+<\/script>
+</body>
+</html>`;
+}
+
+function printDates(dates) {
+  if (!dates || dates.length === 0) return;
+  const html = buildPrintHTML(dates);
+  const win = window.open('', '_blank', 'width=900,height=700');
+  if (!win) { alert('Permita pop-ups para usar a impressão.'); return; }
+  win.document.write(html);
+  win.document.close();
+}
+
+// ── EVENT BINDINGS ────────────────────────────────────────────────────────────
+function bindEvents() {
+
+  // Day item clicks (delegation)
+  document.getElementById('days-list').addEventListener('click', e => {
+    const cb = e.target.closest('.day-cb');
+    if (cb) {
+      const date = cb.getAttribute('data-date');
+      cb.checked ? state.selectedDays.add(date) : state.selectedDays.delete(date);
+      return;
+    }
+    const item = e.target.closest('.day-item');
+    if (item) {
+      const date = item.getAttribute('data-date');
+      state.activeDay = date;
+      renderDaysList();
+      renderContentPanel();
+    }
+  });
+
+  // Select / clear all days
+  document.getElementById('btn-sel-all-days').addEventListener('click', () => {
+    rotinas.forEach(d => state.selectedDays.add(d.data));
+    renderDaysList();
+  });
+  document.getElementById('btn-clear-days').addEventListener('click', () => {
+    state.selectedDays.clear();
+    renderDaysList();
+  });
+
+  // Category filter (delegation)
+  document.getElementById('cat-filter-list').addEventListener('click', e => {
+    // Day tag click
+    const tag = e.target.closest('.day-tag');
+    if (tag) {
+      e.stopPropagation();
+      const date = tag.getAttribute('data-date');
+      state.activeDay = date;
+      renderDaysList();
+      renderContentPanel();
+      // Scroll main area to top
+      document.getElementById('main-area').scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    const item = e.target.closest('.filter-item');
+    if (item) {
+      const cod = item.getAttribute('data-cat');
+      state.selectedCats.has(cod) ? state.selectedCats.delete(cod) : state.selectedCats.add(cod);
+      renderCatFilter();
+      renderActiveFiltersBar();
+      renderContentPanel();
+    }
+  });
+
+  document.getElementById('btn-sel-all-cats').addEventListener('click', () => {
+    Object.keys(categorias).forEach(k => state.selectedCats.add(k));
+    renderCatFilter();
+    renderActiveFiltersBar();
+    renderContentPanel();
+  });
+  document.getElementById('btn-clear-cats').addEventListener('click', () => {
+    state.selectedCats.clear();
+    renderCatFilter();
+    renderActiveFiltersBar();
+    renderContentPanel();
+  });
+
+  // Person filter chips
+  document.getElementById('person-filter-list').addEventListener('click', e => {
+    const chip = e.target.closest('.person-chip');
+    if (chip) {
+      const person = chip.getAttribute('data-person');
+      state.selectedPersons.has(person) ? state.selectedPersons.delete(person) : state.selectedPersons.add(person);
+      renderPersonFilter();
+      renderActiveFiltersBar();
+      renderContentPanel();
+    }
+  });
+  document.getElementById('btn-clear-persons').addEventListener('click', () => {
+    state.selectedPersons.clear();
+    renderPersonFilter();
+    renderActiveFiltersBar();
+    renderContentPanel();
+  });
+
+  // Active filters bar delegation
+  document.getElementById('active-filters-bar').addEventListener('click', e => {
+    const rmCat = e.target.closest('[data-remove-cat]');
+    if (rmCat) {
+      state.selectedCats.delete(rmCat.getAttribute('data-remove-cat'));
+      renderCatFilter();
+      renderActiveFiltersBar();
+      renderContentPanel();
+      return;
+    }
+    const rmPerson = e.target.closest('[data-remove-person]');
+    if (rmPerson) {
+      state.selectedPersons.delete(rmPerson.getAttribute('data-remove-person'));
+      renderPersonFilter();
+      renderActiveFiltersBar();
+      renderContentPanel();
+      return;
+    }
+    if (e.target.id === 'btn-clear-all-filters') {
+      state.selectedCats.clear();
+      state.selectedPersons.clear();
+      renderCatFilter();
+      renderPersonFilter();
+      renderActiveFiltersBar();
+      renderContentPanel();
+    }
+  });
+
+  // Task icon click -> scroll to + highlight legend
+  document.getElementById('content-body').addEventListener('click', e => {
+    const icon = e.target.closest('.task-icon');
+    if (icon) {
+      const cod = icon.getAttribute('data-cat');
+      if (!cod) return;
+      // Open legend if closed
+      if (!legendOpen) toggleLegend(true);
+      // Scroll main to top
+      document.getElementById('main-area').scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => {
+        const card = document.getElementById(`legend-card-${cod}`);
+        if (card) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          card.style.boxShadow = '0 0 0 3px ' + categorias[cod].cor + '55';
+          setTimeout(() => { card.style.boxShadow = ''; }, 2500);
+        }
+      }, 350);
+    }
+  });
+
+  // Legend toggle
+  let legendOpen = false;
+  function toggleLegend(force) {
+    const body = document.getElementById('legend-body');
+    const btn = document.getElementById('legend-toggle');
+    legendOpen = force !== undefined ? force : !legendOpen;
+    body.classList.toggle('open', legendOpen);
+    btn.classList.toggle('open', legendOpen);
+  }
+  document.getElementById('legend-toggle').addEventListener('click', () => toggleLegend());
+
+  // Search
+  document.getElementById('search-input').addEventListener('input', e => {
+    doSearch(e.target.value);
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.topbar-search')) {
+      document.getElementById('search-dropdown').style.display = 'none';
+    }
+  });
+  document.getElementById('search-dropdown').addEventListener('click', e => {
+    const item = e.target.closest('.search-result-item');
+    if (item) {
+      const date = item.getAttribute('data-date');
+      state.activeDay = date;
+      document.getElementById('search-input').value = '';
+      state.searchTerm = '';
+      document.getElementById('search-dropdown').style.display = 'none';
+      renderDaysList();
+      renderContentPanel();
+    }
+  });
+
+  // Print buttons
+  document.getElementById('btn-print-all').addEventListener('click', () => {
+    printDates(rotinas.map(r => r.data));
+  });
+  document.getElementById('btn-print-selected').addEventListener('click', () => {
+    if (state.selectedDays.size === 0) { alert('Selecione pelo menos um dia usando os checkboxes.'); return; }
+    printDates([...state.selectedDays]);
+  });
+  document.getElementById('btn-print-day').addEventListener('click', () => {
+    if (!state.activeDay) { alert('Selecione um dia para imprimir.'); return; }
+    printDates([state.activeDay]);
+  });
+  document.getElementById('content-print-day').addEventListener('click', () => {
+    if (!state.activeDay) { alert('Selecione um dia para imprimir.'); return; }
+    printDates([state.activeDay]);
+  });
+
+  // Back to top
+  const mainArea = document.getElementById('main-area');
+  const btnTop = document.getElementById('btn-top');
+  mainArea.addEventListener('scroll', () => {
+    btnTop.classList.toggle('show', mainArea.scrollTop > 300);
+  });
+  btnTop.addEventListener('click', () => {
+    mainArea.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+function init() {
+  renderLegend();
+  renderDaysList();
+  renderCatFilter();
+  renderPersonFilter();
+  renderActiveFiltersBar();
+  renderContentPanel();
+  bindEvents();
+
+  // Auto-select today if present
+  const todayStr = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const todayDia = rotinas.find(r => r.data === todayStr);
+  if (todayDia) {
+    state.activeDay = todayStr;
+    renderDaysList();
+    renderContentPanel();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+})();
 </script>
 </body>
 </html>

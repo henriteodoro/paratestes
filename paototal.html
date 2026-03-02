@@ -3,380 +3,1136 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Pedido — Pão Total (Mix estética + lógica) — Atualizado (Impressão)</title>
+<title>Pedido — Pão Total</title>
 
-<!-- jsPDF, AutoTable e SheetJS -->
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
-  :root {
-    --azul: #007BFF;
-    --azul-escuro: #0056b3;
-    --amarelo: #FFD700;
-    --vermelho: #b22222;
-    --bg: #ffffff;
-    --ink: #111;
-    --line: #e6eef9;
+:root {
+  --bg: #eef3fb;
+  --surface: #ffffff;
+  --surface2: #f4f8ff;
+  --border: #dce8fb;
+  --border2: #c8d9f5;
+  --text-primary: #1a2740;
+  --text-secondary: #4e6080;
+  --text-muted: #8fa3bf;
+  --accent: #1a56db;
+  --accent-dark: #1040b0;
+  --accent-light: #e8f0fe;
+  --success: #10b981;
+  --danger: #dc2626;
+  --warn: #f59e0b;
+  --shadow-sm: 0 2px 8px rgba(20,60,120,0.07);
+  --shadow-md: 0 6px 24px rgba(20,60,120,0.10);
+  --shadow-lg: 0 14px 40px rgba(20,60,120,0.14);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --print-border: 1.5px;
+  --screen-font: 'DM Sans', system-ui, sans-serif;
+  --print-font: 'Helvetica', Arial, sans-serif;
+}
 
-    /* FONTES: alterar aqui para trocar a fonte de impressão facilmente
-       Exemplo para voltar à fonte antiga (Courier):
-         --print-font: 'Courier New', Courier, monospace;
-    */
-    --screen-font: monospace; /* fonte usada na tela */
-    --print-font: 'Helvetica', Arial, sans-serif; /* fonte consistente para impressão/PDF */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
 
-    /* borda de impressão (alterar para deixar mais fina/grossa) */
-    --print-border: 3px;
+body {
+  font-family: var(--screen-font);
+  background: var(--bg);
+  color: var(--text-primary);
+  line-height: 1.55;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: radial-gradient(circle, #c0d0eb 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0;
+  margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
+  white-space: nowrap; border: 0;
+}
+
+/* ── TOPBAR ─────────────────────────────────── */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 0 20px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.brand-icon {
+  width: 38px; height: 38px;
+  background: var(--accent);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(26,86,219,0.3);
+  font-family: 'Sora', sans-serif;
+  font-weight: 800;
+  font-size: 0.7rem;
+  color: white;
+  letter-spacing: -0.5px;
+  flex-shrink: 0;
+  text-align: center;
+  line-height: 1.2;
+}
+.brand-name {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--accent);
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.brand-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ── NAV ARROW ──────────────────────────────── */
+.nav-arrow-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border2);
+  background: white;
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: all 0.18s;
+}
+.nav-arrow-btn:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.topbar-divider {
+  width: 1px; height: 28px;
+  background: var(--border);
+  flex-shrink: 0;
+  margin: 0 2px;
+}
+.topbar-spacer { flex: 1; }
+.topbar-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ── ICON BUTTONS ─────────────────────────────── */
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 7px 8px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s;
+  position: relative;
+}
+.icon-btn svg { width: 20px; height: 20px; display: block; }
+.icon-btn:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+/* ── DROPDOWNS ──────────────────────────────── */
+.menu-dropdown { position: relative; }
+.menu-dropdown-content {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  min-width: 270px;
+  max-width: calc(100vw - 32px);
+  overflow: auto;
+  z-index: 1200;
+  padding: 6px;
+}
+.menu-right .menu-dropdown-content { right: 0; left: auto; }
+
+.menu-dropdown-content a {
+  display: flex;
+  align-items: center;
+  padding: 9px 11px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 0.87rem;
+  border-radius: 8px;
+  transition: all 0.15s;
+  gap: 8px;
+}
+.menu-dropdown-content a:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.dropdown-section {
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  padding-top: 4px;
+}
+.dropdown-section:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 11px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  border-radius: 8px;
+  transition: all 0.15s;
+}
+.section-header:hover {
+  background: var(--surface2);
+  color: var(--text-secondary);
+}
+
+.mac-code {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--accent);
+  color: white;
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  min-width: 36px;
+  flex-shrink: 0;
+}
+
+.submenu { display: none; padding-left: 4px; }
+.submenu a { padding-left: 14px; }
+
+/* ── SAVE DROPDOWN ──────────────────────────── */
+.save-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  min-width: 200px;
+  z-index: 1200;
+  padding: 6px;
+}
+.save-dropdown a {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 0.87rem;
+  transition: background 0.15s;
+}
+.save-dropdown a svg { width: 15px; height: 15px; color: var(--text-muted); flex-shrink: 0; }
+.save-dropdown a:hover { background: var(--accent-light); color: var(--accent); }
+.save-dropdown a:hover svg { color: var(--accent); }
+
+/* ── MAIN LAYOUT ────────────────────────────── */
+.page-wrapper {
+  position: relative;
+  z-index: 1;
+  padding: 20px 20px 60px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* ── TOPBAR ROW ─────────────────────────────── */
+.topbar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.topbar-row-spacer { flex: 1; min-width: 16px; }
+
+/* ── STAT CHIPS ─────────────────────────────── */
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 99px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+.stat-chip svg { width: 14px; height: 14px; color: var(--accent); flex-shrink: 0; }
+.stat-chip .val { color: var(--accent); font-family: 'Sora', sans-serif; }
+
+/* ── DATE GROUP ─────────────────────────────── */
+.date-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+}
+.date-group label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.date-group input[type="text"] {
+  border: 1.5px solid var(--border2);
+  border-radius: 8px;
+  padding: 6px 12px;
+  width: 140px;
+  font-family: var(--screen-font);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  background: var(--surface);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.date-group input[type="text"]:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(26,86,219,0.12);
+  background: white;
+}
+.chip {
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: 99px;
+  padding: 5px 13px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: var(--screen-font);
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+.chip:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── CONTENT GRID ───────────────────────────── */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+/* ── COLUMN PANELS ──────────────────────────── */
+.col-panel {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.col-header {
+  padding: 13px 18px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.col-header-icon {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(26,86,219,0.25);
+}
+.col-header-icon svg { width: 15px; height: 15px; color: white; }
+.col-header-title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.col-body { padding: 8px; }
+
+/* ── ITEMS ──────────────────────────────────── */
+.item {
+  display: grid;
+  grid-template-columns: 1fr 118px;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border-bottom: 1px dashed var(--border);
+  transition: background 0.13s;
+}
+.item:last-child { border-bottom: none; }
+.item:hover { background: var(--surface2); }
+.item.hidden-empty { display: none; }
+
+.label-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.item .label {
+  font-size: 0.83rem;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  min-width: 0;
+  font-family: var(--screen-font);
+}
+.item .label.expanded {
+  white-space: normal;
+  overflow: visible;
+}
+
+.ellipsis-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 5px;
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.ellipsis-btn:hover { color: var(--accent); }
+
+/* ── SELETOR DE PESO ────────────────────────── */
+.weight-selector {
+  padding: 3px 6px;
+  border: 1.5px solid var(--border2);
+  border-radius: 7px;
+  background: var(--surface);
+  font-size: 0.75rem;
+  font-family: var(--screen-font);
+  color: var(--text-secondary);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+  flex-shrink: 0;
+}
+.weight-selector:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(26,86,219,0.12);
+}
+
+/* ── QTY WRAP COM BOTÕES +/- ─────────────────── */
+.qty-wrap {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid var(--border2);
+  border-radius: 9px;
+  overflow: hidden;
+  background: var(--surface);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+}
+.qty-wrap:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(26,86,219,0.12);
+}
+
+.qty-btn {
+  background: var(--surface2);
+  border: none;
+  color: var(--text-secondary);
+  width: 28px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  user-select: none;
+}
+.qty-btn svg { width: 12px; height: 12px; pointer-events: none; }
+.qty-btn:hover { background: var(--accent-light); color: var(--accent); }
+.qty-btn:active { background: var(--accent); color: white; }
+
+input.qty-input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 2px;
+  border: none;
+  text-align: center;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: transparent;
+  outline: none;
+  -moz-appearance: textfield;
+}
+input.qty-input::-webkit-outer-spin-button,
+input.qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* ── CUSTOM ITEMS ─────────────────────────────── */
+.custom-item {
+  display: grid;
+  grid-template-columns: 1fr 80px 26px;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border-bottom: 1px dashed #86efac;
+  background: #f0fdf4;
+}
+.custom-item:hover { background: #dcfce7; }
+
+.custom-item input[type="text"] {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1.5px solid var(--border2);
+  border-radius: 7px;
+  font-family: var(--screen-font);
+  font-size: 0.83rem;
+  color: var(--text-primary);
+  background: white;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.custom-item input[type="text"]:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(26,86,219,0.12);
+}
+.custom-item input[type="number"] {
+  width: 100%;
+  padding: 6px 6px;
+  border: 1.5px solid var(--border2);
+  border-radius: 7px;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.85rem;
+  text-align: center;
+  color: var(--text-primary);
+  background: white;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -moz-appearance: textfield;
+}
+.custom-item input[type="number"]::-webkit-outer-spin-button,
+.custom-item input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.custom-item input[type="number"]:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(26,86,219,0.12);
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.remove-btn:hover { background: #fee2e2; color: var(--danger); }
+
+/* ── ADD ITEM BUTTON ─────────────────────────── */
+.add-item-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 8px 8px 2px;
+  padding: 8px 12px;
+  background: var(--surface2);
+  border: 1.5px dashed var(--border2);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.81rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-family: var(--screen-font);
+  transition: all 0.18s;
+}
+.add-item-btn:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  border-style: solid;
+  color: var(--accent);
+}
+
+/* ── MIDDLE CONTROLS ────────────────────────── */
+.middle-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  padding-top: 56px;
+}
+
+.ctrl-btn {
+  width: 158px;
+  padding: 10px 14px;
+  font-size: 0.83rem;
+  font-family: var(--screen-font);
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.18s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  box-shadow: var(--shadow-sm);
+}
+.ctrl-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+.ctrl-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.ctrl-btn:active { transform: translateY(0); }
+
+.ctrl-btn.green  { background: var(--success); color: white; }
+.ctrl-btn.green:hover  { background: #059669; }
+.ctrl-btn.amber  { background: var(--warn); color: white; }
+.ctrl-btn.amber:hover  { background: #d97706; }
+.ctrl-btn.red    { background: var(--danger); color: white; }
+.ctrl-btn.red:hover    { background: #b91c1c; }
+
+/* ── OBSERVATIONS ─────────────────────────────── */
+.obs-panel {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-top: 16px;
+}
+.obs-header {
+  padding: 13px 18px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.obs-header-icon {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: var(--warn);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(245,158,11,0.3);
+}
+.obs-header-icon svg { width: 15px; height: 15px; color: white; }
+.obs-header-title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+.obs-body { padding: 14px 16px; }
+.obs-body textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: 10px 12px;
+  resize: vertical;
+  border: 1.5px solid var(--border2);
+  border-radius: 10px;
+  font-family: var(--screen-font);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  background: var(--surface2);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.obs-body textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(26,86,219,0.12);
+  background: white;
+}
+.obs-options {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+.obs-options input[type="checkbox"] { accent-color: var(--accent); }
+
+/* ── TOAST ──────────────────────────────────── */
+#copy-notice {
+  position: fixed;
+  right: 20px; bottom: 20px;
+  background: var(--text-primary);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 10px;
+  display: none;
+  z-index: 3000;
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── RESPONSIVE ─────────────────────────────── */
+@media (max-width: 1100px) { .content-grid { gap: 12px; } }
+@media (max-width: 900px) {
+  .content-grid { grid-template-columns: 1fr; }
+  .middle-controls { flex-direction: row; flex-wrap: wrap; justify-content: center; padding-top: 0; }
+  .ctrl-btn { width: 145px; }
+  .brand-name, .brand-sub { display: none; }
+}
+@media (max-width: 700px) {
+  .topbar-row { flex-wrap: wrap; }
+  .topbar-row-spacer { display: none; }
+  .date-group { width: 100%; flex-wrap: wrap; }
+  .page-wrapper { padding: 14px 12px 40px; }
+  .topbar { padding: 0 12px; }
+}
+
+/* ── PRINT ──────────────────────────────────── */
+@media print {
+  .topbar, .topbar-row, .middle-controls, .add-item-btn,
+  .remove-btn, .ellipsis-btn, .qty-btn, #copy-notice,
+  body::before, .obs-options { display: none !important; }
+
+  body { background: white; font-family: var(--print-font); color: #000; }
+  @page { size: A4 portrait; margin: 10mm; }
+
+  .page-wrapper { padding: 0 !important; max-width: 100% !important; }
+
+  .content-grid {
+    display: flex !important;
+    gap: 5mm !important;
+    align-items: flex-start !important;
   }
-  html,body { height:100%; }
-  body {
-    font-family: var(--screen-font);
-    margin: 0; padding: 0; color: var(--ink); background: var(--bg);
+  .content-grid > .middle-controls { display: none !important; }
+
+  .col-panel {
+    flex: 1 !important;
+    box-shadow: none !important;
+    border: var(--print-border) solid #000 !important;
+    border-radius: 4px !important;
+    overflow: visible !important;
   }
 
-  /* ===== Top center (titulo + data) ===== */
-  .top-center { max-width: 920px; margin: 12px auto; text-align:center; }
-  .titulo-nav { display:flex; justify-content:center; align-items:center; gap:16px; margin:0 auto 8px; }
-  .titulo-nav h1 { margin:0; font-size:18px; color:#111; }
-  .datebar { display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap; margin:0 auto; }
-  .datebar label { color:#333; }
-  .datebar input[type="text"]{
-    border:1px solid #ddd; border-radius:6px; padding:6px 8px; width:160px;
-    caret-color: #111; -webkit-appearance: none; appearance: none;
+  .col-header {
+    padding: 5px 8px !important;
+    background: #f0f0f0 !important;
+    border-bottom: var(--print-border) solid #000 !important;
   }
-  .datebar input[type="text"]:focus { outline:none; border-color:var(--azul-escuro); box-shadow:0 0 0 3px rgba(0,123,255,.12); }
-  .chip { background:#fff; border:1px solid #e5e7eb; border-radius:999px; padding:6px 10px; font-size:12px; cursor:pointer; }
-  .chip:hover{ border-color:#cbd5e1 }
+  .col-header-icon { display: none !important; }
+  .col-header-title { font-size: 9px !important; font-weight: bold; font-family: var(--print-font) !important; }
 
-  /* ===== Header / Menus ===== */
-  header {
-    display:flex; justify-content:space-between; align-items:center;
-    background: var(--azul); color: white; padding: 10px 14px; gap: 12px;
-    position: sticky; top: 0; z-index: 999;
+  .col-body { padding: 2px 4px !important; }
+
+  .item {
+    grid-template-columns: 1fr 80px !important;
+    padding: 2px 4px !important;
+    border-bottom: var(--print-border) solid #ccc !important;
+    border-radius: 0 !important;
+    background: none !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
-  .menu-left, .menu-right { display:flex; gap: 8px; align-items:center; }
-  .icon-btn { 
-    background:none; border:none; color:white; font-size:18px; cursor:pointer; padding:6px 8px; border-radius:6px;
-    display: inline-flex; align-items: center; justify-content: center;
+  .item:last-child { border-bottom: none !important; }
+  .item .label { font-size: 7.5px !important; line-height: 1.2 !important; white-space: normal !important; }
+  .weight-selector { display: none !important; }
+
+  .qty-wrap {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    width: 100% !important;
   }
-  .icon-btn:hover { background: rgba(255,255,255,0.08); }
-  .icon-btn img { width: 22px; height: 22px; display: block; flex-shrink: 0; filter: brightness(0) invert(1); }
-  .menu-dropdown { position: relative; }
-  .menu-dropdown-content { display: none; position: absolute; top: calc(100% + 6px); left: 0; background: white; color: #111; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,0.15); min-width: 220px; max-width: calc(100vw - 40px); overflow:auto; z-index: 1200; padding: 6px 0; white-space: normal; }
-  .menu-right .menu-dropdown-content { right: 0; left: auto; }
-  .menu-dropdown-content a { display:block; padding:8px 12px; color:#111; text-decoration:none; }
-  .menu-dropdown-content a:hover { background:#f2f2f2; }
-  .dropdown-section { border-top:1px solid #f0f0f0; padding-top:6px; margin-top:6px; }
-  .section-header { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 12px; cursor:pointer; font-weight:700; }
-  .submenu { display:none; padding-left:6px; padding-bottom:6px; }
-
-  /* ===== Container / Colunas ===== */
-  .container {
-    display:grid; grid-template-columns: minmax(260px,1fr) 200px minmax(260px,1fr); align-items:start; justify-content:center; gap: 32px;
-    padding: 10px 14px 24px; max-width:1200px; margin: 0 auto;
-  }
-  .column { display:flex; flex-direction:column; gap:6px; min-width: 300px; max-width: 520px; width:100%; border:1px solid var(--line); border-radius:10px; padding:12px; box-sizing:border-box; }
-  .column h3 { margin:0 6px 8px; font-size:14px; color:#0f172a; }
-
-  /* Usar grid para garantir alinhamento fixo entre nome e quantidade em todas as colunas */
-  /* A segunda coluna (quantidade) aumentada para evitar quebra em PDFs */
-  .item { display:grid; grid-template-columns: 1fr 120px; align-items:center; gap:10px; padding:6px 8px; border-bottom:1px dashed #eef2ff; }
-  .item:last-child{ border-bottom:none }
-  .label-wrap{ display:flex; align-items:center; gap:8px; min-width:0; }
-  .item .label { color:#111; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; min-width:0; font-family: var(--screen-font); }
-  .item .label.expanded{ white-space:normal; overflow:visible; }
-  .ellipsis-btn{ background:none; border:none; cursor:pointer; font-weight:700; padding:2px 6px; border-radius:6px; font-size:12px; }
-  
-  .item input[type="number"] { 
-    width: 100%; 
-    padding: 6px 6px; 
-    text-align: center; /* CENTRALIZADO */
-    border: 1px solid #ddd; 
-    border-radius: 6px; 
-    background: #fff; 
-    box-sizing: border-box; 
-    font-family: var(--screen-font); /* MESMA FONTE DOS PRODUTOS */
-    font-size: 14px;
-  }
-  .item input[type="number"]:focus { 
-    outline: none; 
-    border-color: var(--azul-escuro); 
-    box-shadow: 0 0 0 3px rgba(0,123,255,.12); 
-  }
-  .item.hidden-empty{ display:none }
-
-  /* ===== Middle controls ===== */
-  #middle-controls { display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:center; min-width:200px; }
-  #middle-controls button { width:160px; padding:10px 12px; font-size:14px; border-radius:6px; border:none; cursor:pointer; }
-  #btn-linhas { background: var(--amarelo); color:black; }
-  #btn-linhas:hover { background:#e6c200; }
-  .btn-vermelho { background: var(--vermelho); color:white; }
-  .btn-vermelho:hover { background:#8b1a1a; }
-  .btn-imprimir { background: #28a745; color:white; }
-  .btn-imprimir:hover { background:#218838; }
-
-  /* ===== Observações ===== */
-  .obs-box { max-width:1200px; margin: 12px auto 22px; padding:10px; border:1px solid var(--line); border-radius:10px; }
-  .obs-box h3{ margin:0 0 8px 0; font-size:14px; }
-  .obs-box textarea{ width:100%; min-height:90px; padding:8px; resize:vertical; border-radius:6px; border:1px solid #ddd; font-family: monospace; }
-  .obs-options{ display:flex; align-items:center; gap:8px; margin-top:8px; }
-
-  /* ===== Rodapé Links ===== */
-  .mac-links { margin: 0 14px 30px; display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; align-items:stretch; }
-  .mac-links a { display:block; padding:8px 10px; background:#f7fbff; border:1px solid #e6f0ff; color: var(--azul); text-decoration:none; border-radius:6px; text-align:center; }
-  .mac-links a:hover { background:#eef6ff; }
-
-  @media (max-width:1100px){ .container { gap: 20px; } }
-  @media (max-width:900px){ .container { grid-template-columns: 1fr; } #middle-controls { order:2; } }
-  @media (max-width:520px){ .column { max-width:100%; min-width:auto; width:100%; } .mac-links { grid-template-columns: 1fr; } #middle-controls { flex-direction:row; gap:8px; } #middle-controls button { width: 140px; } }
-
-  /* ===== Toast ===== */
-  #copy-notice { position: fixed; right: 18px; bottom: 18px; background: rgba(0,0,0,0.78); color: white; padding: 8px 12px; border-radius: 6px; display: none; z-index: 2000; font-size: 13px; }
-
-  .page-bottom-space { height: 120px; }
-
-  /* Botão de adicionar item - ATUALIZADO (sem emoji, mesma fonte, cor harmoniosa) */
-  .add-item-btn { 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    gap: 6px; 
-    margin-top: 8px; 
-    padding: 8px 12px; 
-    background: #f7fbff; 
-    border: 1px dashed #b8d4ff; 
-    border-radius: 6px; 
-    cursor: pointer; 
-    font-size: 13px; 
-    color: #007BFF; 
-    font-family: var(--screen-font);
-    transition: all 0.2s ease;
-  }
-  .add-item-btn:hover { 
-    background: #eef6ff; 
-    border-color: #007BFF;
-    border-style: solid;
+  input.qty-input {
+    font-size: 7.5px !important;
+    padding: 1px 3px !important;
+    border: var(--print-border) solid #999 !important;
+    border-radius: 2px !important;
+    background: white !important;
+    width: 100% !important;
+    flex: 1 !important;
   }
 
-  /* Item customizado - ATUALIZADO (campos iguais aos outros) */
-  .custom-item { 
-    display: grid; 
-    grid-template-columns: 1fr 120px 30px; 
-    align-items: center; 
-    gap: 10px; 
-    padding: 6px 8px; 
-    border-bottom: 1px dashed #eef2ff; 
+  .custom-item {
+    display: grid !important;
+    grid-template-columns: 1fr 60px !important;
+    padding: 2px 4px !important;
+    border-bottom: var(--print-border) solid #ccc !important;
+    border-radius: 0 !important;
+    background: none !important;
   }
   .custom-item input[type="text"] {
-    width: 100%;
-    padding: 6px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    box-sizing: border-box;
-    font-family: var(--screen-font);
+    font-size: 7.5px !important; padding: 1px 3px !important;
+    border: none !important; background: transparent !important;
   }
   .custom-item input[type="number"] {
-    width: 100%;
-    padding: 6px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    box-sizing: border-box;
-    font-family: var(--screen-font);
-    text-align: center; /* CENTRALIZADO */
-  }
-  .custom-item input[type="number"]:focus,
-  .custom-item input[type="text"]:focus {
-    outline: none;
-    border-color: var(--azul-escuro);
-    box-shadow: 0 0 0 3px rgba(0,123,255,.12);
-  }
-  /* Botão de remover - ATUALIZADO (sem vermelho, mais discreto) */
-  .remove-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    color: #6c757d;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-weight: bold;
-    transition: all 0.2s ease;
-  }
-  .remove-btn:hover {
-    background: #f8f9fa;
-    color: #495057;
+    font-size: 7.5px !important; padding: 1px 3px !important;
+    border: var(--print-border) solid #999 !important;
+    border-radius: 2px !important; background: white !important;
   }
 
-  /* Estilo para itens com seletor de peso - ATUALIZADO: seletor ao lado do nome */
-  .item-with-selector { 
-    grid-template-columns: 1fr 120px; 
+  .obs-panel {
+    border: var(--print-border) solid #000 !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    margin-top: 8mm !important;
   }
-  .weight-selector {
-    width: 70px;
-    padding: 4px 6px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    background: #fff;
-    font-size: 12px;
-    font-family: var(--screen-font);
+  .obs-header {
+    padding: 5px 8px !important;
+    background: #f0f0f0 !important;
+    border-bottom: var(--print-border) solid #000 !important;
   }
-
-  /* Impressão: forçar bordas e linhas em preto e fonte consistente */
-  @media print {
-    header, .menu-dropdown-content, #middle-controls, .mac-links, #copy-notice, .add-item-btn, .remove-btn, .weight-selector { display:none !important; }
-    .top-center { display:block !important; }
-    .container { gap:0; padding:0; max-width: none; grid-template-columns: minmax(200px,0.45fr) 0 minmax(200px,0.55fr); }
-    .column { box-shadow:none; border: var(--print-border) solid #000 !important; min-width:40%; }
-    .item { border-bottom: var(--print-border) solid #000 !important; }
-    .obs-box { 
-      border: var(--print-border) solid #000 !important; 
-      margin-top: 20px !important; 
-      padding: 12px !important; 
-    }
-    .page-bottom-space { display:none; }
-
-    /* garantir fonte única e consistente para tudo que é impresso */
-    body { color: #000; background: #fff; font-family: var(--print-font); font-size: 11pt; }
-    .obs-box textarea{ 
-      min-height:160px; 
-      font-size:11pt; 
-      font-family: var(--print-font); 
-      line-height:1.25; 
-      white-space: pre-wrap; 
-      border: none !important; 
-      background-color: transparent !important; 
-    }
-
-    /* garantir que labels e tabelas também usem a mesma fonte */
-    .item .label, .item input, .titulo-nav h1 { font-family: var(--print-font); }
+  .obs-header-icon { display: none !important; }
+  .obs-header-title { font-size: 9px !important; font-family: var(--print-font) !important; }
+  .obs-body { padding: 6px 8px !important; }
+  .obs-body textarea {
+    font-size: 8px !important;
+    font-family: var(--print-font) !important;
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    min-height: 120px !important;
+    white-space: pre-wrap;
+    line-height: 1.3;
   }
+}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="menu-left">
+<!-- ── TOPBAR ── -->
+<header class="topbar">
+  <div class="topbar-left">
+
+    <!-- Menu Hamburger -->
     <div class="menu-dropdown">
-      <!-- Menu Hamburger PNG -->
-      <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')">
-        <img src="icones/menu-hamburger.png" alt="Menu">
+      <button class="icon-btn" id="btn-hamburger" title="Menu" onclick="toggleMenu('dropdown-menu')" aria-haspopup="true" aria-controls="dropdown-menu" aria-expanded="false">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        <span class="sr-only">Menu</span>
       </button>
       <div class="menu-dropdown-content" id="dropdown-menu" role="menu" aria-hidden="true">
+
+        <!-- MACS -->
         <div class="dropdown-section">
-          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)"><span>MACS</span><small class="chev">▸</small></div>
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter')toggleSubmenu(this)">
+            <span>MACS</span><small class="chev">▸</small>
+          </div>
           <div class="submenu">
-            <a href="#" data-mac="77" onclick="abrirMac(event, 'MAC Bairro São Geraldo - Cód. 77')">MAC Bairro São Geraldo - Cód. 77</a>
-            <a href="#" data-mac="78" onclick="abrirMac(event, 'MAC Bairro Planalto - Cód. 78')">MAC Bairro Planalto - Cód. 78</a>
-            <a href="#" data-mac="79" onclick="abrirMac(event, 'MAC Romeu Duarte - Cód. 79')">MAC Romeu Duarte - Cód. 79</a>
-            <a href="#" data-mac="80" onclick="abrirMac(event, 'MAC Rua São Geraldo / Centro 2 - Cód. 80')">MAC Rua São Geraldo / Centro 2 - Cód. 80</a>
-            <a href="#" data-mac="277" onclick="abrirMac(event, 'MAC Matriz - Cód. 277')">MAC Matriz - Cód. 277</a>
-            <a href="#" data-mac="853" onclick="abrirMac(event, 'MAC Concesso - Cód. 853')">MAC Concesso - Cód. 853</a>
-            <a href="#" data-mac="1249" onclick="abrirMac(event, 'MAC Jardim do Lago - Cód. 1249')">MAC Jardim do Lago - Cód. 1249</a>
-            <a href="#" data-mac="989" onclick="abrirMac(event, 'MAC Araújos - Cód. 989')">MAC Araújos - Cód. 989</a>
+            <a href="mac77.html"   onclick="abrirMac(event,'MAC Bairro São Geraldo')"><span class="mac-code">77</span>MAC Bairro São Geraldo</a>
+            <a href="mac78.html"   onclick="abrirMac(event,'MAC Bairro Planalto')"><span class="mac-code">78</span>MAC Bairro Planalto</a>
+            <a href="mac79.html"   onclick="abrirMac(event,'MAC Romeu Duarte')"><span class="mac-code">79</span>MAC Romeu Duarte</a>
+            <a href="mac80.html"   onclick="abrirMac(event,'MAC Rua São Geraldo / Centro 2')"><span class="mac-code">80</span>MAC Rua São Geraldo / Centro 2</a>
+            <a href="mac277.html"  onclick="abrirMac(event,'MAC Matriz')"><span class="mac-code">277</span>MAC Matriz</a>
+            <a href="mac853.html"  onclick="abrirMac(event,'MAC Concesso')"><span class="mac-code">853</span>MAC Concesso</a>
+            <a href="mac1249.html" onclick="abrirMac(event,'MAC Jardim do Lago')"><span class="mac-code">1249</span>MAC Jardim do Lago</a>
+            <a href="mac989.html"  onclick="abrirMac(event,'MAC Araújos')"><span class="mac-code">989</span>MAC Araújos</a>
+            <a href="mac1436.html" onclick="abrirMac(event,'MAC São Gonçalo do Pará')"><span class="mac-code">1436</span>MAC São Gonçalo do Pará</a>
           </div>
         </div>
+
+        <!-- São José -->
         <div class="dropdown-section">
-          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter') toggleSubmenu(this)"><span>São José</span><small class="chev">▸</small></div>
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter')toggleSubmenu(this)">
+            <span>São José</span><small class="chev">▸</small>
+          </div>
           <div class="submenu">
-            <a href="#" onclick="abrirLocal(event, 'São José')">São José</a>
-            <a href="#" onclick="abrirLocal(event, 'Pão Total')">Pão Total</a>
+            <a href="saojose.html"  onclick="abrirLocal(event,'Pedido São José')">Pedido São José</a>
+            <a href="paototal.html" onclick="abrirLocal(event,'Pedido Pão Total')">Pedido Pão Total</a>
           </div>
         </div>
+
+        <!-- Tabelas -->
+        <div class="dropdown-section">
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter')toggleSubmenu(this)">
+            <span>Tabelas</span><small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="pdfs/Tabela 2025 Geral.pdf"   onclick="abrirLocal(event,'Tabela de Preços Geral')">Tabela de Preços Geral</a>
+            <a href="pdfs/Tabela 2025 Empresa.pdf" onclick="abrirLocal(event,'Tabela de Preços Empresa')">Tabela de Preços Empresa</a>
+            <a href="https://github.com/henriteodoro/paratestes/releases/download/v1.0/Catalogo.Sao.Jose.2025.AT03.pdf" onclick="abrirLocal(event,'Catálogo de Produtos')">Catálogo de Produtos</a>
+          </div>
+        </div>
+
+        <!-- Ferramentas -->
+        <div class="dropdown-section">
+          <div class="section-header" tabindex="0" onclick="toggleSubmenu(this)" onkeydown="if(event.key==='Enter')toggleSubmenu(this)">
+            <span>Ferramentas</span><small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="processadordepedidos.html" onclick="abrirLocal(event,'Processador de Pedidos')">Processador de Pedidos</a>
+            <a href="ods.html"                  onclick="abrirLocal(event,'Visualizar Planilhas')">Visualizar Planilhas</a>
+            <a href="simularpedido.html"         onclick="abrirLocal(event,'Simulador de Pedido')">Simulador de Pedido</a>
+            <a href="anotacoes/anotacoes.html"   onclick="abrirLocal(event,'Anotações')">Anotações</a>
+            <a href="planilhaautocontrole.html"  onclick="abrirLocal(event,'Planilhas de Autocontrole')">Planilhas de Autocontrole</a>
+          </div>
+        </div>
+
       </div>
     </div>
 
-    <!-- Fechar PNG -->
-    <button class="icon-btn" id="btn-close" title="Fechar" onclick="fecharPagina()">
-      <img src="icones/fechar.png" alt="Fechar">
+    <!-- Home -->
+    <button class="icon-btn" title="Menu inicial" onclick="voltarMenu()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      <span class="sr-only">Início</span>
     </button>
 
-    <!-- Home PNG -->
-    <button class="icon-btn" id="btn-home" title="Menu inicial" onclick="voltarMenu()">
-      <img src="icones/home.png" alt="Início">
+    <!-- Fechar -->
+    <button class="icon-btn" title="Fechar" onclick="fecharPagina()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <line x1="15" y1="9" x2="9" y2="15"/>
+        <line x1="9" y1="9" x2="15" y2="15"/>
+      </svg>
+      <span class="sr-only">Fechar</span>
     </button>
+
+    <div class="topbar-divider"></div>
+
+    <!-- Brand -->
+    <div class="topbar-brand">
+      <div class="brand-icon">PT</div>
+      <div>
+        <div class="brand-name" id="titulo-principal">Lista Pedido Pão Total</div>
+        <div class="brand-sub">Organizador de pedido</div>
+      </div>
+    </div>
+
+    <!-- Seta esquerda — voltar à São José -->
+    <a href="saojose.html" class="nav-arrow-btn" title="Pedido São José" onclick="abrirLocal(event,'Pedido São José')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </a>
+
   </div>
 
-  <div class="menu-right">
-    <div class="menu-dropdown">
-      <!-- Salvar PNG -->
-      <button class="icon-btn" id="btn-salvar" title="Salvar" onclick="toggleMenu('dropdown-save')">
-        <img src="icones/salvar.png" alt="Salvar">
+  <div class="topbar-spacer"></div>
+
+  <!-- Actions right -->
+  <div class="topbar-actions">
+
+    <!-- Salvar dropdown -->
+    <div class="menu-dropdown menu-right" style="position:relative;">
+      <button class="icon-btn" title="Salvar" onclick="toggleMenu('dropdown-save')" aria-haspopup="true" aria-controls="dropdown-save">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v13"/>
+          <polyline points="7 11 12 16 17 11"/>
+          <path d="M5 20h14"/>
+        </svg>
+        <span class="sr-only">Salvar</span>
       </button>
-      <div class="menu-dropdown-content" id="dropdown-save" aria-labelledby="btn-salvar">
-        <a href="#" onclick="salvarTXT(event)" title="Salvar como TXT">Salvar como TXT</a>
-        <a href="#" onclick="salvarPDF(event)" title="Salvar como PDF">Salvar como PDF</a>
-        <a href="#" onclick="salvarExcel(event)" title="Salvar como Excel">Salvar como Excel</a>
+      <div class="save-dropdown menu-dropdown-content" id="dropdown-save">
+        <a href="#" onclick="salvarTXT(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Salvar como TXT
+        </a>
+        <a href="#" onclick="salvarPDF(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          Salvar como PDF
+        </a>
+        <a href="#" onclick="salvarExcel(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+          Salvar como Excel
+        </a>
       </div>
     </div>
 
-    <!-- Imprimir PNG -->
+    <!-- Imprimir -->
     <button class="icon-btn" id="btn-print" title="Imprimir">
-      <img src="icones/imprimir.png" alt="Imprimir">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 6 2 18 2 18 9"/>
+        <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+        <rect x="6" y="14" width="12" height="8"/>
+      </svg>
+      <span class="sr-only">Imprimir</span>
     </button>
 
-    <!-- Copiar PNG -->
-    <button class="icon-btn" id="btn-copy" title="Copiar" onclick="copiarTudo()">
-      <img src="icones/copiar.png" alt="Copiar">
+    <!-- Copiar -->
+    <button class="icon-btn" title="Copiar lista" onclick="copiarTudo()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="18" cy="5" r="3"/>
+        <circle cx="6" cy="12" r="3"/>
+        <circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+      </svg>
+      <span class="sr-only">Copiar</span>
     </button>
   </div>
 </header>
 
-<!-- Top center (titulo + data) -->
-<div class="top-center">
-  <div class="titulo-nav" role="navigation" aria-label="Navegação MAC">
-    <span style="width:28px;display:inline-block"></span>
-    <h1 id="titulo-principal">Lista Pedido Pão Total</h1>
-    <!-- seta removida conforme pedido -->
+<!-- ── PAGE WRAPPER ── -->
+<div class="page-wrapper">
+
+  <div class="topbar-row">
+
+    <div class="stat-chip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      Preenchidos: <span class="val" id="contador-val">0</span>
+    </div>
+
+    <div class="stat-chip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      Produtos: <span class="val" id="total-val">0</span>
+    </div>
+
+    <div class="topbar-row-spacer"></div>
+
+    <div class="date-group">
+      <label for="dataPedido">Data:</label>
+      <input id="dataPedido" type="text" placeholder="dd/mm/aaaa" inputmode="numeric" autocomplete="off" />
+      <button class="chip" id="chipHoje">Hoje</button>
+      <button class="chip" id="chipAmanha">Amanhã</button>
+    </div>
+
   </div>
 
-  <!-- Barra de Data -->
-  <div class="datebar">
-    <label for="dataPedido">Data:</label>
-    <input id="dataPedido" type="text" placeholder="dd/mm/aaaa" inputmode="numeric" autocomplete="off" />
-    <button class="chip" id="chipHoje">Hoje</button>
-    <button class="chip" id="chipAmanha">Amanhã</button>
+  <!-- Main grid -->
+  <div class="content-grid">
+
+    <!-- Coluna Produtos -->
+    <div class="col-panel" id="coluna-principal-panel">
+      <div class="col-header">
+        <div class="col-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        </div>
+        <span class="col-header-title">PRODUTOS</span>
+      </div>
+      <div class="col-body">
+        <div id="listaPrincipal"></div>
+        <button class="add-item-btn" onclick="adicionarItem('listaPrincipal')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:13px;height:13px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Adicionar Item
+        </button>
+      </div>
+    </div>
+
+    <!-- Middle controls -->
+    <div class="middle-controls" id="middle-controls">
+      <button class="ctrl-btn green" onclick="imprimirDireto()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir
+      </button>
+      <button class="ctrl-btn amber" onclick="alternarLinhas()" id="btn-linhas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Ocultar Vazios
+      </button>
+      <button class="ctrl-btn red" onclick="resetarTudo()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 100-.49"/></svg>
+        Resetar Tudo
+      </button>
+    </div>
+
+    <!-- Coluna Ilha -->
+    <div class="col-panel" id="coluna-ilha-panel">
+      <div class="col-header">
+        <div class="col-header-icon" style="background:var(--success);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <span class="col-header-title">ILHA PÃO TOTAL</span>
+      </div>
+      <div class="col-body">
+        <div id="listaIlha"></div>
+        <button class="add-item-btn" onclick="adicionarItem('listaIlha')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:13px;height:13px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Adicionar Item
+        </button>
+      </div>
+    </div>
+
   </div>
+
+  <!-- Observações -->
+  <div class="obs-panel">
+    <div class="obs-header">
+      <div class="obs-header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </div>
+      <span class="obs-header-title">OBSERVAÇÕES</span>
+    </div>
+    <div class="obs-body">
+      <textarea id="observacoes" placeholder="Escreva observações que aparecerão ao copiar/salvar/imprimir..."></textarea>
+      <div class="obs-options">
+        <label><input type="checkbox" id="printObsTitle" checked /> Incluir o título "OBSERVAÇÕES" na impressão/PDF</label>
+      </div>
+    </div>
+  </div>
+
 </div>
 
-<div class="container">
-  <div class="column" id="coluna-principal">
-    <h3>PRODUTOS</h3>
-    <div id="listaPrincipal"></div>
-    <button class="add-item-btn" onclick="adicionarItem('listaPrincipal')">Adicionar Item</button>
-  </div>
-
-  <div id="middle-controls" aria-hidden="false">
-    <button onclick="imprimirDireto()" class="btn-imprimir">Imprimir</button>
-    <button onclick="alternarLinhas()" id="btn-linhas">Ocultar Linhas Vazias</button>
-    <button onclick="resetarTudo()" class="btn-vermelho">Resetar Tudo</button>
-  </div>
-
-  <div class="column" id="coluna-ilha">
-    <h3>ILHA PÃO TOTAL</h3>
-    <div id="listaIlha"></div>
-    <button class="add-item-btn" onclick="adicionarItem('listaIlha')">Adicionar Item</button>
-  </div>
-</div>
-
-<!-- Observações (nova seção) -->
-<div class="obs-box">
-  <h3>OBSERVAÇÕES</h3>
-  <textarea id="observacoes" placeholder="Escreva observações que aparecerão ao copiar/salvar/imprimir..."></textarea>
-  <div class="obs-options">
-    <label><input type="checkbox" id="printObsTitle" checked /> Incluir o título "OBSERVAÇÕES" na impressão</label>
-  </div>
-</div>
-
-<!-- Toast / aviso -->
 <div id="copy-notice">Copiado!</div>
 
-<!-- espaço vazio final apenas para aparência -->
-<div class="page-bottom-space"></div>
-
 <script>
-/***********************  Dados das listas (substituídos conforme pedido) ***********************/
+/* ============================================================
+   DADOS
+============================================================ */
 const PRODUTOS_PRINCIPAL = [
   "Biscoitinho de doce grande 10 unidades",
   "Biscoitinho doce frito 1kg",
@@ -405,7 +1161,7 @@ const PRODUTOS_PRINCIPAL = [
   "Meia lua 1kg com 10 unidades",
   "Mini carioca 7kg",
   "Mini pão francês 06hrs 7kg",
-  "Palitão de provolone 1kg com 10 unidades	",
+  "Palitão de provolone 1kg com 10 unidades",
   "Panhoca 06hrs 7kg",
   "Pão de queijo recheado frango grande 7kg",
   "Pão de queijo recheado frango pequeno 7kg",
@@ -445,7 +1201,13 @@ const PRODUTOS_ILHA = [
   "Quibe com catupiry pequeno 1kg"
 ];
 
-/***********************  Mapa de nomes para impressão/exportação ***********************/
+/* Produtos que recebem seletor de peso (apenas lista principal) */
+const PRODUCTS_WITH_WEIGHT_SELECTOR = [
+  "Biscoitinho doce frito 1kg",
+  "Meia lua 1kg com 10 unidades"
+];
+
+/* Mapa de nomes para impressão/exportação */
 const PRINT_NAME_MAP = {
   "Biscoitinho de doce grande 10 unidades": "BISCOITINHO DE DOCE GRANDE",
   "Biscoitinho doce frito 1kg": "BISCOITINHO DE DOCE 1KG",
@@ -476,7 +1238,7 @@ const PRINT_NAME_MAP = {
   "Meia lua 7kg": "MEIA LUA 7KG",
   "Mini carioca 7kg": "MINI CARIOCA",
   "Mini pão francês 06hrs 7kg": "MINI PÃO FRANCÊS 06HRS",
-  "Palitão de provolone 1kg com 10 unidades	": "PALITÃO DE PROVOLONE 1KG",
+  "Palitão de provolone 1kg com 10 unidades": "PALITÃO DE PROVOLONE 1KG",
   "Panhoca 06hrs 7kg": "PANHOCA 06HRS",
   "Pão de queijo recheado frango grande 7kg": "PÃO DE QUEIJO RECHEADO FRANGO GRANDE 7KG",
   "Pão de queijo recheado frango pequeno 7kg": "PÃO DE QUEIJO RECHEADO FRANGO PEQUENO",
@@ -485,54 +1247,57 @@ const PRINT_NAME_MAP = {
   "Pão francês 04hrs 7kg": "PÃO FRANCÊS 04HRS",
   "Pão francês 06hrs 7kg": "PÃO FRANCÊS 06HRS",
   "Pão francês 12hrs 7kg": "PÃO FRANCÊS 12HRS",
-  "Pão francês 18hrs 7kg": "PÃO FRANCÊS 18H",
-  "Pastel assado de frango grande 10 unidades	": "PASTEL ASSADO DE FRANGO",
+  "Pão francês 18h 7kg": "PÃO FRANCÊS 18H",
+  "Pastel assado de frango grande 10 unidades": "PASTEL ASSADO DE FRANGO",
   "Pastel português de carne grande 10 unidades": "PASTEL PORTUGUÊS DE CARNE",
   "Pastelzinho catupiry pequeno 1kg": "PASTELZINHO CATUPIRY PEQUENO",
   "Quibe com catupiry pequeno 1kg": "QUIBE COM CATUPIRY PEQUENO",
   "Quibe grande 1kg": "QUIBE GRANDE",
   "Rosca caseira PCT com 10 unidades": "ROSCA CASEIRA",
-  "Tortinha de frango, abacaxi e passas 10 unidades": "TORTINHA DE FRANGO, ABACAXI E PASSAS"
+  "Tortinha de frango, abacaxi e passas 10 unidades": "TORTINHA DE FRANGO, ABACAXI E PASSAS",
+  "Biscoito chipa 1kg": "BISCOITO CHIPA 1KG",
+  "Biscoito de queijo 1kg": "BISCOITO DE QUEIJO 1KG",
+  "Broinha de fubá doce 1kg": "BROINHA DE FUBÁ DOCE 1KG",
+  "Broinha de sal e queijo 1kg": "BROINHA DE SAL E QUEIJO 1KG",
+  "Broinha temperada com bacon 1kg": "BROINHA TEMPERADA COM BACON 1KG",
+  "Empada de frango 10 unidades": "EMPADA DE FRANGO 10 UNIDADES",
+  "Pão de queijo recheado frango grande 1kg": "PÃO DE QUEIJO RECHEADO FRANGO GRANDE 1KG",
+  "Pão de queijo recheado frango 1kg": "PÃO DE QUEIJO RECHEADO FRANGO 1KG",
+  "Pão de queijo tradicional grande 1kg": "PÃO DE QUEIJO TRADICIONAL GRANDE 1KG",
+  "Pão de queijo tradicional pequeno 1kg": "PÃO DE QUEIJO TRADICIONAL PEQUENO 1KG"
 };
 
-// Produtos que terão seletor de peso (apenas na lista principal)
-const PRODUCTS_WITH_WEIGHT_SELECTOR = [
-  "Biscoitinho doce frito 1kg",
-  "Meia lua 1kg com 10 unidades"
-];
-
-function getPrintName(prod){ 
-  return PRINT_NAME_MAP[prod] || prod.toUpperCase(); 
+function getPrintName(prod) {
+  return PRINT_NAME_MAP[prod] || prod.toUpperCase();
 }
 
-/***********************  Helpers UI ***********************/
-const $ = (sel) => document.querySelector(sel);
-const $$ = (sel) => Array.from(document.querySelectorAll(sel));
-
+/* ============================================================
+   TOAST
+============================================================ */
 function showBottomNotice(message = 'Copiado!', duration = 2000) {
   const el = document.getElementById('copy-notice');
   if (!el) return;
   if (el._hideTimeout) { clearTimeout(el._hideTimeout); el._hideTimeout = null; }
-  el.textContent = message; el.style.display = 'block';
+  el.textContent = message;
+  el.style.display = 'block';
   el._hideTimeout = setTimeout(() => { el.style.display = 'none'; el._hideTimeout = null; }, duration);
 }
 
-/***********************  Monta listas ***********************/
-function makeItem(nome, listaId){
-  const wrap = document.createElement('div');
-  
-  // Verificar se este produto precisa de um seletor de peso (apenas na lista principal)
+/* ============================================================
+   MONTA LISTAS
+============================================================ */
+function makeItem(nome, listaId) {
   const hasWeightSelector = listaId === 'listaPrincipal' && PRODUCTS_WITH_WEIGHT_SELECTOR.includes(nome);
-  
-  wrap.className = 'item' + (hasWeightSelector ? ' item-with-selector' : '');
+  const wrap = document.createElement('div');
+  wrap.className = 'item';
 
+  /* ── Label ── */
   const labelWrap = document.createElement('div');
   labelWrap.className = 'label-wrap';
 
   const label = document.createElement('span');
   label.className = 'label';
-  
-  // Para produtos com seletor, mostrar apenas o nome base (apenas na lista principal)
+
   if (hasWeightSelector) {
     if (nome === "Biscoitinho doce frito 1kg") {
       label.textContent = "Biscoitinho doce frito";
@@ -543,628 +1308,587 @@ function makeItem(nome, listaId){
     label.textContent = nome;
   }
 
+  labelWrap.appendChild(label);
+
+  /* ── Seletor de peso (se houver) ── */
+  if (hasWeightSelector) {
+    const selector = document.createElement('select');
+    selector.className = 'weight-selector';
+    if (nome === "Biscoitinho doce frito 1kg") {
+      selector.innerHTML = `<option value="1kg">1kg</option><option value="7kg">7kg</option>`;
+    } else if (nome === "Meia lua 1kg com 10 unidades") {
+      selector.innerHTML = `<option value="1kg com 10 unidades">1kg</option><option value="7kg">7kg</option>`;
+    }
+    labelWrap.appendChild(selector);
+  }
+
+  /* ── Botão de ellipsis ── */
   const ell = document.createElement('button');
   ell.type = 'button';
   ell.className = 'ellipsis-btn';
   ell.textContent = '...';
   ell.title = 'Mostrar texto completo';
   ell.style.display = 'none';
-  ell.addEventListener('click', (ev)=>{
+  ell.addEventListener('click', (ev) => {
     ev.preventDefault();
     const expanded = label.classList.toggle('expanded');
     ell.textContent = expanded ? '▴' : '...';
     ell.title = expanded ? 'Fechar' : 'Mostrar texto completo';
   });
-
-  // Primeiro adicionamos o label
-  labelWrap.appendChild(label);
-  
-  // Depois adicionamos o seletor de peso (se houver) - AGORA DEPOIS DO NOME
-  if (hasWeightSelector) {
-    const selector = document.createElement('select');
-    selector.className = 'weight-selector';
-    
-    if (nome === "Biscoitinho doce frito 1kg") {
-      selector.innerHTML = `
-        <option value="1kg">1kg</option>
-        <option value="7kg">7kg</option>
-      `;
-    } else if (nome === "Meia lua 1kg com 10 unidades") {
-      selector.innerHTML = `
-        <option value="1kg com 10 unidades">1kg</option>
-        <option value="7kg">7kg</option>
-      `;
-    }
-    
-    labelWrap.appendChild(selector);
-  }
-
-  // Por último o botão de ellipsis
   labelWrap.appendChild(ell);
 
+  /* ── Qty wrap com botões +/- ── */
+  const qtyWrap = document.createElement('div');
+  qtyWrap.className = 'qty-wrap';
+
+  const btnMinus = document.createElement('button');
+  btnMinus.type = 'button';
+  btnMinus.className = 'qty-btn';
+  btnMinus.setAttribute('aria-label', 'Diminuir');
+  btnMinus.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+
   const input = document.createElement('input');
-  input.type = 'number'; 
-  input.min = '0'; 
-  input.step = '1'; 
-  input.placeholder = ''; // Vazio em vez de 0
-  input.style.textAlign = 'center'; // Garantir centralização
-  input.addEventListener('input', ()=> { 
-    if(ocultando) applyHideState(); 
-    atualizarContagem(); 
+  input.type = 'number';
+  input.className = 'qty-input';
+  input.min = '0';
+  input.step = '1';
+  input.placeholder = '';
+  input.setAttribute('aria-label', `Quantidade de ${nome}`);
+
+  const btnPlus = document.createElement('button');
+  btnPlus.type = 'button';
+  btnPlus.className = 'qty-btn';
+  btnPlus.setAttribute('aria-label', 'Aumentar');
+  btnPlus.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+
+  btnMinus.addEventListener('click', () => {
+    input.value = Math.max(0, (parseInt(input.value) || 0) - 1);
+    if (ocultando) applyHideState();
+    atualizarContagem();
+  });
+  btnPlus.addEventListener('click', () => {
+    input.value = (parseInt(input.value) || 0) + 1;
+    if (ocultando) applyHideState();
+    atualizarContagem();
+  });
+  input.addEventListener('input', () => { if (ocultando) applyHideState(); atualizarContagem(); });
+  input.addEventListener('focus', () => input.select());
+  input.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter') { ev.preventDefault(); focusNextInput(ev.target); }
   });
 
-  // Enter navigation handler
-  input.addEventListener('keydown', (ev)=>{
-    if(ev.key === 'Enter'){
-      ev.preventDefault();
-      focusNextInput(ev.target);
-    }
-  });
+  qtyWrap.appendChild(btnMinus);
+  qtyWrap.appendChild(input);
+  qtyWrap.appendChild(btnPlus);
 
-  wrap.appendChild(labelWrap); 
-  wrap.appendChild(input);
-
+  wrap.appendChild(labelWrap);
+  wrap.appendChild(qtyWrap);
   return wrap;
 }
 
-function montarListas(){
-  const p = $('#listaPrincipal'); const i = $('#listaIlha');
+function montarListas() {
+  const p = document.getElementById('listaPrincipal');
+  const i = document.getElementById('listaIlha');
   p.innerHTML = ''; i.innerHTML = '';
-  PRODUTOS_PRINCIPAL.forEach(n=> p.appendChild(makeItem(n, 'listaPrincipal')));
-  PRODUTOS_ILHA.forEach(n=> i.appendChild(makeItem(n, 'listaIlha')));
-  // adicionar checagem de "..." após inserir na DOM
+  PRODUTOS_PRINCIPAL.forEach(n => p.appendChild(makeItem(n, 'listaPrincipal')));
+  PRODUTOS_ILHA.forEach(n => i.appendChild(makeItem(n, 'listaIlha')));
   setTimeout(checkTruncations, 30);
+  atualizarContagem();
 }
 
-function checkTruncations(){
-  $$('#listaPrincipal .item, #listaIlha .item').forEach(item=>{
-    const label = item.querySelector('.label'); const btn = item.querySelector('.ellipsis-btn');
-    if(!label || !btn) return;
-    // se o texto real for maior que o espaço disponível, mostrar botão
+function checkTruncations() {
+  document.querySelectorAll('#listaPrincipal .item, #listaIlha .item').forEach(item => {
+    const label = item.querySelector('.label');
+    const btn = item.querySelector('.ellipsis-btn');
+    if (!label || !btn) return;
     const isTruncated = label.scrollWidth > label.clientWidth + 2;
     btn.style.display = isTruncated ? 'inline-block' : 'none';
-    if(!isTruncated){ label.classList.remove('expanded'); btn.textContent = '...'; }
+    if (!isTruncated) { label.classList.remove('expanded'); btn.textContent = '...'; }
   });
 }
+window.addEventListener('resize', () => { setTimeout(checkTruncations, 100); });
 
-window.addEventListener('resize', ()=>{ setTimeout(checkTruncations, 100); });
-
-/***********************  Data (campo com dd/mm/aaaa) ***********************/
-function pad2(n){ return String(n).padStart(2,'0'); }
-function formatDDMMYYYY(date){ return `${pad2(date.getDate())}/${pad2(date.getMonth()+1)}/${date.getFullYear()}`; }
-function formatDDMM(date){ return `${pad2(date.getDate())}/${pad2(date.getMonth()+1)}`; }
-function parseDateInput(v){ 
-  if(!v || v.trim() === '') return null; 
-  v = v.replace(/\s+/g,'');
-  if(/^\d{4}-\d{2}-\d{2}$/.test(v)){
-    const d = new Date(v);
-    if(!isNaN(d)) return d;
-  }
+/* ============================================================
+   DATA
+============================================================ */
+function pad2(n) { return String(n).padStart(2, '0'); }
+function formatDDMMYYYY(date) { return `${pad2(date.getDate())}/${pad2(date.getMonth() + 1)}/${date.getFullYear()}`; }
+function formatDDMM(date) { return `${pad2(date.getDate())}/${pad2(date.getMonth() + 1)}`; }
+function parseDateInput(v) {
+  if (!v || v.trim() === '') return null;
+  v = v.replace(/\s+/g, '');
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) { const d = new Date(v); if (!isNaN(d)) return d; }
   const m = v.match(/^(\d{2})\/(\d{2})(?:\/(\d{4}))?$/);
-  if(m){ const d = parseInt(m[1],10); const mo = parseInt(m[2],10)-1; const y = m[3] ? parseInt(m[3],10) : (new Date()).getFullYear(); const date = new Date(y,mo,d); if(!isNaN(date)) return date; }
+  if (m) { const d = parseInt(m[1], 10), mo = parseInt(m[2], 10) - 1, y = m[3] ? parseInt(m[3], 10) : (new Date()).getFullYear(); const date = new Date(y, mo, d); if (!isNaN(date)) return date; }
   return null;
 }
-function setDateTo(date){ if(!date) return; $('#dataPedido').value = formatDDMMYYYY(date); }
-function getDisplayDateFull(){ 
-  const v = $('#dataPedido').value.trim(); 
-  if (v === '') return ''; // Retorna vazio se não houver data
-  const dt = parseDateInput(v); 
-  return dt ? formatDDMMYYYY(dt) : ''; 
+function setDateTo(date) { if (!date) return; document.getElementById('dataPedido').value = formatDDMMYYYY(date); }
+function getDisplayDateFull() {
+  const v = document.getElementById('dataPedido').value.trim();
+  if (v === '') return '';
+  const dt = parseDateInput(v); return dt ? formatDDMMYYYY(dt) : '';
 }
-function getDisplayDateForPrint(){ 
-  const v = $('#dataPedido').value.trim(); 
-  if (v === '') return formatDDMMYYYY(new Date()); // Se vazio, usa data atual na impressão
-  const dt = parseDateInput(v); 
-  return dt ? formatDDMMYYYY(dt) : formatDDMMYYYY(new Date());
+function getDisplayDateForPrint() {
+  const v = document.getElementById('dataPedido').value.trim();
+  if (v === '') return formatDDMMYYYY(new Date());
+  const dt = parseDateInput(v); return dt ? formatDDMMYYYY(dt) : formatDDMMYYYY(new Date());
 }
-function sanitizeDateForFile(s){ return s ? s.replace(/\//g,'-') : ''; }
+function sanitizeDateForFile(s) { return s ? s.replace(/\//g, '-') : ''; }
 
-/***********************  Coleta ***********************/
-function coletarSeção(rootSel){
-  const rows = $$(rootSel + ' .item');
-  const out = [];
-  rows.forEach(r=>{
+/* ============================================================
+   COLETA
+============================================================ */
+function coletarSeção(rootSel) {
+  return Array.from(document.querySelectorAll(rootSel + ' .item')).reduce((acc, r) => {
     let nome = '';
     const label = r.querySelector('.label');
     const selector = r.querySelector('.weight-selector');
-    
-    // Para produtos com seletor de peso, construir o nome com base na seleção
     if (selector) {
-      const baseName = label.textContent.trim();
-      const selectedWeight = selector.value;
-      nome = baseName + ' ' + selectedWeight;
+      nome = label.textContent.trim() + ' ' + selector.value;
     } else {
       nome = label.textContent.trim();
     }
-    
-    const val = r.querySelector('input').value.trim();
-    if(val!=='' && Number(val)>0){ out.push({prod:nome, qtd:Number(val)}); }
+    const val = r.querySelector('input.qty-input').value.trim();
+    if (val !== '' && Number(val) > 0) acc.push({ prod: nome, qtd: Number(val) });
+    return acc;
+  }, []);
+}
+
+function coletarCustomItems() {
+  const out = [];
+  document.querySelectorAll('.custom-item').forEach(item => {
+    const nomeInput = item.querySelector('input[type="text"]');
+    const qtdInput  = item.querySelector('input[type="number"]');
+    const nome = nomeInput.value.trim();
+    const qtd  = qtdInput.value.trim();
+    const lista = nomeInput.dataset.lista;
+    if (nome !== '' && qtd !== '' && Number(qtd) > 0) out.push({ prod: nome, qtd: Number(qtd), lista });
   });
   return out;
 }
 
-/***********************  Enter navigation helper ***********************/
-function focusNextInput(current){
-  const inputs = Array.from(document.querySelectorAll('#listaPrincipal input[type="number"], #listaIlha input[type="number"]'));
+/* ============================================================
+   ENTER NAVIGATION
+============================================================ */
+function focusNextInput(current) {
+  const inputs = Array.from(document.querySelectorAll('#listaPrincipal input.qty-input, #listaIlha input.qty-input'));
   const idx = inputs.indexOf(current);
-  if(idx === -1) return;
-  // procurar próximo input disponível (mesmo se vazio)
-  for(let i=idx+1;i<inputs.length;i++){
-    const next = inputs[i];
-    if(next){ next.focus(); next.select(); return; }
+  if (idx === -1) return;
+  for (let i = idx + 1; i < inputs.length; i++) {
+    if (inputs[i]) { inputs[i].focus(); inputs[i].select(); return; }
   }
-  // se não houver próximo, nada (poderíamos voltar pro primeiro)
 }
 
-/***********************  Toggle Linhas Vazias ***********************/
-let ocultando = false;
-function applyHideState(){
-  const rows = $$('#listaPrincipal .item, #listaIlha .item');
-  if(!ocultando){ rows.forEach(r=> r.classList.remove('hidden-empty')); return; }
-  rows.forEach(r=>{
-    const v = r.querySelector('input').value.trim();
-    if(v==='' || Number(v)<=0) r.classList.add('hidden-empty'); else r.classList.remove('hidden-empty');
-  });
-}
-function alternarLinhas(){
-  ocultando = !ocultando; applyHideState();
-  const b = $('#btn-linhas'); b.textContent = ocultando ? 'Mostrar Linhas Vazias' : 'Ocultar Linhas Vazias';
-}
-
-/***********************  Reset ***********************/
-function resetarTudo(){
-  $$('#listaPrincipal input, #listaIlha input').forEach(i=> i.value='');
-  // Remover também os itens customizados
-  $$('.custom-item').forEach(item => item.remove());
-  ocultando = false; applyHideState();
-  $('#btn-linhas').textContent = 'Ocultar Linhas Vazias';
-  $('#dataPedido').value = ''; // Deixa vazio em vez de data atual
-  $('#observacoes').value = '';
-  atualizarContagem();
-  showBottomNotice('Tudo limpo');
-}
-
-/***********************  Contagem preenchidos ***********************/
-function atualizarContagem(){
-  const n = coletarSeção('#listaPrincipal').length + coletarSeção('#listaIlha').length;
-}
-
-/***********************  Copiar (inclui observações) ***********************/
-function copiarTudo(){
+/* ============================================================
+   CONTAGEM
+============================================================ */
+function atualizarContagem() {
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
-  const customItems = coletarCustomItems();
-  const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
-  if(p.length===0 && i.length===0 && customItems.length===0 && !obs){ showBottomNotice('Nada para copiar'); return; }
-  let txt = '';
-  const ddmm = getDisplayDateFull();
-  if (ddmm) {
-    txt += `PEDIDO PÃO TOTAL ${ddmm}\n`;
-  } else {
-    txt += `PEDIDO PÃO TOTAL\n`;
-  }
-  txt += 'PRODUTOS\n';
-  p.forEach(({prod,qtd})=> txt += `${getPrintName(prod)} * ${qtd}\n`);
-  customItems.forEach(({prod,qtd, lista})=> {
-    if (lista === 'listaPrincipal') {
-      txt += `${prod.toUpperCase()} * ${qtd}\n`;
-    }
-  });
-  if(i.length>0 || customItems.some(item => item.lista === 'listaIlha')){
-    txt += '\nILHA PÃO TOTAL\n';
-    i.forEach(({prod,qtd})=> txt += `${getPrintName(prod)} * ${qtd}\n`);
-    customItems.forEach(({prod,qtd, lista})=> {
-      if (lista === 'listaIlha') {
-        txt += `${prod.toUpperCase()} * ${qtd}\n`;
-      }
-    });
-  }
-  if(obs){ txt += `\nOBSERVAÇÕES:\n${obs}\n`; }
-  navigator.clipboard.writeText(txt).then(()=> showBottomNotice('Copiado!')).catch(()=> showBottomNotice('Falha ao copiar'));
+  const custom = coletarCustomItems();
+  const totalItens = PRODUTOS_PRINCIPAL.length + PRODUTOS_ILHA.length + document.querySelectorAll('.custom-item').length;
+  document.getElementById('contador-val').textContent = p.length + i.length + custom.length;
+  document.getElementById('total-val').textContent = totalItens;
 }
 
-/***********************  Adicionar itens customizados ***********************/
+/* ============================================================
+   TOGGLE LINHAS VAZIAS
+============================================================ */
+let ocultando = false;
+function applyHideState() {
+  const rows = Array.from(document.querySelectorAll('#listaPrincipal .item, #listaIlha .item'));
+  if (!ocultando) { rows.forEach(r => r.classList.remove('hidden-empty')); return; }
+  rows.forEach(r => {
+    const v = r.querySelector('input.qty-input').value.trim();
+    if (v === '' || Number(v) <= 0) r.classList.add('hidden-empty');
+    else r.classList.remove('hidden-empty');
+  });
+}
+function alternarLinhas() {
+  ocultando = !ocultando;
+  applyHideState();
+  const b = document.getElementById('btn-linhas');
+  if (ocultando) {
+    b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Mostrar Todos`;
+  } else {
+    b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Ocultar Vazios`;
+  }
+}
+
+/* ============================================================
+   RESET
+============================================================ */
+function resetarTudo() {
+  document.querySelectorAll('#listaPrincipal input.qty-input, #listaIlha input.qty-input').forEach(i => i.value = '');
+  document.querySelectorAll('.custom-item').forEach(item => item.remove());
+  ocultando = false;
+  applyHideState();
+  document.getElementById('btn-linhas').innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Ocultar Vazios`;
+  document.getElementById('dataPedido').value = '';
+  document.getElementById('observacoes').value = '';
+  document.querySelectorAll('.weight-selector').forEach(s => s.selectedIndex = 0);
+  atualizarContagem();
+  showBottomNotice('Tudo limpo!');
+}
+
+/* ============================================================
+   ADICIONAR ITEM CUSTOMIZADO
+============================================================ */
 function adicionarItem(listaId) {
   const lista = document.getElementById(listaId);
   const novoItem = document.createElement('div');
   novoItem.className = 'custom-item';
-  
+
   const nomeInput = document.createElement('input');
   nomeInput.type = 'text';
   nomeInput.placeholder = 'Nome do produto';
   nomeInput.dataset.lista = listaId;
-  
+
   const qtdInput = document.createElement('input');
   qtdInput.type = 'number';
   qtdInput.min = '0';
   qtdInput.step = '1';
   qtdInput.placeholder = '';
-  qtdInput.style.textAlign = 'center'; // Centralizar também nos campos customizados
-  
+  qtdInput.addEventListener('input', atualizarContagem);
+
   const removeBtn = document.createElement('button');
   removeBtn.type = 'button';
   removeBtn.className = 'remove-btn';
   removeBtn.textContent = '✕';
   removeBtn.title = 'Remover item';
-  removeBtn.addEventListener('click', () => {
-    novoItem.remove();
-  });
-  
+  removeBtn.addEventListener('click', () => { novoItem.remove(); atualizarContagem(); });
+
   novoItem.appendChild(nomeInput);
   novoItem.appendChild(qtdInput);
   novoItem.appendChild(removeBtn);
-  
-  // Inserir antes do botão de adicionar
+
   const addBtn = lista.nextElementSibling;
   lista.parentNode.insertBefore(novoItem, addBtn);
-  
-  // Focar no campo de nome
-  setTimeout(() => {
-    nomeInput.focus();
-  }, 10);
+  atualizarContagem();
+  setTimeout(() => nomeInput.focus(), 10);
 }
 
-// Coletar itens customizados
-function coletarCustomItems() {
-  const customItems = [];
-  $$('.custom-item').forEach(item => {
-    const nomeInput = item.querySelector('input[type="text"]');
-    const qtdInput = item.querySelector('input[type="number"]');
-    const nome = nomeInput.value.trim();
-    const qtd = qtdInput.value.trim();
-    const lista = nomeInput.dataset.lista;
-    
-    if (nome !== '' && qtd !== '' && Number(qtd) > 0) {
-      customItems.push({prod: nome, qtd: Number(qtd), lista: lista});
-    }
-  });
-  return customItems;
-}
-
-/***********************  TXT (inclui observações) ***********************/
-function salvarTXT(e){ if(e) e.preventDefault();
+/* ============================================================
+   COPIAR
+============================================================ */
+function copiarTudo() {
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
   const customItems = coletarCustomItems();
-  const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
-  if(p.length===0 && i.length===0 && customItems.length===0 && !obs){ showBottomNotice('Nada para salvar'); return; }
+  const obs = (document.getElementById('observacoes') && document.getElementById('observacoes').value.trim()) || '';
+  if (p.length === 0 && i.length === 0 && customItems.length === 0 && !obs) { showBottomNotice('Nada para copiar'); return; }
   const ddmm = getDisplayDateFull();
-  let txt = '';
-  if (ddmm) {
-    txt += `PEDIDO PÃO TOTAL ${ddmm}\n`;
-  } else {
-    txt += `PEDIDO PÃO TOTAL\n`;
+  let txt = ddmm ? `PEDIDO PÃO TOTAL ${ddmm}\n` : `PEDIDO PÃO TOTAL\n`;
+  txt += 'PRODUTOS\n';
+  p.forEach(({ prod, qtd }) => txt += `${getPrintName(prod)} * ${qtd}\n`);
+  customItems.filter(x => x.lista === 'listaPrincipal').forEach(({ prod, qtd }) => txt += `${prod.toUpperCase()} * ${qtd}\n`);
+  if (i.length > 0 || customItems.some(x => x.lista === 'listaIlha')) {
+    txt += '\nILHA PÃO TOTAL\n';
+    i.forEach(({ prod, qtd }) => txt += `${getPrintName(prod)} * ${qtd}\n`);
+    customItems.filter(x => x.lista === 'listaIlha').forEach(({ prod, qtd }) => txt += `${prod.toUpperCase()} * ${qtd}\n`);
   }
-  txt += `PRODUTOS;QUANTIDADE (PCT)\n`;
-  p.forEach(({prod,qtd})=> txt += `${getPrintName(prod)};${qtd}\n`);
-  customItems.forEach(({prod,qtd, lista})=> {
-    if (lista === 'listaPrincipal') {
-      txt += `${prod.toUpperCase()};${qtd}\n`;
-    }
-  });
-  if(i.length>0 || customItems.some(item => item.lista === 'listaIlha')){
-    txt += `\nILHA PÃO TOTAL;QUANTIDADE (PCT)\n`;
-    i.forEach(({prod,qtd})=> txt += `${getPrintName(prod)};${qtd}\n`);
-    customItems.forEach(({prod,qtd, lista})=> {
-      if (lista === 'listaIlha') {
-        txt += `${prod.toUpperCase()};${qtd}\n`;
-      }
-    });
-  }
-  if(obs){ txt += `\nOBSERVAÇÕES:\n${obs}\n`; }
-  const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  const fileDate = ddmm ? sanitizeDateForFile(ddmm) : 'sem-data';
-  a.download = `PEDIDO_PAO_TOTAL_${fileDate}.txt`; document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(()=> URL.revokeObjectURL(a.href), 1000);
-  showBottomNotice('TXT gerado');
+  if (obs) txt += `\nOBSERVAÇÕES:\n${obs}\n`;
+  navigator.clipboard.writeText(txt).then(() => showBottomNotice('Copiado!')).catch(() => showBottomNotice('Falha ao copiar'));
 }
 
-/***********************  PDF / Impressão — AGORA COM DUAS TABELAS SEPARADAS ***********************/
-function gerarPDF({abrirEmNovaAba=false, baixarNome}){
+/* ============================================================
+   TXT
+============================================================ */
+function salvarTXT(e) {
+  if (e) e.preventDefault();
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
   const customItems = coletarCustomItems();
-  const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
-  if(p.length===0 && i.length===0 && customItems.length===0 && !obs){ showBottomNotice('Nada para imprimir'); return; }
+  const obs = (document.getElementById('observacoes') && document.getElementById('observacoes').value.trim()) || '';
+  if (p.length === 0 && i.length === 0 && customItems.length === 0 && !obs) { showBottomNotice('Nada para salvar'); return; }
+  const ddmm = getDisplayDateFull();
+  let txt = ddmm ? `PEDIDO PÃO TOTAL ${ddmm}\n` : `PEDIDO PÃO TOTAL\n`;
+  txt += `PRODUTOS;QUANTIDADE (PCT)\n`;
+  p.forEach(({ prod, qtd }) => txt += `${getPrintName(prod)};${qtd}\n`);
+  customItems.filter(x => x.lista === 'listaPrincipal').forEach(({ prod, qtd }) => txt += `${prod.toUpperCase()};${qtd}\n`);
+  if (i.length > 0 || customItems.some(x => x.lista === 'listaIlha')) {
+    txt += `\nILHA PÃO TOTAL;QUANTIDADE (PCT)\n`;
+    i.forEach(({ prod, qtd }) => txt += `${getPrintName(prod)};${qtd}\n`);
+    customItems.filter(x => x.lista === 'listaIlha').forEach(({ prod, qtd }) => txt += `${prod.toUpperCase()};${qtd}\n`);
+  }
+  if (obs) txt += `\nOBSERVAÇÕES:\n${obs}\n`;
+  const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const fileDate = ddmm ? sanitizeDateForFile(ddmm) : 'sem-data';
+  a.download = `PEDIDO_PAO_TOTAL_${fileDate}.txt`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  showBottomNotice('TXT gerado!');
+}
 
-  const ddmm = getDisplayDateForPrint(); // Usa data atual se estiver vazio
+/* ============================================================
+   PDF — duas tabelas separadas (PRODUTOS + ILHA)
+============================================================ */
+function gerarPDF({ abrirEmNovaAba = false, baixarNome } = {}) {
+  const p = coletarSeção('#listaPrincipal');
+  const i = coletarSeção('#listaIlha');
+  const customItems = coletarCustomItems();
+  const obs = (document.getElementById('observacoes') && document.getElementById('observacoes').value.trim()) || '';
+  const includeTitle = document.getElementById('printObsTitle') ? document.getElementById('printObsTitle').checked : true;
+
+  if (p.length === 0 && i.length === 0 && customItems.length === 0 && !obs) { showBottomNotice('Nada para imprimir'); return; }
+
+  const ddmm = getDisplayDateForPrint();
   const titulo = `PEDIDO PÃO TOTAL ${ddmm}`;
 
-  const bodyP = p.map(({prod,qtd})=> [getPrintName(prod), String(qtd)]);
-  // Adicionar itens customizados da lista principal
-  customItems.filter(item => item.lista === 'listaPrincipal').forEach(({prod,qtd}) => {
-    bodyP.push([prod.toUpperCase(), String(qtd)]);
-  });
-  
-  const bodyI = i.map(({prod,qtd})=> [getPrintName(prod), String(qtd)]);
-  // Adicionar itens customizados da lista ilha
-  customItems.filter(item => item.lista === 'listaIlha').forEach(({prod,qtd}) => {
-    bodyI.push([prod.toUpperCase(), String(qtd)]);
-  });
+  const bodyP = p.map(({ prod, qtd }) => [getPrintName(prod), String(qtd)]);
+  customItems.filter(x => x.lista === 'listaPrincipal').forEach(({ prod, qtd }) => bodyP.push([prod.toUpperCase(), String(qtd)]));
 
-  let fontSize = 10;
-  let minFont = 6;
+  const bodyI = i.map(({ prod, qtd }) => [getPrintName(prod), String(qtd)]);
+  customItems.filter(x => x.lista === 'listaIlha').forEach(({ prod, qtd }) => bodyI.push([prod.toUpperCase(), String(qtd)]));
 
-  let doc, fits = false;
-  let margin = 36;
-  
-  // Ajuste das larguras das colunas
-  const pageW = 595; // Largura A4 em pontos
-  const availableWidth = pageW - margin * 2;
+  let fontSize = 10, margin = 36, fits = false;
+  const pageW = 595;
   const numericColWidth = 130;
-  const productColWidth = availableWidth - numericColWidth;
+  const productColWidth = (pageW - margin * 2) - numericColWidth;
+  let doc;
 
-  while(!fits && fontSize >= minFont){
+  while (!fits && fontSize >= 6) {
     const { jsPDF } = window.jspdf;
-    doc = new jsPDF({unit:'pt', format:'a4'});
-    const pageW = doc.internal.pageSize.getWidth();
+    doc = new jsPDF({ unit: 'pt', format: 'a4' });
     const pageH = doc.internal.pageSize.getHeight();
 
-    // Título
-    doc.setFont('helvetica','bold'); 
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(14);
     doc.text(titulo, margin, 36);
-    
-    let startY = 60; // Posição inicial para a primeira tabela
 
-    // PRIMEIRA TABELA - PRODUTOS
-    if(bodyP.length > 0) {
-      const tableDataP = [];
-      tableDataP.push(["PRODUTOS", "QUANTIDADE (PCT)"]);
-      bodyP.forEach(([prod, qtd]) => tableDataP.push([prod, qtd]));
+    let startY = 60;
 
+    if (bodyP.length > 0) {
       doc.autoTable({
-        startY: startY,
-        head: [tableDataP[0]],
-        body: tableDataP.slice(1),
+        startY,
+        head: [["PRODUTOS", "QUANTIDADE (PCT)"]],
+        body: bodyP,
         theme: 'grid',
-        margin: {left: margin, right: margin},
-        tableWidth: pageW - margin*2,
-        styles: { 
-          font: 'helvetica', 
-          fontSize: fontSize, 
-          cellPadding: 3, 
-          lineColor: [0,0,0], 
-          lineWidth: 1.2, 
-          textColor: [0,0,0], 
-          overflow: 'linebreak',
-          minCellHeight: 12,
-          fillColor: [255,255,255]
-        },
-        headStyles: { 
-          fillColor: [255,255,255],
-          textColor: [0,0,0], 
-          fontStyle: 'bold' 
-        },
-        columnStyles: { 
-          0: { cellWidth: productColWidth },
-          1: { cellWidth: numericColWidth }
-        },
-        didParseCell: function(data) {
-          // Remover negrito dos biscoitos
-          if (data.row.index > 0 && data.cell.text[0]) {
-            const texto = data.cell.text[0].toLowerCase();
-            if (texto.includes('biscoito') || texto.includes('biscoitinho')) {
-              data.cell.styles.fontStyle = 'normal';
-            }
-          }
-        }
+        margin: { left: margin, right: margin },
+        tableWidth: pageW - margin * 2,
+        styles: { font: 'helvetica', fontSize, cellPadding: 3, lineColor: [0, 0, 0], lineWidth: 1.2, textColor: [0, 0, 0], overflow: 'linebreak', minCellHeight: 12, fillColor: [255, 255, 255] },
+        headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: 'bold' },
+        columnStyles: { 0: { cellWidth: productColWidth }, 1: { cellWidth: numericColWidth } }
       });
-
-      startY = doc.lastAutoTable.finalY + 20; // Espaço após a primeira tabela
+      startY = doc.lastAutoTable.finalY + 20;
     }
 
-    // SEGUNDA TABELA - ILHA PÃO TOTAL
-    if(bodyI.length > 0) {
-      const tableDataI = [];
-      tableDataI.push(["ILHA PÃO TOTAL", "QUANTIDADE (PCT)"]);
-      bodyI.forEach(([prod, qtd]) => tableDataI.push([prod, qtd]));
-
+    if (bodyI.length > 0) {
       doc.autoTable({
-        startY: startY,
-        head: [tableDataI[0]],
-        body: tableDataI.slice(1),
+        startY,
+        head: [["ILHA PÃO TOTAL", "QUANTIDADE (PCT)"]],
+        body: bodyI,
         theme: 'grid',
-        margin: {left: margin, right: margin},
-        tableWidth: pageW - margin*2,
-        styles: { 
-          font: 'helvetica', 
-          fontSize: fontSize, 
-          cellPadding: 3, 
-          lineColor: [0,0,0], 
-          lineWidth: 1.2, 
-          textColor: [0,0,0], 
-          overflow: 'linebreak',
-          minCellHeight: 12,
-          fillColor: [255,255,255]
-        },
-        headStyles: { 
-          fillColor: [255,255,255],
-          textColor: [0,0,0], 
-          fontStyle: 'bold' 
-        },
-        columnStyles: { 
-          0: { cellWidth: productColWidth },
-          1: { cellWidth: numericColWidth }
-        },
-        didParseCell: function(data) {
-          // Remover negrito dos biscoitos
-          if (data.row.index > 0 && data.cell.text[0]) {
-            const texto = data.cell.text[0].toLowerCase();
-            if (texto.includes('biscoito') || texto.includes('biscoitinho')) {
-              data.cell.styles.fontStyle = 'normal';
-            }
-          }
-        }
+        margin: { left: margin, right: margin },
+        tableWidth: pageW - margin * 2,
+        styles: { font: 'helvetica', fontSize, cellPadding: 3, lineColor: [0, 0, 0], lineWidth: 1.2, textColor: [0, 0, 0], overflow: 'linebreak', minCellHeight: 12, fillColor: [255, 255, 255] },
+        headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: 'bold' },
+        columnStyles: { 0: { cellWidth: productColWidth }, 1: { cellWidth: numericColWidth } }
       });
-
-      startY = doc.lastAutoTable.finalY + 20; // Espaço após a segunda tabela
+      startY = doc.lastAutoTable.finalY + 20;
     }
 
-    // Observações
-    if(obs){
+    if (obs) {
       const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY : startY;
       const obsStartY = finalY + 20;
-      const includeTitle = document.getElementById('printObsTitle') ? document.getElementById('printObsTitle').checked : true;
-      doc.setFont('helvetica','bold'); doc.setFontSize(fontSize);
-      
-      if(includeTitle){ 
-        doc.text('OBSERVAÇÕES:', margin, obsStartY); 
-      }
-      doc.setFont('helvetica','normal'); doc.setFontSize(fontSize);
-      const maxWidth = pageW - margin*2;
-      const splitObs = doc.splitTextToSize(obs, maxWidth);
-      const textY = obsStartY + (includeTitle ? fontSize + 4 : 0);
-      doc.text(splitObs, margin, textY);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(fontSize);
+      if (includeTitle) { doc.text('OBSERVAÇÕES:', margin, obsStartY); }
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(fontSize);
+      const splitObs = doc.splitTextToSize(obs, pageW - margin * 2);
+      doc.text(splitObs, margin, obsStartY + (includeTitle ? fontSize + 4 : 0));
     }
 
     const pages = doc.internal.getNumberOfPages();
     const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY : 0;
-
-    // checar se tudo coube em uma página
-    if(pages === 1 && finalY <= (pageH - 24)){
-      fits = true;
-      break;
-    }
-
+    if (pages === 1 && finalY <= (pageH - 24)) { fits = true; break; }
     fontSize -= 1;
-    if(margin > 24) margin -= 2;
+    if (margin > 24) margin -= 2;
   }
 
   const arquivo = baixarNome || `PEDIDO_PAO_TOTAL_${sanitizeDateForFile(ddmm) || 'sem-data'}.pdf`;
-  if(abrirEmNovaAba){
-    const blob = doc.output('blob'); const url = URL.createObjectURL(blob);
+  if (abrirEmNovaAba) {
+    const blob = doc.output('blob');
+    const url = URL.createObjectURL(blob);
     const win = window.open('', '_blank');
-    if(!win){ doc.save(arquivo); showBottomNotice('PDF baixado'); return; }
-    try { win.location.href = url; } catch(e){
-      try { win.document.open(); win.document.write(`<!doctype html><html><head><title>PDF</title></head><body style="margin:0"><embed src="${url}" type="application/pdf" width="100%" height="100%"/></body></html>`); win.document.close(); } catch(err){ doc.save(arquivo); }
+    if (!win) { doc.save(arquivo); showBottomNotice('PDF baixado'); return; }
+    try { win.location.href = url; }
+    catch (e) {
+      try {
+        win.document.open();
+        win.document.write(`<!doctype html><html><head><title>PDF</title></head><body style="margin:0"><embed src="${url}" type="application/pdf" width="100%" height="100%"/></body></html>`);
+        win.document.close();
+      } catch (err) { doc.save(arquivo); }
     }
-    setTimeout(()=> URL.revokeObjectURL(url), 60000);
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
   } else { doc.save(arquivo); }
 }
 
-function salvarPDF(e){ if(e) e.preventDefault();
+function salvarPDF(e) {
+  if (e) e.preventDefault();
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
   const customItems = coletarCustomItems();
-  const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
-  if(p.length===0 && i.length===0 && customItems.length===0 && !obs){ showBottomNotice('Nada para salvar'); return; }
-  gerarPDF({abrirEmNovaAba:false});
-  showBottomNotice('PDF gerado');
+  const obs = (document.getElementById('observacoes') && document.getElementById('observacoes').value.trim()) || '';
+  if (p.length === 0 && i.length === 0 && customItems.length === 0 && !obs) { showBottomNotice('Nada para salvar'); return; }
+  gerarPDF({ abrirEmNovaAba: false });
+  showBottomNotice('PDF gerado!');
 }
 
-function imprimirDireto(){
+function imprimirDireto() {
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
   const customItems = coletarCustomItems();
-  const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
-  if(p.length===0 && i.length===0 && customItems.length===0 && !obs){ showBottomNotice('Nada para imprimir'); return; }
-  gerarPDF({abrirEmNovaAba:true});
+  const obs = (document.getElementById('observacoes') && document.getElementById('observacoes').value.trim()) || '';
+  if (p.length === 0 && i.length === 0 && customItems.length === 0 && !obs) { showBottomNotice('Nada para imprimir'); return; }
+  gerarPDF({ abrirEmNovaAba: true });
 }
 
-/***********************  Excel (SheetJS) (inclui observações) ***********************/
-function salvarExcel(e){ if(e) e.preventDefault();
+/* ============================================================
+   EXCEL
+============================================================ */
+function salvarExcel(e) {
+  if (e) e.preventDefault();
   const p = coletarSeção('#listaPrincipal');
   const i = coletarSeção('#listaIlha');
   const customItems = coletarCustomItems();
-  const obs = ($('#observacoes') && $('#observacoes').value.trim()) || '';
-  if(p.length===0 && i.length===0 && customItems.length===0 && !obs){ showBottomNotice('Nada para salvar'); return; }
+  const obs = (document.getElementById('observacoes') && document.getElementById('observacoes').value.trim()) || '';
+  if (p.length === 0 && i.length === 0 && customItems.length === 0 && !obs) { showBottomNotice('Nada para salvar'); return; }
   const ddmm = getDisplayDateFull();
   const linhas = [];
-  
-  // Título centralizado como no Excel - uma célula mesclada
-  if (ddmm) {
-    linhas.push(["PEDIDO PÃO TOTAL " + ddmm, "", ""]);
-  } else {
-    linhas.push(["PEDIDO PÃO TOTAL", "", ""]);
-  }
+  linhas.push([ddmm ? `PEDIDO PÃO TOTAL ${ddmm}` : `PEDIDO PÃO TOTAL`, "", ""]);
   linhas.push(["PRODUTOS", "QUANTIDADE (PCT)", ""]);
-  p.forEach(({prod,qtd})=> linhas.push([getPrintName(prod), String(qtd), ""]));
-  customItems.forEach(({prod,qtd, lista})=> {
-    if (lista === 'listaPrincipal') {
-      linhas.push([prod.toUpperCase(), String(qtd), ""]);
-    }
-  });
-  if(i.length>0 || customItems.some(item => item.lista === 'listaIlha')){ 
-    linhas.push(["", "", ""]); 
-    linhas.push(["ILHA PÃO TOTAL", "QUANTIDADE (PCT)", ""]); 
-    i.forEach(({prod,qtd})=> linhas.push([getPrintName(prod), String(qtd), ""])); 
-    customItems.forEach(({prod,qtd, lista})=> {
-      if (lista === 'listaIlha') {
-        linhas.push([prod.toUpperCase(), String(qtd), ""]);
-      }
-    });
+  p.forEach(({ prod, qtd }) => linhas.push([getPrintName(prod), String(qtd), ""]));
+  customItems.filter(x => x.lista === 'listaPrincipal').forEach(({ prod, qtd }) => linhas.push([prod.toUpperCase(), String(qtd), ""]));
+  if (i.length > 0 || customItems.some(x => x.lista === 'listaIlha')) {
+    linhas.push(["", "", ""]);
+    linhas.push(["ILHA PÃO TOTAL", "QUANTIDADE (PCT)", ""]);
+    i.forEach(({ prod, qtd }) => linhas.push([getPrintName(prod), String(qtd), ""]));
+    customItems.filter(x => x.lista === 'listaIlha').forEach(({ prod, qtd }) => linhas.push([prod.toUpperCase(), String(qtd), ""]));
   }
-  if(obs){ 
-    linhas.push(["", "", ""]); 
-    linhas.push(["OBSERVAÇÕES", "", ""]); 
-    const obsLines = obs.split(/\r?\n/); 
-    obsLines.forEach(l=> linhas.push([l, "", ""])); 
+  if (obs) {
+    linhas.push(["", "", ""]);
+    linhas.push(["OBSERVAÇÕES", "", ""]);
+    obs.split(/\r?\n/).forEach(l => linhas.push([l, "", ""]));
   }
-  
   const ws = XLSX.utils.aoa_to_sheet(linhas);
-  
-  // Mesclar células para o título (linha 0, colunas 0-2)
-  if(!ws['!merges']) ws['!merges'] = [];
-  ws['!merges'].push({ s:{r:0,c:0}, e:{r:0,c:2} });
-  
-  // Centralizar o título
-  if(!ws.A1.s) ws.A1.s = {};
-  ws.A1.s.alignment = { horizontal: "center" };
-  ws.A1.s.font = { bold: true, sz: 14 };
-  
-  // Ajustar largura das colunas - PRODUTOS ocupa mais espaço
-  ws['!cols'] = [ {wch:50}, {wch:15}, {wch:5} ]; // PRODUTOS: 50, QUANTIDADE: 15
-  const wb = XLSX.utils.book_new(); 
+  if (!ws['!merges']) ws['!merges'] = [];
+  ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } });
+  ws['!cols'] = [{ wch: 50 }, { wch: 15 }, { wch: 5 }];
+  const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'PEDIDO');
-  
   const fileDate = ddmm ? sanitizeDateForFile(ddmm) : 'sem-data';
   XLSX.writeFile(wb, `PEDIDO_PAO_TOTAL_${fileDate}.xlsx`);
-  showBottomNotice('Excel gerado');
+  showBottomNotice('Excel gerado!');
 }
 
-/***********************  Menus (mesmo do seu template) ***********************/
-function toggleMenu(id){
-  document.querySelectorAll('.menu-dropdown-content').forEach(el=>{ if(el.id!==id){ el.style.display='none'; el.style.opacity=0; el.setAttribute('aria-hidden','true'); } });
-  const el = document.getElementById(id); if(!el) return;
-  if(el.style.display==='block'){ el.style.opacity=0; setTimeout(()=>{ el.style.display='none'; el.setAttribute('aria-hidden','true'); },180); }
-  else { el.style.display='block'; el.style.opacity=0; el.setAttribute('aria-hidden','false'); setTimeout(()=> el.style.opacity=1, 10); }
+/* ============================================================
+   MENUS
+============================================================ */
+function toggleMenu(id) {
+  document.querySelectorAll('.menu-dropdown-content').forEach(el => {
+    if (el.id !== id) { el.style.display = 'none'; el.setAttribute('aria-hidden', 'true'); }
+  });
+  const el = document.getElementById(id);
+  if (!el) return;
+  const open = el.style.display === 'block';
+  if (open) { el.style.display = 'none'; el.setAttribute('aria-hidden', 'true'); closeAllSubmenus(); }
+  else { closeAllSubmenus(); el.style.display = 'block'; el.setAttribute('aria-hidden', 'false'); }
 }
-function toggleSubmenu(headerEl){ const submenu = headerEl.nextElementSibling; if(!submenu) return; const chev = headerEl.querySelector('.chev'); if(submenu.style.display==='block'){ submenu.style.display='none'; if(chev) chev.textContent='▸'; } else { submenu.style.display='block'; if(chev) chev.textContent='▾'; } }
 
-document.addEventListener('click', (ev)=>{ if(!ev.target.closest('.menu-dropdown')){ document.querySelectorAll('.menu-dropdown-content').forEach(el=>{ el.style.display='none'; el.style.opacity=0; el.setAttribute('aria-hidden','true'); }); } });
+function toggleSubmenu(headerEl) {
+  const sub = headerEl.nextElementSibling;
+  if (!sub) return;
+  const chev = headerEl.querySelector('.chev');
+  const isOpen = sub.style.display === 'block';
+  sub.style.display = isOpen ? 'none' : 'block';
+  if (chev) chev.textContent = isOpen ? '▸' : '▾';
+}
 
-function fecharPagina(){ try { window.close(); } catch(e){} }
-function voltarMenu(){ }
-function navegarProximo(){ }
-function abrirMac(e, nome){ if(e) e.preventDefault(); document.getElementById('titulo-principal').textContent = nome; toggleMenu('dropdown-menu'); }
-function abrirLocal(e, nome){ if(e) e.preventDefault(); toggleMenu('dropdown-menu'); }
+function closeAllSubmenus() {
+  document.querySelectorAll('.submenu').forEach(s => s.style.display = 'none');
+  document.querySelectorAll('.chev').forEach(c => c.textContent = '▸');
+}
 
-/***********************  Inicialização ***********************/
-function setChipLabels(){
-  const hoje = new Date(); const amanha = new Date(); amanha.setDate(hoje.getDate()+1);
+document.addEventListener('click', (ev) => {
+  if (!ev.target.closest('.menu-dropdown')) {
+    document.querySelectorAll('.menu-dropdown-content').forEach(el => { el.style.display = 'none'; el.setAttribute('aria-hidden', 'true'); });
+    closeAllSubmenus();
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.menu-dropdown-content').forEach(el => { el.style.display = 'none'; el.setAttribute('aria-hidden', 'true'); });
+    closeAllSubmenus();
+  }
+});
+
+function fecharPagina() { try { window.close(); } catch (e) {} }
+function voltarMenu() {}
+
+function abrirMac(e, nome) {
+  try {
+    if (e && e.currentTarget) {
+      const href = e.currentTarget.getAttribute('href');
+      if (href && href !== '#') {
+        closeAllSubmenus();
+        document.querySelectorAll('.menu-dropdown-content').forEach(el => el.style.display = 'none');
+        window.location.href = href;
+        return;
+      }
+    }
+  } catch (err) {}
+  if (e) e.preventDefault();
+  document.getElementById('titulo-principal').textContent = nome;
+  toggleMenu('dropdown-menu');
+}
+
+function abrirLocal(e, nome) {
+  try {
+    if (e && e.currentTarget) {
+      const href = e.currentTarget.getAttribute('href');
+      if (href && href !== '#') {
+        closeAllSubmenus();
+        document.querySelectorAll('.menu-dropdown-content').forEach(el => el.style.display = 'none');
+        window.location.href = href;
+        return;
+      }
+    }
+  } catch (err) {}
+  if (e) e.preventDefault();
+  toggleMenu('dropdown-menu');
+}
+
+/* ============================================================
+   INICIALIZAÇÃO
+============================================================ */
+function setChipLabels() {
+  const hoje = new Date(); const amanha = new Date(); amanha.setDate(hoje.getDate() + 1);
   const chHoje = document.getElementById('chipHoje'); const chAmanha = document.getElementById('chipAmanha');
-  if(chHoje) chHoje.textContent = `Hoje (${formatDDMM(hoje)})`;
-  if(chAmanha) chAmanha.textContent = `Amanhã (${formatDDMM(amanha)})`;
+  if (chHoje) chHoje.textContent = `Hoje (${formatDDMM(hoje)})`;
+  if (chAmanha) chAmanha.textContent = `Amanhã (${formatDDMM(amanha)})`;
 }
 
-function init(){
+function init() {
   montarListas();
-  // Não definir data inicial - campo fica vazio
-  $('#dataPedido').value = '';
+  document.getElementById('dataPedido').value = '';
   setChipLabels();
 
-  const $data = $('#dataPedido');
-  $data.addEventListener('blur', ()=>{ 
-    const d = parseDateInput($data.value.trim()); 
-    $data.value = d ? formatDDMMYYYY(d) : ''; 
+  const $data = document.getElementById('dataPedido');
+  $data.addEventListener('blur', () => {
+    const d = parseDateInput($data.value.trim());
+    $data.value = d ? formatDDMMYYYY(d) : '';
   });
 
-  $('#chipHoje').addEventListener('click', ()=> setDateTo(new Date()));
-  $('#chipAmanha').addEventListener('click', ()=>{ const d=new Date(); d.setDate(d.getDate()+1); setDateTo(d); });
+  document.getElementById('chipHoje').addEventListener('click', () => setDateTo(new Date()));
+  document.getElementById('chipAmanha').addEventListener('click', () => { const d = new Date(); d.setDate(d.getDate() + 1); setDateTo(d); });
 
-  const printBtn = document.getElementById('btn-print'); if(printBtn){ printBtn.addEventListener('click', (ev)=>{ ev.preventDefault(); imprimirDireto(); }); }
+  const printBtn = document.getElementById('btn-print');
+  if (printBtn) printBtn.addEventListener('click', (ev) => { ev.preventDefault(); imprimirDireto(); });
 }
 
 document.addEventListener('DOMContentLoaded', init);

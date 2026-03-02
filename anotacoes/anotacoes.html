@@ -82,6 +82,7 @@
   .topico-item svg {
     width: 18px;
     height: 18px;
+    flex-shrink: 0;
   }
 
   .conteudo-area {
@@ -92,6 +93,7 @@
     box-shadow: 0 10px 30px rgba(11,78,167,.06);
     min-height: 400px;
     position: relative;
+    overflow: hidden;
   }
 
   .conteudo-header {
@@ -101,6 +103,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .conteudo-header h2 {
@@ -120,6 +124,8 @@
   .conteudo-header-acoes {
     display: flex;
     gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
   }
 
   .btn-acao {
@@ -142,25 +148,74 @@
     border-color: var(--borda-ativa);
   }
 
-  .btn-salvar {
-    background: #f0fdf4;
-    border-color: #bbf7d0;
-    color: var(--success);
+  .btn-salvar-como {
+    background: #f0fdf4 !important;
+    border-color: #bbf7d0 !important;
+    color: var(--success) !important;
+    position: relative;
   }
 
-  .btn-salvar:hover {
-    background: #dcfce7;
+  .btn-salvar-como:hover {
+    background: #dcfce7 !important;
   }
 
-  .btn-pdf {
-    background: #fff7f0 !important;
-    border-color: #fed7aa !important;
-    color: var(--warn) !important;
+  /* ===== DROPDOWN DE SALVAR ===== */
+  .salvar-wrapper {
+    position: relative;
   }
 
-  .btn-pdf:hover {
-    background: #ffedd5 !important;
-    border-color: #fdba74 !important;
+  .salvar-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    background: white;
+    border: 1px solid var(--borda);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(11,78,167,.15);
+    z-index: 300;
+    min-width: 160px;
+    overflow: hidden;
+    display: none;
+    animation: dropdownIn 0.15s ease;
+  }
+
+  .salvar-dropdown.aberto {
+    display: block;
+  }
+
+  @keyframes dropdownIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .salvar-dropdown button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 14px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-align: left;
+    font-size: 13px;
+    color: var(--ink);
+    transition: background 0.15s;
+    font-family: inherit;
+  }
+
+  .salvar-dropdown button:hover {
+    background: #f3f8ff;
+  }
+
+  .salvar-dropdown button + button {
+    border-top: 1px solid var(--borda);
+  }
+
+  .salvar-dropdown button svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
   }
 
   .btn-imprimir {
@@ -174,13 +229,13 @@
     border-color: #7dd3fc !important;
   }
 
-  .btn-fechar {
+  .btn-fechar-acao {
     background: #fef2f2 !important;
     border-color: #fecaca !important;
     color: var(--danger) !important;
   }
 
-  .btn-fechar:hover {
+  .btn-fechar-acao:hover {
     background: #fee2e2 !important;
     border-color: #fca5a5 !important;
   }
@@ -205,12 +260,13 @@
 
   .lista-subtopicos-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 6px;
     margin-bottom: 12px;
   }
 
   .lista-subtopicos-header h3 {
+    flex: 1;
     margin: 0;
     font-size: 14px;
     color: var(--muted);
@@ -229,6 +285,7 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    flex-shrink: 0;
   }
 
   .btn-icone-editar:hover {
@@ -239,6 +296,110 @@
   .btn-icone-editar svg {
     width: 16px;
     height: 16px;
+  }
+
+  /* ===== AÇÕES NO CABEÇALHO (MODO SELEÇÃO) ===== */
+  .acoes-header-selecao {
+    display: none;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .acoes-header-selecao.ativo {
+    display: flex;
+  }
+
+  /* ===== SEGUNDA LINHA DE SELEÇÃO ===== */
+  .selecao-segunda-linha {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--borda);
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  .selecao-segunda-linha.ativo {
+    display: flex;
+  }
+
+  .btn-selecao-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: 1px solid var(--borda);
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--ink);
+    flex-shrink: 0;
+    padding: 0;
+  }
+
+  .btn-selecao-icon svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .btn-selecao-icon:hover {
+    background: #f3f8ff;
+    border-color: var(--borda-ativa);
+  }
+
+  .btn-selecao-icon.danger {
+    color: var(--danger);
+    border-color: #fecaca;
+    background: #fef2f2;
+  }
+
+  .btn-selecao-icon.danger:hover {
+    background: #fee2e2;
+  }
+
+  .btn-selecao-icon.azul {
+    color: var(--azul);
+    border-color: #bae6fd;
+    background: #f0f9ff;
+  }
+
+  .btn-selecao-icon.azul:hover {
+    background: #e0f2fe;
+  }
+
+  .selecao-salvar-wrapper {
+    position: relative;
+    margin-left: auto;
+  }
+
+  .btn-selecao-salvar {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 9px;
+    border-radius: 6px;
+    border: 1px solid #bbf7d0;
+    background: #f0fdf4;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--success);
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+
+  .btn-selecao-salvar svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .btn-selecao-salvar:hover {
+    background: #dcfce7;
+    border-color: #6ee7b7;
   }
 
   .subtopico-item {
@@ -279,43 +440,22 @@
     cursor: pointer;
   }
 
-  .subtopico-acoes {
-    display: flex;
-    gap: 4px;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
-
-  .subtopico-item:hover .subtopico-acoes {
-    opacity: 1;
-  }
-
-  .btn-subtopico {
-    background: none;
-    border: none;
-    border-radius: 4px;
-    padding: 4px;
-    cursor: pointer;
-    color: inherit;
-    transition: all 0.2s ease;
-  }
-
-  .btn-subtopico:hover {
-    background: rgba(255,255,255,0.2);
-  }
-
   .conteudo-subtopico {
     animation: fadeIn 0.3s ease;
+    min-width: 0;
+    overflow: hidden;
   }
 
   .conteudo-carregado {
     animation: fadeIn 0.3s ease;
     max-width: 100%;
     overflow-x: hidden;
+    word-wrap: break-word;
   }
 
-  /* Estilos específicos para conteúdo de uteis-clientes.html */
-  .conteudo-carregado .container {
+  /* Estilos específicos para conteúdo */
+  .conteudo-carregado .container,
+  .conteudo-carregado .conteudo-interno {
     max-width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -352,6 +492,25 @@
     color: var(--ink-strong);
     margin: 20px 0 8px 0;
     font-size: 16px;
+    padding-left: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .conteudo-carregado h3::before {
+    content: "›";
+    color: var(--azul);
+    font-size: 18px;
+    font-weight: bold;
+    flex-shrink: 0;
+    margin-right: 2px;
+  }
+
+  .conteudo-carregado h4 {
+    color: var(--ink-strong);
+    margin: 16px 0 8px 0;
+    font-size: 15px;
     padding-left: 16px;
   }
 
@@ -435,10 +594,9 @@
     font-size: 14px;
   }
 
-  /* Estilos específicos para o arquivo GERAL */
   .conteudo-carregado .dados-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 12px;
     margin: 12px 0 24px 0;
     padding-left: 16px;
@@ -456,13 +614,12 @@
     margin: 16px 0;
     border-radius: 8px;
     border: 1px solid var(--borda);
-    padding-left: 16px;
   }
 
   .conteudo-carregado .tabela-melhorada {
     width: 100%;
     border-collapse: collapse;
-    min-width: 600px;
+    min-width: 400px;
   }
 
   .conteudo-carregado .tabela-melhorada thead {
@@ -503,7 +660,7 @@
 
   .conteudo-carregado .transportadores {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 12px;
     margin: 12px 0 24px 0;
     padding-left: 16px;
@@ -532,6 +689,123 @@
   .conteudo-carregado .dado-valor {
     color: var(--ink);
   }
+
+  /* ===== INFORMACAO EXTRA (geral.html / pedidos-sj-pt.html) ===== */
+  .conteudo-carregado .informacao-extra {
+    background: #fff9f0;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #ffd8b2;
+    margin: 16px 0;
+  }
+
+  .conteudo-carregado .informacao-extra h4 {
+    color: var(--ink-strong);
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 0;
+  }
+
+  .conteudo-carregado .informacao-extra h4::before {
+    content: "•";
+    color: var(--azul);
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .conteudo-carregado .info-list {
+    margin: 0;
+    padding-left: 24px;
+  }
+
+  .conteudo-carregado .info-list li {
+    margin: 6px 0;
+    padding-left: 4px;
+  }
+
+  /* ===== CLIENTES POR ROTA ===== */
+  .conteudo-carregado .clientes-container {
+    background: #f8f9fa;
+    padding: 16px 20px;
+    border-radius: 10px;
+    border-left: 4px solid var(--azul);
+    margin: 12px 0 24px 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,.05);
+  }
+
+  .conteudo-carregado .rota-jovi .clientes-container { border-left-color: #4CAF50; }
+  .conteudo-carregado .rota-salsicha .clientes-container { border-left-color: #FF9800; }
+  .conteudo-carregado .rota-guilherme .clientes-container { border-left-color: #2196F3; }
+  .conteudo-carregado .rota-nelio .clientes-container { border-left-color: #9C27B0; }
+  .conteudo-carregado .rota-stenio .clientes-container { border-left-color: #9C27B0; }
+  .conteudo-carregado .rota-bh .clientes-container { border-left-color: #9C27B0; }
+  .conteudo-carregado .rota-avulsa .clientes-container { border-left-color: #6c757d; }
+
+  .conteudo-carregado .cliente-item {
+    padding: 6px 0;
+    border-bottom: 1px dotted #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .conteudo-carregado .cliente-item:last-child { border-bottom: none; }
+  .conteudo-carregado .cliente-nome { flex-grow: 1; font-size: 14.5px; }
+
+  .conteudo-carregado .codigo-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .conteudo-carregado .codigo-box {
+    color: white;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    min-width: 40px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  .conteudo-carregado .codigo-box.gerencial { background-color: #28a745; }
+  .conteudo-carregado .codigo-box.fiscal    { background-color: #fd7e14; }
+  .conteudo-carregado .codigo-box.alternado { background-color: #6f42c1; }
+
+  .conteudo-carregado .total-clientes {
+    background: #f5f5f5;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin: 16px 0;
+    font-size: 14px;
+    color: #666;
+    border-left: 3px solid #ccc;
+  }
+
+  /* ===== PRODUTOS GRID ===== */
+  .conteudo-carregado .produtos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+    margin-bottom: 16px;
+    padding-left: 16px;
+  }
+
+  .conteudo-carregado .produto-item {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid var(--azul);
+  }
+
+  .conteudo-carregado .produto-nome { font-weight: bold; color: var(--ink-strong); margin-bottom: 4px; }
+  .conteudo-carregado .produto-detalhe { font-size: 14px; color: var(--muted); }
 
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
@@ -587,10 +861,13 @@
     top:14px;
     z-index:60
   }
+
+  /* ===== BARRA DE BUSCA ===== */
   .search{
     position:relative;
     flex:1 1 320px
   }
+
   .search input{
     width:100%;
     padding:12px 40px 12px 40px;
@@ -598,15 +875,60 @@
     border-radius:12px;
     background:#fbfdff;
     color:var(--ink);
-    font-size:15px
+    font-size:15px;
+    box-sizing: border-box;
   }
-  .search svg {
+
+  input[type="search"]::-webkit-search-cancel-button,
+  input[type="search"]::-webkit-search-decoration {
+    display: none;
+  }
+
+  .search-icon-left {
     position: absolute;
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
     width: 18px;
     height: 18px;
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  .search-clear {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--azul);
+    padding: 5px;
+    border-radius: 6px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    line-height: 0;
+  }
+
+  .search-clear:hover {
+    background: #e0f2fe;
+  }
+
+  .search-clear svg {
+    width: 15px;
+    height: 15px;
+    display: block;
+  }
+
+  .search.tem-valor .search-clear {
+    display: flex;
+  }
+
+  .search.tem-valor input {
+    padding-right: 38px;
   }
 
   .btn-toolbar {
@@ -621,8 +943,9 @@
     cursor: pointer;
     transition: all 0.2s ease;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 400;
     position: relative;
+    font-family: inherit;
   }
 
   .btn-toolbar:hover {
@@ -656,7 +979,6 @@
     background: #e0f2fe;
   }
 
-  /* Botão de Rotinas Férias */
   .btn-ferias {
     background: var(--verde-claro);
     border-color: var(--verde-escuro);
@@ -673,26 +995,11 @@
   }
 
   .btn-ferias svg {
-    animation: sunPulse 2s infinite alternate ease-in-out;
-    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.1));
+    transition: transform 0.3s ease;
   }
 
-  .btn-ferias::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 5px;
-    height: 5px;
-    background: rgba(255, 255, 255, 0.5);
-    opacity: 0;
-    border-radius: 100%;
-    transform: scale(1, 1) translate(-50%);
-    transform-origin: 50% 50%;
-  }
-
-  .btn-ferias:focus:not(:active)::after {
-    animation: ripple 1s ease-out;
+  .btn-ferias:hover svg {
+    transform: scale(1.1) rotate(-5deg);
   }
 
   .btn-ferias .tooltip-text {
@@ -731,59 +1038,76 @@
     opacity: 1;
   }
 
-  @keyframes sunPulse {
-    0% {
-      transform: scale(1) rotate(0deg);
-      filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.1));
-    }
-    100% {
-      transform: scale(1.1) rotate(10deg);
-      filter: drop-shadow(0 4px 6px rgba(5, 150, 105, 0.3));
-    }
-  }
-
-  @keyframes ripple {
-    0% {
-      transform: scale(0, 0);
-      opacity: 0.8;
-    }
-    100% {
-      transform: scale(40, 40);
-      opacity: 0;
-    }
-  }
-
-  .btn-fechar-topico {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: var(--danger);
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .btn-fechar-topico:hover {
-    background: #fee2e2;
-    border-color: #ef4444;
-  }
-
+  /* ===== RESULTADOS DE BUSCA ===== */
   .resultados-busca {
     margin-top: 16px;
     display: none;
-    max-height: 400px;
+    max-height: 450px;
     overflow-y: auto;
     border: 1px solid var(--borda);
-    border-radius: 8px;
+    border-radius: 10px;
     background: var(--card);
+    box-shadow: 0 8px 24px rgba(11,78,167,.10);
+  }
+
+  .resultados-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--borda);
+    background: #f7fbff;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .resultados-header span {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .resultados-count {
+    background: var(--azul);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  .resultados-grupo {
+    border-bottom: 1px solid var(--borda);
+  }
+
+  .resultados-grupo:last-child {
+    border-bottom: none;
+  }
+
+  .resultados-grupo-header {
+    padding: 8px 14px;
+    background: #fafcff;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-strong);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid var(--borda);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .resultados-grupo-header:hover {
+    background: #f0f7ff;
   }
 
   .resultado-item {
-    padding: 12px;
-    border-bottom: 1px solid var(--borda);
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f4ff;
     cursor: pointer;
     transition: all 0.2s ease;
   }
@@ -796,29 +1120,84 @@
     background: #f3f8ff;
   }
 
-  .resultado-topico {
-    font-size: 12px;
-    color: var(--muted);
+  .resultado-tipo-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
     margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .badge-topico {
+    background: #e0f2fe;
+    color: #0369a1;
+  }
+
+  .badge-subtopico {
+    background: #ede9fe;
+    color: #7c3aed;
+  }
+
+  .badge-conteudo {
+    background: #dcfce7;
+    color: #166534;
   }
 
   .resultado-titulo {
     font-weight: 600;
     color: var(--ink-strong);
     margin-bottom: 4px;
+    font-size: 13px;
   }
 
   .resultado-trecho {
-    font-size: 13px;
-    color: var(--ink);
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
   }
 
   .sem-resultados {
     text-align: center;
-    padding: 20px;
+    padding: 30px 20px;
     color: var(--muted);
+    font-size: 14px;
   }
 
+  .sem-resultados svg {
+    width: 32px;
+    height: 32px;
+    opacity: 0.4;
+    margin-bottom: 10px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ===== HIGHLIGHT DE BUSCA ===== */
+  mark.hl {
+    background-color: #ffeb3b;
+    color: #000;
+    padding: 0;
+    margin: 0;
+    border-radius: 2px;
+    display: inline;
+    line-height: inherit;
+  }
+
+  mark {
+    background-color: #ffeb3b;
+    color: #000;
+    padding: 0;
+    margin: 0;
+    border-radius: 2px;
+    display: inline;
+    line-height: inherit;
+  }
+
+  /* ===== ESTADOS ===== */
   .conteudo-carregado img {
     max-width: 100%;
     height: auto;
@@ -845,150 +1224,29 @@
     margin-bottom: 16px;
   }
 
-  .btn-impressao {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid var(--borda);
-    background: var(--card);
-    color: var(--ink);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 12px;
-    font-weight: 500;
-    width: 100%;
-    justify-content: center;
-    margin-bottom: 8px;
-  }
-
-  .btn-impressao:hover {
-    background: #f3f8ff;
-    border-color: var(--borda-ativa);
-  }
-
-  .selecao-botoes-container {
-    display: none;
-    gap: 8px;
-    margin-top: 12px;
-    flex-direction: column;
-  }
-
-  .selecao-botoes-container.ativo {
-    display: flex;
-  }
-
-  .selecao-botoes-linha {
-    display: flex;
-    gap: 8px;
-    width: 100%;
-  }
-
-  .selecao-botoes-linha .btn-impressao {
-    margin-bottom: 0;
-  }
-
-  .btn-selecionar-todos {
-    flex: 1;
-    background: #f0f9ff !important;
-    border-color: #bae6fd !important;
-    color: var(--azul) !important;
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-  }
-
-  .btn-selecionar-todos:hover {
-    background: #e0f2fe !important;
-  }
-
-  .btn-cancelar-selecao {
-    background: #fef2f2 !important;
-    border-color: #fecaca !important;
-    color: var(--danger) !important;
-    padding: 8px 12px;
-    min-width: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 500;
-  }
-
-  .btn-cancelar-selecao:hover {
-    background: #fee2e2 !important;
-  }
-
   @media print {
-    body * {
-      visibility: hidden;
-    }
-    
-    .conteudo-area, .conteudo-area * {
-      visibility: visible;
-    }
-    
+    body * { visibility: hidden; }
+    .conteudo-area, .conteudo-area * { visibility: visible; }
     .conteudo-area {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      box-shadow: none;
-      border: none;
-      padding: 0;
+      position: absolute; left: 0; top: 0;
+      width: 100%; box-shadow: none; border: none; padding: 0;
     }
-    
-    .conteudo-header, .btn-acao, .btn-fechar-topico, .lista-subtopicos {
-      display: none;
-    }
-    
-    .conteudo-carregado h2 {
-      page-break-before: auto;
-      page-break-after: avoid;
-    }
-    
-    .conteudo-carregado h2:last-child {
-      page-break-after: auto;
-    }
-    
-    .conteudo-carregado h2 {
-      break-inside: avoid;
-    }
-    
-    .conteudo-carregado h2:first-child {
-      break-before: auto;
-    }
-    
-    .conteudo-carregado h2:not(:first-child) {
-      break-before: avoid;
-    }
-    
-    @page {
-      margin: 1cm;
-    }
+    .conteudo-header, .btn-acao, .lista-subtopicos { display: none; }
+    @page { margin: 1cm; }
   }
 
+  /* ===== MENU SIDEBAR ===== */
   .menu-sidebar {
     position: fixed;
-    top: 0;
-    left: 0;
+    top: 0; left: 0;
     width: 320px;
     height: 100vh;
     background: var(--card);
     border-right: 1px solid var(--borda);
-    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 4px 0 24px rgba(0,0,0,.12);
     overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
     transition: transform 0.3s ease;
     z-index: 1000;
     padding: 20px;
@@ -996,9 +1254,13 @@
     display: block;
   }
 
+  .menu-sidebar::-webkit-scrollbar { display: none; }
+
   .menu-sidebar.ativo {
     transform: translateX(0);
   }
+
+  .menu-overlay { display: none !important; }
 
   .menu-header {
     display: flex;
@@ -1009,348 +1271,108 @@
     border-bottom: 1px solid var(--borda);
   }
 
-  .menu-header h3 {
-    margin: 0;
-    color: var(--ink-strong);
-    font-size: 18px;
-  }
+  .menu-header h3 { margin: 0; color: var(--ink-strong); font-size: 18px; }
 
   .btn-fechar-sidebar {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--muted);
-    padding: 8px;
-    border-radius: 6px;
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); padding: 8px; border-radius: 6px;
     transition: all 0.2s ease;
   }
 
-  .btn-fechar-sidebar:hover {
-    background: #fef2f2;
-    color: var(--danger);
-  }
+  .btn-fechar-sidebar:hover { background: #fef2f2; color: var(--danger); }
+  .btn-fechar-sidebar svg { width: 20px; height: 20px; }
 
-  .btn-fechar-sidebar svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  .menu-secao {
-    margin-bottom: 24px;
-  }
+  .menu-secao { margin-bottom: 24px; }
 
   .menu-secao h4 {
-    font-size: 14px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
+    font-size: 14px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 12px; padding-bottom: 8px;
     border-bottom: 1px solid var(--borda);
   }
 
   .menu-opcao {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin-bottom: 6px;
-    text-decoration: none;
-    color: var(--ink);
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border-radius: 8px;
+    cursor: pointer; transition: all 0.2s ease;
+    margin-bottom: 6px; text-decoration: none; color: var(--ink);
   }
 
-  .menu-opcao:hover {
-    background: #f3f8ff;
-  }
+  .menu-opcao:hover { background: #f3f8ff; }
 
   .menu-opcao .codigo {
-    background: var(--azul);
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 600;
-    min-width: 40px;
-    text-align: center;
+    background: var(--azul); color: white;
+    padding: 4px 8px; border-radius: 4px;
+    font-size: 12px; font-weight: 600;
+    min-width: 40px; text-align: center;
   }
 
-  .menu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: none;
-    z-index: 999;
-  }
-
-  .menu-overlay.ativo {
-    display: block;
-  }
-
+  /* ===== POPUP ===== */
   .popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: none;
-    justify-content: center;
-    align-items: center;
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: none; justify-content: center; align-items: center;
     z-index: 2000;
   }
 
-  .popup-overlay.ativo {
-    display: flex;
-  }
+  .popup-overlay.ativo { display: flex; }
 
   .popup-container {
-    background: var(--card);
-    border-radius: 12px;
-    padding: 24px;
-    max-width: 400px;
-    width: 90%;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    background: var(--card); border-radius: 12px; padding: 24px;
+    max-width: 400px; width: 90%;
+    box-shadow: 0 10px 30px rgba(0,0,0,.2);
     animation: popupIn 0.3s ease;
   }
 
   @keyframes popupIn {
-    from {
-      opacity: 0;
-      transform: scale(0.9) translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
+    from { opacity: 0; transform: scale(0.9) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
   }
 
-  .popup-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .popup-header svg {
-    width: 24px;
-    height: 24px;
-    color: var(--warn);
-  }
-
-  .popup-header h4 {
-    margin: 0;
-    color: var(--ink-strong);
-    font-size: 16px;
-  }
-
-  .popup-content {
-    margin-bottom: 20px;
-    color: var(--ink);
-    line-height: 1.5;
-  }
-
-  .popup-botoes {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-  }
+  .popup-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .popup-header svg { width: 24px; height: 24px; color: var(--warn); }
+  .popup-header h4 { margin: 0; color: var(--ink-strong); font-size: 16px; }
+  .popup-content { margin-bottom: 20px; color: var(--ink); line-height: 1.5; }
+  .popup-botoes { display: flex; justify-content: flex-end; gap: 8px; }
 
   .popup-btn {
-    padding: 8px 16px;
-    border-radius: 6px;
-    border: 1px solid var(--borda);
-    background: var(--card);
-    color: var(--ink);
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s ease;
+    padding: 8px 16px; border-radius: 6px;
+    border: 1px solid var(--borda); background: var(--card);
+    color: var(--ink); cursor: pointer; font-weight: 500;
+    transition: all 0.2s ease; font-family: inherit;
   }
 
-  .popup-btn:hover {
-    background: #f3f8ff;
-  }
+  .popup-btn:hover { background: #f3f8ff; }
 
   .popup-btn.primario {
-    background: var(--azul);
-    border-color: var(--azul);
-    color: white;
+    background: var(--azul); border-color: var(--azul); color: white;
   }
 
-  .popup-btn.primario:hover {
-    background: var(--accent);
-  }
+  .popup-btn.primario:hover { background: var(--accent); }
 
-  .impressao-direta {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: white;
-    z-index: 1500;
-    overflow-y: auto;
-    padding: 40px;
-    display: none;
-  }
-
-  .impressao-direta.ativo {
-    display: block;
-  }
-
-  .impressao-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid var(--borda);
-  }
-
-  .impressao-botoes {
-    display: flex;
-    gap: 12px;
-    margin-top: 30px;
-  }
-
-  .conteudo-header h2 {
-    position: relative;
-    padding-right: 0;
-  }
-
-  .conteudo-header h2::after {
-    content: none;
-  }
-
-  /* ESTILOS PARA IMAGENS COM LEGENDA */
   .conteudo-carregado .image-container {
-    background-color: #f5f5f5;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 10px;
-    text-align: center;
-    margin: 16px 0;
-    color: var(--muted);
+    background-color: #f5f5f5; border: 1px solid #ddd;
+    border-radius: 8px; padding: 10px; text-align: center; margin: 16px 0; color: var(--muted);
   }
-  
+
   .conteudo-carregado .image-container img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-    border-radius: 4px;
-    max-height: 400px;
-    object-fit: contain;
+    max-width: 100%; height: auto; display: block;
+    margin: 0 auto; border-radius: 4px; max-height: 400px; object-fit: contain;
   }
-  
+
   .conteudo-carregado .image-container p {
-    margin: 8px 0 0 0;
-    padding: 0;
-    font-size: 13px;
-    color: var(--muted);
+    margin: 8px 0 0 0; padding: 0; font-size: 13px; color: var(--muted);
   }
 
-  /* ESTILOS PARA CLIENTES POR ROTA */
-  .conteudo-carregado .cliente-item {
-    padding: 6px 0;
-    border-bottom: 1px dotted #e0e0e0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  
-  .conteudo-carregado .cliente-item:last-child {
-    border-bottom: none;
-  }
-  
-  .conteudo-carregado .cliente-nome {
-    flex-grow: 1;
-    font-size: 14.5px;
-  }
-  
-  .conteudo-carregado .codigo-container {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  
-  .conteudo-carregado .codigo-box {
-    background: var(--azul);
-    color: white;
-    padding: 2px 8px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: bold;
-    min-width: 40px;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0,123,255,0.3);
-  }
-  
-  .conteudo-carregado .total-clientes {
-    background: #f5f5f5;
-    padding: 8px 12px;
-    border-radius: 6px;
-    margin: 16px 0;
-    font-size: 14px;
-    color: #666;
-    border-left: 3px solid #ccc;
-  }
-  
-  .conteudo-carregado .clientes-container {
-    background: #f8f9fa;
-    padding: 16px 20px;
-    border-radius: 10px;
-    border-left: 4px solid var(--azul);
-    margin: 12px 0 24px 0;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-  }
-  
-  .conteudo-carregado .rota-jovi .clientes-container { border-left-color: #4CAF50; }
-  .conteudo-carregado .rota-salsicha .clientes-container { border-left-color: #FF9800; }
-  .conteudo-carregado .rota-guilherme .clientes-container { border-left-color: #2196F3; }
-  .conteudo-carregado .rota-nelio .clientes-container { border-left-color: #9C27B0; }
-  .conteudo-carregado .rota-stenio .clientes-container { border-left-color: #9C27B0; }
-
-  /* ESTILOS ESPECÍFICOS PARA O ARQUIVO uteis-clientes.html */
-  .conteudo-carregado .produtos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 12px;
-    margin-top: 12px;
-    margin-bottom: 16px;
-    padding-left: 16px;
-  }
-  
-  .conteudo-carregado .produto-item {
-    background: #f8f9fa;
-    padding: 12px;
-    border-radius: 8px;
-    border-left: 4px solid var(--azul);
-  }
-  
-  .conteudo-carregado .produto-nome {
-    font-weight: bold;
-    color: var(--ink-strong);
-    margin-bottom: 4px;
-  }
-  
-  .conteudo-carregado .produto-detalhe {
-    font-size: 14px;
-    color: var(--muted);
+  .sidebar-label {
+    font-size: 11px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 0 4px 8px 4px; margin-bottom: 4px;
+    border-bottom: 1px solid var(--borda);
+    display: flex; align-items: center; gap: 4px;
   }
 
-  /* Estilo para destaque de termos na busca */
-  mark {
-    background-color: #ffeb3b;
-    color: #000;
-    padding: 1px 4px;
-    border-radius: 3px;
-  }
+  .sidebar-label svg { width: 12px; height: 12px; }
 </style>
 </head>
 <body>
@@ -1361,113 +1383,60 @@
   </header>
 
   <div class="toolbar">
-    <button class="btn-toolbar btn-fechar" id="btn-fechar">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-      Fechar
-    </button>
-    
-    <!-- Botão de Rotinas Férias -->
-    <button class="btn-toolbar btn-ferias" id="btn-ferias">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="5" fill="#f59e0b" stroke="none"/>
-        <circle cx="12" cy="12" r="4" fill="#fbbf24"/>
-        <line x1="12" y1="2" x2="12" y2="4" stroke="#f59e0b" stroke-width="1.5"/>
-        <line x1="12" y1="20" x2="12" y2="22" stroke="#f59e0b" stroke-width="1.5"/>
-        <line x1="4" y1="12" x2="2" y2="12" stroke="#f59e0b" stroke-width="1.5"/>
-        <line x1="22" y1="12" x2="20" y2="12" stroke="#f59e0b" stroke-width="1.5"/>
-        <line x1="5.64" y1="5.64" x2="4.22" y2="4.22" stroke="#f59e0b" stroke-width="1.5"/>
-        <line x1="19.78" y1="19.78" x2="18.36" y2="18.36" stroke="#f59e0b" stroke-width="1.5"/>
-        <line x1="5.64" y1="18.36" x2="4.22" y2="19.78" stroke="#f59e0b" stroke-width="1.5"/>
-        <line x1="19.78" y1="4.22" x2="18.36" y2="5.64" stroke="#f59e0b" stroke-width="1.5"/>
-        <path d="M8 12a1 1 0 1 0 2 0 1 1 0 1 0-2 0" fill="#7c2d12"/>
-        <path d="M14 12a1 1 0 1 0 2 0 1 1 0 1 0-2 0" fill="#7c2d12"/>
-        <path d="M10 15c1 1 2 1 2 1s1 0 2-1" stroke="#7c2d12" stroke-width="1.5" fill="none"/>
-      </svg>
-      <span class="tooltip-text">Abrir Rotinas de Férias</span>
-      Rotinas Férias
-    </button>
-    
+    <!-- ORDEM: Menu, Fechar, Rotinas Férias -->
     <button class="btn-toolbar btn-menu" id="btn-menu">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
       </svg>
       Menu
     </button>
-    
-    <div class="search">
+
+    <button class="btn-toolbar btn-fechar" id="btn-fechar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+      Fechar
+    </button>
+
+    <!-- BOTÃO ROTINAS FÉRIAS — altere MOSTRAR_ROTINAS_FERIAS no script para ocultar -->
+    <button class="btn-toolbar btn-ferias" id="btn-ferias">
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" xml:space="preserve" width="18" height="18">
+        <style type="text/css">
+          .st0{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+          .st1{fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:10;}
+        </style>
+        <polygon class="st0" points="13,18 21,18 12,28 8,28 "/>
+        <polyline class="st0" points="20.2,14 13,6 9,6 13,14 "/>
+        <path class="st0" d="M12,20H4L1,9h3l4,5H28c0.8,0,1.6,0.3,2.1,0.9l0,0c1.2,1.2,1.2,3.1,0,4.2l0,0C29.5,19.7,28.8,20,28,20h-8.8"/>
+      </svg>
+      <span class="tooltip-text">Abrir Rotinas de Férias</span>
+      Rotinas Férias
+    </button>
+
+    <div class="search" id="search-container">
+      <svg class="search-icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
-      <input type="search" id="campo-busca" placeholder="Buscar nas anotações…" />
+      <input type="search" id="campo-busca" placeholder="Buscar nas anotações…" autocomplete="off" />
+      <button class="search-clear" id="btn-limpar-busca" title="Limpar busca">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
     </div>
   </div>
 
   <div class="anotacoes-container">
     <div class="topicos-sidebar">
-      <div class="topico-item" data-arquivo="fechamento-caixas.html">
+      <div class="sidebar-label">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 2v4M16 2v4M2 10h20"/>
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/>
         </svg>
-        Fechamento Caixas
+        Tópicos
       </div>
-      
-      <div class="topico-item" data-arquivo="fornecedores.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-        </svg>
-        Fornecedores
-      </div>
-      
-      <div class="topico-item" data-arquivo="geral.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
-        </svg>
-        Geral
-      </div>
-      
-      <div class="topico-item" data-arquivo="uteis-clientes.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-        </svg>
-        Informações Úteis Clientes
-      </div>
-      
-      <div class="topico-item" data-arquivo="clientes-por-rota.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 12h4l3 8 4-16 3 8h4"/>
-        </svg>
-        Clientes por rota
-      </div>
-      
-      <div class="topico-item" data-arquivo="lancamento-pedidos.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-        </svg>
-        Lançamentos Pedidos
-      </div>
-      
-      <div class="topico-item" data-arquivo="montagem-rotas.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
-        </svg>
-        Montagem Rotas
-      </div>
-      
-      <!-- NOVA SEÇÃO: Pedidos São José e Pão Total -->
-      <div class="topico-item" data-arquivo="pedidos-sj-pt.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-        </svg>
-        Pedidos São José e Pão Total
-      </div>
-      
-      <div class="resultados-busca" id="resultados-busca">
-        <!-- Resultados da busca serão inseridos aqui -->
-      </div>
+      <div id="topicos-lista"></div>
+
+      <div class="resultados-busca" id="resultados-busca"></div>
     </div>
 
     <div class="conteudo-area">
@@ -1504,123 +1473,201 @@
       </svg>
     </button>
   </div>
-  
+
   <div class="menu-secao">
     <h4>MACS</h4>
-    <a href="../mac77.html" class="menu-opcao">
-      <div class="codigo">77</div>
-      <span>MAC Bairro São Geraldo</span>
-    </a>
-    <a href="../mac78.html" class="menu-opcao">
-      <div class="codigo">78</div>
-      <span>MAC Bairro Planalto</span>
-    </a>
-    <a href="../mac79.html" class="menu-opcao">
-      <div class="codigo">79</div>
-      <span>MAC Romeu Duarte</span>
-    </a>
-    <a href="../mac80.html" class="menu-opcao">
-      <div class="codigo">80</div>
-      <span>MAC Rua São Geraldo / Centro 2</span>
-    </a>
-    <a href="../mac277.html" class="menu-opcao">
-      <div class="codigo">277</div>
-      <span>MAC Matriz</span>
-    </a>
-    <a href="../mac853.html" class="menu-opcao">
-      <div class="codigo">853</div>
-      <span>MAC Concesso</span>
-    </a>
-    <a href="../mac1249.html" class="menu-opcao">
-      <div class="codigo">1249</div>
-      <span>MAC Jardim do Lago</span>
-    </a>
-    <a href="../mac989.html" class="menu-opcao">
-      <div class="codigo">989</div>
-      <span>MAC Araújos</span>
-    </a>
+    <a href="../mac77.html" class="menu-opcao"><div class="codigo">77</div><span>MAC Bairro São Geraldo</span></a>
+    <a href="../mac78.html" class="menu-opcao"><div class="codigo">78</div><span>MAC Bairro Planalto</span></a>
+    <a href="../mac79.html" class="menu-opcao"><div class="codigo">79</div><span>MAC Romeu Duarte</span></a>
+    <a href="../mac80.html" class="menu-opcao"><div class="codigo">80</div><span>MAC Rua São Geraldo / Centro 2</span></a>
+    <a href="../mac277.html" class="menu-opcao"><div class="codigo">277</div><span>MAC Matriz</span></a>
+    <a href="../mac853.html" class="menu-opcao"><div class="codigo">853</div><span>MAC Concesso</span></a>
+    <a href="../mac989.html" class="menu-opcao"><div class="codigo">989</div><span>MAC Araújos</span></a>
+    <a href="../mac1249.html" class="menu-opcao"><div class="codigo">1249</div><span>MAC Jardim do Lago</span></a>
+    <a href="../mac1436.html" class="menu-opcao"><div class="codigo">1436</div><span>MAC São Gonçalo do Pará</span></a>
   </div>
-  
+
   <div class="menu-secao">
     <h4>São José</h4>
-    <a href="../saojose.html" class="menu-opcao">
-      <span>Pedido São José</span>
-    </a>
-    <a href="../paototal.html" class="menu-opcao">
-      <span>Pedido Pão Total</span>
-    </a>
+    <a href="../saojose.html" class="menu-opcao"><span>Pedido São José</span></a>
+    <a href="../paototal.html" class="menu-opcao"><span>Pedido Pão Total</span></a>
   </div>
-  
+
   <div class="menu-secao">
     <h4>Tabelas</h4>
-    <a href="../pdfs/Tabela 2025 Geral.pdf" class="menu-opcao" target="_blank">
-      <span>Tabela de Preços Geral</span>
-    </a>
-    <a href="../pdfs/Tabela 2025 Empresa.pdf" class="menu-opcao" target="_blank">
-      <span>Tabela de Preços Empresa</span>
-    </a>
-    <a href="https://github.com/henriteodoro/paratestes/releases/download/v1.0/Catalogo.Sao.Jose.2025.AT03.pdf" class="menu-opcao" target="_blank">
-      <span>Catálogo de Produtos</span>
-    </a>
+    <a href="../pdfs/Tabela 2025 Geral.pdf" class="menu-opcao" target="_blank"><span>Tabela de Preços Geral</span></a>
+    <a href="../pdfs/Tabela 2025 Empresa.pdf" class="menu-opcao" target="_blank"><span>Tabela de Preços Empresa</span></a>
+    <a href="https://github.com/henriteodoro/paratestes/releases/download/v1.0/Catalogo.Sao.Jose.2025.AT03.pdf" class="menu-opcao" target="_blank"><span>Catálogo de Produtos</span></a>
   </div>
-  
+
   <div class="menu-secao">
     <h4>Ferramentas</h4>
-    <a href="../processadordepedidos.html" class="menu-opcao">
-      <span>Processador de Pedidos</span>
-    </a>
-    <a href="../ods.html" class="menu-opcao">
-      <span>Visualizar Planilhas</span>
-    </a>
-    <a href="../simularpedido.html" class="menu-opcao">
-      <span>Simulador de Pedido</span>
-    </a>
-    <a href="anotacoes.html" class="menu-opcao">
-      <span>Anotações</span>
-    </a>
-    <a href="../planilhaautocontrole.html" class="menu-opcao">
-      <span>Planilhas de Autocontrole</span>
-    </a>
+    <a href="../processadordepedidos.html" class="menu-opcao"><span>Processador de Pedidos</span></a>
+    <a href="../ods.html" class="menu-opcao"><span>Visualizar Planilhas</span></a>
+    <a href="../simularpedido.html" class="menu-opcao"><span>Simulador de Pedido</span></a>
+    <a href="anotacoes.html" class="menu-opcao"><span>Anotações</span></a>
+    <a href="../planilhaautocontrole.html" class="menu-opcao"><span>Planilhas de Autocontrole</span></a>
+    <a href="../hora-extra.html" class="menu-opcao"><span>Ficha de Hora Extra</span></a>
   </div>
 </div>
 
 <!-- Lightbox para imagens -->
-<div class="image-lightbox" id="image-lightbox" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center;">
-  <div class="lightbox-content" style="position: relative; max-width: 90%; max-height: 90%;">
-    <button class="lightbox-close" id="lightbox-close" style="position: absolute; top: -40px; right: 0; background: none; border: none; color: white; font-size: 30px; cursor: pointer;">×</button>
-    <img id="lightbox-image" src="" alt="" style="max-width: 100%; max-height: 80vh; border-radius: 8px;">
-    <a class="lightbox-download" id="lightbox-download" download style="display: block; text-align: center; margin-top: 10px; color: white; text-decoration: none; background: var(--azul); padding: 10px; border-radius: 6px;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; vertical-align: middle;">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2 2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+<div class="image-lightbox" id="image-lightbox" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center;">
+  <div style="position:relative; max-width:90%; max-height:90%;">
+    <button id="lightbox-close" style="position:absolute; top:-40px; right:0; background:none; border:none; color:white; font-size:30px; cursor:pointer;">×</button>
+    <img id="lightbox-image" src="" alt="" style="max-width:100%; max-height:80vh; border-radius:8px;">
+    <a id="lightbox-download" download style="display:block; text-align:center; margin-top:10px; color:white; text-decoration:none; background:var(--azul); padding:10px; border-radius:6px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px; vertical-align:middle;">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
       </svg>
       Salvar Imagem
     </a>
   </div>
 </div>
 
-<!-- Popup personalizado -->
+<!-- Popup -->
 <div class="popup-overlay" id="popup-overlay">
-  <div class="popup-container" id="popup-container">
+  <div class="popup-container">
     <div class="popup-header">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
       </svg>
       <h4 id="popup-titulo">Atenção</h4>
     </div>
-    <div class="popup-content" id="popup-conteudo">
-      Mensagem de alerta
-    </div>
+    <div class="popup-content" id="popup-conteudo">Mensagem de alerta</div>
     <div class="popup-botoes">
       <button class="popup-btn" id="popup-fechar">Fechar</button>
     </div>
   </div>
 </div>
 
-<!-- Iframe para impressão -->
-<iframe id="print-iframe" style="display: none;"></iframe>
+<iframe id="print-iframe" style="display:none;"></iframe>
 
 <script>
-// Classe principal para gerenciar as anotações
+// =============================================
+// CONFIGURAÇÃO: BOTÃO ROTINAS FÉRIAS
+// Altere para false para ocultar o botão
+// =============================================
+const MOSTRAR_ROTINAS_FERIAS = true;
+
+// =============================================
+// DEFINIÇÃO DOS TÓPICOS
+// =============================================
+const TOPICOS = [
+  {
+    arquivo: 'fechamento-caixas.html',
+    nome: 'Fechamento Caixas',
+    icone: `<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 2v4M16 2v4M2 10h20"/>`
+  },
+  {
+    arquivo: 'fornecedores.html',
+    nome: 'Fornecedores',
+    icone: `<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`
+  },
+  {
+    arquivo: 'geral.html',
+    nome: 'Geral',
+    icone: `<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>`
+  },
+  {
+    arquivo: 'uteis-clientes.html',
+    nome: 'Informações Úteis Clientes',
+    icone: `<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>`
+  },
+  {
+    arquivo: 'clientes-por-rota.html',
+    nome: 'Clientes por Rota',
+    icone: `<path d="M3 12h4l3 8 4-16 3 8h4"/>`
+  },
+  {
+    arquivo: 'lancamento-pedidos.html',
+    nome: 'Lançamentos Pedidos',
+    icone: `<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>`
+  },
+  {
+    arquivo: 'montagem-rotas.html',
+    nome: 'Montagem Rotas',
+    icone: `<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>`
+  },
+  {
+    arquivo: 'pedidos-sj-pt.html',
+    nome: 'Pedidos São José e Pão Total',
+    icone: `<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>`
+  }
+];
+
+// =============================================
+// ORDENAÇÃO ALFABÉTICA
+// =============================================
+function ordenarAlfabeticamente(topicos) {
+  return [...topicos].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' }));
+}
+
+function renderizarTopicos() {
+  const lista = document.getElementById('topicos-lista');
+  const topicosOrdenados = ordenarAlfabeticamente(TOPICOS);
+
+  lista.innerHTML = topicosOrdenados.map(topico => `
+    <div class="topico-item" data-arquivo="${topico.arquivo}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${topico.icone}</svg>
+      ${topico.nome}
+    </div>
+  `).join('');
+
+  lista.querySelectorAll('.topico-item').forEach(item => {
+    item.addEventListener('click', function() {
+      lista.querySelectorAll('.topico-item').forEach(i => i.classList.remove('ativo'));
+      this.classList.add('ativo');
+      gerenciador.carregarTopico(this.getAttribute('data-arquivo'));
+    });
+  });
+}
+
+// =============================================
+// ÍCONES SVG REUTILIZÁVEIS
+// =============================================
+const ICONS = {
+  fechar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  salvar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
+  imprimir: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>`,
+  pdf: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
+  txt: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
+  chevron: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><polyline points="6 9 12 15 18 9"/></svg>`,
+  checkAll: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M9 11l3 3 7-7"/></svg>`,
+  // Ícone de lista com marcações — representa "selecionar itens da lista"
+  checklistSelect: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><polyline points="3 6 4 7 6 5"/><polyline points="3 12 4 13 6 11"/><polyline points="3 18 4 19 6 17"/></svg>`
+};
+
+// =============================================
+// HTML DAS AÇÕES DO TÓPICO (CABEÇALHO)
+// =============================================
+function gerarHTMLAcoesTopico() {
+  return `
+    <div class="salvar-wrapper">
+      <button class="btn-acao btn-salvar-como" id="btn-salvar-como">
+        ${ICONS.salvar}
+        Salvar como
+        ${ICONS.chevron}
+      </button>
+      <div class="salvar-dropdown" id="salvar-dropdown-topico">
+        <button id="btn-pdf-topico">${ICONS.pdf} PDF</button>
+        <button id="btn-txt-topico">${ICONS.txt} Texto (.txt)</button>
+      </div>
+    </div>
+    <button class="btn-acao btn-imprimir" id="btn-imprimir-topico">
+      ${ICONS.imprimir}
+      Imprimir
+    </button>
+    <button class="btn-acao btn-fechar-acao" id="btn-fechar-topico">
+      ${ICONS.fechar}
+      Fechar
+    </button>
+  `;
+}
+
+// =============================================
+// CLASSE PRINCIPAL
+// =============================================
 class GerenciadorAnotacoes {
   constructor() {
     this.topicoAtual = null;
@@ -1630,19 +1677,10 @@ class GerenciadorAnotacoes {
     this.modoSelecao = false;
     this.topicosSelecionados = new Set();
     this.conteudoSubtopicoAtual = null;
-    this.resultadoBuscaAtual = null;
-    // Array atualizada com os novos arquivos
-    this.htmlFiles = [
-      'fechamento-caixas.html',
-      'fornecedores.html',
-      'geral.html',
-      'uteis-clientes.html',
-      'clientes-por-rota.html',
-      'lancamento-pedidos.html',
-      'montagem-rotas.html',
-      'pedidos-sj-pt.html',
-      'rotina-comercial-emillie.html'
-    ];
+    this.termoBusca = null;
+    this.pendingScrollTo = null;
+    this.todosCheckados = false;
+    this.htmlFiles = TOPICOS.map(t => t.arquivo);
   }
 
   async carregarTopico(arquivo, scrollTo = null) {
@@ -1651,97 +1689,57 @@ class GerenciadorAnotacoes {
     this.conteudoSubtopicoAtual = null;
     this.modoSelecao = false;
     this.topicosSelecionados.clear();
-    
+    this.pendingScrollTo = scrollTo;
+
     const item = document.querySelector(`[data-arquivo="${arquivo}"]`);
-    const nomeTopico = item.textContent.trim();
-    
+    const nomeTopico = item ? item.textContent.trim() : arquivo;
+    const iconeSVG = item ? item.querySelector('svg').innerHTML : '';
+
     document.getElementById('topico-titulo').innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        ${item.querySelector('svg').innerHTML}
-      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${iconeSVG}</svg>
       ${nomeTopico}
     `;
-    
-    // Mostrar botões de ação apenas quando um tópico estiver aberto
-    document.getElementById('topico-acoes').innerHTML = `
-      <button class="btn-acao btn-pdf" id="btn-pdf-topico">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
-        </svg>
-        PDF
-      </button>
-      <button class="btn-acao btn-imprimir" id="btn-imprimir-topico">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-          <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-          <rect x="6" y="14" width="12" height="8"/>
-        </svg>
-        Imprimir
-      </button>
-      <button class="btn-acao btn-fechar" id="btn-fechar-topico">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-        Fechar
-      </button>
-    `;
-
+    document.getElementById('topico-acoes').innerHTML = gerarHTMLAcoesTopico();
     document.getElementById('conteudo-dinamico').innerHTML = '<div class="loading">Carregando...</div>';
 
     try {
       if (this.cache.has(arquivo)) {
-        this.processarConteudo(this.cache.get(arquivo), arquivo, scrollTo);
+        this.processarConteudo(this.cache.get(arquivo), arquivo);
         return;
       }
-
       const response = await fetch(arquivo);
       if (!response.ok) throw new Error('Arquivo não encontrado');
-      
       const html = await response.text();
       this.cache.set(arquivo, html);
-      this.processarConteudo(html, arquivo, scrollTo);
-      
+      this.processarConteudo(html, arquivo);
     } catch (error) {
       console.error('Erro ao carregar arquivo:', error);
       this.mostrarErro(arquivo);
     }
-    
-    // SCROLL PARA O TOPO AO CARREGAR NOVO TÓPICO
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  processarConteudo(html, arquivo, scrollTo = null) {
-    // Criar um elemento temporário para processar o HTML
+  processarConteudo(html, arquivo) {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
-    
-    // Remover elementos desnecessários como scripts e styles
     tempDiv.querySelectorAll('script, style, link, meta, title, head').forEach(el => el.remove());
-    
-    // Extrair o conteúdo do body se existir, caso contrário usar o conteúdo completo
+
     const body = tempDiv.querySelector('body');
     let conteudoHTML = body ? body.innerHTML : tempDiv.innerHTML;
-    
-    // Para o arquivo uteis-clientes.html, remover a tag .container que causa problemas de estilização
-    if (arquivo === 'uteis-clientes.html') {
-      // Substituir a classe container por uma div comum
-      conteudoHTML = conteudoHTML.replace(/class="container"/g, 'class="conteudo-clientes"');
-    }
-    
-    // Criar outro elemento para processar o conteúdo limpo
+
+    // Neutralizar a classe "container" de todos os arquivos carregados
+    // para evitar que o layout do arquivo original quebre o layout da página
+    conteudoHTML = conteudoHTML.replace(/\bclass="container"\b/g, 'class="conteudo-interno"');
+
     const tempDiv2 = document.createElement('div');
     tempDiv2.innerHTML = conteudoHTML;
-    
-    // Remover novamente scripts e styles que possam ter ficado
     tempDiv2.querySelectorAll('script, style').forEach(el => el.remove());
-    
-    const tituloPrincipal = (tempDiv2.querySelector('h1')?.textContent || 
-                           document.querySelector(`[data-arquivo="${arquivo}"]`).textContent.trim())
-                           .replace('| °', '').trim();
-    
-    // Extrair todos os h2 como subtópicos
+
+    const topicoInfo = TOPICOS.find(t => t.arquivo === arquivo);
+    const tituloPrincipal = (tempDiv2.querySelector('h1')?.textContent || (topicoInfo ? topicoInfo.nome : arquivo)).replace('| °', '').trim();
     const subtopicos = Array.from(tempDiv2.querySelectorAll('h2'));
-    
+
     this.conteudoAtual = {
       html: tempDiv2.innerHTML,
       titulo: tituloPrincipal,
@@ -1761,89 +1759,81 @@ class GerenciadorAnotacoes {
 
     this.adicionarEventosImagens();
 
-    // Se houver algo para rolar após o carregamento
-    if (scrollTo) {
-      setTimeout(() => {
-        this.rolarParaElemento(scrollTo);
-      }, 300);
+    if (this.pendingScrollTo) {
+      const nav = this.pendingScrollTo;
+      this.pendingScrollTo = null;
+      setTimeout(() => this.navegarParaResultado(nav), 250);
     }
   }
 
   extrairConteudoSubtopico(elementoH2, container) {
     let conteudo = '';
     let elementoAtual = elementoH2.nextElementSibling;
-    
-    // Coletar todos os elementos até encontrar o próximo h2
     while (elementoAtual && elementoAtual.tagName !== 'H2') {
       conteudo += elementoAtual.outerHTML;
       elementoAtual = elementoAtual.nextElementSibling;
     }
-    
     return `<h2>${elementoH2.textContent.replace('| °', '').trim()}</h2>${conteudo}`;
   }
 
   criarInterfaceComSubtopicos() {
-    const menuSubtopicos = this.conteudoAtual.subtopicos.map((subtopico, index) => {
-      return `
-        <div class="subtopico-item" data-subtopico="${subtopico.id}" data-index="${index}">
-          <div style="display: flex; align-items: center; flex: 1;">
-            <label style="cursor: pointer; flex: 1;">${subtopico.titulo}</label>
-          </div>
+    const menuSubtopicos = this.conteudoAtual.subtopicos.map((subtopico, index) => `
+      <div class="subtopico-item" data-subtopico="${subtopico.id}" data-index="${index}">
+        <div style="display:flex; align-items:center; flex:1;">
+          <label style="cursor:pointer; flex:1;">${subtopico.titulo}</label>
         </div>
-      `;
-    }).join('');
+      </div>
+    `).join('');
 
     document.getElementById('conteudo-dinamico').innerHTML = `
       <div class="conteudo-com-subtopicos">
         <div class="lista-subtopicos">
-          <div class="lista-subtopicos-header">
+          <!-- Cabeçalho da lista -->
+          <div class="lista-subtopicos-header" id="subtopicos-header">
             <h3>TÓPICOS</h3>
-            <button class="btn-icone-editar" id="btn-selecionar-topicos" title="Selecionar tópicos">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M9 11l3 3 7-7"/>
-              </svg>
+
+            <!-- Modo normal: ícone de selecionar -->
+            <div id="acoes-header-normal">
+              <button class="btn-icone-editar" id="btn-selecionar-topicos" title="Selecionar tópicos para salvar/imprimir">
+                ${ICONS.checklistSelect}
+              </button>
+            </div>
+
+            <!-- Modo seleção: fechar + imprimir (oculto inicialmente) -->
+            <div id="acoes-header-selecao" class="acoes-header-selecao">
+              <button class="btn-selecao-icon danger" id="btn-cancelar-selecao" title="Cancelar seleção">
+                ${ICONS.fechar}
+              </button>
+              <button class="btn-selecao-icon azul" id="btn-imprimir-selecionados" title="Imprimir selecionados">
+                ${ICONS.imprimir}
+              </button>
+            </div>
+          </div>
+
+          <!-- Segunda linha: selecionar todos + salvar como (oculta inicialmente) -->
+          <div class="selecao-segunda-linha" id="selecao-segunda-linha">
+            <button class="btn-selecao-icon" id="btn-selecionar-todos" title="Selecionar todos">
+              ${ICONS.checkAll}
             </button>
-          </div>
-          <div class="lista-subtopicos-conteudo" id="lista-subtopicos-conteudo">
-            ${menuSubtopicos}
-          </div>
-          <div class="selecao-botoes-container" id="selecao-botoes-container">
-            <div class="selecao-botoes-linha">
-              <button class="btn-selecionar-todos" id="btn-selecionar-todos">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M9 11l3 3 7-7"/>
-                </svg>
-                Selecionar todos
+            <div class="selecao-salvar-wrapper">
+              <button class="btn-selecao-salvar" id="btn-salvar-como-selecao" title="Salvar como">
+                ${ICONS.salvar} Salvar como ${ICONS.chevron}
               </button>
-              <button class="btn-cancelar-selecao" id="btn-cancelar-selecao" title="Cancelar">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-              </button>
-            </div>
-            <div class="selecao-botoes-linha">
-              <button class="btn-impressao btn-pdf" id="btn-pdf-selecionados">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
-                </svg>
-                PDF
-              </button>
-              <button class="btn-impressao btn-imprimir" id="btn-imprimir-selecionados">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                  <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-                  <rect x="6" y="14" width="12" height="8"/>
-                </svg>
-                Imprimir
-              </button>
+              <div class="salvar-dropdown" id="salvar-dropdown-selecao">
+                <button id="btn-pdf-selecionados">${ICONS.pdf} PDF</button>
+                <button id="btn-txt-selecionados">${ICONS.txt} Texto (.txt)</button>
+              </div>
             </div>
           </div>
+
+          <div id="lista-subtopicos-conteudo">${menuSubtopicos}</div>
         </div>
+
         <div id="conteudo-subtopico" class="conteudo-subtopico">
           <div class="estado-vazio">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+              <polyline points="14 2 14 8 20 8"/>
             </svg>
             <p>Selecione um tópico para visualizar o conteúdo</p>
           </div>
@@ -1856,110 +1846,99 @@ class GerenciadorAnotacoes {
   }
 
   mostrarConteudoDireto(tempDiv) {
-    // Remover o h1 se existir
     const h1 = tempDiv.querySelector('h1');
     if (h1) h1.remove();
-    
-    document.getElementById('conteudo-dinamico').innerHTML = 
+    document.getElementById('conteudo-dinamico').innerHTML =
       '<div class="conteudo-carregado">' + tempDiv.innerHTML + '</div>';
   }
 
   adicionarEventosSubtopicos() {
     document.querySelectorAll('.subtopico-item').forEach(item => {
-      item.addEventListener('click', (e) => {
+      item.addEventListener('click', () => {
         if (this.modoSelecao) {
           const checkbox = item.querySelector('.subtopico-checkbox');
           if (checkbox) {
-            const index = parseInt(item.getAttribute('data-index'));
             checkbox.checked = !checkbox.checked;
+            const index = parseInt(item.getAttribute('data-index'));
             this.topicosSelecionados[checkbox.checked ? 'add' : 'delete'](index);
           }
           return;
         }
-        
-        const index = parseInt(item.getAttribute('data-index'));
-        this.mostrarSubtopico(index);
+        this.mostrarSubtopico(parseInt(item.getAttribute('data-index')));
       });
     });
   }
 
   adicionarEventosSelecao() {
-    // Botão "Selecionar tópicos" (ícone)
-    const btnSelecionar = document.getElementById('btn-selecionar-topicos');
-    if (btnSelecionar) {
-      btnSelecionar.addEventListener('click', () => {
-        this.ativarModoSelecao();
-      });
-    }
+    const btn = (id) => document.getElementById(id);
 
-    // PDF dos selecionados
-    const btnPdfSelecionados = document.getElementById('btn-pdf-selecionados');
-    if (btnPdfSelecionados) {
-      btnPdfSelecionados.addEventListener('click', () => {
-        this.salvarSubtopicosSelecionados('pdf');
-      });
-    }
+    btn('btn-selecionar-topicos')?.addEventListener('click', () => this.ativarModoSelecao());
+    btn('btn-cancelar-selecao')?.addEventListener('click', () => this.desativarModoSelecao());
+    btn('btn-imprimir-selecionados')?.addEventListener('click', () => this.salvarSubtopicosSelecionados('imprimir'));
 
-    // Imprimir selecionados
-    const btnImprimirSelecionados = document.getElementById('btn-imprimir-selecionados');
-    if (btnImprimirSelecionados) {
-      btnImprimirSelecionados.addEventListener('click', () => {
-        this.salvarSubtopicosSelecionados('imprimir');
+    btn('btn-selecionar-todos')?.addEventListener('click', () => {
+      const checkboxes = document.querySelectorAll('.subtopico-checkbox');
+      this.todosCheckados = !this.todosCheckados;
+      checkboxes.forEach(cb => {
+        cb.checked = this.todosCheckados;
+        const index = parseInt(cb.getAttribute('data-index'));
+        this.topicosSelecionados[this.todosCheckados ? 'add' : 'delete'](index);
       });
-    }
+      const btnTodos = btn('btn-selecionar-todos');
+      if (btnTodos) {
+        btnTodos.title = this.todosCheckados ? 'Desmarcar todos' : 'Selecionar todos';
+        btnTodos.innerHTML = this.todosCheckados
+          ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>`
+          : ICONS.checkAll;
+      }
+    });
 
-    // Selecionar todos
-    const btnSelecionarTodos = document.getElementById('btn-selecionar-todos');
-    if (btnSelecionarTodos) {
-      btnSelecionarTodos.addEventListener('click', () => {
-        this.selecionarTodosTopicos();
-      });
-    }
+    btn('btn-salvar-como-selecao')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const dd = document.getElementById('salvar-dropdown-selecao');
+      if (dd) dd.classList.toggle('aberto');
+    });
 
-    // Cancelar seleção (ícone X)
-    const btnCancelarSelecao = document.getElementById('btn-cancelar-selecao');
-    if (btnCancelarSelecao) {
-      btnCancelarSelecao.addEventListener('click', () => {
-        this.desativarModoSelecao();
-      });
-    }
+    btn('btn-pdf-selecionados')?.addEventListener('click', () => {
+      document.getElementById('salvar-dropdown-selecao')?.classList.remove('aberto');
+      this.salvarSubtopicosSelecionados('pdf');
+    });
+
+    btn('btn-txt-selecionados')?.addEventListener('click', () => {
+      document.getElementById('salvar-dropdown-selecao')?.classList.remove('aberto');
+      this.salvarSubtopicosSelecionados('texto');
+    });
   }
 
   ativarModoSelecao() {
     this.modoSelecao = true;
+    this.topicosSelecionados.clear();
+    this.todosCheckados = false;
+
     const container = document.getElementById('lista-subtopicos-conteudo');
-    const botoesSelecao = document.getElementById('selecao-botoes-container');
-    const btnSelecionarTopicos = document.getElementById('btn-selecionar-topicos');
-    
-    if (!container || !botoesSelecao || !btnSelecionarTopicos) return;
-    
-    // Gerar a lista com checkboxes
-    const listaComCheckboxes = this.conteudoAtual.subtopicos.map((subtopico, index) => {
-      const estaSelecionado = this.topicosSelecionados.has(index);
-      return `
-        <div class="subtopico-item" data-index="${index}">
-          <div style="display: flex; align-items: center; flex: 1;">
-            <input type="checkbox" class="subtopico-checkbox" id="check-${index}" 
-                   data-index="${index}" ${estaSelecionado ? 'checked' : ''}>
-            <label for="check-${index}" style="margin-left: 8px; cursor: pointer; flex: 1;">${subtopico.titulo}</label>
-          </div>
+    if (!container) return;
+
+    // Trocar botões no cabeçalho
+    document.getElementById('acoes-header-normal').style.display = 'none';
+    document.getElementById('acoes-header-selecao').classList.add('ativo');
+    document.getElementById('selecao-segunda-linha').classList.add('ativo');
+
+    // Rebuild lista com checkboxes
+    const listaComCheckboxes = this.conteudoAtual.subtopicos.map((subtopico, index) => `
+      <div class="subtopico-item" data-index="${index}">
+        <div style="display:flex; align-items:center; flex:1; gap:6px;">
+          <input type="checkbox" class="subtopico-checkbox" id="check-${index}" data-index="${index}">
+          <label for="check-${index}" style="margin-left:4px; cursor:pointer; flex:1; font-size:13px;">${subtopico.titulo}</label>
         </div>
-      `;
-    }).join('');
-    
+      </div>
+    `).join('');
+
     container.innerHTML = listaComCheckboxes;
-    botoesSelecao.classList.add('ativo');
-    btnSelecionarTopicos.style.display = 'none';
-    
-    // Adicionar eventos aos checkboxes
-    document.querySelectorAll('.subtopico-checkbox').forEach(checkbox => {
-      checkbox.addEventListener('change', (e) => {
-        const index = parseInt(checkbox.getAttribute('data-index'));
-        if (checkbox.checked) {
-          this.topicosSelecionados.add(index);
-        } else {
-          this.topicosSelecionados.delete(index);
-        }
+
+    document.querySelectorAll('.subtopico-checkbox').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const index = parseInt(cb.getAttribute('data-index'));
+        this.topicosSelecionados[cb.checked ? 'add' : 'delete'](index);
       });
     });
   }
@@ -1967,91 +1946,172 @@ class GerenciadorAnotacoes {
   desativarModoSelecao() {
     this.modoSelecao = false;
     this.topicosSelecionados.clear();
-    
-    const container = document.getElementById('lista-subtopicos-conteudo');
-    const botoesSelecao = document.getElementById('selecao-botoes-container');
-    const btnSelecionarTopicos = document.getElementById('btn-selecionar-topicos');
-    
-    if (!container || !botoesSelecao || !btnSelecionarTopicos) return;
-    
-    // Restaurar a lista sem checkboxes
-    const listaNormal = this.conteudoAtual.subtopicos.map((subtopico, index) => {
-      return `
-        <div class="subtopico-item" data-subtopico="${subtopico.id}" data-index="${index}">
-          <div style="display: flex; align-items: center; flex: 1;">
-            <label style="cursor: pointer; flex: 1;">${subtopico.titulo}</label>
-          </div>
-        </div>
-      `;
-    }).join('');
-    
-    container.innerHTML = listaNormal;
-    botoesSelecao.classList.remove('ativo');
-    btnSelecionarTopicos.style.display = 'flex';
-    
-    this.adicionarEventosSubtopicos();
-  }
+    this.todosCheckados = false;
 
-  selecionarTodosTopicos() {
-    const checkboxes = document.querySelectorAll('.subtopico-checkbox');
-    if (checkboxes.length === 0) return;
-    
-    const todosSelecionados = Array.from(checkboxes).every(cb => cb.checked);
-    
-    checkboxes.forEach(cb => {
-      const index = parseInt(cb.getAttribute('data-index'));
-      cb.checked = !todosSelecionados;
-      if (!todosSelecionados) {
-        this.topicosSelecionados.add(index);
-      } else {
-        this.topicosSelecionados.delete(index);
-      }
-    });
-    
-    const btnSelecionarTodos = document.getElementById('btn-selecionar-todos');
-    if (btnSelecionarTodos) {
-      btnSelecionarTodos.innerHTML = `
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-          ${todosSelecionados ? '<path d="M9 11l3 3 7-7"/>' : ''}
-        </svg>
-        ${todosSelecionados ? 'Selecionar todos' : 'Desmarcar todos'}
-      `;
+    const container = document.getElementById('lista-subtopicos-conteudo');
+    if (!container) return;
+
+    // Restaurar botões no cabeçalho
+    document.getElementById('acoes-header-normal').style.display = '';
+    document.getElementById('acoes-header-selecao').classList.remove('ativo');
+    document.getElementById('selecao-segunda-linha').classList.remove('ativo');
+    document.getElementById('salvar-dropdown-selecao')?.classList.remove('aberto');
+
+    // Restaurar lista sem checkboxes
+    container.innerHTML = this.conteudoAtual.subtopicos.map((subtopico, index) => `
+      <div class="subtopico-item" data-subtopico="${subtopico.id}" data-index="${index}">
+        <div style="display:flex; align-items:center; flex:1;">
+          <label style="cursor:pointer; flex:1;">${subtopico.titulo}</label>
+        </div>
+      </div>
+    `).join('');
+
+    // Restaurar item ativo
+    if (this.subtopicoAtual !== null) {
+      const item = document.querySelector(`[data-index="${this.subtopicoAtual}"]`);
+      if (item) item.classList.add('ativo');
     }
+
+    this.adicionarEventosSubtopicos();
   }
 
   mostrarSubtopico(index) {
     const container = document.getElementById('conteudo-subtopico');
     if (!container || !this.conteudoAtual || !this.conteudoAtual.subtopicos[index]) return;
-    
+
     const subtopico = this.conteudoAtual.subtopicos[index];
     this.subtopicoAtual = index;
     this.conteudoSubtopicoAtual = subtopico.conteudo;
-    
+
     container.innerHTML = '<div class="conteudo-carregado">' + subtopico.conteudo + '</div>';
-    
-    document.querySelectorAll('.subtopico-item').forEach(item => {
-      item.classList.remove('ativo');
-    });
-    
-    const itemAtual = document.querySelector(`[data-index="${index}"]`);
-    if (itemAtual) {
-      itemAtual.classList.add('ativo');
-    }
-    
+
+    document.querySelectorAll('.subtopico-item').forEach(item => item.classList.remove('ativo'));
+    document.querySelector(`[data-index="${index}"]`)?.classList.add('ativo');
+
     this.adicionarEventosImagens();
-    
-    // Scroll para o topo do conteúdo
-    if (container) {
-      container.scrollTo({ top: 0, behavior: 'smooth' });
+    container.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // =============================================
+  // NAVEGAÇÃO A PARTIR DA BUSCA
+  // =============================================
+  navegarParaResultado(dados) {
+    if (!dados || !this.conteudoAtual) return;
+
+    if (dados.tipo === 'subtopico') {
+      let index = -1;
+      for (let i = 0; i < this.conteudoAtual.subtopicos.length; i++) {
+        const sub = this.conteudoAtual.subtopicos[i];
+        if (sub.id === dados.valor || sub.titulo === dados.valor ||
+            sub.titulo.toLowerCase() === (dados.valor || '').toLowerCase()) {
+          index = i;
+          break;
+        }
+      }
+      if (index >= 0) {
+        this.mostrarSubtopico(index);
+        setTimeout(() => {
+          if (this.termoBusca) this.aplicarHighlight(this.termoBusca);
+        }, 200);
+      }
+    } else if (dados.tipo === 'conteudo') {
+      if (this.conteudoAtual.subtopicos.length > 0) {
+        const index = this.encontrarSubtopicoDoConteudo(dados.valor);
+        if (index >= 0) {
+          this.mostrarSubtopico(index);
+          setTimeout(() => {
+            if (this.termoBusca) {
+              this.aplicarHighlight(this.termoBusca);
+              const mark = document.querySelector('#conteudo-dinamico mark.hl');
+              if (mark) mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }, 250);
+        } else {
+          if (this.subtopicoAtual === null && this.conteudoAtual.subtopicos.length > 0) {
+            this.mostrarSubtopico(0);
+          }
+          setTimeout(() => {
+            if (this.termoBusca) this.aplicarHighlight(this.termoBusca);
+          }, 250);
+        }
+      } else {
+        setTimeout(() => {
+          if (this.termoBusca) {
+            this.aplicarHighlight(this.termoBusca);
+            const mark = document.querySelector('#conteudo-dinamico mark.hl');
+            if (mark) mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 200);
+      }
     }
+  }
+
+  encontrarSubtopicoDoConteudo(texto) {
+    if (!this.conteudoAtual || !texto) return -1;
+    const termoLower = texto.toLowerCase();
+    for (let i = 0; i < this.conteudoAtual.subtopicos.length; i++) {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = this.conteudoAtual.subtopicos[i].conteudo;
+      if ((tempDiv.textContent || '').toLowerCase().includes(termoLower)) return i;
+    }
+    return -1;
+  }
+
+  // =============================================
+  // SISTEMA DE HIGHLIGHT PERSISTENTE
+  // =============================================
+  aplicarHighlight(termo) {
+    if (!termo) return;
+    const alvo = document.getElementById('conteudo-subtopico') ||
+                 document.querySelector('#conteudo-dinamico .conteudo-carregado');
+    if (!alvo) return;
+    this.removerHighlights();
+    this.highlightNode(alvo, termo);
+    const firstMark = document.querySelector('#conteudo-dinamico mark.hl');
+    if (firstMark) firstMark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  highlightNode(node, termo) {
+    if (!node) return;
+    if (node.nodeType === 3) {
+      const txt = node.textContent;
+      if (!txt.toLowerCase().includes(termo.toLowerCase())) return;
+      const escapado = termo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(${escapado})`, 'gi');
+      const partes = txt.split(regex);
+      if (partes.length <= 1) return;
+      const frag = document.createDocumentFragment();
+      partes.forEach(parte => {
+        if (parte.toLowerCase() === termo.toLowerCase()) {
+          const mark = document.createElement('mark');
+          mark.className = 'hl';
+          mark.textContent = parte;
+          frag.appendChild(mark);
+        } else {
+          frag.appendChild(document.createTextNode(parte));
+        }
+      });
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    } else if (node.nodeType === 1) {
+      const tag = node.tagName ? node.tagName.toUpperCase() : '';
+      if (['SCRIPT', 'STYLE', 'MARK', 'INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) return;
+      Array.from(node.childNodes).forEach(child => this.highlightNode(child, termo));
+    }
+  }
+
+  removerHighlights() {
+    document.querySelectorAll('#conteudo-dinamico mark.hl').forEach(mark => {
+      const parent = mark.parentNode;
+      if (parent) {
+        parent.replaceChild(document.createTextNode(mark.textContent), mark);
+        try { parent.normalize(); } catch(e) {}
+      }
+    });
   }
 
   adicionarEventosImagens() {
     document.querySelectorAll('#conteudo-dinamico img').forEach(img => {
-      img.addEventListener('click', () => {
-        this.abrirLightbox(img.src);
-      });
+      img.addEventListener('click', () => this.abrirLightbox(img.src));
     });
   }
 
@@ -2059,9 +2119,7 @@ class GerenciadorAnotacoes {
     const lightbox = document.getElementById('image-lightbox');
     const lightboxImg = document.getElementById('lightbox-image');
     const downloadBtn = document.getElementById('lightbox-download');
-    
     if (!lightbox || !lightboxImg || !downloadBtn) return;
-    
     lightboxImg.src = src;
     downloadBtn.href = src;
     downloadBtn.download = src.split('/').pop() || 'imagem.png';
@@ -2070,16 +2128,11 @@ class GerenciadorAnotacoes {
 
   fecharLightbox() {
     const lightbox = document.getElementById('image-lightbox');
-    if (lightbox) {
-      lightbox.style.display = 'none';
-    }
+    if (lightbox) lightbox.style.display = 'none';
   }
 
   criarId(texto) {
-    return texto.toLowerCase()
-      .replace(/\s+/g, '-')
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
+    return texto.toLowerCase().replace(/\s+/g, '-').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   }
 
   mostrarErro(arquivo) {
@@ -2089,7 +2142,7 @@ class GerenciadorAnotacoes {
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
         <p>Arquivo não encontrado: ${arquivo}</p>
-        <p style="font-size: 13px; margin-top: 8px;">Crie o arquivo na mesma pasta para ver o conteúdo.</p>
+        <p style="font-size:13px; margin-top:8px;">Crie o arquivo na mesma pasta para ver o conteúdo.</p>
       </div>
     `;
   }
@@ -2101,20 +2154,16 @@ class GerenciadorAnotacoes {
     this.conteudoSubtopicoAtual = null;
     this.modoSelecao = false;
     this.topicosSelecionados.clear();
-    
-    document.querySelectorAll('.topico-item').forEach(item => {
-      item.classList.remove('ativo');
-    });
-    
+
+    document.querySelectorAll('.topico-item').forEach(item => item.classList.remove('ativo'));
+
     document.getElementById('topico-titulo').innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
       </svg>
       Bem-vindo
     `;
-    
     document.getElementById('topico-acoes').innerHTML = '';
-    
     document.getElementById('conteudo-dinamico').innerHTML = `
       <div class="estado-vazio">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2123,35 +2172,27 @@ class GerenciadorAnotacoes {
         <p>Selecione um tópico para visualizar o conteúdo</p>
       </div>
     `;
-    
-    // SCROLL PARA O TOPO AO FECHAR TÓPICO
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  // =============================================
+  // SALVAR / IMPRIMIR
+  // =============================================
   salvarSubtopicoAtual(formato) {
     if (!this.conteudoSubtopicoAtual) {
       this.mostrarPopup('Selecione um subtópico primeiro.', 'Atenção');
       return;
     }
-
     const subtopico = this.conteudoAtual.subtopicos[this.subtopicoAtual];
-    const tituloCompleto = `${this.conteudoAtual.titulo} - ${subtopico.titulo}`;
-    const conteudoCompleto = `<h1>${tituloCompleto}</h1>${this.conteudoSubtopicoAtual}`;
-    
-    this.gerarSaida(conteudoCompleto, tituloCompleto, formato);
+    const titulo = `${this.conteudoAtual.titulo} - ${subtopico.titulo}`;
+    this.gerarSaida(`<h1>${titulo}</h1>${this.conteudoSubtopicoAtual}`, titulo, formato);
   }
 
   salvarTopicoCompleto(formato) {
-    let conteudoCompleto = this.conteudoAtual.html;
-    
     const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = conteudoCompleto;
-    const h1 = tempDiv.querySelector('h1');
-    if (h1) h1.remove();
-    
-    conteudoCompleto = `<h1>${this.conteudoAtual.titulo}</h1>${tempDiv.innerHTML}`;
-    
-    this.gerarSaida(conteudoCompleto, this.conteudoAtual.titulo, formato);
+    tempDiv.innerHTML = this.conteudoAtual.html;
+    tempDiv.querySelector('h1')?.remove();
+    this.gerarSaida(`<h1>${this.conteudoAtual.titulo}</h1>${tempDiv.innerHTML}`, this.conteudoAtual.titulo, formato);
   }
 
   salvarSubtopicosSelecionados(formato) {
@@ -2159,827 +2200,531 @@ class GerenciadorAnotacoes {
       this.mostrarPopup('Selecione pelo menos um tópico para salvar.', 'Atenção');
       return;
     }
-
-    let conteudoCompleto = `<h1>${this.conteudoAtual.titulo}</h1>`;
-    
+    let conteudo = `<h1>${this.conteudoAtual.titulo}</h1>`;
     this.topicosSelecionados.forEach(index => {
-      const subtopico = this.conteudoAtual.subtopicos[index];
-      conteudoCompleto += subtopico.conteudo;
+      conteudo += this.conteudoAtual.subtopicos[index].conteudo;
     });
-    
-    this.gerarSaida(conteudoCompleto, this.conteudoAtual.titulo, formato);
+    this.gerarSaida(conteudo, this.conteudoAtual.titulo, formato);
   }
 
   async gerarSaida(conteudo, titulo, formato) {
-    // Função para converter imagens para base64
-    const converterImagensParaBase64 = async (htmlString) => {
+    if (formato === 'texto') {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = conteudo;
+      const texto = (tempDiv.textContent || tempDiv.innerText || '').trim();
+      const blob = new Blob([texto], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${titulo.replace(/\s+/g, '_').replace(/[^\w\s]/gi, '')}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      return;
+    }
+
+    const converterImagens = async (htmlString) => {
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = htmlString;
-      const imagens = tempDiv.querySelectorAll('img');
-      
-      for (const img of imagens) {
+      for (const img of tempDiv.querySelectorAll('img')) {
         const src = img.src || img.getAttribute('src');
-        if (!src) continue;
-        
-        // Se já for base64, não converter
-        if (src.startsWith('data:')) continue;
-        
+        if (!src || src.startsWith('data:')) continue;
         try {
-          // Tentar carregar a imagem
-          let imageUrl = src;
-          
-          // Se for um caminho relativo, tentar resolver
-          if (!src.startsWith('http') && !src.startsWith('data:')) {
-            // Usar a localização atual como base
-            const baseUrl = window.location.href;
-            const url = new URL(src, baseUrl);
-            imageUrl = url.href;
-          }
-          
+          const imageUrl = src.startsWith('http') ? src : new URL(src, window.location.href).href;
           const response = await fetch(imageUrl);
-          if (!response.ok) {
-            console.warn('Não foi possível carregar imagem:', src);
-            continue;
-          }
-          
+          if (!response.ok) continue;
           const blob = await response.blob();
-          const reader = new FileReader();
-          
           await new Promise((resolve, reject) => {
-            reader.onloadend = () => {
-              img.src = reader.result;
-              resolve();
-            };
+            const reader = new FileReader();
+            reader.onloadend = () => { img.src = reader.result; resolve(); };
             reader.onerror = reject;
             reader.readAsDataURL(blob);
           });
-        } catch (error) {
-          console.error('Erro ao converter imagem:', error, src);
-          // Se não conseguir converter, manter o src original
-        }
+        } catch (e) { console.error('Erro ao converter imagem:', e); }
       }
-      
       return tempDiv.innerHTML;
     };
 
     try {
-      const conteudoComImagens = await converterImagensParaBase64(conteudo);
-      
+      const conteudoComImagens = await converterImagens(conteudo);
       const estilos = `
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-          
-          body { 
-            font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-            line-height: 1.6; 
-            margin: 40px;
-            color: #0b3b6b;
-            background: white;
-          }
-          
-          h1 { 
-            color: #0b5ed7; 
-            border-bottom: 2px solid #e6eefc; 
-            padding-bottom: 10px;
-            margin-bottom: 25px;
-            font-size: 24px;
-            page-break-after: avoid;
-          }
-          
-          h2 { 
-            color: #0b4fa0; 
-            margin-top: 25px;
-            border-left: 4px solid #007BFF;
-            padding-left: 12px;
-            font-size: 18px;
-            page-break-after: avoid;
-            page-break-before: auto;
-          }
-          
-          h2::before {
-            content: "•";
-            color: #007BFF;
-            font-size: 24px;
-            margin-right: 8px;
-          }
-          
-          h3 {
-            color: #0b4fa0;
-            margin: 20px 0 8px 0;
-            font-size: 16px;
-          }
-          
-          .destaque { 
-            background: #f0f7ff; 
-            padding: 12px 16px; 
-            border-radius: 8px;
-            border-left: 4px solid #007BFF; 
-            margin: 15px 0;
-            page-break-inside: avoid;
-          }
-          
-          .info-box { 
-            background: #fff7f0; 
-            padding: 12px 16px; 
-            border-radius: 8px;
-            border-left: 4px solid #f59e0b; 
-            margin: 15px 0;
-            page-break-inside: avoid;
-          }
-          
-          .ferias-box {
-            background: #f0fff4;
-            padding: 12px 16px;
-            border-radius: 8px;
-            border-left: 4px solid #38a169;
-            margin: 15px 0;
-            page-break-inside: avoid;
-          }
-          
-          .pix-info {
-            background: #f8f0ff;
-            padding: 12px 16px;
-            border-radius: 8px;
-            border-left: 4px solid #8a2be2;
-            margin: 12px 0;
-            font-family: monospace;
-            font-size: 14px;
-            page-break-inside: avoid;
-          }
-          
-          .passo-a-passo {
-            background: #f7fff0;
-            padding: 16px;
-            border-radius: 8px;
-            border: 1px solid #e6eefc;
-            margin: 16px 0;
-            page-break-inside: avoid;
-          }
-          
-          .passo {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            margin: 12px 0;
-          }
-          
-          .passo-num {
-            background: #007BFF;
-            color: white;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: bold;
-            flex-shrink: 0;
-          }
-          
-          .dados-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 12px;
-            margin: 12px 0 24px 0;
-          }
-          
-          .dado-item {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 8px;
-            border-left: 4px solid #007BFF;
-          }
-          
-          .tabela-container {
-            overflow-x: auto;
-            margin: 16px 0;
-            border-radius: 8px;
-            border: 1px solid #e6eefc;
-          }
-          
-          .tabela-melhorada {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 600px;
-          }
-          
-          .tabela-melhorada thead {
-            background: #007BFF;
-            color: white;
-          }
-          
-          .tabela-melhorada th {
-            padding: 12px 16px;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 2px solid #0b5ed7;
-          }
-          
-          .tabela-melhorada tbody tr {
-            border-bottom: 1px solid #e6eefc;
-          }
-          
-          .tabela-melhorada td {
-            padding: 12px 16px;
-            vertical-align: top;
-          }
-          
-          .tabela-melhorada tbody tr:nth-child(even) {
-            background: #fafcff;
-          }
-          
-          .badge-multiplicador {
-            display: inline-block;
-            background: #007BFF;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 14px;
-            margin-right: 8px;
-          }
-          
-          .transportadores {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 12px;
-            margin: 12px 0 24px 0;
-          }
-          
-          .transportador {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 8px;
-            border-left: 4px solid #007BFF;
-          }
-          
-          .image-container {
-            background-color: #f5f5f5;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 10px;
-            text-align: center;
-            margin: 16px 0;
-            color: #6b7280;
-            page-break-inside: avoid;
-          }
-          
-          .image-container img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-            border-radius: 4px;
-            max-height: 400px;
-            object-fit: contain;
-          }
-          
-          .image-container p {
-            margin: 8px 0 0 0;
-            padding: 0;
-            font-size: 13px;
-            color: #6b7280;
-          }
-          
-          .cliente-item {
-            padding: 6px 0;
-            border-bottom: 1px dotted #e0e0e0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-          }
-          
-          .cliente-item:last-child {
-            border-bottom: none;
-          }
-          
-          .cliente-nome {
-            flex-grow: 1;
-            font-size: 14.5px;
-          }
-          
-          .codigo-container {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-          }
-          
-          .codigo-box {
-            background: #007BFF;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: bold;
-            min-width: 40px;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,123,255,0.3);
-          }
-          
-          .total-clientes {
-            background: #f5f5f5;
-            padding: 8px 12px;
-            border-radius: 6px;
-            margin: 16px 0;
-            font-size: 14px;
-            color: #666;
-            border-left: 3px solid #ccc;
-          }
-          
-          .clientes-container {
-            background: #f8f9fa;
-            padding: 16px 20px;
-            border-radius: 10px;
-            border-left: 4px solid #007BFF;
-            margin: 12px 0 24px 0;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-          }
-          
-          /* Estilos específicos para uteis-clientes.html */
-          .produtos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 12px;
-            margin-top: 12px;
-            margin-bottom: 16px;
-          }
-          
-          .produto-item {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 8px;
-            border-left: 4px solid #007BFF;
-          }
-          
-          .produto-nome {
-            font-weight: bold;
-            color: #0b4fa0;
-            margin-bottom: 4px;
-          }
-          
-          .produto-detalhe {
-            font-size: 14px;
-            color: #6b7280;
-          }
-          
-          @media print {
-            body { margin: 20px; }
-            
-            h2 {
-              page-break-before: auto;
-              page-break-after: avoid;
-            }
-            
-            h2 {
-              break-inside: avoid;
-            }
-            
-            h2:not(:first-child) {
-              break-before: avoid;
-            }
-            
-            .image-container, .destaque, .info-box, .ferias-box, .pix-info, .passo-a-passo, .tabela-container, .produtos-grid {
-              break-inside: avoid;
-            }
-            
-            .tabela-melhorada {
-              break-inside: avoid;
-            }
-            
-            @page {
-              margin: 1cm;
-            }
-          }
+          body { font-family:'Inter',system-ui; line-height:1.6; margin:40px; color:#0b3b6b; background:white; }
+          h1 { color:#0b5ed7; border-bottom:2px solid #e6eefc; padding-bottom:10px; margin-bottom:25px; font-size:24px; }
+          h2 { color:#0b4fa0; margin-top:25px; border-left:4px solid #007BFF; padding-left:12px; font-size:18px; }
+          h2::before { content:"•"; color:#007BFF; font-size:24px; margin-right:8px; }
+          h3 { color:#0b4fa0; margin:20px 0 8px 0; font-size:16px; }
+          h4 { color:#0b4fa0; margin:16px 0 8px 0; font-size:15px; }
+          .destaque { background:#f0f7ff; padding:12px 16px; border-radius:8px; border-left:4px solid #007BFF; margin:15px 0; }
+          .info-box { background:#fff7f0; padding:12px 16px; border-radius:8px; border-left:4px solid #f59e0b; margin:15px 0; }
+          .ferias-box { background:#f0fff4; padding:12px 16px; border-radius:8px; border-left:4px solid #38a169; margin:15px 0; }
+          .pix-info { background:#f8f0ff; padding:12px 16px; border-radius:8px; border-left:4px solid #8a2be2; margin:12px 0; font-family:monospace; }
+          .passo-a-passo { background:#f7fff0; padding:16px; border-radius:8px; border:1px solid #e6eefc; margin:16px 0; }
+          .passo { display:flex; align-items:flex-start; gap:12px; margin:12px 0; }
+          .passo-num { background:#007BFF; color:white; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:bold; flex-shrink:0; }
+          .tabela-melhorada { width:100%; border-collapse:collapse; }
+          .tabela-melhorada thead { background:#007BFF; color:white; }
+          .tabela-melhorada th { padding:12px 16px; text-align:left; }
+          .tabela-melhorada td { padding:12px 16px; border-bottom:1px solid #e6eefc; vertical-align:top; }
+          .tabela-melhorada tbody tr:nth-child(even) { background:#fafcff; }
+          .informacao-extra { background:#fff9f0; padding:16px; border-radius:8px; border:1px solid #ffd8b2; margin:16px 0; }
+          .clientes-container { background:#f8f9fa; padding:16px 20px; border-radius:10px; border-left:4px solid #007BFF; margin:12px 0 24px 0; }
+          .codigo-box { color:white; padding:2px 8px; border-radius:6px; font-size:13px; font-weight:bold; }
+          .codigo-box.gerencial { background:#28a745; }
+          .codigo-box.fiscal { background:#fd7e14; }
+          .codigo-box.alternado { background:#6f42c1; }
+          @media print { body { margin:20px; } @page { margin:1cm; } }
         </style>
       `;
 
-      const htmlCompleto = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>${titulo}</title>
-          <meta charset="utf-8">
-          ${estilos}
-        </head>
-        <body>
-          ${conteudoComImagens}
-        </body>
-        </html>
-      `;
+      const htmlCompleto = `<!DOCTYPE html><html><head><title>${titulo}</title><meta charset="utf-8">${estilos}</head><body>${conteudoComImagens}</body></html>`;
 
-      // Abrir impressão ou salvar como HTML
       if (formato === 'imprimir') {
-        this.abrirImpressao(htmlCompleto);
-      } else if (formato === 'pdf') {
-        this.downloadHTML(htmlCompleto, titulo);
+        const iframe = document.getElementById('print-iframe');
+        const blob = new Blob([htmlCompleto], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        iframe.src = url;
+        iframe.onload = () => {
+          try {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+          } catch (e) { this.mostrarPopup('Erro ao imprimir. Tente novamente.', 'Erro'); }
+        };
+      } else {
+        const blob = new Blob([htmlCompleto], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${titulo.replace(/\s+/g, '_').replace(/[^\w\s]/gi, '')}.html`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
       }
-    } catch (error) {
-      console.error('Erro ao gerar saída:', error);
-      this.mostrarPopup('Erro ao processar imagens. Verifique os caminhos das imagens.', 'Erro');
+    } catch (e) {
+      console.error('Erro ao gerar saída:', e);
+      this.mostrarPopup('Erro ao processar. Tente novamente.', 'Erro');
     }
-  }
-
-  abrirImpressao(htmlCompleto) {
-    const iframe = document.getElementById('print-iframe');
-    const blob = new Blob([htmlCompleto], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    
-    iframe.src = url;
-    
-    iframe.onload = () => {
-      try {
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-        
-        // Limpar URL após um tempo
-        setTimeout(() => {
-          URL.revokeObjectURL(url);
-        }, 1000);
-      } catch (e) {
-        console.error('Erro ao imprimir:', e);
-        this.mostrarPopup('Erro ao imprimir. Tente novamente.', 'Erro');
-      }
-    };
-  }
-
-  downloadHTML(htmlCompleto, titulo) {
-    const blob = new Blob([htmlCompleto], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    
-    a.href = url;
-    a.download = `${titulo.replace(/\s+/g, '_').replace(/[^\w\s]/gi, '')}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    
-    // Limpar URL após um tempo
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-    }, 1000);
   }
 
   mostrarPopup(mensagem, titulo = 'Atenção') {
     const popup = document.getElementById('popup-overlay');
-    const popupTitulo = document.getElementById('popup-titulo');
-    const popupConteudo = document.getElementById('popup-conteudo');
-    
-    if (!popup || !popupTitulo || !popupConteudo) return;
-    
-    popupTitulo.textContent = titulo;
-    popupConteudo.textContent = mensagem;
+    const pt = document.getElementById('popup-titulo');
+    const pc = document.getElementById('popup-conteudo');
+    if (!popup || !pt || !pc) return;
+    pt.textContent = titulo;
+    pc.textContent = mensagem;
     popup.classList.add('ativo');
   }
 
   fecharPopup() {
-    const popup = document.getElementById('popup-overlay');
-    if (popup) {
-      popup.classList.remove('ativo');
-    }
+    document.getElementById('popup-overlay')?.classList.remove('ativo');
   }
 
+  // =============================================
+  // BUSCA ABRANGENTE COM TREEWALKER
+  // =============================================
   async buscarConteudo(termo) {
-    if (!termo.trim()) {
-      document.getElementById('resultados-busca').style.display = 'none';
-      document.querySelectorAll('.topico-item').forEach(item => {
-        item.style.display = 'flex';
-      });
+    const resultadosContainer = document.getElementById('resultados-busca');
+    const termoTrim = termo.trim();
+
+    if (!termoTrim) {
+      this.termoBusca = null;
+      this.removerHighlights();
+      resultadosContainer.style.display = 'none';
+      document.querySelectorAll('.topico-item').forEach(item => item.style.display = 'flex');
       return;
     }
 
-    const resultados = [];
-    const termoLower = termo.toLowerCase();
+    this.termoBusca = termoTrim;
+    resultadosContainer.style.display = 'block';
+    resultadosContainer.innerHTML = `
+      <div class="resultados-header">
+        <span>Buscando...</span>
+      </div>
+      <div style="padding:20px; text-align:center; color:var(--muted); font-size:13px;">Pesquisando em todos os tópicos...</div>
+    `;
 
-    // Buscar nos títulos dos tópicos
-    document.querySelectorAll('.topico-item').forEach(item => {
-      const titulo = item.textContent.toLowerCase();
-      const arquivo = item.getAttribute('data-arquivo');
-      
-      if (titulo.includes(termoLower)) {
-        resultados.push({
-          tipo: 'topico',
-          titulo: item.textContent.trim(),
-          arquivo: arquivo,
-          trecho: titulo
-        });
-      }
-    });
+    document.querySelectorAll('.topico-item').forEach(item => item.style.display = 'none');
 
-    // Buscar em todos os arquivos HTML disponíveis
-    for (const arquivo of this.htmlFiles) {
+    const termoLower = termoTrim.toLowerCase();
+    const resultadosPorArquivo = new Map();
+
+    for (const topico of TOPICOS) {
+      const arquivo = topico.arquivo;
       try {
         let html;
-        
         if (this.cache.has(arquivo)) {
           html = this.cache.get(arquivo);
         } else {
-          // Carregar o arquivo se não estiver em cache
           const response = await fetch(arquivo);
           if (!response.ok) continue;
           html = await response.text();
           this.cache.set(arquivo, html);
         }
-        
+
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = html;
-        
-        // Remover scripts e styles
         tempDiv.querySelectorAll('script, style, link, meta, title, head').forEach(el => el.remove());
-        
-        // Buscar subtópicos (h2)
-        const subtitulos = tempDiv.querySelectorAll('h2');
-        subtitulos.forEach(h2 => {
-          const texto = h2.textContent.toLowerCase();
-          if (texto.includes(termoLower)) {
-            const topico = document.querySelector(`[data-arquivo="${arquivo}"]`)?.textContent.trim() || arquivo;
-            resultados.push({
-              tipo: 'subtopico',
-              titulo: h2.textContent.trim(),
-              topico: topico,
-              arquivo: arquivo,
-              id: this.criarId(h2.textContent),
-              trecho: texto,
-              posicao: 'h2'
-            });
+
+        const resultadosDoArquivo = [];
+        const vistos = new Set();
+
+        const adicionarResultado = (item) => {
+          const chave = item.tipo + '::' + (item.titulo || '').trim().toLowerCase().substring(0, 80);
+          if (!vistos.has(chave)) {
+            vistos.add(chave);
+            resultadosDoArquivo.push(item);
+          }
+        };
+
+        const walker = document.createTreeWalker(tempDiv, NodeFilter.SHOW_TEXT, {
+          acceptNode(node) {
+            const parent = node.parentElement;
+            if (!parent) return NodeFilter.FILTER_REJECT;
+            const tag = parent.tagName.toUpperCase();
+            if (['SCRIPT', 'STYLE'].includes(tag)) return NodeFilter.FILTER_REJECT;
+            const txt = node.textContent.trim();
+            if (!txt) return NodeFilter.FILTER_REJECT;
+            return txt.toLowerCase().includes(termoLower) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
           }
         });
 
-        // Buscar em parágrafos
-        const paragrafos = tempDiv.querySelectorAll('p');
-        paragrafos.forEach(p => {
-          const texto = p.textContent.toLowerCase();
-          if (texto.includes(termoLower)) {
-            const topico = document.querySelector(`[data-arquivo="${arquivo}"]`)?.textContent.trim() || arquivo;
-            resultados.push({
-              tipo: 'conteudo',
-              titulo: p.textContent.substring(0, 50) + '...',
-              topico: topico,
-              arquivo: arquivo,
-              textoCompleto: p.textContent,
-              trecho: texto,
-              posicao: 'p'
-            });
-          }
-        });
+        let node;
+        while ((node = walker.nextNode())) {
+          const texto = node.textContent.trim();
+          if (!texto) continue;
+          const parent = node.parentElement;
+          const tag = parent ? parent.tagName.toUpperCase() : '';
+          const tipo = ['H1', 'H2'].includes(tag) ? 'subtopico' : 'conteudo';
 
-        // Buscar em listas
-        const itensLista = tempDiv.querySelectorAll('li');
-        itensLista.forEach(li => {
-          const texto = li.textContent.toLowerCase();
-          if (texto.includes(termoLower)) {
-            const topico = document.querySelector(`[data-arquivo="${arquivo}"]`)?.textContent.trim() || arquivo;
-            resultados.push({
-              tipo: 'conteudo',
-              titulo: li.textContent.substring(0, 50) + '...',
-              topico: topico,
-              arquivo: arquivo,
-              textoCompleto: li.textContent,
-              trecho: texto,
-              posicao: 'li'
-            });
-          }
-        });
+          adicionarResultado({
+            tipo,
+            titulo: texto.length > 100 ? texto.substring(0, 100) + '…' : texto,
+            textoCompleto: texto,
+            trecho: texto,
+            id: tipo === 'subtopico' ? this.criarId(texto) : undefined,
+            posicao: tag.toLowerCase()
+          });
+        }
+
+        const nomeMatch = topico.nome.toLowerCase().includes(termoLower);
+
+        if (resultadosDoArquivo.length > 0 || nomeMatch) {
+          resultadosPorArquivo.set(arquivo, { topico, itens: resultadosDoArquivo, nomeMatch });
+        }
 
       } catch (error) {
         console.error('Erro ao buscar no arquivo:', arquivo, error);
       }
     }
 
-    this.exibirResultadosBusca(resultados, termo);
+    this.exibirResultadosAgrupados(resultadosPorArquivo, termoTrim);
   }
 
-  exibirResultadosBusca(resultados, termo) {
+  exibirResultadosAgrupados(resultadosPorArquivo, termo) {
     const container = document.getElementById('resultados-busca');
     if (!container) return;
-    
-    if (resultados.length === 0) {
-      container.innerHTML = '<div class="sem-resultados">Nenhum resultado encontrado para "' + termo + '"</div>';
-    } else {
-      const html = resultados.map(resultado => `
-        <div class="resultado-item" data-arquivo="${resultado.arquivo}" data-tipo="${resultado.tipo}" 
-             data-id="${resultado.id || ''}" data-texto="${resultado.textoCompleto ? resultado.textoCompleto.replace(/"/g, '&quot;') : ''}"
-             data-posicao="${resultado.posicao || ''}">
-          <div class="resultado-topico">${resultado.tipo === 'topico' ? 'Tópico' : 'Em: ' + resultado.topico}</div>
-          <div class="resultado-titulo">${resultado.titulo}</div>
-          <div class="resultado-trecho">${this.destacarTermo(resultado.trecho, termo)}</div>
+
+    if (resultadosPorArquivo.size === 0) {
+      container.innerHTML = `
+        <div class="resultados-header">
+          <span>Resultados</span>
+          <span class="resultados-count">0</span>
         </div>
-      `).join('');
-      
-      container.innerHTML = html;
+        <div class="sem-resultados">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          Nenhum resultado para "<strong>${termo}</strong>"
+        </div>
+      `;
+      container.style.display = 'block';
+      return;
     }
-    
-    container.style.display = 'block';
-    
-    document.querySelectorAll('.topico-item').forEach(item => {
-      item.style.display = 'none';
+
+    let total = 0;
+    resultadosPorArquivo.forEach(({ itens }) => { total += Math.max(itens.length, 1); });
+
+    let html = `
+      <div class="resultados-header">
+        <span>Resultados para "${termo}"</span>
+        <span class="resultados-count">${total}</span>
+      </div>
+    `;
+
+    resultadosPorArquivo.forEach(({ topico, itens, nomeMatch }, arquivo) => {
+      html += `<div class="resultados-grupo">`;
+      html += `
+        <div class="resultados-grupo-header" data-arquivo="${arquivo}" data-abrir-topico="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          ${topico.nome}
+          ${nomeMatch ? '<span style="margin-left:auto; font-size:10px; background:#dbeafe; color:#1d4ed8; padding:2px 6px; border-radius:20px; text-transform:none; font-weight:600;">Tópico</span>' : ''}
+        </div>
+      `;
+
+      itens.forEach(item => {
+        const badgeClass = item.tipo === 'subtopico' ? 'badge-subtopico' : 'badge-conteudo';
+        const badgeLabel = item.tipo === 'subtopico' ? 'Subtópico' : 'Conteúdo';
+        const trecho = item.trecho || item.titulo || '';
+        const trechoDestacado = this.destacarTermo(trecho.substring(0, 120), termo);
+
+        html += `
+          <div class="resultado-item"
+               data-arquivo="${arquivo}"
+               data-tipo="${item.tipo}"
+               data-id="${item.id || ''}"
+               data-texto="${(item.textoCompleto || '').substring(0, 200).replace(/"/g, '&quot;')}"
+               data-posicao="${item.posicao || ''}">
+            <span class="resultado-tipo-badge ${badgeClass}">${badgeLabel}</span>
+            <div class="resultado-titulo">${item.titulo}</div>
+            ${trecho && trecho !== item.titulo ? `<div class="resultado-trecho">${trechoDestacado}</div>` : ''}
+          </div>
+        `;
+      });
+
+      if (itens.length === 0 && nomeMatch) {
+        html += `
+          <div class="resultado-item" data-arquivo="${arquivo}" data-tipo="topico" data-posicao="topico">
+            <span class="resultado-tipo-badge badge-topico">Tópico</span>
+            <div class="resultado-titulo">${topico.nome}</div>
+            <div class="resultado-trecho">Clique para abrir este tópico</div>
+          </div>
+        `;
+      }
+
+      html += `</div>`;
     });
 
-    document.querySelectorAll('.resultado-item').forEach(item => {
+    container.innerHTML = html;
+    container.style.display = 'block';
+
+    container.querySelectorAll('.resultado-item').forEach(item => {
       item.addEventListener('click', () => {
         const arquivo = item.getAttribute('data-arquivo');
         const tipo = item.getAttribute('data-tipo');
         const id = item.getAttribute('data-id');
         const texto = item.getAttribute('data-texto');
-        const posicao = item.getAttribute('data-posicao');
-        
+
         let scrollTo = null;
         if (tipo === 'subtopico' && id) {
-          scrollTo = { tipo: 'id', valor: id };
+          scrollTo = { tipo: 'subtopico', valor: id };
         } else if (tipo === 'conteudo' && texto) {
-          scrollTo = { tipo: 'texto', valor: texto, posicao: posicao };
+          scrollTo = { tipo: 'conteudo', valor: texto };
         }
-        
-        this.carregarTopico(arquivo, scrollTo);
-        container.style.display = 'none';
+
         document.querySelectorAll('.topico-item').forEach(i => {
           i.style.display = 'flex';
+          i.classList.remove('ativo');
         });
-        document.getElementById('campo-busca').value = '';
+        document.querySelector(`[data-arquivo="${arquivo}"]`)?.classList.add('ativo');
+
+        gerenciador.carregarTopico(arquivo, scrollTo);
+        container.style.display = 'none';
+      });
+    });
+
+    container.querySelectorAll('[data-abrir-topico="true"]').forEach(header => {
+      header.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const arquivo = header.getAttribute('data-arquivo');
+        document.querySelectorAll('.topico-item').forEach(i => {
+          i.style.display = 'flex';
+          i.classList.remove('ativo');
+        });
+        document.querySelector(`[data-arquivo="${arquivo}"]`)?.classList.add('ativo');
+        gerenciador.carregarTopico(arquivo);
+        container.style.display = 'none';
       });
     });
   }
 
   destacarTermo(texto, termo) {
-    const regex = new RegExp(`(${termo})`, 'gi');
-    return texto.replace(regex, '<mark>$1</mark>').substring(0, 100) + '...';
-  }
-
-  rolarParaElemento(dados) {
-    if (!dados) return;
-    
-    setTimeout(() => {
-      if (dados.tipo === 'id') {
-        // Procurar por elemento com ID
-        let elemento = document.getElementById(dados.valor);
-        if (!elemento) {
-          // Tentar encontrar por atributo data-subtopico
-          elemento = document.querySelector(`[data-subtopico="${dados.valor}"]`);
-          if (elemento) {
-            // Clicar no subtópico para carregar o conteúdo
-            elemento.click();
-            setTimeout(() => {
-              const container = document.getElementById('conteudo-subtopico');
-              if (container) {
-                container.scrollTop = 0;
-              }
-            }, 300);
-          }
-        } else {
-          elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          this.destacarElemento(elemento);
-        }
-      } else if (dados.tipo === 'texto') {
-        // Procurar por elemento que contenha o texto
-        const seletor = dados.posicao || 'p, li, h2, h3, h4';
-        const elementos = document.querySelectorAll(`#conteudo-dinamico ${seletor}`);
-        
-        for (let elemento of elementos) {
-          if (elemento.textContent.includes(dados.valor)) {
-            elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            this.destacarElemento(elemento);
-            break;
-          }
-        }
-      }
-    }, 500);
-  }
-
-  destacarElemento(elemento) {
-    elemento.style.transition = 'background-color 1s';
-    elemento.style.backgroundColor = '#fff7c0';
-    elemento.style.padding = '8px';
-    elemento.style.borderRadius = '4px';
-    elemento.style.margin = '4px 0';
-    
-    setTimeout(() => {
-      elemento.style.backgroundColor = '';
-      elemento.style.padding = '';
-      elemento.style.borderRadius = '';
-      elemento.style.margin = '';
-    }, 3000);
+    if (!texto || !termo) return texto || '';
+    const escapado = termo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return texto.replace(new RegExp(`(${escapado})`, 'gi'), '<mark>$1</mark>');
   }
 }
 
-// Inicialização da aplicação
+// =============================================
+// INICIALIZAÇÃO
+// =============================================
+let gerenciador;
+
 document.addEventListener('DOMContentLoaded', function() {
-  const gerenciador = new GerenciadorAnotacoes();
+  renderizarTopicos();
+  gerenciador = new GerenciadorAnotacoes();
 
-  // Eventos para os tópicos
-  document.querySelectorAll('.topico-item').forEach(item => {
-    item.addEventListener('click', function() {
-      document.querySelectorAll('.topico-item').forEach(i => i.classList.remove('ativo'));
-      this.classList.add('ativo');
-      
-      const arquivo = this.getAttribute('data-arquivo');
-      gerenciador.carregarTopico(arquivo);
-    });
-  });
+  // ===== APLICAR CONFIGURAÇÃO DO BOTÃO ROTINAS FÉRIAS =====
+  const btnFerias = document.getElementById('btn-ferias');
+  if (!MOSTRAR_ROTINAS_FERIAS && btnFerias) {
+    btnFerias.style.display = 'none';
+  }
 
-  // Eventos para os botões da toolbar
-  document.getElementById('btn-fechar').addEventListener('click', function() {
+  // Botão Fechar (volta para index)
+  document.getElementById('btn-fechar').addEventListener('click', () => {
     window.location.href = '../index.html';
   });
 
-  // Evento para o botão de Rotinas Férias
-  document.getElementById('btn-ferias').addEventListener('click', function() {
-    window.location.href = '../rotinas.html';
+  // Botão Rotinas Férias
+  if (btnFerias) {
+    btnFerias.addEventListener('click', () => {
+      window.location.href = '../rotinas.html';
+    });
+  }
+
+  // =============================================
+  // MENU: TOGGLE
+  // =============================================
+  const sidebar = document.getElementById('menu-sidebar');
+  const btnMenu = document.getElementById('btn-menu');
+
+  const fecharMenu = () => sidebar.classList.remove('ativo');
+  const abrirMenu = () => sidebar.classList.add('ativo');
+
+  btnMenu.addEventListener('click', (e) => {
+    e.stopPropagation();
+    sidebar.classList.contains('ativo') ? fecharMenu() : abrirMenu();
   });
 
-  // Eventos para o menu sidebar
-  const abrirMenu = function() {
-    document.getElementById('menu-sidebar').classList.add('ativo');
-    document.getElementById('menu-overlay').classList.add('ativo');
-  };
-
-  const fecharMenu = function() {
-    document.getElementById('menu-sidebar').classList.remove('ativo');
-    document.getElementById('menu-overlay').classList.remove('ativo');
-  };
-
-  document.getElementById('btn-menu').addEventListener('click', abrirMenu);
   document.getElementById('btn-fechar-sidebar').addEventListener('click', fecharMenu);
-  document.getElementById('menu-overlay').addEventListener('click', fecharMenu);
 
-  // Eventos para a busca
+  // =============================================
+  // BOTÃO X DA BUSCA
+  // =============================================
+  const searchContainer = document.getElementById('search-container');
   const searchInput = document.getElementById('campo-busca');
-  if (searchInput) {
-    let timeout;
-    searchInput.addEventListener('input', function(e) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        gerenciador.buscarConteudo(e.target.value);
-      }, 300);
-    });
-    
-    // Fechar resultados ao clicar fora
-    document.addEventListener('click', function(e) {
-      if (!e.target.closest('.search') && !e.target.closest('.resultados-busca')) {
-        const resultados = document.getElementById('resultados-busca');
-        if (resultados) {
-          resultados.style.display = 'none';
-          document.querySelectorAll('.topico-item').forEach(item => {
-            item.style.display = 'flex';
-          });
-        }
-      }
-    });
-  }
 
-  // Eventos para o lightbox de imagens
-  const lightboxClose = document.getElementById('lightbox-close');
-  if (lightboxClose) {
-    lightboxClose.addEventListener('click', function() {
-      gerenciador.fecharLightbox();
-    });
-  }
-
-  const imageLightbox = document.getElementById('image-lightbox');
-  if (imageLightbox) {
-    imageLightbox.addEventListener('click', function(e) {
-      if (e.target === this) {
-        gerenciador.fecharLightbox();
-      }
-    });
-  }
-
-  // Eventos para popup
-  document.getElementById('popup-fechar').addEventListener('click', function() {
-    gerenciador.fecharPopup();
+  document.getElementById('btn-limpar-busca').addEventListener('click', () => {
+    searchInput.value = '';
+    searchContainer.classList.remove('tem-valor');
+    if (gerenciador) {
+      gerenciador.termoBusca = null;
+      gerenciador.removerHighlights();
+      gerenciador.buscarConteudo('');
+    }
+    searchInput.focus();
   });
 
-  document.getElementById('popup-overlay').addEventListener('click', function(e) {
-    if (e.target === this) {
-      gerenciador.fecharPopup();
+  // Campo de busca com debounce
+  let timeout;
+  searchInput.addEventListener('input', function(e) {
+    const val = e.target.value;
+    if (val) {
+      searchContainer.classList.add('tem-valor');
+    } else {
+      searchContainer.classList.remove('tem-valor');
+      if (gerenciador) {
+        gerenciador.termoBusca = null;
+        gerenciador.removerHighlights();
+      }
+    }
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      gerenciador.buscarConteudo(val);
+    }, 350);
+  });
+
+  // =============================================
+  // CLICK GLOBAL: fechar menu, dropdowns, busca
+  // =============================================
+  document.addEventListener('click', function(e) {
+    if (sidebar.classList.contains('ativo') &&
+        !sidebar.contains(e.target) &&
+        !btnMenu.contains(e.target)) {
+      fecharMenu();
+    }
+
+    const estaNoDropdownBtn = e.target.closest('[id^="btn-salvar-como"]') ||
+                              e.target.closest('[id^="btn-salvar-como-selecao"]');
+    if (!estaNoDropdownBtn && !e.target.closest('.salvar-dropdown')) {
+      document.querySelectorAll('.salvar-dropdown.aberto').forEach(dd => dd.classList.remove('aberto'));
+    }
+
+    if (!e.target.closest('.search') && !e.target.closest('.resultados-busca')) {
+      const resultados = document.getElementById('resultados-busca');
+      if (resultados && resultados.style.display !== 'none') {
+        resultados.style.display = 'none';
+        document.querySelectorAll('.topico-item').forEach(item => item.style.display = 'flex');
+      }
     }
   });
 
-  // Evento para tecla ESC cancelar seleção
+  // ESC fecha tudo
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-      if (gerenciador.modoSelecao) {
-        gerenciador.desativarModoSelecao();
+      fecharMenu();
+      document.querySelectorAll('.salvar-dropdown.aberto').forEach(dd => dd.classList.remove('aberto'));
+      const resultados = document.getElementById('resultados-busca');
+      if (resultados && resultados.style.display !== 'none') {
+        resultados.style.display = 'none';
+        document.querySelectorAll('.topico-item').forEach(item => item.style.display = 'flex');
+        searchInput.value = '';
+        searchContainer.classList.remove('tem-valor');
+        if (gerenciador) {
+          gerenciador.termoBusca = null;
+          gerenciador.removerHighlights();
+        }
       }
+      if (gerenciador?.modoSelecao) gerenciador.desativarModoSelecao();
     }
   });
 
-  // Eventos delegados para ações dinâmicas
+  // Lightbox
+  document.getElementById('lightbox-close')?.addEventListener('click', () => gerenciador.fecharLightbox());
+  document.getElementById('image-lightbox')?.addEventListener('click', function(e) {
+    if (e.target === this) gerenciador.fecharLightbox();
+  });
+
+  // Popup
+  document.getElementById('popup-fechar')?.addEventListener('click', () => gerenciador.fecharPopup());
+  document.getElementById('popup-overlay')?.addEventListener('click', function(e) {
+    if (e.target === this) gerenciador.fecharPopup();
+  });
+
+  // =============================================
+  // DELEGAÇÃO DE EVENTOS DAS AÇÕES DINÂMICAS
+  // =============================================
   document.addEventListener('click', function(e) {
     // Fechar tópico
     if (e.target.id === 'btn-fechar-topico' || e.target.closest('#btn-fechar-topico')) {
       gerenciador.fecharTopico();
     }
-    
-    // PDF do subtópico atual
+
+    // Toggle dropdown "Salvar como" do cabeçalho
+    if (e.target.id === 'btn-salvar-como' || e.target.closest('#btn-salvar-como')) {
+      e.stopPropagation();
+      const dd = document.getElementById('salvar-dropdown-topico');
+      if (dd) dd.classList.toggle('aberto');
+    }
+
+    // PDF do cabeçalho
     if (e.target.id === 'btn-pdf-topico' || e.target.closest('#btn-pdf-topico')) {
+      document.getElementById('salvar-dropdown-topico')?.classList.remove('aberto');
       if (gerenciador.subtopicoAtual !== null) {
         gerenciador.salvarSubtopicoAtual('pdf');
       } else {
         gerenciador.salvarTopicoCompleto('pdf');
       }
     }
-    
-    // Imprimir subtópico atual
+
+    // Texto do cabeçalho
+    if (e.target.id === 'btn-txt-topico' || e.target.closest('#btn-txt-topico')) {
+      document.getElementById('salvar-dropdown-topico')?.classList.remove('aberto');
+      if (gerenciador.subtopicoAtual !== null) {
+        gerenciador.salvarSubtopicoAtual('texto');
+      } else {
+        gerenciador.salvarTopicoCompleto('texto');
+      }
+    }
+
+    // Imprimir do cabeçalho
     if (e.target.id === 'btn-imprimir-topico' || e.target.closest('#btn-imprimir-topico')) {
       if (gerenciador.subtopicoAtual !== null) {
         gerenciador.salvarSubtopicoAtual('imprimir');

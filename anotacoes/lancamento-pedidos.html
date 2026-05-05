@@ -147,6 +147,39 @@
 <div class="container">
   <h1>Anotações - Lançamentos de Pedidos</h1>
 
+  <!-- NOVO: Conectar ao Acesso Remoto do Acedata -->
+  <h2>Conectar ao Acesso Remoto do Acedata</h2>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>No pesquisar do computador, pesquise "Conexão de Área de Trabalho Remota"</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Clique em Mostrar Opções</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Em Computador, coloque <strong>paodeouro.flcloud.com.br:35200</strong></div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Em Nome de usuário, coloque um dos disponíveis (senhas e usuários a verificar)</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">5</div>
+      <div>Clique em Ocultar Opções e clique em Conectar</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">6</div>
+      <div>Na próxima tela, coloque a senha referente ao usuário e clique em Conectar</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">7</div>
+      <div>Caso apareça uma tela para verificar a identidade do computador remoto, clique em Sim</div>
+    </div>
+  </div>
+
   <!-- Lançar Pedidos (existente) -->
   <h2>Lançar Pedidos</h2>
   <h3>Gerar Agenda Telemarketing</h3>
@@ -321,6 +354,83 @@
       <div class="passo-num">6</div>
       <div>Quando acabar, clique em Validar Pedido e depois é só ajustar e faturar</div>
     </div>
+  </div>
+
+  <!-- NOVO: Lançar Pedido de Produtos que não são Fabricados Aqui -->
+  <h3>Lançar Pedido de Produtos que não são Fabricados Aqui</h3>
+  <p>Existem produtos que são vendidos mas que não são fabricados na fábrica, como: <strong>coco ralado, unta forma, luva e inseticida</strong>. Nesse caso, o lançamento é feito de forma diferente.</p>
+  
+  <div class="destaque">
+    <strong>Cliente Gerencial (compra geralmente em dinheiro):</strong> Conseguimos colocar esses itens no pedido do cliente normalmente.
+  </div>
+
+  <div class="info-box">
+    <strong>Cliente de Nota Fiscal:</strong> O pedido é lançado diferente. Você lança o pedido do cliente normalmente <em>sem esses itens</em> e depois lança um outro pedido separadamente <em>somente com esses itens</em>.
+  </div>
+
+  <h4 style="padding-left:16px; color:var(--ink-strong);">Pelo Telemarketing (clientes comuns):</h4>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Vá em Núcleo → Gestão Comercial → Gestão de Vendas → Telemarketing → Telemarketing</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Selecione o item que não é fabricado na fábrica e lance o pedido normalmente</div>
+    </div>
+  </div>
+
+  <h4 style="padding-left:16px; color:var(--ink-strong);">Por Pedido de Venda (clientes com tipo de lista própria, ex: Mac):</h4>
+  <p>Quando o cliente tem tipo de lista própria e não é possível inserir esses itens no Telemarketing:</p>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Vá em Núcleo → Gestão Comercial → Gestão de Vendas → Pedido de Venda → Pedido de Venda</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Clique em Novo, coloque o prefixo (PED*)</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Em Cliente, coloque o código do cliente ou pesquise pelo nome</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Troque o Tipo Recebto e Cond. Pagto caso precise</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">5</div>
+      <div>Em Lançto Padron coloque 1 (Vendas) e confirme</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">6</div>
+      <div>Vá na seção Itens → Novo</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">7</div>
+      <div>Em Produto, coloque o código ou pesquise pelo produto na lupa</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">8</div>
+      <div>Selecione a caixinha <strong>Material Intermediário</strong>, escreva o nome, clique em Pesquisar e clique na setinha</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">9</div>
+      <div>Mude a quantidade e clique em Salvar</div>
+    </div>
+  </div>
+
+  <div class="destaque">
+    <strong>Dica para encontrar os produtos mais facilmente na pesquisa:</strong>
+    <ul>
+      <li><strong>Material Intermediário:</strong> par de luvas, inseticida, unta forma</li>
+      <li><strong>Matéria Prima:</strong> coco ralado</li>
+    </ul>
+  </div>
+
+  <div class="info-box">
+    <strong>Atenção:</strong> Caso esteja lançando par de luvas e o sistema pedir o CFO, coloque <strong>510102</strong>.
   </div>
 
   <!-- Editar Pedidos (existente) -->
@@ -1048,6 +1158,58 @@
     </div>
   </div>
 
+  <!-- NOVO: Cobranças -->
+  <h2>Cobranças</h2>
+  <h3>Gerar Lista de Cobranças no Banco</h3>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>No banco, vá em Cobrança → Consultas → Movimentação</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Selecione a opção Vencido</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Troque o período: coloque uma data antiga no início e no período final coloque a data do dia anterior</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Clique em Consultar e depois em Exportar</div>
+    </div>
+  </div>
+
+  <h3>Realizar as Cobranças pelo WhatsApp</h3>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Para fazer as cobranças, usaremos o WhatsApp. Siga de acordo com a lista de cobranças</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Procure o cliente pelo nome que está na lista</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Já existe uma mensagem pronta para cobranças. Apenas altere os campos:
+        <ul>
+          <li>Data de vencimento</li>
+          <li>Número da nota fiscal</li>
+          <li>Valor</li>
+        </ul>
+      </div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Mande a mensagem para o cliente</div>
+    </div>
+  </div>
+
+  <div class="destaque">
+    <strong>Observação:</strong> Pode acontecer de, ao fazer as cobranças em um dia diferente, aparecerem as mesmas cobranças de algum outro dia. Nesse caso, pode só pular e seguir para o próximo até finalizar.
+  </div>
+
   <!-- Cadastrar Cliente Novo (com alterações) -->
   <h2>Cadastrar Cliente Novo</h2>
   <div class="passo-a-passo">
@@ -1223,7 +1385,7 @@
     </div>
   </div>
 
-  <!-- NOVO: Repetir Pedido -->
+  <!-- NOVO: Repetir Pedido (com observação atualizada) -->
   <h2>Repetir Pedido</h2>
   <div class="passo-a-passo">
     <div class="passo">
@@ -1244,7 +1406,7 @@
     </div>
     <div class="passo">
       <div class="passo-num">5</div>
-      <div><strong>Obs para repetir pedidos de segunda:</strong> ao repetir pedido de rotas de segunda, confira se a data de entrega e saída saíram corretamente com a data correta de entrega. Às vezes pode sair com data diferente.</div>
+      <div><strong>Obs para repetir pedidos de segunda:</strong> ao repetir pedido de rotas de segunda, confira se a data de entrega e saída saíram corretamente com a data correta de entrega. Às vezes pode sair com data diferente. Caso saia com data diferente, verifique <em>Ajustar Pedidos com Data de Entrega Errada</em> na seção <em>Editar Pedidos</em>.</div>
     </div>
   </div>
 
@@ -1301,6 +1463,56 @@
       <div class="passo-num">3</div>
       <div>Clique na baixa. Clique na lixeira para deletar. Confirme e depois é só dar a baixa normalmente de novo.</div>
     </div>
+  </div>
+
+  <!-- NOVO: Desativar Produto -->
+  <h2>Desativar Produto</h2>
+  <p>Antes de desativar um produto, é necessário conferir se ainda há estoque dele no sistema.</p>
+
+  <h3>1. Conferir Estoque do Produto</h3>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Vá em Núcleo → Gestão de Materiais → Gestão de Estoques → Movimentos → Consultas → Consultar Saldo do Estoque</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Clique na lupa na parte do produto e pesquise pelo produto a ser desativado</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Utilize a parte do Modo para conferir os estoques:
+        <ul>
+          <li><strong>1 estrela:</strong> fiscal</li>
+          <li><strong>2 estrelas:</strong> gerencial</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3>2. Desativar o Produto</h3>
+  <p>Após confirmar que não há nenhum em estoque:</p>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Vá em Núcleo → Gestão de Materiais → Gestão de Estoques → Produtos e Materiais → Cadastro de Produtos e Materiais</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Pesquise pelo produto em Nome Produto, localize o produto e clique no lápis</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Na parte de Status, coloque <strong>2 (Inativo)</strong></div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Clique em Salvar e em Validar</div>
+    </div>
+  </div>
+
+  <div class="destaque">
+    <strong>Para verificar se o produto foi desativado corretamente:</strong> Mude os filtros de Status para <em>Inativo</em> e Liberação para <em>Bloqueado</em>.
   </div>
 
   <!-- NOVO: Observações sobre CFO -->

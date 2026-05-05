@@ -260,6 +260,71 @@
     margin: 6px 0;
     padding-left: 4px;
   }
+  
+  /* Estilos para a seção da conta bancária e PIX */
+  .conta-pix-card {
+    background: linear-gradient(135deg, #f0f7ff 0%, #e6eefc 100%);
+    border: 1px solid var(--borda-ativa);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 16px 0;
+    box-shadow: 0 4px 12px rgba(11,78,167,.08);
+  }
+  .conta-pix-empresa {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink-strong);
+    margin-bottom: 4px;
+  }
+  .conta-pix-cnpj {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 2px dashed var(--borda-ativa);
+  }
+  .conta-pix-linha {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(11,78,167,0.08);
+  }
+  .conta-pix-linha:last-child {
+    border-bottom: none;
+  }
+  .conta-pix-rotulo {
+    font-weight: 600;
+    color: var(--ink-strong);
+  }
+  .conta-pix-valor {
+    color: var(--ink);
+    font-family: "Courier New", Courier, monospace;
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .pix-destaque {
+    background: var(--azul);
+    color: white;
+    padding: 14px 16px;
+    border-radius: 8px;
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .pix-destaque .pix-rotulo {
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+  .pix-destaque .pix-valor {
+    font-family: "Courier New", Courier, monospace;
+    font-weight: 700;
+    font-size: 16px;
+  }
 </style>
 </head>
 <body>
@@ -319,6 +384,31 @@
     </div>
     <div class="dado-item">
       <strong>Endereço Completo do Devedor:</strong><br>AVENIDA OURO PRETO, 738
+    </div>
+  </div>
+
+  <!-- NOVA SEÇÃO: Conta e Chave PIX Pão de Ouro -->
+  <h2>Conta e Chave PIX Pão de Ouro</h2>
+  <div class="conta-pix-card">
+    <div class="conta-pix-empresa">PÃO DE OURO INDÚSTRIA E COMÉRCIO DE PÃES CONGELADOS</div>
+    <div class="conta-pix-cnpj">CNPJ: 34.865.933/0001-63</div>
+    
+    <div class="conta-pix-linha">
+      <span class="conta-pix-rotulo">Banco:</span>
+      <span class="conta-pix-valor">Sicoob</span>
+    </div>
+    <div class="conta-pix-linha">
+      <span class="conta-pix-rotulo">Agência:</span>
+      <span class="conta-pix-valor">4117</span>
+    </div>
+    <div class="conta-pix-linha">
+      <span class="conta-pix-rotulo">Conta:</span>
+      <span class="conta-pix-valor">11.039-6</span>
+    </div>
+    
+    <div class="pix-destaque">
+      <span class="pix-rotulo">CHAVE PIX:</span>
+      <span class="pix-valor">37 99914-7820</span>
     </div>
   </div>
   

@@ -1,0 +1,2198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seletor de Romaneios</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+/* ═══════════════ TOKENS ═══════════════ */
+:root {
+  --bg:           #eef3fb;
+  --surface:      #ffffff;
+  --surface2:     #f4f8ff;
+  --border:       #dce8fb;
+  --border2:      #c8d9f5;
+  --text-primary: #1a2740;
+  --text-second:  #4e6080;
+  --text-muted:   #8fa3bf;
+  --accent:       #1a56db;
+  --accent-dark:  #1040b0;
+  --accent-light: #e8f0fe;
+  --success:      #10b981;
+  --danger:       #dc2626;
+  --amber:        #f59e0b;
+  --shadow-sm:    0 2px 8px rgba(20,60,120,.07);
+  --shadow-md:    0 6px 24px rgba(20,60,120,.10);
+  --shadow-lg:    0 14px 40px rgba(20,60,120,.14);
+  --r-sm: 10px; --r-md: 16px; --r-lg: 22px;
+  --panel-w: 420px;
+  --bar-h: 62px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  line-height: 1.55;
+  transition: padding-right .35s cubic-bezier(.4,0,.2,1);
+}
+body.panel-open { padding-right: var(--panel-w); }
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: radial-gradient(circle, #c0d0eb 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: .28;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ═══════════════ TOPBAR ═══════════════ */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 0 16px;
+  height: var(--bar-h);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: sticky; top: 0; z-index: 200;
+}
+.topbar-left  { display:flex; align-items:center; gap:4px; flex-shrink:0; }
+.topbar-center{ flex:1; display:flex; align-items:center; justify-content:center; min-width:0; }
+.topbar-right { display:flex; align-items:center; gap:4px; flex-shrink:0; }
+.topbar-divider { width:1px; height:26px; background:var(--border); flex-shrink:0; margin:0 2px; }
+
+.brand { display:flex; align-items:center; gap:10px; }
+.brand-icon {
+  width:36px; height:36px;
+  background:var(--accent);
+  border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 12px rgba(26,86,219,.3);
+  flex-shrink:0;
+}
+.brand-icon svg { width:18px; height:18px; color:white; }
+.brand-name {
+  font-family:'Sora',sans-serif;
+  font-weight:700; font-size:.92rem;
+  color:var(--accent);
+  white-space:nowrap;
+  line-height:1.1;
+}
+.brand-sub { font-size:.7rem; color:var(--text-muted); font-weight:500; }
+
+.icon-btn {
+  background:none; border:none;
+  color:var(--text-second);
+  cursor:pointer;
+  padding:7px 8px;
+  border-radius:8px;
+  display:inline-flex; align-items:center; justify-content:center;
+  transition:background .15s, color .15s;
+  position:relative; flex-shrink:0;
+}
+.icon-btn svg   { width:20px; height:20px; display:block; }
+.icon-btn:hover { background:var(--accent-light); color:var(--accent); }
+.icon-btn.active{ background:var(--accent-light); color:var(--accent); }
+
+/* sel chip */
+.sel-chip {
+  display:none;
+  align-items:center; gap:6px;
+  padding:5px 12px;
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:99px; font-size:.8rem; font-weight:600; color:var(--text-second);
+  box-shadow:var(--shadow-sm);
+}
+.sel-chip.visible { display:inline-flex; }
+.sel-chip .val { color:var(--accent); font-family:'Sora',sans-serif; font-weight:700; }
+.sel-chip .lbl-sep { color: var(--text-muted); margin: 0 4px; }
+
+/* ═══════════════ DROPDOWNS ═══════════════ */
+.menu-dropdown { position:relative; }
+.menu-dropdown-content {
+  display:none;
+  position:absolute;
+  top:calc(100% + 8px); right:0; left:auto;
+  background:var(--surface);
+  border:1.5px solid var(--border2);
+  border-radius:var(--r-md);
+  box-shadow:var(--shadow-lg);
+  min-width:240px;
+  max-width:calc(100vw - 32px);
+  z-index:1200;
+  padding:6px;
+  overflow:auto;
+}
+.menu-dropdown-content.open { display:block; }
+.menu-dropdown-content a {
+  display:flex; align-items:center; gap:8px;
+  padding:9px 12px;
+  border-radius:8px;
+  color:var(--text-primary);
+  text-decoration:none;
+  font-size:.87rem;
+  transition:background .15s;
+  cursor: pointer;
+}
+.menu-dropdown-content a svg { width:15px; height:15px; color:var(--text-muted); flex-shrink:0; }
+.menu-dropdown-content a:hover { background:var(--accent-light); color:var(--accent); }
+.menu-dropdown-content a:hover svg { color:var(--accent); }
+.dd-label {
+  padding:5px 12px 3px;
+  font-size:.72rem; font-weight:700; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--text-muted);
+}
+
+/* Dropdown da esquerda (menu de navegação) abre alinhado à esquerda */
+.menu-dropdown.menu-left .menu-dropdown-content { left:0; right:auto; }
+
+/* Seções do menu de navegação */
+.dropdown-section {
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  padding-top: 4px;
+}
+.dropdown-section:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+.section-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 8px 11px;
+  cursor: pointer;
+  font-weight: 700; font-size: .78rem;
+  text-transform: uppercase; letter-spacing: .06em;
+  color: var(--text-muted);
+  border-radius: 8px;
+  transition: all .15s;
+  font-family: 'Sora', sans-serif;
+}
+.section-header:hover { background: var(--surface2); color: var(--text-second); }
+.section-header .chev { font-size: .8rem; transition: transform .15s; }
+.submenu { display: none; padding-left: 4px; }
+.submenu a { padding-left: 14px; }
+.mac-code {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--accent); color: white;
+  padding: 3px 7px; border-radius: 6px;
+  font-size: .72rem; font-weight: 700;
+  min-width: 30px; flex-shrink: 0;
+  font-family: 'Sora', sans-serif;
+}
+.menu-dropdown-content a:hover .mac-code { background: var(--accent-dark); }
+
+/* ═══════════════ PAGE WRAPPER ═══════════════ */
+.page-wrapper {
+  position:relative; z-index:1;
+  padding:20px 20px 48px;
+  max-width:1200px;
+  margin:0 auto;
+}
+
+/* ═══════════════ DROPZONE ═══════════════ */
+.dropzone-outer {
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+  min-height:calc(100vh - var(--bar-h) - 60px);
+  padding:20px;
+}
+.dropzone-card {
+  position: relative;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  width:100%; max-width:520px;
+  background:var(--surface);
+  border:2px dashed var(--border2);
+  border-radius:var(--r-lg);
+  padding:52px 32px;
+  text-align:center;
+  cursor:pointer; user-select:none;
+  transition:border-color .2s, background .2s, transform .15s, box-shadow .2s;
+  box-shadow:var(--shadow-sm);
+}
+.dropzone-card:hover {
+  border-color:var(--accent); background:#f0f6ff;
+  transform:translateY(-2px); box-shadow:var(--shadow-md);
+}
+.dropzone-card.dragover {
+  border-style:solid; border-color:var(--accent);
+  background:var(--accent-light); transform:scale(1.01);
+}
+.dz-icon {
+  width:64px; height:64px;
+  background:var(--accent-light);
+  border-radius:18px;
+  display:inline-flex; align-items:center; justify-content:center;
+  margin-bottom:18px;
+  box-shadow:0 4px 16px rgba(26,86,219,.15);
+  flex-shrink:0;
+}
+.dz-icon svg { width:32px; height:32px; color:var(--accent); }
+.dz-title {
+  font-family:'Sora',sans-serif;
+  font-weight:700; font-size:1.08rem;
+  color:var(--text-primary); margin-bottom:6px;
+}
+.dz-hint  { font-size:.84rem; color:var(--text-muted); margin-bottom:18px; }
+.dz-types {
+  display:flex; gap:6px; flex-wrap:wrap; justify-content:center;
+}
+.dz-badge {
+  padding:3px 10px;
+  background:var(--surface2); border:1px solid var(--border2);
+  border-radius:99px; font-size:.75rem; font-weight:600;
+  color:var(--text-second);
+}
+/* IMPORTANTÍSSIMO: input file totalmente escondido */
+#file-input {
+  position: absolute !important;
+  width: 1px !important; height: 1px !important;
+  padding: 0 !important; margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* ═══════════════ ALERTS ═══════════════ */
+.alerts-wrap { margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px; }
+.alert {
+  border-radius: var(--r-sm);
+  padding: 10px 14px;
+  font-size: .85rem;
+  display: flex; align-items: flex-start; gap: 8px;
+  box-shadow: var(--shadow-sm);
+}
+.alert.ok  { background: #dcfce7; border: 1.5px solid #86efac; color: #14532d; }
+.alert.err { background: #fef2f2; border: 1.5px solid #fecaca; color: #7f1d1d; }
+.alert ul { margin: 4px 0 0 18px; padding: 0; }
+
+/* ═══════════════ ROMANEIOS ENVIADOS ═══════════════ */
+.section-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.section-card h2 {
+  font-family: 'Sora', sans-serif;
+  font-size: .95rem; font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+.section-card .section-sub {
+  font-size: .78rem; color: var(--text-muted);
+}
+
+.rom-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+.rom-card {
+  position: relative;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--r-md);
+  padding: 14px 14px 14px 16px;
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;
+  transition: border-color .18s, transform .18s, box-shadow .18s;
+  overflow: hidden;
+}
+.rom-card::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 4px; background: var(--accent);
+  opacity: .35; transition: opacity .18s;
+}
+.rom-card:hover {
+  border-color: var(--border2);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.rom-card:hover::before { opacity: 1; }
+
+.rom-card-main { display: flex; gap: 11px; min-width: 0; flex: 1; }
+.rom-badge {
+  width: 38px; height: 38px; flex-shrink: 0;
+  background: var(--accent-light);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+.rom-badge svg { width: 19px; height: 19px; color: var(--accent); }
+
+.rom-info { min-width: 0; flex: 1; }
+.rom-num {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700; font-size: .95rem;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+.rom-file {
+  font-size: .74rem; color: var(--text-muted);
+  margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rom-stats {
+  display: flex; flex-wrap: wrap; gap: 5px;
+  margin-top: 9px;
+}
+.rom-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 9px;
+  border-radius: 99px;
+  font-size: .7rem; font-weight: 600;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-second);
+  white-space: nowrap;
+}
+.rom-pill svg { width: 11px; height: 11px; flex-shrink: 0; }
+.rom-pill.total {
+  background: var(--accent-light);
+  border-color: transparent;
+  color: var(--accent);
+}
+.rom-pill.total .pv { font-family: 'Sora', sans-serif; font-weight: 700; }
+
+.row-actions { display: flex; align-items: center; gap: 6px; }
+.icon-btn-sm {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted); padding: 4px;
+  border-radius: 6px;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background .15s, color .15s;
+}
+.icon-btn-sm:hover { background: #fee2e2; color: var(--danger); }
+.icon-btn-sm svg { width: 16px; height: 16px; }
+
+.confirm-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #fef2f2;
+  border: 1.5px solid #fecaca;
+  border-radius: var(--r-sm);
+  padding: 4px 8px;
+  font-size: .78rem;
+  color: #7f1d1d;
+}
+.confirm-pill button {
+  font-size: .72rem; padding: 4px 10px;
+  border-radius: 6px; cursor: pointer; border: none;
+  font-weight: 700; font-family: 'DM Sans', sans-serif;
+}
+.btn-yes { background: var(--danger); color: white; }
+.btn-yes:hover { background: #b91c1c; }
+.btn-no  { background: white; color: var(--text-second); border: 1.5px solid var(--border2); }
+.btn-no:hover { background: var(--surface2); }
+
+/* ═══════════════ TABS ═══════════════ */
+.tabs-wrap {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.tab-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-second);
+  font-family: 'DM Sans', sans-serif;
+  font-size: .82rem; font-weight: 600;
+  cursor: pointer;
+  transition: all .18s;
+  box-shadow: var(--shadow-sm);
+}
+.tab-btn svg { width: 15px; height: 15px; flex-shrink: 0; opacity: .85; }
+.tab-btn.active svg { opacity: 1; }
+.tab-btn:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.tab-btn.active {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ═══════════════ TOTAIS ═══════════════ */
+.totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.total-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 12px 16px;
+  box-shadow: var(--shadow-sm);
+}
+.total-label {
+  font-size: .72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .05em;
+  color: var(--text-muted);
+}
+.total-value {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.5rem; font-weight: 700;
+  margin-top: 2px;
+  color: var(--text-primary);
+}
+.total-value.highlight { color: var(--accent); }
+
+/* ═══════════════ TABELA ═══════════════ */
+.tabela-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.tabela-head {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 8px;
+  background: var(--surface2);
+}
+.tabela-title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700; font-size: .95rem;
+  color: var(--text-primary);
+}
+.mini-actions { display: flex; gap: 6px; }
+.btn-mini {
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: 8px;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .78rem; font-weight: 600;
+  color: var(--text-second);
+  transition: all .15s;
+}
+.btn-mini:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+
+.tabela-scroll { overflow-x: auto; }
+.tabela-scroll table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .82rem;
+}
+.tabela-scroll thead {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.tabela-scroll thead th {
+  text-align: left;
+  padding: 10px 16px;
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-muted);
+  font-weight: 700;
+  font-family: 'Sora', sans-serif;
+}
+.tabela-scroll thead th.center { text-align: center; }
+.tabela-scroll thead th.right { text-align: right; }
+.tabela-scroll thead th.chk-col { width: 36px; }
+
+.cat-row td {
+  background: var(--accent);
+  color: white;
+  padding: 6px 16px;
+  font-family: 'Sora', sans-serif;
+  font-size: .76rem; font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.item-row { border-bottom: 1px solid var(--border); transition: background .15s; }
+.item-row:hover { background: var(--surface2); }
+.item-row td { padding: 9px 16px; vertical-align: middle; }
+.item-row td.code {
+  font-family: 'DM Sans', ui-monospace, monospace;
+  font-size: .76rem;
+  color: var(--text-second);
+}
+.item-row td.center { text-align: center; color: var(--text-muted); font-size: .74rem; }
+.item-row td.right  { text-align: right; font-weight: 700; color: var(--accent); }
+
+input[type=checkbox].chk-item {
+  width: 16px; height: 16px;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 24px;
+}
+.empty-state .empty-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.1rem; font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.empty-state .empty-sub { font-size: .85rem; color: var(--text-muted); }
+
+/* ═══════════════ SIDE PANEL ═══════════════ */
+.side-panel {
+  position: fixed;
+  top: 0; right: 0;
+  width: var(--panel-w);
+  height: 100vh;
+  background: var(--surface);
+  border-left: 1.5px solid var(--border2);
+  box-shadow: -6px 0 32px rgba(20,60,120,.12);
+  z-index: 300;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .35s cubic-bezier(.4,0,.2,1);
+  overflow: hidden;
+}
+.side-panel.open { transform: translateX(0); }
+.sp-hd {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 18px;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+.sp-hd-icon {
+  width: 30px; height: 30px;
+  background: rgba(255,255,255,.2);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.sp-hd-icon svg { width: 15px; height: 15px; color: white; }
+.sp-hd-title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700; font-size: .92rem;
+  color: white; flex: 1;
+}
+.sp-close {
+  background: rgba(255,255,255,.15); border: none;
+  color: white; cursor: pointer;
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.sp-close:hover { background: rgba(255,255,255,.3); }
+.sp-close svg { width: 16px; height: 16px; }
+
+.sp-body { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 18px; }
+.sp-stitle {
+  font-family: 'Sora', sans-serif; font-weight: 700; font-size: .72rem;
+  text-transform: uppercase; letter-spacing: .06em;
+  color: var(--text-muted); margin-bottom: 8px;
+}
+
+.cat-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.cat-chip {
+  display: inline-block; padding: 6px 12px;
+  border: 1.5px solid var(--border2);
+  border-radius: 99px;
+  background: var(--surface2); font-size: .78rem; font-weight: 600;
+  color: var(--text-second);
+  cursor: pointer; user-select: none;
+  transition: all .15s;
+}
+.cat-chip.on {
+  background: var(--accent); color: white; border-color: var(--accent);
+}
+.cat-chip:hover:not(.on) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.sp-actions { display: flex; flex-direction: column; gap: 8px; }
+.sp-btn {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  width: 100%; padding: 10px 14px;
+  border-radius: 10px; border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .85rem; font-weight: 700;
+  cursor: pointer;
+  transition: all .18s;
+  box-shadow: var(--shadow-sm);
+}
+.sp-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.sp-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+.sp-btn.primary { background: var(--accent); color: white; }
+.sp-btn.primary:hover { background: var(--accent-dark); }
+.sp-btn.ghost {
+  background: var(--surface2); color: var(--text-second);
+  border: 1.5px solid var(--border2);
+}
+.sp-btn.ghost:hover { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
+.sp-btn.danger {
+  background: white; color: var(--danger);
+  border: 1.5px solid #fca5a5;
+}
+.sp-btn.danger:hover { background: #fef2f2; border-color: var(--danger); }
+
+.sp-empty-chips {
+  font-size: .8rem;
+  color: var(--text-muted);
+  padding: 8px 0;
+}
+
+/* ═══════════════ MODAL ═══════════════ */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(15,30,60,.45);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  justify-content: center; align-items: center;
+  padding: 16px;
+}
+.modal-overlay.open { display: flex; }
+.modal-content {
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: var(--r-lg);
+  padding: 28px;
+  width: 100%; max-width: 460px;
+  box-shadow: var(--shadow-lg);
+}
+.modal-hd {
+  display: flex; align-items: center; gap: 12px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 700; font-size: 1.05rem;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.modal-hd-icon {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 3px 10px rgba(26,86,219,.25);
+  flex-shrink: 0;
+}
+.modal-hd-icon svg { width: 18px; height: 18px; color: white; }
+.modal-sub {
+  font-size: .85rem;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+.modal-stitle {
+  font-size: .72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em;
+  color: var(--text-muted);
+  margin: 14px 0 8px;
+  font-family: 'Sora', sans-serif;
+}
+.modal-stitle:first-of-type { margin-top: 0; }
+.modal-content label.modal-opt {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: .88rem;
+  color: var(--text-primary);
+  transition: background .12s;
+}
+.modal-content label.modal-opt:hover { background: var(--surface2); }
+.modal-content label.modal-opt input { accent-color: var(--accent); width: 16px; height: 16px; }
+.modal-ft {
+  display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px;
+}
+.btn-m {
+  padding: 9px 18px; border-radius: 9px; border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .88rem; font-weight: 600;
+  cursor: pointer; transition: all .18s;
+}
+.btn-m.cancel {
+  background: var(--surface2); color: var(--text-second);
+  border: 1.5px solid var(--border2);
+}
+.btn-m.cancel:hover { background: #f1f5f9; }
+.btn-m.confirm { background: var(--success); color: white; }
+.btn-m.confirm:hover { background: #059669; }
+
+/* ═══════════════ TOAST ═══════════════ */
+#toast {
+  position: fixed; right: 20px; bottom: 20px;
+  background: var(--text-primary); color: white;
+  padding: 10px 16px; border-radius: 10px;
+  display: none; z-index: 9999;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .85rem; font-weight: 500;
+  box-shadow: var(--shadow-lg);
+}
+
+/* ═══════════════ AJUDA / COMO FUNCIONA ═══════════════ */
+.modal-content.help { max-width: 560px; max-height: 86vh; overflow-y: auto; }
+.help-steps {
+  list-style: none; margin: 4px 0 0; padding: 0;
+  display: flex; flex-direction: column; gap: 11px;
+}
+.help-step {
+  display: flex; gap: 12px; align-items: flex-start;
+  font-size: .9rem; color: var(--text-primary); line-height: 1.5;
+}
+.help-num {
+  flex-shrink: 0;
+  width: 25px; height: 25px; border-radius: 50%;
+  background: var(--accent); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Sora', sans-serif; font-weight: 700; font-size: .8rem;
+}
+.help-step strong { color: var(--accent-dark); font-weight: 700; }
+.help-tip {
+  margin-top: 16px;
+  padding: 12px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  font-size: .82rem; color: var(--text-second); line-height: 1.5;
+}
+.help-link {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 16px; border-radius: 99px;
+  border: 1.5px solid var(--border2);
+  background: var(--surface); color: var(--text-second);
+  font-family: 'DM Sans', sans-serif; font-size: .82rem; font-weight: 600;
+  cursor: pointer; transition: all .18s; box-shadow: var(--shadow-sm);
+}
+.help-link:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+.help-link svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+/* ═══════════════ ÁREA DE IMPRESSÃO ═══════════════ */
+#print-area { display: none; }
+@media print {
+  .topbar, .side-panel, #toast,
+  .file-bar, .alerts-wrap, .empty-state,
+  .tabs-wrap, .totals, .modal-overlay,
+  body::before { display: none !important; }
+  body { background: white; padding: 0 !important; }
+  body.panel-open { padding-right: 0 !important; }
+  .page-wrapper { padding: 0; max-width: none; }
+  .section-card { display: none; }
+  .tabela-panel { display: none; }
+  #print-area {
+    display: block !important;
+    padding: 0;
+    color: #000;
+    font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+    font-size: 11pt;
+  }
+  @page {
+    size: A4 portrait;
+    margin: 1.5cm 1.5cm 1.2cm 1.5cm;
+  }
+  #print-area h1 { font-size: 16pt; margin: 0 0 4px; }
+  #print-area .print-sub { font-size: 10pt; color: #555; margin: 0 0 10px; }
+  #print-area table {
+    width: 100%; border-collapse: collapse; margin-bottom: 6px;
+  }
+  #print-area th, #print-area td {
+    border-bottom: 0.5pt solid #ccc;
+    padding: 4px 6px; font-size: 10pt; text-align: left;
+  }
+  #print-area th {
+    background: #f0f0f0; font-weight: 600;
+    border-bottom: 1pt solid #888;
+  }
+  #print-area td.right, #print-area th.right { text-align: right; }
+  #print-area td.center, #print-area th.center { text-align: center; }
+  #print-area td.code { font-family: monospace; font-size: 9pt; }
+  #print-area tr { page-break-inside: avoid; }
+  #print-area .print-sub-row td {
+    background: #f0f0f0; font-weight: 600; font-size: 10pt;
+  }
+  #print-area .print-total-row td {
+    border-top: 1.5pt solid #000; border-bottom: 1.5pt solid #000;
+    font-weight: 700; font-size: 11pt; background: #ffe;
+  }
+}
+
+@media (max-width: 768px) {
+  :root { --panel-w: 100vw; }
+  body.panel-open { padding-right: 0; }
+  .brand-sub { display: none; }
+  .totals { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ████████ TOPBAR ████████ -->
+<header class="topbar">
+  <div class="topbar-left">
+
+    <!-- Menu de navegação -->
+    <div class="menu-dropdown menu-left">
+      <button class="icon-btn" title="Menu" onclick="toggleMenu('dd-menu')" aria-haspopup="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+      </button>
+      <div class="menu-dropdown-content" id="dd-menu">
+
+        <div class="dropdown-section">
+          <div class="section-header" onclick="toggleSubmenu(this)">
+            <span>MACS</span><small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="mac77.html"><span class="mac-code">77</span>MAC Bairro São Geraldo</a>
+            <a href="mac78.html"><span class="mac-code">78</span>MAC Bairro Planalto</a>
+            <a href="mac79.html"><span class="mac-code">79</span>MAC Romeu Duarte</a>
+            <a href="mac80.html"><span class="mac-code">80</span>MAC Rua São Geraldo / Centro 2</a>
+            <a href="mac277.html"><span class="mac-code">277</span>MAC Matriz</a>
+            <a href="mac853.html"><span class="mac-code">853</span>MAC Concesso</a>
+            <a href="mac1249.html"><span class="mac-code">1249</span>MAC Jardim do Lago</a>
+            <a href="mac989.html"><span class="mac-code">989</span>MAC Araújos</a>
+            <a href="mac1436.html"><span class="mac-code">1436</span>MAC São Gonçalo do Pará</a>
+          </div>
+        </div>
+
+        <div class="dropdown-section">
+          <div class="section-header" onclick="toggleSubmenu(this)">
+            <span>São José</span><small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="saojose.html">Pedido São José</a>
+            <a href="paototal.html">Pedido Pão Total</a>
+          </div>
+        </div>
+
+        <div class="dropdown-section">
+          <div class="section-header" onclick="toggleSubmenu(this)">
+            <span>Tabelas</span><small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="pdfs/Tabela 2025 Geral.pdf">Tabela de Preços Geral</a>
+            <a href="pdfs/Tabela 2025 Empresa.pdf">Tabela de Preços Empresa</a>
+            <a href="https://github.com/henriteodoro/paratestes/releases/download/v1.0/Catalogo.Sao.Jose.2025.AT03.pdf">Catálogo de Produtos</a>
+          </div>
+        </div>
+
+        <div class="dropdown-section">
+          <div class="section-header" onclick="toggleSubmenu(this)">
+            <span>Ferramentas</span><small class="chev">▸</small>
+          </div>
+          <div class="submenu">
+            <a href="processadordepedidos.html">Processador de Pedidos</a>
+            <a href="ods.html">Visualizar Planilhas</a>
+            <a href="simularpedido.html">Simulador de Pedido</a>
+            <a href="anotacoes/anotacoes.html">Anotações</a>
+            <a href="planilhaautocontrole.html">Planilhas de Autocontrole</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Início -->
+    <button class="icon-btn" title="Início" onclick="voltarMenu()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+    </button>
+
+    <!-- Fechar -->
+    <button class="icon-btn" title="Fechar" onclick="fecharPagina()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <line x1="15" y1="9" x2="9" y2="15"/>
+        <line x1="9" y1="9" x2="15" y2="15"/>
+      </svg>
+    </button>
+
+    <div class="topbar-divider"></div>
+
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="9" y1="13" x2="15" y2="13"/>
+          <line x1="9" y1="17" x2="15" y2="17"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">Seletor de Romaneios</div>
+        <div class="brand-sub">.rtf · soma · exporta</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="topbar-center">
+    <div class="sel-chip" id="sel-chip">
+      <span><span class="val" id="t-qtd-sel">0</span> selecionados</span>
+      <span class="lbl-sep">·</span>
+      <span>soma <span class="val" id="t-soma-sel">0</span></span>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+
+    <button class="icon-btn" title="Abrir outro arquivo" onclick="abrirOutroArquivo()" id="btn-novo-arquivo" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+    </button>
+
+    <!-- Exportar dropdown -->
+    <div class="menu-dropdown">
+      <button class="icon-btn" title="Exportar" onclick="toggleMenu('dd-export')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v13"/>
+          <polyline points="7 11 12 16 17 11"/>
+          <path d="M5 20h14"/>
+        </svg>
+      </button>
+      <div class="menu-dropdown-content" id="dd-export">
+        <div class="dd-label">Exportar como</div>
+        <a onclick="abrirModalExportar('excel'); fecharMenus();">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="8" y1="13" x2="16" y2="13"/>
+            <line x1="8" y1="17" x2="16" y2="17"/>
+          </svg>
+          Planilha Excel (.xlsx)
+        </a>
+        <a onclick="abrirModalExportar('texto'); fecharMenus();">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="8" y1="13" x2="16" y2="13"/>
+            <line x1="8" y1="17" x2="16" y2="17"/>
+            <line x1="10" y1="9" x2="14" y2="9"/>
+          </svg>
+          Arquivo de texto (.txt)
+        </a>
+        <a onclick="abrirModalExportar('pdf'); fecharMenus();">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          Imprimir / salvar PDF
+        </a>
+      </div>
+    </div>
+
+    <!-- Imprimir (direto) -->
+    <button class="icon-btn" title="Imprimir / salvar PDF" onclick="imprimirDireto()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="8" y1="13" x2="16" y2="13"/>
+        <line x1="8" y1="17" x2="16" y2="17"/>
+        <line x1="10" y1="9" x2="14" y2="9"/>
+      </svg>
+    </button>
+
+    <!-- Copiar -->
+    <button class="icon-btn" title="Copiar tabela" onclick="copiarTabela()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="18" cy="5" r="3"/>
+        <circle cx="6" cy="12" r="3"/>
+        <circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+      </svg>
+    </button>
+
+    <div class="topbar-divider"></div>
+
+    <!-- Ajuda -->
+    <button class="icon-btn" id="btn-ajuda" title="Como funciona / gerar .rtf" onclick="abrirAjuda()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </button>
+
+    <!-- Painel toggle -->
+    <button class="icon-btn" id="btn-painel" title="Painel lateral" onclick="togglePanel()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <line x1="15" y1="3" x2="15" y2="21"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<!-- ████████ SIDE PANEL ████████ -->
+<aside class="side-panel" id="side-panel">
+  <div class="sp-hd">
+    <div class="sp-hd-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <line x1="4" y1="21" x2="4" y2="14"/>
+        <line x1="4" y1="10" x2="4" y2="3"/>
+        <line x1="12" y1="21" x2="12" y2="12"/>
+        <line x1="12" y1="8" x2="12" y2="3"/>
+        <line x1="20" y1="21" x2="20" y2="16"/>
+        <line x1="20" y1="12" x2="20" y2="3"/>
+        <line x1="1" y1="14" x2="7" y2="14"/>
+        <line x1="9" y1="8" x2="15" y2="8"/>
+        <line x1="17" y1="16" x2="23" y2="16"/>
+      </svg>
+    </div>
+    <span class="sp-hd-title">Filtros e ações</span>
+    <button class="sp-close" onclick="togglePanel()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="sp-body">
+
+    <!-- Filtros de categoria -->
+    <div>
+      <div class="sp-stitle">Filtrar categorias</div>
+      <div id="cat-chips" class="cat-chips"></div>
+    </div>
+
+    <!-- Ações -->
+    <div>
+      <div class="sp-stitle">Seleção</div>
+      <div class="sp-actions">
+        <button class="sp-btn primary" onclick="marcarTodos(true)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Marcar todos
+        </button>
+        <button class="sp-btn ghost" onclick="marcarTodos(false)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+          </svg>
+          Desmarcar todos
+        </button>
+      </div>
+    </div>
+
+    <!-- Limpar tudo -->
+    <div>
+      <div class="sp-stitle">Romaneios</div>
+      <div class="sp-actions" id="sp-limpar-area">
+        <!-- preenchido dinamicamente -->
+      </div>
+    </div>
+
+  </div>
+</aside>
+
+<!-- ████████ MAIN ████████ -->
+<div class="page-wrapper">
+
+  <!-- Uploader (visível quando não tem arquivo) -->
+  <section id="uploader">
+    <div class="dropzone-outer">
+      <label class="dropzone-card" id="dropzone">
+        <input id="file-input" type="file" accept=".rtf" multiple>
+        <div class="dz-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
+        <div class="dz-title">Arraste e solte seus romaneios aqui</div>
+        <div class="dz-hint">ou clique para selecionar - pode mandar vários de uma vez</div>
+        <div class="dz-types">
+          <span class="dz-badge">.rtf</span>
+        </div>
+      </label>
+      <button class="help-link" onclick="abrirAjuda()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        Como gerar os arquivos .rtf?
+      </button>
+    </div>
+  </section>
+
+  <!-- Viewer (visível quando tem arquivo) -->
+  <section id="viewer" style="display:none;">
+
+    <div id="alerts" class="alerts-wrap"></div>
+
+    <!-- Romaneios carregados -->
+    <div class="section-card">
+      <h2>Romaneios enviados</h2>
+      <div class="section-sub" id="enviados-count"></div>
+      <div class="rom-grid" id="rom-grid"></div>
+    </div>
+
+    <!-- Abas -->
+    <div class="tabs-wrap" id="tabs"></div>
+
+    <!-- Totais -->
+    <div class="totals">
+      <div class="total-card">
+        <div class="total-label">Produtos selecionados</div>
+        <div class="total-value highlight" id="t2-qtd-sel">0</div>
+      </div>
+      <div class="total-card">
+        <div class="total-label">Soma das quantidades</div>
+        <div class="total-value highlight" id="t2-soma-sel">0</div>
+      </div>
+      <div class="total-card">
+        <div class="total-label">Total geral (visão atual)</div>
+        <div class="total-value" id="t-soma-total">0</div>
+      </div>
+    </div>
+
+    <!-- Tabela -->
+    <div class="tabela-panel">
+      <div class="tabela-head">
+        <div class="tabela-title" id="tabela-title">Consolidado</div>
+        <div class="mini-actions">
+          <button class="btn-mini" onclick="marcarTodos(true)">Marcar todos</button>
+          <button class="btn-mini" onclick="marcarTodos(false)">Desmarcar</button>
+        </div>
+      </div>
+      <div class="tabela-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th class="chk-col"></th>
+              <th>Código</th>
+              <th>Descrição</th>
+              <th class="center">Un</th>
+              <th class="right">Qtd</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Empty state quando viewer mas sem dados -->
+  <div id="empty-state" class="empty-state" style="display:none;">
+    <div class="empty-title">Nenhum romaneio</div>
+    <div class="empty-sub">Carregue um ou mais arquivos .rtf pra começar</div>
+  </div>
+</div>
+
+<!-- Área de impressão (escondida) -->
+<div id="print-area"></div>
+
+<!-- MODAL EXPORTAR -->
+<div class="modal-overlay" id="modal-export" onclick="if (event.target===this) fecharModalExportar()">
+  <div class="modal-content">
+    <div class="modal-hd">
+      <div class="modal-hd-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 3v13"/>
+          <polyline points="7 11 12 16 17 11"/>
+          <path d="M5 20h14"/>
+        </svg>
+      </div>
+      <span id="modal-titulo">Exportar</span>
+    </div>
+    <p class="modal-sub">Escolha o que vai aparecer no arquivo</p>
+
+    <div class="modal-stitle">Colunas</div>
+    <label class="modal-opt"><input type="checkbox" class="chk-col-ex" value="codigo"     checked> Código</label>
+    <label class="modal-opt"><input type="checkbox" class="chk-col-ex" value="descricao"  checked> Descrição</label>
+    <label class="modal-opt"><input type="checkbox" class="chk-col-ex" value="categoria">       Categoria</label>
+    <label class="modal-opt"><input type="checkbox" class="chk-col-ex" value="unidade"    checked> Unidade</label>
+    <label class="modal-opt"><input type="checkbox" class="chk-col-ex" value="quantidade" checked> Quantidade</label>
+
+    <div class="modal-stitle">Layout</div>
+    <label class="modal-opt"><input type="checkbox" id="opt-cat" checked> Mostrar separador de categoria</label>
+    <label class="modal-opt"><input type="checkbox" id="opt-sub" checked> Mostrar subtotal por categoria</label>
+
+    <div class="modal-ft">
+      <button class="btn-m cancel" onclick="fecharModalExportar()">Cancelar</button>
+      <button class="btn-m confirm" onclick="confirmarExportar()">Baixar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- MODAL AJUDA -->
+<div class="modal-overlay" id="modal-ajuda" onclick="if (event.target===this) fecharAjuda()">
+  <div class="modal-content help">
+    <div class="modal-hd">
+      <div class="modal-hd-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <span>Como gerar os arquivos .rtf</span>
+    </div>
+    <p class="modal-sub">Passo a passo pra exportar os romaneios do sistema e usar aqui.</p>
+
+    <ol class="help-steps">
+      <li class="help-step"><span class="help-num">1</span><div>No <strong>acesso remoto</strong>, abra o módulo <strong>Faturamento → Romaneio de Carga</strong>.</div></li>
+      <li class="help-step"><span class="help-num">2</span><div>Selecione o romaneio que quer usar.</div></li>
+      <li class="help-step"><span class="help-num">3</span><div>Em <strong>"Selecione a ação a ser executada"</strong>, escolha <strong>Imprimir romaneio de carga</strong>.</div></li>
+      <li class="help-step"><span class="help-num">4</span><div>Clique na <strong>caixinha das duas setinhas</strong> e troque o <strong>modelo para Sintético 5</strong>.</div></li>
+      <li class="help-step"><span class="help-num">5</span><div><strong>Desmarque</strong> "Emitir valor" e "Emitir resumo".</div></li>
+      <li class="help-step"><span class="help-num">6</span><div>Clique em <strong>Imprimir</strong>.</div></li>
+      <li class="help-step"><span class="help-num">7</span><div>Vá em <strong>Arquivo → Salvar como</strong>. Em <strong>"Save as type"</strong>, escolha <strong>Rich Text Format (*.rtf)</strong>.</div></li>
+      <li class="help-step"><span class="help-num">8</span><div>Escolha a pasta (se quiser) e clique em <strong>Salvar</strong>.</div></li>
+      <li class="help-step"><span class="help-num">9</span><div>Passe os arquivos .rtf para o <strong>computador/notebook</strong>.</div></li>
+      <li class="help-step"><span class="help-num">10</span><div>Abra este site e <strong>selecione ou arraste</strong> os arquivos .rtf.</div></li>
+    </ol>
+
+    <div class="help-tip">
+      Dica: você pode salvar vários romaneios e mandar todos de uma vez. Os produtos com o mesmo código são somados automaticamente na aba <strong>Consolidado</strong>.
+    </div>
+
+    <div class="modal-ft">
+      <button class="btn-m confirm" onclick="fecharAjuda()">Entendi</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   PARSER RTF
+═══════════════════════════════════════════ */
+const KNOWN_CATEGORIES = [
+  'PAES DE SAL', 'PAES DE DOCE', 'PAES DE QUEIJO', 'QUITANDAS',
+  'PAES ESPECIAIS', 'BOLOS', 'SALGADOS GRANDES', 'SALGADOS PEQUENOS',
+  'TORTAS', 'DOCES', 'BISCOITOS', 'ROSCAS', 'PIZZAS',
+];
+const UNIT_PATTERN    = /^(PCT|UN|KG|CX|SC|FRD|DZ|LT|PC|GR|ML)$/;
+const PRODUCT_CODE_RE = /^P\d{5,10}$/;
+
+function decodeCp1252(buffer) {
+  const cp1252_80_9F = {
+    0x80:'€',0x82:'‚',0x83:'ƒ',0x84:'„',0x85:'…',0x86:'†',0x87:'‡',
+    0x88:'ˆ',0x89:'‰',0x8A:'Š',0x8B:'‹',0x8C:'Œ',0x8E:'Ž',
+    0x91:'‘',0x92:'’',0x93:'“',0x94:'”',0x95:'•',0x96:'–',0x97:'—',
+    0x98:'˜',0x99:'™',0x9A:'š',0x9B:'›',0x9C:'œ',0x9E:'ž',0x9F:'Ÿ'
+  };
+  const bytes = new Uint8Array(buffer);
+  let out = '';
+  for (let i = 0; i < bytes.length; i++) {
+    const b = bytes[i];
+    if (b < 0x80) out += String.fromCharCode(b);
+    else if (b >= 0x80 && b <= 0x9F) out += (cp1252_80_9F[b] || '');
+    else out += String.fromCharCode(b);
+  }
+  return out;
+}
+
+function parseRtf(arrayBuffer) {
+  const text = decodeCp1252(arrayBuffer);
+  const textDecoded = text.replace(/\\'([0-9a-fA-F]{2})/g, (_, hex) => {
+    const b = parseInt(hex, 16);
+    if (b < 0x80) return String.fromCharCode(b);
+    const cp = { 0xc0:'À',0xc1:'Á',0xc2:'Â',0xc3:'Ã',0xc4:'Ä',0xc5:'Å',0xc6:'Æ',0xc7:'Ç',
+                 0xc8:'È',0xc9:'É',0xca:'Ê',0xcb:'Ë',0xcc:'Ì',0xcd:'Í',0xce:'Î',0xcf:'Ï',
+                 0xd0:'Ð',0xd1:'Ñ',0xd2:'Ò',0xd3:'Ó',0xd4:'Ô',0xd5:'Õ',0xd6:'Ö',0xd8:'Ø',
+                 0xd9:'Ù',0xda:'Ú',0xdb:'Û',0xdc:'Ü',0xdd:'Ý',0xde:'Þ',0xdf:'ß',
+                 0xe0:'à',0xe1:'á',0xe2:'â',0xe3:'ã',0xe4:'ä',0xe5:'å',0xe6:'æ',0xe7:'ç',
+                 0xe8:'è',0xe9:'é',0xea:'ê',0xeb:'ë',0xec:'ì',0xed:'í',0xee:'î',0xef:'ï',
+                 0xf0:'ð',0xf1:'ñ',0xf2:'ò',0xf3:'ó',0xf4:'ô',0xf5:'õ',0xf6:'ö',0xf8:'ø',
+                 0xf9:'ù',0xfa:'ú',0xfb:'û',0xfc:'ü',0xfd:'ý',0xfe:'þ',0xff:'ÿ',
+                 0xaa:'ª',0xba:'º' };
+    return cp[b] || '';
+  });
+
+  const blocks = textDecoded.split('\\par');
+  const tokens = [];
+  for (const block of blocks) {
+    const posxM = block.match(/\\posx(\d+)/);
+    const posyM = block.match(/\\posy(\d+)/);
+    if (!posxM || !posyM) continue;
+    let cleaned = block.replace(/\{[^{}]*\}/g, '');
+    cleaned = cleaned.replace(/\\\*?[a-zA-Z]+-?\d*/g, '');
+    cleaned = cleaned.replace(/[{}]/g, '').trim();
+    cleaned = cleaned.replace(/^d\s+/, '').trim();
+    if (!cleaned) continue;
+    tokens.push({
+      posy: parseInt(posyM[1], 10),
+      posx: parseInt(posxM[1], 10),
+      text: cleaned,
+    });
+  }
+
+  let meta = {
+    titulo: 'Romaneio de Carga',
+    numero: '—', data_emissao: '—', rota: '—',
+    motorista: '—', placa: '—', veiculo: '—', data_entrega: '—',
+  };
+
+  for (const tok of tokens) {
+    const t = tok.text.trim();
+    const mNum = t.match(/ROMANEIO\s+DE\s+CARGA\s+N[º°o]?\s*(\d+)/i);
+    if (mNum && meta.numero === '—') meta.numero = mNum[1];
+    if (/^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/.test(t.replace(/-/g, '')) && meta.placa === '—') {
+      meta.placa = t;
+    }
+    if (/CAMINH(AO|ÃO)|VW|FORD|MERCEDES|VOLVO|SCANIA|IVECO|M\.\s*BENZ/i.test(t)
+        && t.length > 5 && meta.veiculo === '—') {
+      meta.veiculo = t;
+    }
+    if (/^[A-ZÁÉÍÓÚÂÊÔÃÕÇ ]{8,}$/.test(t) && t.includes(' ')
+        && meta.motorista === '—'
+        && !KNOWN_CATEGORIES.some(k => t.includes(k))
+        && !/CAMINH|PADARIA|PAO|INDUSTRIA|COMERCIO|ROMANEIO|PRODUTO|DESCRIÇÃO|QUANTIDADE/.test(t)
+        && t.split(' ').filter(Boolean).length >= 2) {
+      meta.motorista = t;
+    }
+    const mRota = t.match(/^(\d{1,3}\s*-\s*[A-ZÁÉÍÓÚÂÊÔÃÕÇ\s]+(?:-\s*[A-ZÁÉÍÓÚÂÊÔÃÕÇ0-9\s]+)?)$/);
+    if (mRota && meta.rota === '—' && t.includes(' - ')) {
+      meta.rota = mRota[1].trim().replace(/\s+\d{2,}$/, '').trim();
+    }
+    if (/^\d{2}\/\d{2}\/\d{2}$/.test(t) && meta.data_emissao === '—') meta.data_emissao = t;
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(t) && meta.data_entrega === '—') meta.data_entrega = t;
+  }
+
+  const produtosRaw = [];
+  const categoriasNaOrdem = [];
+
+  for (let i = 0; i < tokens.length; i++) {
+    const tok = tokens[i];
+    const t = tok.text.trim();
+
+    if (PRODUCT_CODE_RE.test(t) && tok.posx < 500) {
+      const code = t;
+      let desc = '', un = '', qty = 0;
+      for (let j = i + 1; j < Math.min(i + 6, tokens.length); j++) {
+        const t2 = tokens[j];
+        if (t2.posy !== tok.posy) break;
+        const tx = t2.text.trim();
+        if (t2.posx > 1500 && t2.posx < 2500 && !desc) desc = tx;
+        else if (t2.posx > 10000 && UNIT_PATTERN.test(tx)) un = tx;
+        else if (t2.posx > 8000 && t2.posx < 10000 && /^\d+$/.test(tx)) qty = parseInt(tx, 10);
+      }
+      produtosRaw.push({
+        idx: i,
+        codigo: code,
+        descricao: desc || code,
+        unidade: un || 'UN',
+        quantidade: qty,
+      });
+    }
+
+    if (tok.posx > 5000 && tok.posx < 6000 && KNOWN_CATEGORIES.includes(t.toUpperCase())) {
+      categoriasNaOrdem.push({ idx: i, nome: t.toUpperCase() });
+    }
+  }
+
+  const produtos = [];
+  for (const p of produtosRaw) {
+    const next = categoriasNaOrdem.find(c => c.idx > p.idx);
+    produtos.push({
+      codigo: p.codigo,
+      descricao: p.descricao,
+      unidade: p.unidade,
+      quantidade: p.quantidade,
+      categoria: next ? next.nome : 'OUTROS',
+    });
+  }
+
+  return { meta, produtos };
+}
+
+/* ═══════════════════════════════════════════
+   ESTADO
+═══════════════════════════════════════════ */
+const state = {
+  romaneios: [],
+  selecionados: new Set(),
+  filtroCategorias: new Set(),
+  abaAtiva: 'consolidado',
+  confirmandoLimpar: false,
+  confirmandoExclusao: null,
+};
+
+let _seqId = 0;
+function novoId() { _seqId += 1; return 'r' + _seqId; }
+function chaveSel(romaneioId, codigo) { return romaneioId + '::' + codigo; }
+
+/* ═══════════════════════════════════════════
+   CARREGAR ARQUIVOS
+═══════════════════════════════════════════ */
+async function carregarArquivos(fileList) {
+  const erros = [];
+  let sucessos = 0;
+  for (const f of fileList) {
+    if (!f.name.toLowerCase().endsWith('.rtf')) {
+      erros.push(`${f.name}: precisa ter extensão .rtf`);
+      continue;
+    }
+    try {
+      const buf = await f.arrayBuffer();
+      const { meta, produtos } = parseRtf(buf);
+      if (produtos.length === 0) {
+        erros.push(`${f.name}: nenhum produto encontrado`);
+        continue;
+      }
+      state.romaneios.push({
+        id: novoId(),
+        nome: f.name,
+        meta, produtos,
+      });
+      sucessos += 1;
+    } catch (e) {
+      erros.push(`${f.name}: erro ao ler (${e.message})`);
+    }
+  }
+  mostrarAlertas(sucessos, erros);
+  render();
+}
+
+function mostrarAlertas(sucessos, erros) {
+  const div = document.getElementById('alerts');
+  if (!div) return;
+  div.innerHTML = '';
+  if (sucessos > 0) {
+    div.insertAdjacentHTML('beforeend',
+      `<div class="alert ok">✓ ${sucessos} arquivo(s) carregado(s) com sucesso.</div>`);
+  }
+  if (erros.length > 0) {
+    div.insertAdjacentHTML('beforeend',
+      `<div class="alert err"><div>
+         <strong>Alguns arquivos não foram processados:</strong>
+         <ul>${erros.map(e => `<li>${escapeHtml(e)}</li>`).join('')}</ul>
+       </div></div>`);
+  }
+  if (sucessos > 0 || erros.length > 0) {
+    setTimeout(() => { div.innerHTML = ''; }, 6000);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   CONSOLIDAR
+═══════════════════════════════════════════ */
+function obterVisao() {
+  let lista = [];
+  if (state.abaAtiva === 'consolidado') {
+    for (const r of state.romaneios) {
+      for (const p of r.produtos) lista.push({ ...p, romaneioId: r.id });
+    }
+  } else {
+    const r = state.romaneios.find(r => r.id === state.abaAtiva);
+    if (!r) return { grupos: [], todasCategorias: [] };
+    for (const p of r.produtos) lista.push({ ...p, romaneioId: r.id });
+  }
+
+  const todasCategorias = [...new Set(lista.map(p => p.categoria))].sort();
+
+  if (state.filtroCategorias.size > 0) {
+    lista = lista.filter(p => state.filtroCategorias.has(p.categoria));
+  }
+
+  const agregMap = new Map();
+  for (const p of lista) {
+    const k = p.codigo;
+    if (!agregMap.has(k)) {
+      agregMap.set(k, {
+        codigo: p.codigo, descricao: p.descricao,
+        unidade: p.unidade, categoria: p.categoria,
+        quantidade: 0, composto: [],
+      });
+    }
+    const agg = agregMap.get(k);
+    agg.quantidade += p.quantidade;
+    agg.composto.push({ romaneioId: p.romaneioId, quantidade: p.quantidade });
+  }
+
+  const grupos = [];
+  const cats = [...new Set([...agregMap.values()].map(p => p.categoria))];
+  for (const cat of cats) {
+    const itens = [...agregMap.values()].filter(p => p.categoria === cat);
+    const total = itens.reduce((acc, p) => acc + p.quantidade, 0);
+    grupos.push({ categoria: cat, itens, total });
+  }
+
+  return { grupos, todasCategorias };
+}
+
+function itemSelecionado(item) {
+  if (item.composto.length === 0) return false;
+  return item.composto.every(c =>
+    state.selecionados.has(chaveSel(c.romaneioId, item.codigo))
+  );
+}
+
+/* ═══════════════════════════════════════════
+   RENDER
+═══════════════════════════════════════════ */
+function render() {
+  const temDados = state.romaneios.length > 0;
+  document.getElementById('uploader').style.display = temDados ? 'none' : 'block';
+  document.getElementById('viewer').style.display   = temDados ? 'block' : 'none';
+  document.getElementById('btn-novo-arquivo').style.display = temDados ? 'inline-flex' : 'none';
+
+  if (!temDados) return;
+  renderEnviados();
+  renderTabs();
+  renderFiltro();
+  renderTabela();
+  renderLimparArea();
+}
+
+function renderLimparArea() {
+  const area = document.getElementById('sp-limpar-area');
+  if (state.confirmandoLimpar) {
+    area.innerHTML = `
+      <div style="background:#fef2f2; border:1.5px solid #fecaca; border-radius:10px; padding:10px 12px; font-size:.83rem; color:#7f1d1d; margin-bottom:6px;">
+        Tem certeza? Isso vai apagar todos os romaneios.
+      </div>
+      <button class="sp-btn" style="background:var(--danger);color:white;" onclick="limparTudo()">
+        Sim, limpar tudo
+      </button>
+      <button class="sp-btn ghost" onclick="cancelarLimparTudo()">Cancelar</button>`;
+  } else {
+    area.innerHTML = `
+      <button class="sp-btn danger" onclick="pedirConfirmacaoLimpar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+        </svg>
+        Limpar todos os romaneios
+      </button>`;
+  }
+}
+
+function renderEnviados() {
+  document.getElementById('enviados-count').textContent =
+    state.romaneios.length + ' arquivo(s) carregado(s)';
+  const grid = document.getElementById('rom-grid');
+  grid.innerHTML = '';
+
+  const icoTruck = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`;
+  const icoCal = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+  const icoList = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`;
+
+  for (const r of state.romaneios) {
+    const totalItens = r.produtos.length;
+    const totalQtd = r.produtos.reduce((s, p) => s + p.quantidade, 0);
+    const dataPill = r.meta.data_entrega !== '—'
+      ? `<span class="rom-pill">${icoCal}${escapeHtml(r.meta.data_entrega)}</span>` : '';
+
+    let acao;
+    if (state.confirmandoExclusao === r.id) {
+      acao = `<span class="confirm-pill">
+        <button class="btn-yes" onclick="excluirRomaneio('${r.id}')">Excluir</button>
+        <button class="btn-no"  onclick="cancelarExclusao()">✕</button>
+      </span>`;
+    } else {
+      acao = `<button class="icon-btn-sm" title="Remover" onclick="pedirExclusao('${r.id}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+        </svg>
+      </button>`;
+    }
+
+    grid.insertAdjacentHTML('beforeend', `
+      <div class="rom-card">
+        <div class="rom-card-main">
+          <div class="rom-badge">${icoTruck}</div>
+          <div class="rom-info">
+            <div class="rom-num">Nº ${escapeHtml(r.meta.numero)}</div>
+            <div class="rom-file">${escapeHtml(r.nome)}</div>
+            <div class="rom-stats">
+              ${dataPill}
+              <span class="rom-pill">${icoList}${totalItens} itens</span>
+              <span class="rom-pill total">total <span class="pv">${totalQtd}</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="row-actions">${acao}</div>
+      </div>
+    `);
+  }
+}
+
+function renderTabs() {
+  const tabs = document.getElementById('tabs');
+  const icoConsolidado = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`;
+  const icoRomaneio = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`;
+  let html = `
+    <button class="tab-btn ${state.abaAtiva === 'consolidado' ? 'active' : ''}"
+            onclick="trocarAba('consolidado')">${icoConsolidado}Consolidado</button>`;
+  for (const r of state.romaneios) {
+    html += `
+      <button class="tab-btn ${state.abaAtiva === r.id ? 'active' : ''}"
+              onclick="trocarAba('${r.id}')">${icoRomaneio}Romaneio ${escapeHtml(r.meta.numero)}</button>`;
+  }
+  tabs.innerHTML = html;
+}
+
+function renderFiltro() {
+  const { todasCategorias } = obterVisao();
+  const div = document.getElementById('cat-chips');
+  if (todasCategorias.length === 0) {
+    div.innerHTML = '<span class="sp-empty-chips">Sem categorias disponíveis</span>';
+    return;
+  }
+  div.innerHTML = todasCategorias.map(c => `
+    <span class="cat-chip ${state.filtroCategorias.has(c) ? 'on' : ''}"
+          onclick="toggleCategoria('${escapeAttr(c)}')">${escapeHtml(c)}</span>
+  `).join('');
+}
+
+function renderTabela() {
+  const { grupos } = obterVisao();
+  const titulo = (state.abaAtiva === 'consolidado')
+    ? 'Consolidado (todos os romaneios)'
+    : (() => {
+        const r = state.romaneios.find(r => r.id === state.abaAtiva);
+        return r ? `Romaneio Nº ${r.meta.numero}` : 'Romaneio';
+      })();
+  document.getElementById('tabela-title').textContent = titulo;
+
+  const tbody = document.getElementById('tbody');
+  let html = '';
+  let totalGeral = 0;
+  let totalSel = 0;
+  let qtdSel = 0;
+
+  for (const g of grupos) {
+    html += `<tr class="cat-row"><td colspan="5">
+      ${escapeHtml(g.categoria)} · ${g.itens.length} item(s) · subtotal ${g.total}
+    </td></tr>`;
+    for (const item of g.itens) {
+      const checked = itemSelecionado(item);
+      if (checked) { totalSel += item.quantidade; qtdSel += 1; }
+      totalGeral += item.quantidade;
+      const compostoJson = encodeURIComponent(JSON.stringify(item.composto));
+      html += `<tr class="item-row">
+        <td><input type="checkbox" class="chk-item"
+                   data-codigo="${escapeAttr(item.codigo)}"
+                   data-composto="${compostoJson}"
+                   ${checked ? 'checked' : ''}
+                   onchange="onCheckItem(this)"></td>
+        <td class="code">${escapeHtml(item.codigo)}</td>
+        <td>${escapeHtml(item.descricao)}</td>
+        <td class="center">${escapeHtml(item.unidade)}</td>
+        <td class="right">${item.quantidade}</td>
+      </tr>`;
+    }
+  }
+  if (grupos.length === 0) {
+    html = `<tr><td colspan="5" style="padding: 30px; text-align: center; color: var(--text-muted);">
+      Nenhum produto pra mostrar
+    </td></tr>`;
+  }
+  tbody.innerHTML = html;
+
+  // Atualiza totais (4 displays: chip da topbar + 2 cards + total geral)
+  document.getElementById('t-qtd-sel').textContent  = qtdSel;
+  document.getElementById('t-soma-sel').textContent = totalSel;
+  document.getElementById('t2-qtd-sel').textContent = qtdSel;
+  document.getElementById('t2-soma-sel').textContent = totalSel;
+  document.getElementById('t-soma-total').textContent = totalGeral;
+
+  // Mostra/esconde chip da topbar
+  const chip = document.getElementById('sel-chip');
+  chip.classList.toggle('visible', qtdSel > 0);
+}
+
+/* ═══════════════════════════════════════════
+   AÇÕES
+═══════════════════════════════════════════ */
+function onCheckItem(input) {
+  const composto = JSON.parse(decodeURIComponent(input.dataset.composto));
+  const codigo = input.dataset.codigo;
+  if (input.checked) {
+    for (const c of composto) state.selecionados.add(chaveSel(c.romaneioId, codigo));
+  } else {
+    for (const c of composto) state.selecionados.delete(chaveSel(c.romaneioId, codigo));
+  }
+  atualizarTotaisRapido();
+}
+
+function atualizarTotaisRapido() {
+  const checks = document.querySelectorAll('.chk-item');
+  let totalSel = 0, qtdSel = 0;
+  for (const c of checks) {
+    if (c.checked) {
+      const tr = c.closest('tr');
+      const qtd = parseInt(tr.querySelector('td.right').textContent, 10) || 0;
+      totalSel += qtd;
+      qtdSel += 1;
+    }
+  }
+  document.getElementById('t-qtd-sel').textContent  = qtdSel;
+  document.getElementById('t-soma-sel').textContent = totalSel;
+  document.getElementById('t2-qtd-sel').textContent = qtdSel;
+  document.getElementById('t2-soma-sel').textContent = totalSel;
+  document.getElementById('sel-chip').classList.toggle('visible', qtdSel > 0);
+}
+
+function marcarTodos(estado) {
+  const checks = document.querySelectorAll('.chk-item');
+  for (const c of checks) {
+    if (c.checked !== estado) {
+      c.checked = estado;
+      const composto = JSON.parse(decodeURIComponent(c.dataset.composto));
+      const codigo = c.dataset.codigo;
+      if (estado) for (const x of composto) state.selecionados.add(chaveSel(x.romaneioId, codigo));
+      else        for (const x of composto) state.selecionados.delete(chaveSel(x.romaneioId, codigo));
+    }
+  }
+  atualizarTotaisRapido();
+}
+
+function trocarAba(aba) {
+  state.abaAtiva = aba;
+  render();
+}
+
+function toggleCategoria(cat) {
+  if (state.filtroCategorias.has(cat)) state.filtroCategorias.delete(cat);
+  else state.filtroCategorias.add(cat);
+  render();
+}
+
+function pedirExclusao(id) { state.confirmandoExclusao = id; renderEnviados(); }
+function cancelarExclusao() { state.confirmandoExclusao = null; renderEnviados(); }
+function excluirRomaneio(id) {
+  state.romaneios = state.romaneios.filter(r => r.id !== id);
+  for (const k of [...state.selecionados]) {
+    if (k.startsWith(id + '::')) state.selecionados.delete(k);
+  }
+  if (state.abaAtiva === id) state.abaAtiva = 'consolidado';
+  state.confirmandoExclusao = null;
+  render();
+}
+
+function pedirConfirmacaoLimpar() { state.confirmandoLimpar = true; renderLimparArea(); }
+function cancelarLimparTudo()     { state.confirmandoLimpar = false; renderLimparArea(); }
+function limparTudo() {
+  state.romaneios = [];
+  state.selecionados.clear();
+  state.filtroCategorias.clear();
+  state.abaAtiva = 'consolidado';
+  state.confirmandoLimpar = false;
+  state.confirmandoExclusao = null;
+  document.getElementById('alerts').innerHTML = '';
+  render();
+}
+
+function abrirOutroArquivo() {
+  document.getElementById('file-input').click();
+}
+
+/* ═══════════════════════════════════════════
+   MENUS
+═══════════════════════════════════════════ */
+function toggleMenu(id) {
+  document.querySelectorAll('.menu-dropdown-content').forEach(el => {
+    if (el.id !== id) el.classList.remove('open');
+  });
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+function fecharMenus() {
+  document.querySelectorAll('.menu-dropdown-content').forEach(el => el.classList.remove('open'));
+  closeAllSubmenus();
+}
+function toggleSubmenu(headerEl) {
+  const sub = headerEl.nextElementSibling;
+  if (!sub) return;
+  const chev = headerEl.querySelector('.chev');
+  const isOpen = sub.style.display === 'block';
+  document.querySelectorAll('.submenu').forEach(s => { if (s !== sub) s.style.display = 'none'; });
+  document.querySelectorAll('.chev').forEach(c => { if (c !== chev) c.textContent = '▸'; });
+  sub.style.display = isOpen ? 'none' : 'block';
+  if (chev) chev.textContent = isOpen ? '▸' : '▾';
+}
+function closeAllSubmenus() {
+  document.querySelectorAll('.submenu').forEach(s => s.style.display = 'none');
+  document.querySelectorAll('.chev').forEach(c => c.textContent = '▸');
+}
+function voltarMenu() { window.location.href = 'index.html'; }
+function fecharPagina() { try { window.close(); } catch (e) {} }
+document.addEventListener('click', ev => {
+  if (!ev.target.closest('.menu-dropdown')) fecharMenus();
+});
+
+function togglePanel() {
+  document.getElementById('side-panel').classList.toggle('open');
+  document.body.classList.toggle('panel-open');
+  document.getElementById('btn-painel').classList.toggle('active');
+}
+
+function showToast(msg, dur = 2000) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.display = 'block';
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => { el.style.display = 'none'; }, dur);
+}
+
+function abrirAjuda() {
+  fecharMenus();
+  document.getElementById('modal-ajuda').classList.add('open');
+}
+function fecharAjuda() {
+  document.getElementById('modal-ajuda').classList.remove('open');
+}
+
+/* ═══════════════════════════════════════════
+   EXPORTAR
+═══════════════════════════════════════════ */
+let _formatoExportar = 'excel';
+
+function abrirModalExportar(formato) {
+  if (state.romaneios.length === 0) {
+    showToast('Carregue um arquivo primeiro');
+    return;
+  }
+  _formatoExportar = formato;
+  const titulos = {
+    excel: 'Exportar pra Excel',
+    texto: 'Exportar pra Texto',
+    pdf:   'Imprimir / Salvar PDF',
+  };
+  document.getElementById('modal-titulo').textContent = titulos[formato] || 'Exportar';
+  document.getElementById('modal-export').classList.add('open');
+}
+
+function fecharModalExportar() {
+  document.getElementById('modal-export').classList.remove('open');
+}
+
+/* ── Saída rápida (imprimir/copiar pelos ícones da topbar) ──
+   Usa os itens SELECIONADOS da visão atual; se nada estiver
+   marcado, usa todos os itens da visão atual. */
+function gruposParaSaidaRapida() {
+  const { grupos } = obterVisao();
+  const algumSelecionado = grupos.some(g => g.itens.some(it => itemSelecionado(it)));
+  const out = [];
+  for (const g of grupos) {
+    const itens = algumSelecionado ? g.itens.filter(it => itemSelecionado(it)) : g.itens;
+    if (itens.length === 0) continue;
+    const total = itens.reduce((s, p) => s + p.quantidade, 0);
+    out.push({ categoria: g.categoria, itens, total });
+  }
+  return { grupos: out, usouSelecao: algumSelecionado };
+}
+
+function imprimirDireto() {
+  if (state.romaneios.length === 0) { showToast('Carregue um arquivo primeiro'); return; }
+  const { grupos } = gruposParaSaidaRapida();
+  if (grupos.length === 0) { showToast('Nada pra imprimir.'); return; }
+  exportarPdf(grupos, ['codigo', 'descricao', 'unidade', 'quantidade'], true, true);
+}
+
+function copiarTabela() {
+  if (state.romaneios.length === 0) { showToast('Carregue um arquivo primeiro'); return; }
+  const { grupos, usouSelecao } = gruposParaSaidaRapida();
+  if (grupos.length === 0) { showToast('Nada pra copiar.'); return; }
+  const linhas = [];
+  let totalGeral = 0;
+  for (const g of grupos) {
+    linhas.push(g.categoria);
+    for (const it of g.itens) {
+      linhas.push(`${it.codigo}\t${it.descricao}\t${it.unidade}\t${it.quantidade}`);
+    }
+    linhas.push(`Subtotal ${g.categoria}\t\t\t${g.total}`);
+    linhas.push('');
+    totalGeral += g.total;
+  }
+  linhas.push(`TOTAL GERAL\t\t\t${totalGeral}`);
+  const txt = linhas.join('\n');
+  const msg = usouSelecao ? 'Selecionados copiados!' : 'Tabela copiada!';
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt)
+      .then(() => showToast(msg))
+      .catch(() => copiarFallback(txt, msg));
+  } else {
+    copiarFallback(txt, msg);
+  }
+}
+
+function copiarFallback(txt, msg) {
+  const ta = document.createElement('textarea');
+  ta.value = txt;
+  ta.style.position = 'fixed'; ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); showToast(msg); }
+  catch (e) { showToast('Não foi possível copiar.'); }
+  document.body.removeChild(ta);
+}
+
+function obterDadosExportar() {
+  const { grupos } = obterVisao();
+  const grupExp = [];
+  for (const g of grupos) {
+    const itensSel = g.itens.filter(it => itemSelecionado(it));
+    if (itensSel.length === 0) continue;
+    const total = itensSel.reduce((s, p) => s + p.quantidade, 0);
+    grupExp.push({ categoria: g.categoria, itens: itensSel, total });
+  }
+  return grupExp;
+}
+
+const COLUNAS_DEF = {
+  codigo:     { titulo: 'Código',     largura: 14 },
+  descricao:  { titulo: 'Descrição',  largura: 55 },
+  categoria:  { titulo: 'Categoria',  largura: 22 },
+  unidade:    { titulo: 'Unidade',    largura: 10 },
+  quantidade: { titulo: 'Quantidade', largura: 14 },
+};
+const COLUNAS_ORDEM = ['codigo', 'descricao', 'categoria', 'unidade', 'quantidade'];
+
+function confirmarExportar() {
+  const colsMarcadas = [...document.querySelectorAll('.chk-col-ex:checked')].map(c => c.value);
+  if (colsMarcadas.length === 0) {
+    showToast('Escolha pelo menos uma coluna pra exportar.');
+    return;
+  }
+  const colunas = COLUNAS_ORDEM.filter(c => colsMarcadas.includes(c));
+  const mostrarCat = document.getElementById('opt-cat').checked;
+  const mostrarSub = document.getElementById('opt-sub').checked;
+  const grupos = obterDadosExportar();
+  if (grupos.length === 0) {
+    showToast('Nenhum produto selecionado pra exportar.');
+    return;
+  }
+  fecharModalExportar();
+  if (_formatoExportar === 'excel') exportarExcel(grupos, colunas, mostrarCat, mostrarSub);
+  else if (_formatoExportar === 'pdf')   exportarPdf(grupos, colunas, mostrarCat, mostrarSub);
+  else                                    exportarTexto(grupos, colunas, mostrarCat, mostrarSub);
+}
+
+function exportarPdf(grupos, colunas, mostrarCat, mostrarSub) {
+  const area = document.getElementById('print-area');
+  let tituloDoc;
+  if (state.abaAtiva === 'consolidado') {
+    const nums = state.romaneios.map(r => r.meta.numero).join(', ');
+    tituloDoc = `Consolidado (Romaneios ${nums})`;
+  } else {
+    const r = state.romaneios.find(r => r.id === state.abaAtiva);
+    tituloDoc = r ? `Romaneio Nº ${r.meta.numero}` : 'Romaneio';
+  }
+  const hoje = new Date().toLocaleDateString('pt-BR');
+
+  const headHtml = '<tr>' + colunas.map(c => {
+    const def = COLUNAS_DEF[c];
+    let cls = '';
+    if (c === 'quantidade') cls = ' class="right"';
+    else if (c === 'unidade') cls = ' class="center"';
+    return `<th${cls}>${escapeHtml(def.titulo)}</th>`;
+  }).join('') + '</tr>';
+
+  let bodyHtml = '';
+  let totalGeral = 0;
+  for (const g of grupos) {
+    if (mostrarCat) {
+      bodyHtml += `<tr><td colspan="${colunas.length}" style="background:#333; color:#fff; padding:5px 8px; font-size:10pt; font-weight:600;">
+        ${escapeHtml(g.categoria)}
+      </td></tr>`;
+    }
+    for (const item of g.itens) {
+      bodyHtml += '<tr>' + colunas.map(c => {
+        const v = item[c] !== undefined ? item[c] : '';
+        let cls = '';
+        if (c === 'quantidade') cls = ' class="right"';
+        else if (c === 'unidade') cls = ' class="center"';
+        else if (c === 'codigo') cls = ' class="code"';
+        return `<td${cls}>${escapeHtml(v)}</td>`;
+      }).join('') + '</tr>';
+    }
+    if (mostrarSub && colunas.includes('quantidade')) {
+      const idxQtd = colunas.indexOf('quantidade');
+      const idxLbl = idxQtd > 0 ? idxQtd - 1 : 0;
+      const tds = colunas.map((c, i) => {
+        if (i === idxLbl) return `<td style="text-align: right;">Subtotal ${escapeHtml(g.categoria)}</td>`;
+        if (i === idxQtd) return `<td class="right">${g.total}</td>`;
+        return '<td></td>';
+      }).join('');
+      bodyHtml += `<tr class="print-sub-row">${tds}</tr>`;
+    }
+    totalGeral += g.total;
+  }
+  if (colunas.includes('quantidade')) {
+    const idxQtd = colunas.indexOf('quantidade');
+    const idxLbl = idxQtd > 0 ? idxQtd - 1 : 0;
+    const tds = colunas.map((c, i) => {
+      if (i === idxLbl) return `<td style="text-align: right;">TOTAL GERAL</td>`;
+      if (i === idxQtd) return `<td class="right">${totalGeral}</td>`;
+      return '<td></td>';
+    }).join('');
+    bodyHtml += `<tr class="print-total-row">${tds}</tr>`;
+  }
+
+  area.innerHTML = `
+    <h1>${escapeHtml(tituloDoc)}</h1>
+    <p class="print-sub">Impresso em ${hoje}</p>
+    <table>
+      <thead>${headHtml}</thead>
+      <tbody>${bodyHtml}</tbody>
+    </table>`;
+
+  window.print();
+}
+
+function exportarTexto(grupos, colunas, mostrarCat, mostrarSub) {
+  const larguras = { codigo: 10, descricao: 50, categoria: 22, unidade: 4, quantidade: 6 };
+  const linhas = [];
+  let totalGeral = 0;
+  for (const g of grupos) {
+    if (mostrarCat) linhas.push(`=== ${g.categoria} ===`);
+    for (const item of g.itens) {
+      const partes = [];
+      for (const c of colunas) {
+        const v = item[c] !== undefined ? String(item[c]) : '';
+        const w = larguras[c] || 10;
+        if (c === 'quantidade') partes.push(v.padStart(w));
+        else                    partes.push(v.padEnd(w));
+      }
+      linhas.push('  ' + partes.join(' '));
+    }
+    if (mostrarSub) linhas.push(`  → Subtotal ${g.categoria}: ${g.total}`);
+    if (mostrarCat || mostrarSub) linhas.push('');
+    totalGeral += g.total;
+  }
+  if (colunas.includes('quantidade')) linhas.push(`TOTAL GERAL: ${totalGeral}`);
+  const conteudo = linhas.join('\n');
+  baixarArquivo(conteudo, 'romaneio_consolidado.txt', 'text/plain;charset=utf-8');
+}
+
+function exportarExcel(grupos, colunas, mostrarCat, mostrarSub) {
+  const aoa = [];
+  aoa.push(colunas.map(c => COLUNAS_DEF[c].titulo));
+  let totalGeral = 0;
+  const catRows = [];
+  for (const g of grupos) {
+    if (mostrarCat) {
+      const row = colunas.map((_, i) => i === 0 ? g.categoria : '');
+      aoa.push(row);
+      catRows.push(aoa.length - 1);
+    }
+    for (const item of g.itens) {
+      const row = colunas.map(c => item[c] !== undefined ? item[c] : '');
+      aoa.push(row);
+    }
+    if (mostrarSub && colunas.includes('quantidade')) {
+      const row = colunas.map(() => '');
+      const idxQtd = colunas.indexOf('quantidade');
+      const idxLbl = idxQtd > 0 ? idxQtd - 1 : 0;
+      row[idxLbl] = `Subtotal ${g.categoria}`;
+      row[idxQtd] = g.total;
+      aoa.push(row);
+    }
+    totalGeral += g.total;
+  }
+  if (colunas.includes('quantidade')) {
+    const row = colunas.map(() => '');
+    const idxQtd = colunas.indexOf('quantidade');
+    const idxLbl = idxQtd > 0 ? idxQtd - 1 : 0;
+    row[idxLbl] = 'TOTAL GERAL';
+    row[idxQtd] = totalGeral;
+    aoa.push(row);
+  }
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols'] = colunas.map(c => ({ wch: COLUNAS_DEF[c].largura }));
+  const merges = [];
+  for (const ridx of catRows) {
+    merges.push({ s: { r: ridx, c: 0 }, e: { r: ridx, c: colunas.length - 1 } });
+  }
+  if (merges.length) ws['!merges'] = merges;
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Consolidado');
+  const xlsxBin = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  const blob = new Blob([xlsxBin], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+  baixarBlob(blob, 'romaneio_consolidado.xlsx');
+}
+
+function baixarArquivo(conteudo, nome, mime) {
+  const blob = new Blob([conteudo], { type: mime });
+  baixarBlob(blob, nome);
+}
+function baixarBlob(blob, nome) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = nome;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => (
+    { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
+  ));
+}
+function escapeAttr(s) { return escapeHtml(s); }
+
+/* ═══════════════════════════════════════════
+   UPLOAD: input + drag/drop
+═══════════════════════════════════════════ */
+const fileInput = document.getElementById('file-input');
+const dropzone  = document.getElementById('dropzone');
+
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files && e.target.files.length) {
+    carregarArquivos([...e.target.files]);
+    e.target.value = '';
+  }
+});
+
+['dragenter', 'dragover'].forEach(ev => {
+  dropzone.addEventListener(ev, e => {
+    e.preventDefault(); e.stopPropagation();
+    dropzone.classList.add('dragover');
+  });
+});
+['dragleave', 'drop'].forEach(ev => {
+  dropzone.addEventListener(ev, e => {
+    e.preventDefault(); e.stopPropagation();
+    dropzone.classList.remove('dragover');
+  });
+});
+dropzone.addEventListener('drop', e => {
+  const files = e.dataTransfer.files;
+  if (files && files.length) carregarArquivos([...files]);
+});
+
+// ESC fecha modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    fecharModalExportar();
+    fecharAjuda();
+    fecharMenus();
+  }
+});
+
+// inicial
+render();
+</script>
+</body>
+</html>

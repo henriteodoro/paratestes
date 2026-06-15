@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Anotações - Notas Fiscais e Financeiro</title>
+<style>
+  :root{
+    --azul:#007BFF;
+    --accent:#0b5ed7;
+    --fundo:#f7fbff;
+    --card:#ffffff;
+    --muted:#6b7280;
+    --borda:#e6eefc;
+    --borda-ativa:#cfe0ff;
+    --ink:#0b3b6b;
+    --ink-strong:#0b4fa0;
+    --warn:#f59e0b;
+  }
+  body{
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: var(--fundo);
+    margin: 0;
+    padding: 20px;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--card);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(11,78,167,.06);
+    border: 1px solid var(--borda);
+  }
+  h1 {
+    color: var(--accent);
+    margin-bottom: 8px;
+    font-size: 22px;
+    border-bottom: 2px solid var(--borda);
+    padding-bottom: 12px;
+  }
+  h2 {
+    color: var(--ink-strong);
+    margin: 28px 0 12px 0;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  h2::before {
+    content: "•";
+    color: var(--azul);
+    font-size: 24px;
+  }
+  h3 {
+    color: var(--ink-strong);
+    margin: 20px 0 8px 0;
+    font-size: 16px;
+    padding-left: 16px;
+  }
+  h4 {
+    color: var(--ink-strong);
+    margin: 16px 0 8px 0;
+    font-size: 15px;
+    padding-left: 16px;
+  }
+  p {
+    margin: 8px 0;
+    padding-left: 16px;
+  }
+  ul {
+    margin: 8px 0;
+    padding-left: 32px;
+  }
+  li {
+    margin: 6px 0;
+  }
+  /* índice de navegação */
+  .indice {
+    background: #f0f7ff;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 16px 0 24px 0;
+  }
+  .indice strong { color: var(--ink-strong); }
+  .indice ul { columns: 2; padding-left: 20px; }
+  .indice a { color: var(--accent); text-decoration: none; }
+  .indice a:hover { text-decoration: underline; }
+  @media (max-width: 560px){ .indice ul { columns: 1; } }
+  /* caixas */
+  .destaque {
+    background: #f0f7ff;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid var(--azul);
+    margin: 12px 0;
+  }
+  .info-box {
+    background: #fff7f0;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid var(--warn);
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .passo-a-passo {
+    background: #f7fff0;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--borda);
+    margin: 16px 0;
+  }
+  .passo {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 8px 0;
+  }
+  .passo-num {
+    background: var(--azul);
+    color: white;
+    min-width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  /* dados (pares chave/valor de configuração) */
+  .dados {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0;
+  }
+  .dados li {
+    display: flex;
+    gap: 10px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--borda);
+    align-items: baseline;
+  }
+  .dados li:last-child { border-bottom: none; }
+  .dados .campo { min-width: 170px; font-weight: 600; color: var(--ink-strong); }
+  /* código numérico em destaque */
+  .codigo {
+    display: inline-block;
+    background: #eaf2ff;
+    color: var(--accent);
+    border: 1px solid var(--borda-ativa);
+    border-radius: 6px;
+    padding: 1px 8px;
+    font-family: "SF Mono", Consolas, monospace;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  /* tabelas */
+  .tabela-wrap { overflow-x: auto; margin: 12px 0; padding-left: 16px; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 14px;
+    min-width: 420px;
+  }
+  th {
+    background: var(--azul);
+    color: #fff;
+    text-align: left;
+    padding: 10px 12px;
+    font-weight: 600;
+  }
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--borda);
+  }
+  tr:nth-child(even) td { background: #f7fbff; }
+  td.cod { font-family: "SF Mono", Consolas, monospace; color: var(--accent); font-weight: 600; }
+  td.vazio { color: var(--muted); }
+  /* FAQ */
+  .faq { padding-left: 16px; }
+  .faq-item {
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    margin: 10px 0;
+    overflow: hidden;
+  }
+  .faq-p {
+    background: #f0f7ff;
+    padding: 10px 14px;
+    font-weight: 600;
+    color: var(--ink-strong);
+  }
+  .faq-r {
+    padding: 10px 14px;
+  }
+  .faq-r.sem {
+    color: var(--muted);
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Anotações - Notas Fiscais e Financeiro</h1>
+
+  <!-- ÍNDICE -->
+  <div class="indice">
+    <strong>Índice rápido</strong>
+    <ul>
+      <li><a href="#nf-vista">Registrar NF à Vista</a></li>
+      <li><a href="#bonificacao">Registrar Bonificação (NF)</a></li>
+      <li><a href="#posto">Registrar NF de Posto (Combustível)</a></li>
+      <li><a href="#icms-diferente">Corrigir ICMS Divergente</a></li>
+      <li><a href="#cebola-pimentao">Lançar Cebola e Pimentão</a></li>
+      <li><a href="#peso-pimentao">Alterar Peso do Pimentão</a></li>
+      <li><a href="#fornecedor">Cadastrar Fornecedor Novo (XML)</a></li>
+      <li><a href="#produto-novo">Cadastrar Produto Novo</a></li>
+      <li><a href="#baixa-cheque">Dar Baixa em NF de Cheque</a></li>
+      <li><a href="#limpeza">Limpeza de Dados</a></li>
+      <li><a href="#tabela-ipi">Tabela de IPI por Produto</a></li>
+      <li><a href="#tabela-cfop">Tabela de Matéria Prima / CFOP</a></li>
+      <li><a href="#regras-cst">Regras de CST</a></li>
+      <li><a href="#rotina">Rotina</a></li>
+      <li><a href="#faq">Perguntas Frequentes</a></li>
+    </ul>
+  </div>
+
+  <!-- ============ REGISTRAR NF À VISTA ============ -->
+  <h2 id="nf-vista">Registrar NF à Vista</h2>
+
+  <h3>Forma de pagamento</h3>
+  <ul class="dados">
+    <li><span class="campo">PIX</span><span>À vista, débito em conta</span></li>
+    <li><span class="campo">Cheque</span><span>À vista, cheque</span></li>
+  </ul>
+
+  <h3>Configuração de impostos</h3>
+  <ul class="dados">
+    <li><span class="campo">IPI — embalagem</span><span class="codigo">05</span></li>
+    <li><span class="campo">IPI — matéria prima</span><span class="vazio" style="color:var(--muted)">(em branco)</span></li>
+    <li><span class="campo">PIS — embalagem / m. prima</span><span class="codigo">70</span> <span class="codigo">70</span></li>
+    <li><span class="campo">COFINS — embalagem / m. prima</span><span class="codigo">70</span> <span class="codigo">70</span></li>
+  </ul>
+
+  <div class="destaque">
+    <strong>Ao alterar a info do produto:</strong> se o CFO puxar <span class="codigo">140101</span>, troque para <span class="codigo">110101</span>.
+  </div>
+
+  <div class="info-box">
+    <strong>Pontos de atenção:</strong>
+    <ul>
+      <li>Quando o ST do ICMS for <span class="codigo">20</span>, precisa colocar a redução.</li>
+      <li>Quando a emissão da nota e a entrega dos produtos forem em datas diferentes, altere na parte de <strong>entrada e recebimento</strong>.</li>
+      <li>Quando a nota não tiver ICMS, tem que desativar o <strong>creditar</strong>.</li>
+    </ul>
+  </div>
+
+  <!-- ============ BONIFICAÇÃO ============ -->
+  <h2 id="bonificacao">Registrar Bonificação (NF)</h2>
+  <ul class="dados">
+    <li><span class="campo">Tipo</span><span>Bonificação</span></li>
+    <li><span class="campo">Lançto Padron</span><span class="codigo">313</span></li>
+    <li><span class="campo">Condição Pagto</span><span>Livre</span></li>
+    <li><span class="campo">Forma de Pagto</span><span>Outros</span></li>
+    <li><span class="campo">CFO</span><span class="codigo">191001</span></li>
+    <li><span class="campo">PIS</span><span class="codigo">98</span></li>
+    <li><span class="campo">COFINS</span><span class="codigo">98</span></li>
+  </ul>
+
+  <div class="info-box">
+    <strong>Observação:</strong> a NF <span class="codigo">61.310</span> foi registrada como bonificação com CFO <span class="codigo">191101</span>, porque não veio como bonificação, veio como amostra.
+  </div>
+
+  <!-- ============ NF DE POSTO ============ -->
+  <h2 id="posto">Registrar NF de Posto (Combustível)</h2>
+  <ul class="dados">
+    <li><span class="campo">CFO</span><span class="codigo">165331</span></li>
+    <li><span class="campo">ST</span><span class="codigo">61</span> <span style="color:var(--muted)">(gasolina, diesel e etanol)</span></li>
+    <li><span class="campo">Creditar</span><span>Desmarcar</span></li>
+    <li><span class="campo">IPI</span><span class="codigo">49</span> <span style="color:var(--muted)">(todos para posto)</span></li>
+    <li><span class="campo">PIS e COFINS</span><span class="codigo">98</span></li>
+  </ul>
+
+  <h3>Quando for combustível (colocar na parte do ICMS ad rem)</h3>
+  <ul class="dados">
+    <li><span class="campo">Diesel</span><span class="codigo">1,0635</span></li>
+    <li><span class="campo">Gasolina</span><span class="codigo">1,3721</span></li>
+  </ul>
+
+  <h3>Quando tiver ARLA na nota</h3>
+  <ul class="dados">
+    <li><span class="campo">CFO</span><span class="codigo">155601</span></li>
+    <li><span class="campo">ICMS ST</span><span class="codigo">90</span></li>
+    <li><span class="campo">Creditar</span><span>Não creditar</span></li>
+    <li><span class="campo">IPI</span><span class="codigo">49</span></li>
+    <li><span class="campo">PIS e COFINS</span><span class="codigo">98</span></li>
+  </ul>
+
+  <div class="destaque">
+    <strong>Depois:</strong> vá em Movimentos → Notas Fiscais.
+  </div>
+
+  <!-- ============ CORRIGIR ICMS ============ -->
+  <h2 id="icms-diferente">Corrigir ICMS Divergente</h2>
+  <p>Caso, ao registrar uma nota fiscal, o ICMS saia diferente:</p>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Vá em Suprimentos → Notas Fiscais</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Procure a NF, selecione e clique em Alterar</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Na parte de Itens → Alterar → Calculados, procure o ICMS errado, altere e confirme</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Depois, na aba Fiscal, selecione o ICMS, clique em Alterar e troque novamente os dois ICMS</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">5</div>
+      <div>Vá em Totais para verificar se caiu certo</div>
+    </div>
+  </div>
+
+  <!-- ============ CEBOLA E PIMENTÃO ============ -->
+  <h2 id="cebola-pimentao">Lançar Cebola e Pimentão</h2>
+  <div class="destaque">
+    <strong>Cebola:</strong> cada saco tem 20 kg. Então a quantidade em kg é a quantidade de pacotes multiplicada por 20. O preço: pegue o valor total e divida pelo peso total em kg.
+  </div>
+  <div class="destaque">
+    <strong>Pimentão:</strong> o peso (quantidade em kg) é o João quem passa. O preço: pegue o valor total e divida pelo peso total.
+  </div>
+
+  <!-- ============ ALTERAR PESO PIMENTÃO ============ -->
+  <h2 id="peso-pimentao">Alterar Peso do Pimentão (após lançar a nota)</h2>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Vá em Movimentos → Notas Fiscais</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Localize a nota e clique em Alterar</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Divida o peso pela quantidade da nota; no campo Fator, coloque o resultado</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Em Quantidade Real, coloque a que o João passou</div>
+    </div>
+  </div>
+
+  <!-- ============ FORNECEDOR NOVO ============ -->
+  <h2 id="fornecedor">Cadastrar Fornecedor Novo (quando importou o XML)</h2>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Vá em Manutenção de Terceiros</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Em Tipo, selecione Fornecedores</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Coloque o CNPJ/CPF no campo Documento</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Depois de alterar o telefone e colocar o e-mail, selecione o fornecedor → Mais Ações → Config. Série NF Fornecedor → Novo</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">5</div>
+      <div>Em Série, coloque a que está na nota (no campo NF-e geralmente tem o número da nota e, embaixo, a série)</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">6</div>
+      <div>Na outra série, coloque igual à primeira</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">7</div>
+      <div>Em Cód. Modelo: <span class="codigo">55</span> (NF eletrônica), <span class="codigo">57</span> (Conhecimento de Transporte/CTe), PS (Prestação de Serviço)</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">8</div>
+      <div>Preencha o Tipo de Nota Fiscal e o Lançto Padrão</div>
+    </div>
+  </div>
+
+  <!-- ============ PRODUTO NOVO ============ -->
+  <h2 id="produto-novo">Cadastrar Produto Novo</h2>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Vá em Estoque → Cadastro de Produtos e Materiais</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Primeiro procure um produto da mesma classe (Consumo, por exemplo, peça de máquina/carro — Consumo porque somos nós que vamos utilizar)</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Selecione o produto → Mais Ações → Salvar Como</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Mude a descrição, selecione ou procure o grupo e clique em Salvar</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">5</div>
+      <div>Mude de Liberado para Bloqueado e procure o produto que acabou de cadastrar</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">6</div>
+      <div>Clique no lápis para editar → Documentação → mude o código NCM pelo que está na nota</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">7</div>
+      <div>Na tela de Manutenção de Produtos/Materiais, vá em Mais Ações → Liberar/Bloquear Produto</div>
+    </div>
+  </div>
+
+  <!-- ============ BAIXA CHEQUE ============ -->
+  <h2 id="baixa-cheque">Dar Baixa em NF Lançada como Cheque</h2>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>No Módulo Financeiro → Baixa → Baixa por Lote (a de baixo)</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Procure o cheque, selecione, clique em Baixar e Avançar até concluir</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Depois, quando cair no banco, vá em Cheques → Compensação Convencional</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Mude o banco e a data, selecione e clique em Compensar</div>
+    </div>
+  </div>
+
+  <!-- ============ LIMPEZA DE DADOS ============ -->
+  <h2 id="limpeza">Limpeza de Dados</h2>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Financeiro → Movimentos → Seleção de Contas a Pagar por Lote → Filial 1, da data de início da limpeza até a data final</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Selecione todos com a data de vencimento de um dia específico → Baixar</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <div>Banco/Caixa <span class="codigo">1</span>, Tipo de Baixa: Caixa, Data da Baixa: a data do vencimento → vá confirmando</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">4</div>
+      <div>Relatórios → Bancos e Caixas → Extrato → Banco <span class="codigo">7</span>, data até o final da limpeza → imprima e salve como PDF</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">5</div>
+      <div>Faça a mesma coisa com Caixa <span class="codigo">1</span> → faça de mês a mês</div>
+    </div>
+  </div>
+  <div class="info-box">
+    <strong>Lembrete:</strong> falar com a Letícia, que salvou o extrato — ela vai fazer o backup.
+  </div>
+
+  <!-- ============ TABELA IPI ============ -->
+  <h2 id="tabela-ipi">Tabela de IPI por Produto</h2>
+  <div class="tabela-wrap">
+    <table>
+      <thead><tr><th>Produto</th><th>IPI</th></tr></thead>
+      <tbody>
+        <tr><td>Carne</td><td class="cod">01</td></tr>
+        <tr><td>Farinha de trigo</td><td class="cod">03</td></tr>
+        <tr><td>Farinha de pastel</td><td class="cod">03</td></tr>
+        <tr><td>FT Avelar (Alvear)</td><td class="cod">03</td></tr>
+        <tr><td>FT Predileta</td><td class="cod">03</td></tr>
+        <tr><td>Ovos</td><td class="cod">03</td></tr>
+        <tr><td>Queijo artesanal</td><td class="cod">01</td></tr>
+        <tr><td>Alho</td><td class="cod">03</td></tr>
+        <tr><td>Cebola</td><td class="cod">03</td></tr>
+        <tr><td>Pimentão</td><td class="cod">03</td></tr>
+        <tr><td>Abacaxi</td><td class="cod">03</td></tr>
+        <tr><td>Leite</td><td class="cod">03</td></tr>
+        <tr><td>Sal refinado</td><td class="cod">03</td></tr>
+        <tr><td>SC fubá de canjica</td><td class="cod">03</td></tr>
+        <tr><td>Açúcar</td><td class="cod">01</td></tr>
+        <tr><td>Fermento</td><td class="cod">01</td></tr>
+        <tr><td>Milho verde</td><td class="cod">01</td></tr>
+        <tr><td>Manga</td><td class="cod">03</td></tr>
+        <tr><td>Pancreme</td><td class="cod">01</td></tr>
+        <tr><td>Fruta cristalizada</td><td class="cod">01</td></tr>
+        <tr><td>Margarina</td><td class="cod">01</td></tr>
+        <tr><td>Óleo de soja</td><td class="cod">01</td></tr>
+        <tr><td>Salsicha</td><td class="cod">01</td></tr>
+        <tr><td>Sassami (frango)</td><td class="cod">01</td></tr>
+        <tr><td>Chã de fora / paleta / acém / músculo</td><td class="cod">01</td></tr>
+        <tr><td>Reforçados Zea</td><td class="cod">01</td></tr>
+        <tr><td>Apresuntado</td><td class="cod">01</td></tr>
+        <tr><td>Coco ralado</td><td class="cod">03</td></tr>
+        <tr><td>Fécula</td><td class="cod">01</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ TABELA CFOP ============ -->
+  <h2 id="tabela-cfop">Tabela de Matéria Prima / CFOP / CST ICMS</h2>
+  <div class="tabela-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Matéria Prima</th>
+          <th>CFOP</th>
+          <th>Uso e Consumo</th>
+          <th>Ativo</th>
+          <th>CST ICMS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="cod">2401</td><td class="cod">6101</td><td class="vazio">—</td><td class="vazio">—</td><td class="vazio">—</td></tr>
+        <tr><td class="cod">2401</td><td class="cod">6102</td><td class="vazio">—</td><td class="vazio">—</td><td class="vazio">—</td></tr>
+        <tr><td class="cod">1401</td><td class="cod">5405</td><td class="cod">1407</td><td class="cod">1406</td><td class="cod">060</td></tr>
+        <tr><td class="cod">1401</td><td class="cod">5401</td><td class="cod">1407</td><td class="cod">1406</td><td class="cod">060</td></tr>
+        <tr><td class="cod">1401</td><td class="cod">5402</td><td class="cod">1407</td><td class="cod">1406</td><td class="cod">060</td></tr>
+        <tr><td class="cod">1910</td><td class="cod">5910</td><td class="vazio">—</td><td class="vazio">—</td><td class="vazio">—</td></tr>
+        <tr><td class="cod">1929</td><td class="cod">5929</td><td class="vazio">—</td><td class="vazio">—</td><td class="vazio">—</td></tr>
+        <tr><td class="cod">1101</td><td class="cod">5102</td><td class="cod">1556</td><td class="cod">1551</td><td class="cod">090</td></tr>
+        <tr><td class="cod">2101</td><td class="cod">6101</td><td class="cod">2556</td><td class="cod">2551</td><td class="cod">090</td></tr>
+        <tr><td class="cod">2101</td><td class="cod">6102</td><td class="cod">2556</td><td class="cod">2551</td><td class="cod">090</td></tr>
+        <tr><td class="cod">1911</td><td class="cod">5911</td><td class="vazio">—</td><td class="vazio">—</td><td class="vazio">—</td></tr>
+        <tr><td class="cod">2922</td><td class="cod">6922</td><td class="vazio">—</td><td class="vazio">—</td><td class="vazio">—</td></tr>
+        <tr><td class="cod">1949</td><td class="cod">5949</td><td class="vazio">—</td><td class="vazio">—</td><td class="vazio">—</td></tr>
+        <tr><td class="cod">2949</td><td class="cod">6949</td><td class="vazio">—</td><td class="vazio">—</td><td class="vazio">—</td></tr>
+        <tr><td class="cod">1401</td><td class="cod">5403</td><td class="cod">1407</td><td class="cod">1406</td><td class="cod">060</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ REGRAS CST ============ -->
+  <h2 id="regras-cst">Regras de CST</h2>
+  <div class="destaque">
+    <strong>CST ICMS:</strong> quando o fornecedor for Simples Nacional (como a Laticínios Saúde), a matéria prima vem com CSOSN <span class="codigo">0102</span>, e aí colocamos com o CST ICMS <span class="codigo">090</span>.
+  </div>
+  <div class="info-box">
+    <strong>Atenção (matéria prima):</strong> sempre analise. Se vier com o CST ICMS <span class="codigo">020</span>, é porque tem redução de base de cálculo.
+  </div>
+  <ul class="dados">
+    <li><span class="campo">CST IPI (ativo e uso/consumo)</span><span>sempre <span class="codigo">49</span></span></li>
+    <li><span class="campo">CST PIS/COFINS (ativo e uso/consumo)</span><span>sempre <span class="codigo">98</span> / <span class="codigo">98</span></span></li>
+  </ul>
+  <div class="destaque">
+    <strong>Como saber se tem redução:</strong> se a base de cálculo do ICMS não for igual ao valor total dos produtos, significa que tem redução.
+  </div>
+  <div class="info-box">
+    <strong>Máquina ou peça:</strong> o IPI é <span class="codigo">49</span> e o PIS/COFINS é <span class="codigo">98</span>.
+  </div>
+
+  <!-- ============ ROTINA ============ -->
+  <h2 id="rotina">Rotina</h2>
+  <div class="passo-a-passo">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <div>Primeiro, olhar os boletos do Barão</div>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <div>Fazer os lançamentos (NF, gerencial)</div>
+    </div>
+  </div>
+  <div class="info-box">
+    <strong>Boletos:</strong> os boletos sempre ficam com o João — pegue e deixe na prancheta. Pode chegar boleto também por e-mail. Os que estiverem escritos <em>Edmilson</em> ou nome pessoal serão pessoa física.
+  </div>
+  <div class="destaque">
+    <strong>Pasta de Laudo e Análise:</strong> pode vir alguma folha junto com as notas do João.
+  </div>
+  <div class="info-box">
+    <strong>Calendário:</strong> quando tiver as datas marcadas, é preciso olhar.
+  </div>
+
+  <!-- ============ FAQ ============ -->
+  <h2 id="faq">Perguntas Frequentes</h2>
+  <div class="faq">
+
+    <div class="faq-item">
+      <div class="faq-p">As fotos de cheque eu mando para alguém?</div>
+      <div class="faq-r">Não. Lança no programa. Só no final do mês se faz a planilha dos cheques de todo o mês.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-p">Tenho que mandar os cheques que foram feitos para a Arlete?</div>
+      <div class="faq-r">Só a planilha do final do mês.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-p">As cópias dos cheques, como funcionam? A cópia fica com a gente ou vai para a contabilidade?</div>
+      <div class="faq-r">Fica uma cópia aqui e uma cópia para eles (Contabilidade).</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-p">Cheque de fornecedor: fiz o cheque, tenho que lançar no sistema?</div>
+      <div class="faq-r">Não precisa. Só dar a baixa e a emissão do cheque, e quando cair no banco fazer a compensação.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-p">E cheque de funcionário, eu que lanço?</div>
+      <div class="faq-r">Sim, tem que fazer o lançamento.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-p">Quando lanço aquelas coisas de tarifa, etc., que recebem 315 ou 316? Lanço no final do mês?</div>
+      <div class="faq-r">Lança quando for finalizar e manda as coisas para a Arlete.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-p">Tenho que olhar no banco?</div>
+      <div class="faq-r">Geralmente é o pessoal da contabilidade que pede alguma coisa para olhar.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-p">Os boletos que forem aparecendo eu coloco para o Barão pagar? Quando é pessoa física?</div>
+      <div class="faq-r">Os boletos sempre ficam com o João — pegue e deixe na prancheta. Pode chegar boleto também por e-mail. Os escritos como Edmilson ou nome pessoal são pessoa física.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-p">Preciso falar alguma coisa com a contabilidade?</div>
+      <div class="faq-r">Não, só quando precisar.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-p">Venda de Produção (tipo o frango Machado) é tipo 2 (Compras)? Como é o pagamento?</div>
+      <div class="faq-r">Sim, é 2 (Compras). Pagamento: à vista, cheque.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-p">Como registrar a NF 13.578, com CSOSN escrito 0102?</div>
+      <div class="faq-r">Registra com CST ICMS 090.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-p">NF 1.924 — como fica? É 2 (Compras)?</div>
+      <div class="faq-r">Sim, 2 (Compras), CFOP 294901, condição Livre, forma Outros.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-p">Quando é matéria prima tem que colocar aqueles números; e quando não é, o que coloca?</div>
+      <div class="faq-r sem">(pendente de resposta)</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-p">Como identificar que o peso de uma nota e o peso real vão dar diferença?</div>
+      <div class="faq-r sem">(pendente de resposta)</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-p">NF 22.517 — como fica com esse CSOSN 500?</div>
+      <div class="faq-r sem">(pendente de resposta)</div>
+    </div>
+
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Console de dias entre datas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#E9ECEF;
+    --panel:#FFFFFF;
+    --panel-2:#FBFCFD;
+    --line:#E1E5EA;
+    --field:#F4F6F8;
+    --text:#161A20;
+    --muted:#646E7C;
+    --accent:#117A6B;        /* teal — número e início */
+    --accent-soft:rgba(17,122,107,.12);
+    --amber:#D98324;         /* secundário — fim */
+    --danger:#C0392B;
+    --radius:16px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:
+      radial-gradient(120% 80% at 50% -10%, rgba(17,122,107,.07), transparent 60%),
+      var(--bg);
+    background-attachment:fixed;
+    color:var(--text);
+    font-family:"Space Grotesk",system-ui,sans-serif;
+    min-height:100vh;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:radial-gradient(rgba(0,0,0,.035) 1px, transparent 1px);
+    background-size:22px 22px;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .wrap{
+    position:relative; z-index:1;
+    max-width:620px;
+    margin:0 auto;
+    padding:40px 20px 80px;
+  }
+
+  .eyebrow{
+    font-family:"Space Mono",monospace;
+    font-size:12px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin:0 0 14px;
+  }
+  h1{
+    font-size:clamp(26px,6vw,40px);
+    font-weight:700;
+    letter-spacing:-.02em;
+    margin:0 0 6px;
+    line-height:1.1;
+  }
+  .sub{
+    color:var(--muted);
+    margin:0 0 30px;
+    font-size:15px;
+  }
+
+  /* ---------- formulário ---------- */
+  .console{
+    background:linear-gradient(180deg,var(--panel),var(--panel-2));
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px;
+    box-shadow:0 20px 44px -28px rgba(20,30,40,.35);
+  }
+  .fields{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+  @media (max-width:480px){ .fields{grid-template-columns:1fr;} }
+
+  .field label{
+    display:block;
+    font-size:13px;
+    font-weight:500;
+    margin-bottom:7px;
+    color:var(--text);
+  }
+  .field .hint{
+    font-family:"Space Mono",monospace;
+    font-size:11px;
+    color:var(--muted);
+    margin-left:8px;
+    letter-spacing:.02em;
+  }
+  input[type="text"]{
+    width:100%;
+    background:var(--field);
+    border:1px solid var(--line);
+    border-radius:10px;
+    color:var(--text);
+    font-family:"Space Mono",monospace;
+    font-size:15px;
+    padding:12px 13px;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  input[type="text"]::placeholder{ color:#A6AEB9; }
+  input[type="text"]:focus{
+    outline:none;
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px var(--accent-soft);
+  }
+  input[type="text"].invalid{
+    border-color:var(--danger);
+    box-shadow:0 0 0 3px rgba(192,57,43,.1);
+  }
+
+  .btn{
+    margin-top:18px;
+    width:100%;
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    border-radius:11px;
+    font-family:"Space Grotesk",sans-serif;
+    font-size:16px;
+    font-weight:700;
+    letter-spacing:.01em;
+    padding:14px;
+    cursor:pointer;
+    transition:transform .08s, filter .15s;
+  }
+  .btn:hover{filter:brightness(1.07);}
+  .btn:active{transform:translateY(1px);}
+  .btn:focus-visible{outline:3px solid var(--accent-soft); outline-offset:2px;}
+
+  .error{
+    color:var(--danger);
+    font-size:13px;
+    margin:12px 2px 0;
+    min-height:18px;
+    font-family:"Space Mono",monospace;
+  }
+
+  /* ---------- histórico ---------- */
+  .hist-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin:40px 4px 16px;
+  }
+  .hist-head h2{
+    font-size:14px;
+    font-family:"Space Mono",monospace;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0;
+    font-weight:400;
+  }
+  .count-tag{
+    font-family:"Space Mono",monospace;
+    font-size:12px;
+    color:var(--muted);
+  }
+
+  .empty{
+    border:1px dashed var(--line);
+    border-radius:var(--radius);
+    padding:30px 20px;
+    text-align:center;
+    color:var(--muted);
+    font-size:14px;
+    background:rgba(255,255,255,.5);
+  }
+
+  .entries{display:flex; flex-direction:column; gap:12px;}
+
+  .card{
+    background:linear-gradient(180deg,var(--panel),var(--panel-2));
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px;
+    animation:rise .35s ease both;
+  }
+  @keyframes rise{
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  .card.featured{
+    border-color:rgba(17,122,107,.35);
+    box-shadow:0 0 0 1px rgba(17,122,107,.1), 0 20px 40px -30px rgba(17,122,107,.5);
+  }
+  .readout{
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+    margin-bottom:18px;
+  }
+  .readout .num{
+    font-family:"Space Mono",monospace;
+    font-weight:700;
+    font-size:clamp(48px,15vw,74px);
+    line-height:1;
+    color:var(--accent);
+    letter-spacing:-.01em;
+  }
+  .readout .unit{
+    font-size:18px;
+    color:var(--muted);
+    font-weight:500;
+  }
+  .note{
+    font-family:"Space Mono",monospace;
+    font-size:12px;
+    color:var(--amber);
+    margin-top:-10px;
+    margin-bottom:16px;
+  }
+
+  .track{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .endpoint{ flex:0 0 auto; text-align:center; }
+  .endpoint .lbl{
+    font-size:10px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:4px;
+  }
+  .endpoint .date{
+    font-family:"Space Mono",monospace;
+    font-size:14px;
+    color:var(--text);
+  }
+  .line{
+    flex:1 1 auto;
+    height:2px;
+    background:linear-gradient(90deg,var(--accent),var(--amber));
+    border-radius:2px;
+    position:relative;
+  }
+  .line::before,.line::after{
+    content:"";
+    position:absolute;
+    top:50%; transform:translateY(-50%);
+    width:8px; height:8px; border-radius:50%;
+  }
+  .line::before{left:-1px; background:var(--accent);}
+  .line::after{right:-1px; background:var(--amber);}
+
+  .row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+  }
+  .row .r-dates{
+    font-family:"Space Mono",monospace;
+    font-size:13px;
+    color:var(--muted);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .row .r-dates b{color:var(--text); font-weight:400;}
+  .row .r-days{
+    flex:0 0 auto;
+    font-family:"Space Mono",monospace;
+    font-weight:700;
+    font-size:16px;
+    color:var(--accent);
+  }
+  .row .r-days span{font-size:11px; color:var(--muted); font-weight:400; margin-left:4px;}
+
+  @media (prefers-reduced-motion:reduce){
+    .card{animation:none;}
+  }
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <p class="eyebrow">Console de tempo</p>
+    <h1>Quantos dias entre duas datas?</h1>
+    <p class="sub">Digite as datas (ex.: <b>150626</b> ou <b>15/06/2026</b>) e calcule. Cada resultado entra no histórico abaixo — que some quando você atualizar a página.</p>
+
+    <section class="console">
+      <div class="fields">
+        <div class="field">
+          <label for="start">Data inicial <span class="hint">vazio = hoje</span></label>
+          <input type="text" id="start" placeholder="hoje" autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="field">
+          <label for="end">Data final</label>
+          <input type="text" id="end" placeholder="dd/mm/aaaa" autocomplete="off" spellcheck="false" />
+        </div>
+      </div>
+      <button class="btn" id="calc">Calcular</button>
+      <p class="error" id="error"></p>
+    </section>
+
+    <div class="hist-head">
+      <h2>Histórico</h2>
+      <span class="count-tag" id="countTag"></span>
+    </div>
+
+    <div id="historyArea">
+      <div class="empty" id="empty">Nenhum cálculo ainda. Preencha as datas acima.</div>
+      <div class="entries" id="entries"></div>
+    </div>
+  </main>
+
+<script>
+  const startEl = document.getElementById('start');
+  const endEl   = document.getElementById('end');
+  const calcEl  = document.getElementById('calc');
+  const errorEl = document.getElementById('error');
+  const emptyEl = document.getElementById('empty');
+  const entriesEl = document.getElementById('entries');
+  const countTagEl = document.getElementById('countTag');
+
+  const DAY = 86400000;
+  const history = []; // só na memória — refresh limpa tudo
+
+  // Interpreta texto livre -> "yyyy-mm-dd" ou null.
+  // Aceita: 150626, 15062026, 15/06/26, 15/06/2026, 15-06-2026, 15.06.26, etc.
+  function parseDate(raw){
+    if(!raw) return null;
+    const t = raw.trim();
+    let dd, mm, yy;
+
+    const parts = t.split(/[^\d]+/).filter(Boolean);
+    if(parts.length === 3){
+      [dd, mm, yy] = parts;
+    } else {
+      const digits = t.replace(/\D/g,'');
+      if(digits.length === 8){ dd=digits.slice(0,2); mm=digits.slice(2,4); yy=digits.slice(4,8); }
+      else if(digits.length === 6){ dd=digits.slice(0,2); mm=digits.slice(2,4); yy=digits.slice(4,6); }
+      else if(digits.length === 4){ dd=digits.slice(0,2); mm=digits.slice(2,4); yy=String(new Date().getFullYear()); }
+      else return null;
+    }
+
+    let d = parseInt(dd,10), m = parseInt(mm,10), y = parseInt(yy,10);
+    if(isNaN(d) || isNaN(m) || isNaN(y)) return null;
+    if(y < 100) y += 2000;              // ano de 2 dígitos -> 20xx
+    if(m < 1 || m > 12 || d < 1 || d > 31) return null;
+
+    const dt = new Date(y, m-1, d);     // valida (ex.: 31/02 é rejeitado)
+    if(dt.getFullYear()!==y || dt.getMonth()!==m-1 || dt.getDate()!==d) return null;
+
+    const p = n => String(n).padStart(2,'0');
+    return `${y}-${p(m)}-${p(d)}`;
+  }
+
+  function toUTC(canon){
+    const [y,m,d] = canon.split('-').map(Number);
+    return Date.UTC(y, m-1, d);
+  }
+  function todayCanon(){
+    const t = new Date();
+    const p = n => String(n).padStart(2,'0');
+    return `${t.getFullYear()}-${p(t.getMonth()+1)}-${p(t.getDate())}`;
+  }
+  function formatBR(canon){
+    const [y,m,d] = canon.split('-');
+    return `${d}/${m}/${y}`;
+  }
+
+  // Quando sai do campo, arruma o texto pra dd/mm/aaaa se for válido.
+  function normalizeField(el){
+    if(!el.value.trim()){ el.classList.remove('invalid'); return; }
+    const c = parseDate(el.value);
+    if(c){ el.value = formatBR(c); el.classList.remove('invalid'); }
+    else { el.classList.add('invalid'); }
+  }
+
+  function calcular(){
+    errorEl.textContent = '';
+    startEl.classList.remove('invalid');
+    endEl.classList.remove('invalid');
+
+    const usedToday = !startEl.value.trim();
+    const startCanon = usedToday ? todayCanon() : parseDate(startEl.value);
+    if(!startCanon){
+      errorEl.textContent = 'Data inicial inválida.';
+      startEl.classList.add('invalid');
+      startEl.focus();
+      return;
+    }
+
+    if(!endEl.value.trim()){
+      errorEl.textContent = 'Escolha a data final para calcular.';
+      endEl.focus();
+      return;
+    }
+    const endCanon = parseDate(endEl.value);
+    if(!endCanon){
+      errorEl.textContent = 'Data final inválida.';
+      endEl.classList.add('invalid');
+      endEl.focus();
+      return;
+    }
+
+    const diff = Math.round((toUTC(endCanon) - toUTC(startCanon)) / DAY);
+    const reversed = diff < 0;
+    const days = Math.abs(diff);
+
+    history.push({ startCanon, endCanon, days, reversed, usedToday });
+    render();
+
+    endEl.value = '';      // limpa só a final pra facilitar o próximo
+    endEl.focus();
+  }
+
+  function render(){
+    const n = history.length;
+    countTagEl.textContent = n ? `${n} ${n===1?'registro':'registros'}` : '';
+
+    if(n === 0){
+      emptyEl.style.display = 'block';
+      entriesEl.innerHTML = '';
+      return;
+    }
+    emptyEl.style.display = 'none';
+
+    const ordered = history.slice().reverse();
+    entriesEl.innerHTML = '';
+    ordered.forEach((item, i) => {
+      entriesEl.appendChild(i === 0 ? featuredCard(item) : compactRow(item));
+    });
+  }
+
+  function featuredCard(item){
+    const el = document.createElement('div');
+    el.className = 'card featured';
+    const plural = item.days === 1 ? 'dia' : 'dias';
+    const startLabel = item.usedToday ? `hoje · ${formatBR(item.startCanon)}` : formatBR(item.startCanon);
+
+    el.innerHTML = `
+      <div class="readout">
+        <span class="num">0</span>
+        <span class="unit">${plural}</span>
+      </div>
+      ${item.reversed ? '<p class="note">a data final é anterior à inicial</p>' : ''}
+      <div class="track">
+        <div class="endpoint">
+          <div class="lbl">Início</div>
+          <div class="date">${startLabel}</div>
+        </div>
+        <div class="line"></div>
+        <div class="endpoint">
+          <div class="lbl">Fim</div>
+          <div class="date">${formatBR(item.endCanon)}</div>
+        </div>
+      </div>
+    `;
+    animateCount(el.querySelector('.num'), item.days);
+    return el;
+  }
+
+  function compactRow(item){
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.innerHTML = `
+      <div class="row">
+        <div class="r-dates"><b>${formatBR(item.startCanon)}</b> &rarr; <b>${formatBR(item.endCanon)}</b>${item.reversed?' &#8617;':''}</div>
+        <div class="r-days">${item.days}<span>${item.days===1?'dia':'dias'}</span></div>
+      </div>
+    `;
+    return el;
+  }
+
+  function animateCount(node, target){
+    const reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    if(reduce || target === 0){ node.textContent = target; return; }
+    const dur = 450, start = performance.now();
+    function step(now){
+      const p = Math.min((now - start)/dur, 1);
+      const eased = 1 - Math.pow(1-p, 3);
+      node.textContent = Math.round(target * eased);
+      if(p < 1) requestAnimationFrame(step);
+      else node.textContent = target;
+    }
+    requestAnimationFrame(step);
+  }
+
+  calcEl.addEventListener('click', calcular);
+  startEl.addEventListener('blur', () => normalizeField(startEl));
+  endEl.addEventListener('blur', () => normalizeField(endEl));
+  [startEl, endEl].forEach(el => {
+    el.addEventListener('keydown', e => { if(e.key === 'Enter') calcular(); });
+  });
+</script>
+</body>
+</html>

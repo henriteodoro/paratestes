@@ -70,6 +70,17 @@
   .link-btn{background:none;border:none;color:var(--accent);font-size:12px;cursor:pointer;padding:6px 0;font-weight:600;}
   .link-btn:hover{text-decoration:underline;}
 
+  /* opção "uma folha só" */
+  .field label.check{
+    display:flex;align-items:center;gap:9px;cursor:pointer;
+    font-size:13.5px;font-weight:600;text-transform:none;letter-spacing:0;
+    color:var(--ink);margin-bottom:6px;
+  }
+  .field label.check input{
+    width:17px;height:17px;accent-color:var(--accent);cursor:pointer;margin:0;flex:none;
+  }
+  .check-sub{margin:0;font-size:12px;color:var(--muted);padding-left:26px;line-height:1.4;}
+
   .actions{margin-top:24px;padding-top:20px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px;}
   .btn{
     width:100%;padding:11px 14px;border-radius:9px;border:1px solid transparent;
@@ -92,6 +103,22 @@
   .doc-title{font-size:28px;font-weight:700;margin:0 0 46px;line-height:1.3;word-break:break-word;text-align:center;}
   .doc-line{height:0;width:68%;border-bottom:2px solid #000;margin:0 auto 46px;}
   .empty-note{color:#b7bfc8;font-size:14px;text-align:center;}
+
+  /* ---------- MODO "UMA FOLHA SÓ" (tela) ---------- */
+  .sheet.fit{
+    display:flex;
+    flex-direction:column;
+    height:1040px;
+    min-height:1040px;
+  }
+  .sheet.fit #docLinhas{
+    flex:1 1 auto;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+  }
+  .sheet.fit .doc-line{margin-bottom:0;}
+  .sheet.fit .empty-note{margin:auto;}
 
   .hint{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.5;}
 
@@ -118,6 +145,23 @@
     .doc-title{margin-bottom:40px;}
     .doc-line{margin-bottom:42px;}
     .empty-note{display:none;}
+
+    /* MODO "UMA FOLHA SÓ" (impressão / PDF):
+       altura útil da página A4 = 297mm - 18mm - 18mm = 261mm
+       usamos 258mm para garantir folga e não pular para uma 2ª folha */
+    .sheet.fit{
+      height:258mm;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+    }
+    .sheet.fit #docLinhas{
+      flex:1 1 auto;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .sheet.fit .doc-line{margin-bottom:0;}
   }
 </style>
 </head>
@@ -142,6 +186,14 @@
     <div class="field">
       <label for="linhas">Quantidade de linhas</label>
       <input type="number" id="linhas" value="0" min="0" max="60">
+    </div>
+
+    <div class="field">
+      <label class="check" for="umaFolha">
+        <input type="checkbox" id="umaFolha">
+        Caber tudo em uma folha só
+      </label>
+      <p class="check-sub">Ajusta o espaçamento das linhas para que todas saiam em uma única página.</p>
     </div>
 
     <div class="actions">
@@ -181,6 +233,8 @@ const pad = n => String(n).padStart(2,'0');
 const elData    = document.getElementById('data');
 const elTitulo  = document.getElementById('titulo');
 const elLinhas  = document.getElementById('linhas');
+const elUmaFolha= document.getElementById('umaFolha');
+const sheetEl   = document.querySelector('.sheet');
 const badgeData = document.getElementById('badgeData');
 const badgeTit  = document.getElementById('badgeTitulo');
 const docTitulo = document.getElementById('docTitulo');
@@ -257,6 +311,9 @@ elTitulo.addEventListener('input', ()=>{
   render();
 });
 elLinhas.addEventListener('input', render);
+elUmaFolha.addEventListener('change', ()=>{
+  sheetEl.classList.toggle('fit', elUmaFolha.checked);
+});
 document.getElementById('restaurar').addEventListener('click', ()=>{
   tituloManual = false;
   sincronizarTitulo();
@@ -306,16 +363,39 @@ function gerarDocx(){
   const d = dataCorrente();
   const titulo = (elTitulo.value.trim() || (d ? tituloPadrao(d) : 'HORA EXTRA'));
   const n = numLinhas();
+  const fit = elUmaFolha.checked;
   const sublinhado = '_'.repeat(28);
   const fonte = '<w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/>';
 
-  // título: negrito, 16pt, centralizado, espaço de 23pt abaixo
-  let corpo = `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="460" w:line="240" w:lineRule="auto"/></w:pPr>`+
-              `<w:r><w:rPr>${fonte}<w:b/><w:sz w:val="32"/></w:rPr><w:t xml:space="preserve">${esc(titulo)}</w:t></w:r></w:p>`;
-  // linhas: 14pt, centralizadas, mais curtas, espaço de 23pt entre cada uma
-  for(let i=0;i<n;i++){
+  let corpo = '';
+
+  if(fit && n > 0){
+    /* ---- MODO "UMA FOLHA SÓ" ----
+       Altura útil A4 (twips) = 16838 - 1134 (sup) - 1134 (inf), com folga de segurança.
+       Distribui título + linhas em "fatias" (slots) de altura fixa para preencher 1 página.
+       A fonte permanece em 14pt e só diminui se houver muitas linhas. */
+    const util = 16838 - 1134 - 1134 - 280;   // folga de ~0,5cm
+    const fatorTitulo = 1.6;                   // o título ocupa ~1,6 "linhas"
+    const slot       = Math.floor(util / (n + fatorTitulo));
+    const slotTitulo = Math.floor(slot * fatorTitulo);
+    // tamanhos de fonte (meio-pontos), travados para não "cortar" o sublinhado
+    const szLinha  = Math.max(14, Math.min(28, Math.round((slot/20)/1.45*2)));
+    const szTitulo = Math.max(20, Math.min(32, Math.round((slotTitulo/20)/1.45*2)));
+
+    corpo += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="0" w:line="${slotTitulo}" w:lineRule="exact"/></w:pPr>`+
+             `<w:r><w:rPr>${fonte}<w:b/><w:sz w:val="${szTitulo}"/></w:rPr><w:t xml:space="preserve">${esc(titulo)}</w:t></w:r></w:p>`;
+    for(let i=0;i<n;i++){
+      corpo += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="0" w:line="${slot}" w:lineRule="exact"/></w:pPr>`+
+               `<w:r><w:rPr>${fonte}<w:sz w:val="${szLinha}"/></w:rPr><w:t xml:space="preserve">${sublinhado}</w:t></w:r></w:p>`;
+    }
+  } else {
+    /* ---- COMPORTAMENTO PADRÃO (espaçamento fixo de 23pt) ---- */
     corpo += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="460" w:line="240" w:lineRule="auto"/></w:pPr>`+
-             `<w:r><w:rPr>${fonte}<w:sz w:val="28"/></w:rPr><w:t xml:space="preserve">${sublinhado}</w:t></w:r></w:p>`;
+             `<w:r><w:rPr>${fonte}<w:b/><w:sz w:val="32"/></w:rPr><w:t xml:space="preserve">${esc(titulo)}</w:t></w:r></w:p>`;
+    for(let i=0;i<n;i++){
+      corpo += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="460" w:line="240" w:lineRule="auto"/></w:pPr>`+
+               `<w:r><w:rPr>${fonte}<w:sz w:val="28"/></w:rPr><w:t xml:space="preserve">${sublinhado}</w:t></w:r></w:p>`;
+    }
   }
 
   const documentXml =
